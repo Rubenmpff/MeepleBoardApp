@@ -1,11 +1,3 @@
-// src/features/library/hooks/useUserLibrary.ts
-// -------------------------------------------------------------
-// Hook responsible for fetching the user's library,
-// adapting it for the frontend, and exposing loading/error.
-// Now also adds `bggId` to the `game` object to ensure that
-// "already in library?" checks work in GameSearchScreen.
-// -------------------------------------------------------------
-
 import { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
 import { UserGameLibrary } from "../types/UserGameLibrary";
@@ -13,19 +5,13 @@ import libraryService from "../services/libraryService";
 import { useUser } from "@/src/features/users/hooks/useUser";
 
 export function useUserLibrary() {
-  /* ─── 1. Current user (need the ID) ─── */
   const { user } = useUser();
 
-  /* ─── 2. Hook state ─── */
   const [library, setLibrary] = useState<UserGameLibrary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  /* ───────────────────────────────────────────────
-   * Loads user library from backend and adapts fields
-   * ─────────────────────────────────────────────── */
   const fetchLibrary = async () => {
-    // 2.1 Safety check
     if (!user?.id) {
       console.warn("⚠️ fetchLibrary: user.id missing → aborting");
       return;
@@ -33,13 +19,11 @@ export function useUserLibrary() {
 
     try {
       setLoading(true);
-      console.log("📚 [useUserLibrary] GET /users/:id/games  →", user.id);
+      console.log("📚 [useUserLibrary] GET /users/:id/games →", user.id);
 
-      // 2.2 API call
       const rawData = await libraryService.getUserLibrary(user.id);
       console.log("🛬 API response:", rawData);
 
-      // 2.3 Validate array
       if (!Array.isArray(rawData)) {
         console.error("❌ Unexpected response format:", rawData);
         setLibrary([]);
@@ -47,26 +31,36 @@ export function useUserLibrary() {
         return;
       }
 
-      // 2.4 Normalize/Adapt data:
-      // - includes bggId if returned from backend
-      // - ensures the UI always gets a game{} field
-      const adapted: UserGameLibrary[] = rawData.map((item, idx) => {
-        if (!item.gameId || !item.gameName) {
-          console.warn(`⚠️ Incomplete item at index ${idx}:`, item);
-        }
+      const adapted: UserGameLibrary[] = rawData
+        .filter((item) => !!item.gameId && !!item.gameName)
+        .map((item) => {
+          const bggIdRaw = item.bggId ?? item.game?.bggId ?? null;
+          const parsedBggId =
+            bggIdRaw != null && !isNaN(Number(bggIdRaw)) ? Number(bggIdRaw) : undefined;
 
-        return {
-          ...item,
-          game: {
-            id: item.gameId,
-            name: item.gameName,
-            imageUrl: item.gameImageUrl,
-            bggId: item.bggId ?? undefined,
-          },
-        };
-      });
+          return {
+            ...item,
+            gameId: String(item.gameId),
+            bggId: parsedBggId,
+            game: {
+              id: String(item.gameId),
+              name: item.gameName,
+              imageUrl: item.gameImageUrl ?? null,
+              bggId: parsedBggId,
+            },
+          };
+        });
 
       console.log(`✅ Adapted library (${adapted.length} games)`);
+      console.log("📦 Final adapted library:");
+      adapted.forEach((entry, i) => {
+        console.log(`[${i}]`, {
+          gameId: entry.gameId,
+          bggId: entry.bggId,
+          name: entry.game?.name,
+        });
+      });
+
       setLibrary(adapted);
       setError(null);
     } catch (err) {
@@ -82,17 +76,14 @@ export function useUserLibrary() {
     }
   };
 
-  /* ─── 3. Load library on user.id change ─── */
   useEffect(() => {
     fetchLibrary();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
-  /* ─── 4. Public interface ─── */
   return {
-    library,        // normalized list
-    loading,        // loading flag
-    error,          // error message or null
-    refetch: fetchLibrary, // to trigger refresh manually
+    library,
+    loading,
+    error,
+    refetch: fetchLibrary,
   };
 }

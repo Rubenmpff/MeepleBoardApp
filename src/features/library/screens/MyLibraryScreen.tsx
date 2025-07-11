@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets, SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 
 import { GameCard } from "../components/GameCard";
 import { COLORS } from "@/src/constants/colors";
@@ -21,29 +21,21 @@ import libraryService from "../services/libraryService";
 export default function MyLibraryScreen() {
   const insets = useSafeAreaInsets();
   const { user } = useUser();
-
-  // 🔄 Hook to get the library + loading, error, refetch
   const { library = [], loading, error, refetch } = useUserLibrary();
 
-  // 🎯 View filter
   const [activeFilter, setActiveFilter] = useState<"ALL" | GameLibraryStatus>("ALL");
 
-  // 🔍 Filter the list based on selected status
   const filteredLibrary = useMemo(() => {
     if (activeFilter === "ALL") return library;
     return library.filter((g) => g.status === activeFilter);
   }, [library, activeFilter]);
 
-  // 📊 Status counters
   const counters = useMemo(() => ({
     owned: library.filter((g) => g.status === GameLibraryStatus.Owned).length,
     wishlist: library.filter((g) => g.status === GameLibraryStatus.Wishlist).length,
     played: library.filter((g) => g.status === GameLibraryStatus.Played).length,
   }), [library]);
 
-  /**
-   * 🗑️ Remove a game from the library
-   */
   const handleRemoveGame = async (libraryEntryId: string, gameId: string) => {
     if (!user?.id) {
       console.warn("⚠️ handleRemoveGame: user.id is undefined.");
@@ -60,12 +52,12 @@ export default function MyLibraryScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              console.log(`🗑️ Removing game [${gameId}] from user [${user.id}]`);
+              console.log(`🗑️ Removing game [${gameId}] for user [${user.id}]`);
               await libraryService.removeGameFromLibrary(user.id, gameId);
-              console.log("✅ Game removed successfully.");
-              refetch();
+              console.log("✅ Game removed.");
+              await refetch();
             } catch (err) {
-              console.error("❌ Error removing game:", err);
+              console.error("❌ Failed to remove game:", err);
             }
           },
         },
@@ -73,12 +65,10 @@ export default function MyLibraryScreen() {
     );
   };
 
-  // ⏳ Loading state
   if (loading) {
     return <ActivityIndicator style={styles.loader} color={COLORS.primary} />;
   }
 
-  // ❌ Error state
   if (error) {
     return (
       <View style={styles.centered}>
@@ -87,30 +77,27 @@ export default function MyLibraryScreen() {
     );
   }
 
-  // 📦 Debug log
-  console.log("📦 Filtered library:", filteredLibrary);
-
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-      {/* 🔻 Header */}
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>🎲 My Library</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/games/search")}>
           <Text style={styles.addLink}>+ Add Game</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 🔻 Summary */}
+      {/* Summary */}
       <View style={styles.summaryRow}>
         <Stat label="In Collection" value={counters.owned} />
         <Stat label="Wishlist" value={counters.wishlist} />
         <Stat label="Played" value={counters.played} />
       </View>
 
-      {/* 🔻 Filter bar */}
+      {/* Filter Bar */}
       <FilterBar active={activeFilter} onChange={setActiveFilter} />
 
-      {/* 🔻 Game list */}
+      {/* Game List */}
       {filteredLibrary.length === 0 ? (
         <Text style={styles.empty}>No games found for this filter.</Text>
       ) : (
@@ -119,7 +106,7 @@ export default function MyLibraryScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
             if (!item.game) {
-              console.warn("⚠️ Item has undefined game:", item);
+              console.warn("⚠️ Item with missing game:", item);
               return null;
             }
 
@@ -138,7 +125,7 @@ export default function MyLibraryScreen() {
   );
 }
 
-/* ------------------ SUBCOMPONENTS ------------------ */
+/* ---------- Subcomponents ---------- */
 
 const FilterBar = ({
   active,
@@ -180,7 +167,7 @@ const Stat = ({ label, value }: { label: string; value: number }) => (
   </View>
 );
 
-/* ------------------ STYLES ------------------ */
+/* ---------- Styles ---------- */
 
 const styles = StyleSheet.create({
   container: {

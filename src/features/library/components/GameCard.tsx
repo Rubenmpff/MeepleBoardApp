@@ -3,9 +3,9 @@ import { Game } from "@/src/features/games/types/Game";
 import { GameLibraryStatus } from "@/src/features/library/types/GameLibraryStatus";
 
 interface Props {
-  game?: Game;                          // 🔹 Game to display
-  status: GameLibraryStatus;           // 🔹 Library status
-  onRemove?: () => void;               // 🔹 Optional remove callback
+  game?: Game;
+  status: GameLibraryStatus;
+  onRemove?: () => void;
 }
 
 export function GameCard({ game, status, onRemove }: Props) {
@@ -39,14 +39,18 @@ export function GameCard({ game, status, onRemove }: Props) {
 
   return (
     <View style={styles.card}>
-      {/* Game image */}
-      {game.imageUrl && (
+      {game.imageUrl ? (
         <Image source={{ uri: game.imageUrl }} style={styles.image} />
+      ) : (
+        <View style={[styles.image, styles.imagePlaceholder]}>
+          <Text style={styles.imagePlaceholderText}>🎲</Text>
+        </View>
       )}
 
-      {/* Game details */}
       <View style={styles.info}>
-        <Text style={styles.title}>{game.name}</Text>
+        <Text style={styles.title} numberOfLines={1}>
+          {game.name}
+        </Text>
 
         {game.yearPublished && (
           <Text style={styles.subtitle}>Year: {game.yearPublished}</Text>
@@ -94,6 +98,15 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 4,
     marginRight: 12,
+    backgroundColor: "#eee",
+  },
+  imagePlaceholder: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  imagePlaceholderText: {
+    fontSize: 24,
+    color: "#bbb",
   },
   info: {
     flex: 1,

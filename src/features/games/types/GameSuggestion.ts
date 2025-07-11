@@ -2,15 +2,18 @@
  * Represents a lightweight suggestion from BGG or local DB.
  */
 export interface GameSuggestion {
-  /** BoardGameGeek ID (guaranteed to exist) */
+  /** Internal ID (only if from local DB) */
+  id?: string;
+
+  /** BoardGameGeek ID (always present) */
   bggId: number;
 
-  /** Name or title of the game */
+  /** Name or title */
   name: string;
 
-  /** Optional year of publication */
+  /** Optional year */
   yearPublished?: number;
 
-  /** Optional image or thumbnail URL */
+  /** Optional image */
   imageUrl?: string;
 }

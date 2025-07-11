@@ -1,10 +1,17 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { Game } from "../types/Game";
+import { GameSuggestion } from "../types/GameSuggestion";
 import { COLORS } from "@/src/constants/colors";
 
 type Props = {
-  game: Game;
+  game: Game | GameSuggestion;
   inLibrary: boolean;
   onPress?: () => void;
   onAdd?: () => void;
@@ -18,24 +25,46 @@ export function GameListItem({
   onAdd,
   onManageLibrary,
 }: Props) {
+  const name = game.name ?? "Unknown Game";
+  const imageUrl = game.imageUrl ?? null;
+  const bggId = game.bggId ?? null;
+
+  const handleAdd = () => {
+    if (!bggId) {
+      console.warn("⚠️ Game has no BGG ID and cannot be imported.");
+      return;
+    }
+    onAdd?.();
+  };
+
+  console.log("🧩 GameListItem →", {
+    name,
+    gameId: "id" in game ? game.id : null,
+    bggId,
+    inLibrary,
+  });
+
   return (
     <TouchableOpacity
       style={styles.row}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`View details of ${game.name}`}
+      accessibilityLabel={`View details of ${name}`}
     >
-      {Boolean(game.imageUrl) && (
-        <Image source={{ uri: game.imageUrl! }} style={styles.thumb} />
+      {!!imageUrl && (
+        <Image source={{ uri: imageUrl }} style={styles.thumb} />
       )}
 
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>
-          {game.name}
+          {name}
         </Text>
-        {!!game.bggRanking && (
-          <Text style={styles.rank}>BGG #{String(game.bggRanking)}</Text>
-        )}
+
+        {"bggRanking" in game &&
+          typeof game.bggRanking === "number" &&
+          game.bggRanking > 0 && (
+            <Text style={styles.rank}>BGG #{game.bggRanking}</Text>
+          )}
       </View>
 
       {inLibrary ? (
@@ -43,16 +72,16 @@ export function GameListItem({
           style={styles.manageBtn}
           onPress={onManageLibrary}
           accessibilityRole="button"
-          accessibilityLabel={`Manage ${game.name}`}
+          accessibilityLabel={`Manage ${name}`}
         >
           <Text style={styles.manageTxt}>⋯</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity
           style={styles.addBtn}
-          onPress={onAdd}
+          onPress={handleAdd}
           accessibilityRole="button"
-          accessibilityLabel={`Add ${game.name} to library`}
+          accessibilityLabel={`Add ${name} to library`}
         >
           <Text style={styles.addTxt}>＋</Text>
         </TouchableOpacity>

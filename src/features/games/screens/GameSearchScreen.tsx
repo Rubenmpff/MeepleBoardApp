@@ -13,7 +13,6 @@ import { router, useFocusEffect } from "expo-router";
 
 import { COLORS } from "@/src/constants/colors";
 import { useGameSuggestions } from "../hooks/useGameSuggestions";
-
 import { useUserLibrary } from "@/src/features/library/hooks/useUserLibrary";
 import { useAddGameToLibrary } from "@/src/features/library/hooks/useAddGameToLibrary";
 import { useRemoveGameFromLibrary } from "@/src/features/library/hooks/useRemoveGameFromLibrary";
@@ -23,17 +22,15 @@ import AddToLibraryModal from "@/src/features/library/components/AddToLibraryMod
 import ManageLibraryEntryModal from "@/src/features/library/components/ManageLibraryEntryModal";
 
 import { Game } from "../types/Game";
-import { GameLibraryStatus } from "@/src/features/library/types/GameLibraryStatus";
+import { GameSuggestion } from "../types/GameSuggestion";
 
 export default function GameSearchScreen() {
-  /* ────────── Local state */
-  const [query, setQuery]           = useState("");
+  const [query, setQuery] = useState("");
   const [selectedGame, setSelected] = useState<Game | null>(null);
-  const [addVisible, setAddVis]     = useState(false);
-  const [manageVisible, setMngVis]  = useState(false);
+  const [addVisible, setAddVisible] = useState(false);
+  const [manageVisible, setManageVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  /* ────────── Suggestions */
   const {
     suggestions,
     loading: loadingSuggestions,
@@ -42,33 +39,28 @@ export default function GameSearchScreen() {
     resetSuggestions,
   } = useGameSuggestions("all");
 
-  /* ────────── Library */
-  const { library, refetch }               = useUserLibrary();
-  const { addGameByName, loading: adding } = useAddGameToLibrary();
-  const { removeGame }                     = useRemoveGameFromLibrary();
+  const { library, refetch } = useUserLibrary();
+  const { addGame, loading: adding } = useAddGameToLibrary();
+  const { removeGame } = useRemoveGameFromLibrary();
 
-  /* ────────── Debounce */
   const lastQueryRef = useRef("");
   const debouncedFetch = useRef(
     debounce((text: string) => {
-      const n = text.trim().toLowerCase();
-      if (n.length < 3) {
+      const normalized = text.trim().toLowerCase();
+      if (normalized.length < 3) {
         resetSuggestions();
         lastQueryRef.current = "";
         return;
       }
-
-      const isNew = n !== lastQueryRef.current;
-      if (!loadingSuggestions) {
-        fetchSuggestions(n, isNew);
-        lastQueryRef.current = n;
+      if (!loadingSuggestions && normalized !== lastQueryRef.current) {
+        fetchSuggestions(normalized, true);
+        lastQueryRef.current = normalized;
       }
     }, 600)
   ).current;
 
   useEffect(() => () => debouncedFetch.cancel(), [debouncedFetch]);
 
-  /* ────────── Cleanup on blur */
   useFocusEffect(
     React.useCallback(() => {
       return () => {
@@ -77,47 +69,42 @@ export default function GameSearchScreen() {
         lastQueryRef.current = "";
         debouncedFetch.cancel();
         setSelected(null);
-        setAddVis(false);
-        setMngVis(false);
+        setAddVisible(false);
+        setManageVisible(false);
       };
     }, [])
   );
 
-  /* ────────── Helpers */
-  const isSameGame = (e: any, g: Game) =>
-    (e.gameId && g.id && e.gameId === g.id) ||
-    (e.game?.bggId && g.bggId && e.game.bggId === g.bggId) ||
-    e.gameName?.toLowerCase() === g.name.toLowerCase();
+  const isSameGame = (entry: any, game: Game | GameSuggestion) => {
+    const entryId = entry.gameId ?? entry.game?.id ?? "";
+    const entryBggId = entry.bggId ?? entry.game?.bggId ?? undefined;
+    const gameId = game.id ?? "";
+    const gameBggId = game.bggId ?? undefined;
+    return (entryId && gameId && entryId === gameId) || (entryBggId && gameBggId && entryBggId === gameBggId);
+  };
 
-  const isInLibrary = (g: Game) => library.some((e) => isSameGame(e, g));
-  const getEntry    = (g: Game) => library.find((e) => isSameGame(e, g));
-  const libTools    = useMemo(() => ({ isInLibrary, getEntry }), [library]);
+  const isInLibrary = (g: Game | GameSuggestion) => library.some((e) => isSameGame(e, g));
+  const getEntry = (g: Game | GameSuggestion) => library.find((e) => isSameGame(e, g));
+  const libTools = useMemo(() => ({ isInLibrary, getEntry }), [library]);
 
-  /* ────────── Handlers */
   const handleTextChange = (t: string) => {
     setQuery(t);
     if (t.trim().length < 3) {
       resetSuggestions();
       lastQueryRef.current = "";
-      return;
+    } else {
+      debouncedFetch(t);
     }
-    debouncedFetch(t);
   };
 
   const onEndReachedCalledDuringMomentum = useRef(false);
   const handleEndReached = () => {
-    if (
-      !loadingSuggestions &&
-      hasMore &&
-      query.trim().length >= 3 &&
-      !onEndReachedCalledDuringMomentum.current
-    ) {
+    if (!loadingSuggestions && hasMore && query.trim().length >= 3 && !onEndReachedCalledDuringMomentum.current) {
       onEndReachedCalledDuringMomentum.current = true;
       fetchSuggestions(query);
     }
   };
 
-  /* Reinicia flag de scroll quando query ou resultados mudam */
   useEffect(() => {
     onEndReachedCalledDuringMomentum.current = false;
   }, [suggestions, query]);
@@ -131,12 +118,11 @@ export default function GameSearchScreen() {
   };
 
   const closeAll = () => {
-    setAddVis(false);
-    setMngVis(false);
+    setAddVisible(false);
+    setManageVisible(false);
     setSelected(null);
   };
 
-  /* ────────── Render */
   return (
     <View style={styles.container}>
       <TextInput
@@ -147,97 +133,65 @@ export default function GameSearchScreen() {
         placeholderTextColor="#999"
       />
 
-      {loadingSuggestions && suggestions.length === 0 && query.trim().length >= 3 && (
+      {loadingSuggestions && suggestions.length === 0 && query.trim().length >= 3 ? (
         <Text style={styles.searchingText}>🔍 A procurar…</Text>
+      ) : null}
+
+      <FlatList
+        data={suggestions}
+        keyExtractor={(it) => (it.bggId ? String(it.bggId) : `${it.name}-${it.yearPublished ?? "?"}`)}
+        renderItem={({ item }) => (
+          <GameListItem
+            game={item}
+            inLibrary={libTools.isInLibrary(item)}
+            onPress={() => router.push(`/games/details/${item.bggId}`)}
+            onAdd={() => {
+              setSelected(item as Game);
+              setAddVisible(true);
+            }}
+            onManageLibrary={() => {
+              setSelected(item as Game);
+              setManageVisible(true);
+            }}
+          />
+        )}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.8}
+        onMomentumScrollBegin={() => (onEndReachedCalledDuringMomentum.current = false)}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
+        contentContainerStyle={{ paddingBottom: 40, flexGrow: 1 }}
+        scrollEventThrottle={16}
+        initialNumToRender={10}
+        ListFooterComponent={
+          loadingSuggestions && suggestions.length > 0 ? (
+            <ActivityIndicator style={{ marginVertical: 16 }} color={COLORS.primary} />
+          ) : null
+        }
+        ListEmptyComponent={
+          query.trim().length >= 3 &&
+          !loadingSuggestions &&
+          suggestions.length === 0 &&
+          lastQueryRef.current === query.trim().toLowerCase() ? (
+            <View style={styles.emptyBox}>
+              <Text style={styles.emptyText}>No games found for this search.</Text>
+            </View>
+          ) : null
+        }
+      />
+
+      {selectedGame && !libTools.isInLibrary(selectedGame) && addVisible && (
+        <AddToLibraryModal visible onClose={closeAll} game={selectedGame} />
       )}
 
-      {loadingSuggestions && suggestions.length === 0 ? (
-        <ActivityIndicator style={{ marginTop: 40 }} color={COLORS.primary} />
-      ) : (
-        <FlatList
-          data={suggestions}
-          keyExtractor={(it) =>
-            it.bggId ? String(it.bggId) : `${it.name}-${it.yearPublished ?? "?"}`
-          }
-          renderItem={({ item }) => {
-            const game = item as Game;
-            const added = libTools.isInLibrary(game);
-            return (
-              <GameListItem
-                game={game}
-                inLibrary={added}
-                onPress={() => router.push(`/games/details/${game.bggId}`)}
-                onAdd={() => { setSelected(game); setAddVis(true); }}
-                onManageLibrary={() => { setSelected(game); setMngVis(true); }}
-              />
-            );
-          }}
-          /* Infinite scroll */
-          onEndReached={handleEndReached}
-          onEndReachedThreshold={0.8}
-          onMomentumScrollBegin={() => {
-            onEndReachedCalledDuringMomentum.current = false;
-          }}
-          /* Pull-to-refresh */
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-          /* Layout fix para listas curtas */
-          contentContainerStyle={{ paddingBottom: 40, flexGrow: 1 }}
-          scrollEventThrottle={16}
-          initialNumToRender={10}
-          /* Loader no fim da paginação */
-          ListFooterComponent={
-            loadingSuggestions && suggestions.length > 0 ? (
-              <ActivityIndicator style={{ marginVertical: 16 }} color={COLORS.primary} />
-            ) : null
-          }
-          /* Mensagem “no results” correcta */
-          ListEmptyComponent={
-            query.trim().length >= 3 &&
-            !loadingSuggestions &&
-            suggestions.length === 0 &&
-            lastQueryRef.current === query.trim().toLowerCase() ? (
-              <View style={styles.emptyBox}>
-                <Text style={styles.emptyText}>No games found for this search.</Text>
-              </View>
-            ) : null
-          }
-        />
+      {selectedGame && libTools.isInLibrary(selectedGame) && manageVisible && (
+        <ManageLibraryEntryModal visible onClose={closeAll} game={selectedGame} />
       )}
 
       {adding && (
         <ActivityIndicator
           style={{ position: "absolute", bottom: 20, alignSelf: "center" }}
           color={COLORS.primary}
-        />
-      )}
-
-      {/* Modals */}
-      {selectedGame && !libTools.isInLibrary(selectedGame) && (
-        <AddToLibraryModal
-          visible={addVisible}
-          onClose={closeAll}
-          onSubmit={(status, price) =>
-            addGameByName(selectedGame.name, status, price)
-              .then(refetch)
-              .finally(closeAll)
-          }
-        />
-      )}
-      {selectedGame && libTools.isInLibrary(selectedGame) && (
-        <ManageLibraryEntryModal
-          visible={manageVisible}
-          onClose={closeAll}
-          gameName={selectedGame.name}
-          currentStatus={
-            libTools.getEntry(selectedGame)?.status ?? GameLibraryStatus.Owned
-          }
-          onRemove={() => {
-            const entry = libTools.getEntry(selectedGame);
-            if (!entry) return closeAll();
-            removeGame(entry.gameId).then(refetch).finally(closeAll);
-          }}
-          onUpdateStatus={() => closeAll()}
         />
       )}
     </View>

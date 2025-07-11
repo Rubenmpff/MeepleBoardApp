@@ -1,18 +1,17 @@
 import { useState } from "react";
 import Toast from "react-native-toast-message";
-import { useGameSearch } from "../../games/hooks/useGameSearch";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
 import { Game } from "../../games/types/Game";
 import { useUser } from "@/src/features/users/hooks/useUser";
 import libraryService from "../services/libraryService";
+import api from "@/src/services/api";
 
 export const useAddGameToLibrary = () => {
-  const { searchGame } = useGameSearch();
   const { user, loading: userLoading } = useUser();
   const [loading, setLoading] = useState(false);
 
-  const addGameByName = async (
-    name: string,
+  const addGame = async (
+    game: Game,
     status: GameLibraryStatus = GameLibraryStatus.Owned,
     pricePaid?: number
   ): Promise<Game | null> => {
@@ -24,13 +23,28 @@ export const useAddGameToLibrary = () => {
     setLoading(true);
 
     try {
-      const game = await searchGame(name);
-      if (!game) throw new Error("Game not found.");
+      let gameToAdd = game;
+
+      // Importar se não tiver ID local
+      if (!game.id && game.bggId) {
+        try {
+          const res = await api.post(`/game/import/${game.bggId}`);
+          gameToAdd = res.data;
+          console.log("✅ Game imported:", gameToAdd);
+        } catch (importErr) {
+          console.error("❌ Failed to import game:", importErr);
+          throw new Error(`Failed to import "${game.name}" from BGG.`);
+        }
+      }
+
+      if (!gameToAdd.id) {
+        throw new Error(`Game "${game.name}" does not have a valid local ID.`);
+      }
 
       await libraryService.addGameToLibrary(
         user.id,
-        game.id,
-        game.name,
+        gameToAdd.id,
+        gameToAdd.name,
         status,
         pricePaid
       );
@@ -38,25 +52,37 @@ export const useAddGameToLibrary = () => {
       Toast.show({
         type: "success",
         text1: "Game added to library!",
-        text2: `"${game.name}" is now part of your collection.`,
+        text2: `"${gameToAdd.name}" is now part of your collection.`,
       });
 
-      return game;
+      return gameToAdd;
     } catch (err: any) {
-      console.error("❌ Error adding game to library:", err);
-      Toast.show({
-        type: "error",
-        text1: "Failed to add game",
-        text2: "Check your connection or try again later.",
-      });
-      return null;
-    } finally {
+  console.error("❌ Error adding game to library:", err);
+
+  if (err?.response?.status === 409) {
+    Toast.show({
+      type: "info",
+      text1: "Game already in library",
+      text2: `"${game.name}" is already part of your collection.`,
+    });
+    return game; // continua o fluxo normalmente
+  }
+
+  Toast.show({
+    type: "error",
+    text1: "Failed to add game",
+    text2: err.message ?? "Check your connection or try again later.",
+  });
+
+  return null;
+}
+ finally {
       setLoading(false);
     }
   };
 
   return {
-    addGameByName,
+    addGame,
     loading,
   };
 };

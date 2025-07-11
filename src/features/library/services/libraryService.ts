@@ -21,13 +21,31 @@ const libraryService = {
     status: GameLibraryStatus,
     pricePaid?: number
   ): Promise<void> => {
+    const finalPrice = typeof pricePaid === "number" && !isNaN(pricePaid) ? pricePaid : 0;
+
     await api.post(`/users/${userId}/games`, {
       gameId,
       gameName,
       status,
-      pricePaid: pricePaid ?? 0,
+      pricePaid: finalPrice,
     });
   },
+
+  /**
+ * Updates the status or price of a game in the user's library.
+ */
+updateGameInLibrary: async (
+  userId: string,
+  gameId: string,
+  status: GameLibraryStatus,
+  pricePaid?: number
+): Promise<void> => {
+  await api.patch(`/users/${userId}/games/${gameId}`, {
+    status,
+    pricePaid,
+  });
+},
+
 
   /**
    * Fetches the user's game library.

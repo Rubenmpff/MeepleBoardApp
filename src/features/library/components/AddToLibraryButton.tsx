@@ -1,25 +1,27 @@
 import { TouchableOpacity, Text, ActivityIndicator, StyleSheet, Alert } from "react-native";
 import { useAddGameToLibrary } from "../../library/hooks/useAddGameToLibrary";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
+import { Game } from "../../games/types/Game";
 
 interface Props {
-  gameName: string;
+  game: Game; // ✅ Recebe o objeto Game inteiro
   status?: GameLibraryStatus;
   label?: string;
   onSuccess?: () => void;
 }
 
 export function AddToLibraryButton({
-  gameName,
+  game,
   status = GameLibraryStatus.Owned,
   label = "+ Adicionar à Coleção",
   onSuccess,
 }: Props) {
-  const { addGameByName, loading } = useAddGameToLibrary();
+  const { addGame } = useAddGameToLibrary(); // ✅ função renomeada para addGame
+  const { loading } = useAddGameToLibrary();
 
   const handleAdd = async () => {
     try {
-      await addGameByName(gameName, status);
+      await addGame(game, status);
       onSuccess?.();
     } catch (err) {
       console.error("❌ Erro ao adicionar jogo à coleção:", err);

@@ -15,6 +15,17 @@ const gameService = {
   },
 
   /**
+   * Importa um jogo diretamente do BGG (por BGG ID).
+   */
+  importByBggId: async (
+    bggId: number,
+    config: AxiosRequestConfig = {}
+  ): Promise<Game> => {
+    const res = await api.post(`/game/import/${bggId}`, null, config);
+    return res.data;
+  },
+
+  /**
    * Returns quick game suggestions from local + BGG sources.
    */
   getSuggestions: async (

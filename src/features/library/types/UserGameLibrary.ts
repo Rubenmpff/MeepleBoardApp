@@ -9,11 +9,13 @@ import { GameLibraryStatus } from "./GameLibraryStatus";
  */
 export interface UserGameLibrary {
   id: string;                   // Unique ID of the entry (possibly UUID from backend)
+  bggId?: number;
 
   // 🔹 Basic game info
   gameId: string;               // Game ID (linked to catalog or BGG)
   gameName: string;            // Game name
   gameImageUrl?: string;       // Game image (from BGG or local cache)
+  
 
   // 🔹 Library status
   status: GameLibraryStatus;   // e.g., Owned, Wishlist, Played...
