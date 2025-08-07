@@ -1,7 +1,7 @@
-// src/features/games/hooks/useGameSuggestions.ts
 import { useEffect, useRef, useState } from "react";
 import gameService from "../services/gameService";
 import type { Game } from "../types/Game";
+import { normalizeToGame } from "../utils/normalizeGame";
 
 type SuggestionScope = "base" | "all";
 const PAGE_SIZE = 10;
@@ -13,12 +13,9 @@ export const useGameSuggestions = (scope: SuggestionScope = "all") => {
   const [hasMore, setHasMore] = useState(true);
   const [lastQuery, setLastQuery] = useState("");
 
-  type CacheEntry = {
-    data: Game[];
-    offset: number;
-    hasMore: boolean;
-  };
-  const cacheRef = useRef<Map<string, CacheEntry>>(new Map());
+  const cacheRef = useRef<
+    Map<string, { data: Game[]; offset: number; hasMore: boolean }>
+  >(new Map());
   const requestId = useRef(0);
   const abortCtrlRef = useRef<AbortController | null>(null);
 
@@ -28,12 +25,13 @@ export const useGameSuggestions = (scope: SuggestionScope = "all") => {
     setHasMore(true);
     setError(null);
     setLastQuery("");
+    cacheRef.current.clear();
   };
 
   const fetchSuggestions = async (query: string, forceReload = false) => {
     const normalized = query.trim().toLowerCase();
-    if (normalized.length < 3) {
-      reset();
+    if (normalized.length < 1) {
+      if (suggestions.length > 0) reset();
       return;
     }
 
@@ -41,21 +39,14 @@ export const useGameSuggestions = (scope: SuggestionScope = "all") => {
 
     const cache = cacheRef.current.get(normalized);
     const isNewQuery = normalized !== lastQuery;
-    const freshRequest = forceReload || isNewQuery;
+    const freshRequest = forceReload || isNewQuery || !cache;
 
-    if (!freshRequest && cache && !cache.hasMore) return;
-
-    if (!freshRequest && cache) {
-      setSuggestions(cache.data);
-      setHasMore(cache.hasMore);
-    }
-
-    const currentOffset = freshRequest ? 0 : cache?.offset ?? 0;
+    const currentOffset = freshRequest ? 0 : cache.offset;
 
     setLoading(true);
     setError(null);
 
-    abortCtrlRef.current?.abort();
+    if (abortCtrlRef.current) abortCtrlRef.current.abort();
     const controller = new AbortController();
     abortCtrlRef.current = controller;
     const myRequestId = ++requestId.current;
@@ -66,65 +57,64 @@ export const useGameSuggestions = (scope: SuggestionScope = "all") => {
           ? gameService.getBaseGameSuggestions
           : gameService.getSuggestions;
 
-      const incoming = (await apiFn(
-      normalized,
-      currentOffset,
-      PAGE_SIZE,
-      { signal: controller.signal }
-        )) as Game[];
+      const raw = await apiFn(normalized, currentOffset, PAGE_SIZE, {
+        signal: controller.signal,
+      });
 
+      const incoming: Game[] = Array.isArray(raw)
+        ? raw.map(normalizeToGame)
+        : raw
+        ? [normalizeToGame(raw)]
+        : [];
 
-      if (myRequestId !== requestId.current) return;
+      if (myRequestId !== requestId.current) return; // ignora resposta antiga
 
-      const uniqKey = (g: Game) => g.id ?? g.bggId;
-      const nextData = freshRequest
-        ? incoming
-        : [
-            ...(cache?.data ?? []),
-            ...incoming.filter(
-              (g) => !(cache?.data ?? []).some((p) => uniqKey(p) === uniqKey(g))
-            ),
-          ];
+      // --- Merge sem duplicados (prioridade sempre bggId) ---
+      const existing = freshRequest ? [] : suggestions;
+      const uniq = new Map<string, Game>();
+      [...existing, ...incoming].forEach((g) => {
+        const key = g.bggId ? `bgg-${g.bggId}` : g.id ? `id-${g.id}` : `tmp-${Math.random()}`;
+        uniq.set(key, g);
+      });
+      const nextData = Array.from(uniq.values());
+
+      // ** MELHOR CRITÉRIO DE FIM **
+      const reachedEnd = incoming.length < PAGE_SIZE;
 
       cacheRef.current.set(normalized, {
         data: nextData,
         offset: currentOffset + incoming.length,
-        hasMore: incoming.length === PAGE_SIZE,
+        hasMore: !reachedEnd,
       });
 
       setSuggestions(nextData);
-      setHasMore(incoming.length === PAGE_SIZE);
+      setHasMore(!reachedEnd);
       setLastQuery(normalized);
 
       if (__DEV__) {
         console.log(
-          `🔎 query="${normalized}" | got ${incoming.length} | total ${nextData.length} | nextOffset ${currentOffset + incoming.length}`
+          `🔎 query="${normalized}" | offset=${currentOffset} | incoming=${incoming.length} | total=${nextData.length} | reachedEnd=${reachedEnd}`
         );
+        if (reachedEnd) console.log("🏁 Chegou ao fim da lista de resultados");
       }
     } catch (err: any) {
       const cancelled =
         err?.name === "AbortError" ||
-        err?.name === "CanceledError" ||
         err?.message === "canceled" ||
         err?.__CANCEL__ === true;
-
       if (!cancelled) {
         console.error("❌ Error fetching suggestions:", err);
         setError("Unable to load suggestions. Please try again.");
         setHasMore(false);
-
-        cacheRef.current.set(normalized, {
-          data: cache?.data ?? [],
-          offset: cache?.offset ?? 0,
-          hasMore: false,
-        });
       }
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => () => abortCtrlRef.current?.abort(), []);
+  useEffect(() => {
+    return () => abortCtrlRef.current?.abort();
+  }, []);
 
   return {
     suggestions,

@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Game } from "../types/Game";
 import { GameSuggestion } from "../types/GameSuggestion";
 import { COLORS } from "@/src/constants/colors";
@@ -26,40 +20,36 @@ export function GameListItem({
   onManageLibrary,
 }: Props) {
   const name = game.name ?? "Unknown Game";
-  const imageUrl = game.imageUrl ?? null;
-  const bggId = game.bggId ?? null;
+  const imageUrl = game.imageUrl || null;
+  const hasBggId = Boolean(game.bggId);
 
   const handleAdd = () => {
-    if (!bggId) {
-      console.warn("⚠️ Game has no BGG ID and cannot be imported.");
+    if (!hasBggId) {
+      console.warn(`⚠️ "${name}" has no BGG ID and cannot be imported.`);
       return;
     }
     onAdd?.();
   };
-
-  console.log("🧩 GameListItem →", {
-    name,
-    gameId: "id" in game ? game.id : null,
-    bggId,
-    inLibrary,
-  });
 
   return (
     <TouchableOpacity
       style={styles.row}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`View details of ${name}`}
+      accessibilityLabel={`View details for ${name}`}
     >
-      {!!imageUrl && (
+      {imageUrl ? (
         <Image source={{ uri: imageUrl }} style={styles.thumb} />
+      ) : (
+        <View style={[styles.thumb, styles.thumbPlaceholder]}>
+          <Text style={styles.thumbPlaceholderText}>🎲</Text>
+        </View>
       )}
 
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>
           {name}
         </Text>
-
         {"bggRanking" in game &&
           typeof game.bggRanking === "number" &&
           game.bggRanking > 0 && (
@@ -72,7 +62,7 @@ export function GameListItem({
           style={styles.manageBtn}
           onPress={onManageLibrary}
           accessibilityRole="button"
-          accessibilityLabel={`Manage ${name}`}
+          accessibilityLabel={`Manage ${name} in your library`}
         >
           <Text style={styles.manageTxt}>⋯</Text>
         </TouchableOpacity>
@@ -81,7 +71,7 @@ export function GameListItem({
           style={styles.addBtn}
           onPress={handleAdd}
           accessibilityRole="button"
-          accessibilityLabel={`Add ${name} to library`}
+          accessibilityLabel={`Add ${name} to your library`}
         >
           <Text style={styles.addTxt}>＋</Text>
         </TouchableOpacity>
@@ -90,7 +80,6 @@ export function GameListItem({
   );
 }
 
-/* ------------------ STYLES ------------------ */
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
@@ -106,6 +95,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 12,
     backgroundColor: "#eee",
+    overflow: "hidden",
+  },
+  thumbPlaceholder: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  thumbPlaceholderText: {
+    fontSize: 24,
+    color: "#aaa",
   },
   info: {
     flex: 1,

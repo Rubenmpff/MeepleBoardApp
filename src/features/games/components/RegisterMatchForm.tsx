@@ -21,7 +21,7 @@ import { ExpansionSelector } from "../components/ExpansionSelector";
 import PlayerSelector from "../../users/components/PlayerSelector";
 
 import { Game } from "../types/Game";
-import { MatchFormData } from "../types/Match";
+import { MatchFormData } from "../types/MatchForm";
 import { PlayerState } from "../../users/types/PlayerState";
 import { COLORS } from "@/src/constants/colors";
 

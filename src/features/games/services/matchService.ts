@@ -1,7 +1,7 @@
 // src/features/games/services/matchService.ts
 
 import api from "@/src/services/api";
-import { MatchFormData, LastMatch } from "../types/Match";
+import { MatchFormData, LastMatch } from "../types/MatchForm";
 
 /**
  * Registers a new match in the system.

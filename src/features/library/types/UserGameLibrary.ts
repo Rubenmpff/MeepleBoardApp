@@ -4,28 +4,43 @@ import { Game } from "../../games/types/Game";
 import { GameLibraryStatus } from "./GameLibraryStatus";
 
 /**
- * Represents a user's library entry for a game.
- * Some fields are optional and may be calculated or updated later.
+ * Represents a single entry of a user's library.
+ * Always includes a BGG ID returned from backend.
  */
 export interface UserGameLibrary {
-  id: string;                   // Unique ID of the entry (possibly UUID from backend)
-  bggId?: number;
+  /** Unique ID of the library entry (UUID from backend) */
+  id: string;
 
-  // 🔹 Basic game info
-  gameId: string;               // Game ID (linked to catalog or BGG)
-  gameName: string;            // Game name
-  gameImageUrl?: string;       // Game image (from BGG or local cache)
-  
+  /** Local DB game ID (GUID) */
+  gameId: string;
 
-  // 🔹 Library status
-  status: GameLibraryStatus;   // e.g., Owned, Wishlist, Played...
+  /** BoardGameGeek ID (always present) */
+  bggId: number;
 
-  // 🔹 Additional data
-  addedAt: string;             // Date added — can come from the API or be generated locally
-  lastPlayedAt?: string;       // Last played (ISO string) — optional
-  totalTimesPlayed?: number;   // Number of times the game was played
-  totalHoursPlayed?: number;   // Total hours played (accumulated)
-  pricePaid?: number;          // Price paid (manually entered or imported)
+  /** Game name */
+  gameName: string;
 
-  game?: Game; // only populated when needed for richer UI rendering
+  /** Game image URL (optional, fallback to placeholder) */
+  gameImageUrl?: string;
+
+  /** Game library status (Owned, Wishlist, Played, etc.) */
+  status: GameLibraryStatus;
+
+  /** ISO date when added to library */
+  addedAt: string;
+
+  /** Last played date (ISO) */
+  lastPlayedAt?: string;
+
+  /** Number of times the game was played */
+  totalTimesPlayed?: number;
+
+  /** Total accumulated play hours */
+  totalHoursPlayed?: number;
+
+  /** Price paid for the game (optional) */
+  pricePaid?: number;
+
+  /** Optional richer Game object for UI rendering */
+  game?: Game;
 }

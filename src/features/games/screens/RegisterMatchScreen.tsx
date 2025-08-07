@@ -13,7 +13,7 @@ import {
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useRegisterMatch } from "../hooks/useRegisterMatch";
 import { Game } from "../types/Game";
-import { MatchFormData } from "../types/Match";
+import { MatchFormData } from "../types/MatchForm";
 import { COLORS } from "@/src/constants/colors";
 import PlayerSelector from "../../users/components/PlayerSelector";
 import { usePlayers } from "../../users/hooks/usePlayers";

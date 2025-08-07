@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { registerMatch } from "../services/matchService";
-import { MatchFormData } from "../types/Match";
+import { MatchFormData } from "../types/MatchForm";
 
 export function useRegisterMatch() {
   const [loading, setLoading] = useState<boolean>(false);

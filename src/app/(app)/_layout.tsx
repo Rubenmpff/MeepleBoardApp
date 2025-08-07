@@ -1,6 +1,11 @@
 // app/(app)/_layout.tsx
+
+import 'react-native-get-random-values';
+
 import { Drawer } from "expo-router/drawer";
 import CustomDrawerContent from "@/src/components/drawer/CustomDrawerContent";
+
+
 
 export default function DrawerLayout() {
   return (

@@ -1,12 +1,22 @@
 // src/features/games/types/MatchPlayer.ts
+
 /**
- * Represents a single player's data within a match.
- * Used when submitting match results.
+ * Representa os dados de um jogador dentro de uma partida.
+ * Usado ao submeter resultados ou ao carregar partidas do backend.
  */
 export interface MatchPlayerDto {
+  /** ID do utilizador participante */
   userId: string;
-  userName?: string;     // Optional, useful for display only
-  score?: number;        // Optional, depending on game
-  isWinner: boolean;     // Must be true for at least one player
-  rankPosition?: number; // 1 = first, 2 = second, etc.
+
+  /** Nome do utilizador (opcional, usado apenas para exibição) */
+  userName?: string;
+
+  /** Pontuação do jogador (opcional, depende do tipo de jogo) */
+  score?: number;
+
+  /** Indica se este jogador é o vencedor */
+  isWinner: boolean;
+
+  /** Posição final do jogador (1 = primeiro, 2 = segundo, etc.) */
+  rankPosition?: number;
 }
