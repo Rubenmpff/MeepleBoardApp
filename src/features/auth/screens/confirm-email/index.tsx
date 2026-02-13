@@ -66,7 +66,7 @@ export default function ConfirmEmailScreen() {
         <ActivityIndicator size="large" color={COLORS.primary} />
       ) : (
         <>
-          <AntDesign name={iconName} size={60} color={iconColor} style={styles.icon} />
+          <AntDesign Antname={iconName} size={60} color={iconColor} style={styles.icon} />
           <Text style={[styles.message, success ? styles.successText : styles.errorText]}>
             {message}
           </Text>

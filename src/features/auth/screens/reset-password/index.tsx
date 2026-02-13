@@ -41,7 +41,7 @@ export default function ResetPasswordScreen() {
         accessibilityRole="button"
         accessibilityLabel="Back to Sign In"
       >
-        <AntDesign name="arrowleft" size={24} color={COLORS.onBackground} />
+        <AntDesign name="arrow-left" size={24} color={COLORS.onBackground} />
       </TouchableOpacity>
 
       {/* 🧠 Title */}

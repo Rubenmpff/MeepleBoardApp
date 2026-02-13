@@ -37,7 +37,7 @@ export default function SignUpScreen() {
         accessibilityRole="button"
         accessibilityLabel="Go back"
       >
-        <AntDesign name="arrowleft" size={24} color={COLORS.onBackground} />
+        <AntDesign name="arrow-left" size={24} color={COLORS.onBackground} />
       </TouchableOpacity>
 
       <Text style={styles.title}>Create your account</Text>

@@ -24,7 +24,7 @@ export default function ForgotPasswordScreen() {
         style={styles.backButton}
         accessibilityLabel="Go back to login"
       >
-        <AntDesign name="arrowleft" size={24} color={COLORS.onBackground} />
+        <AntDesign name="arrow-left" size={24} color={COLORS.onBackground} />
       </TouchableOpacity>
 
       {/* Title & Subtitle */}

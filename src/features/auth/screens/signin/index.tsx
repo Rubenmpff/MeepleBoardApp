@@ -12,9 +12,9 @@ import {
   BackHandler,
 } from "react-native";
 
-import { AntDesign, Feather } from "@expo/vector-icons";
 import { useSignIn } from "../../hooks/useSignIn";
 import { COLORS } from "@/src/constants/colors";
+import { AntDesign, Feather } from "@expo/vector-icons";
 
 
 export default function SignInScreen() {
@@ -75,7 +75,7 @@ export default function SignInScreen() {
         accessibilityRole="button"
         accessibilityLabel="Back to Welcome"
       >
-        <AntDesign name="arrowleft" size={24} color={COLORS.onBackground} />
+        <AntDesign name="arrow-left" size={24} color={COLORS.onBackground} />
       </TouchableOpacity>
 
       <Text style={styles.title}>Enter the world of{"\n"}board games!</Text>

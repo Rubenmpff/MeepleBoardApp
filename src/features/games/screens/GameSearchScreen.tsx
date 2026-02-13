@@ -22,7 +22,7 @@ import ManageLibraryEntryModal from "@/src/features/library/components/ManageLib
 
 import { Game } from "../types/Game";
 import { GameSuggestion } from "../types/GameSuggestion";
-import { normalizeToGame } from "../utils/normalizeGame";
+import { normalizeToGame } from "../utils/normalizeToGame";
 import { UserGameLibrary } from "@/src/features/library/types/UserGameLibrary";
 import gameService from "../services/gameService";
 

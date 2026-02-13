@@ -7,6 +7,7 @@ import {
   FlatList,
   RefreshControl,
   StyleSheet,
+  Alert,
 } from "react-native";
 import sessionService from "@/src/features/games/services/sessionService";
 import { GameSession } from "@/src/features/games/types/GameSession";
@@ -19,13 +20,19 @@ export default function SessionDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  /** 🔹 Carrega os detalhes da sessão */
   const fetchSession = useCallback(async () => {
     if (!id) return;
     try {
+      setLoading(true);
       const data = await sessionService.getById(id);
       setSession(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ Erro ao carregar sessão:", error);
+      Alert.alert(
+        "Erro",
+        "Não foi possível carregar os detalhes da sessão. Verifica a tua ligação."
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -36,29 +43,58 @@ export default function SessionDetailScreen() {
     fetchSession();
   }, [fetchSession]);
 
+  /** 🔹 Loading inicial */
   if (loading) {
-    return <ActivityIndicator style={{ flex: 1 }} size="large" color={COLORS.primary} />;
-  }
-
-  if (!session) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.emptyText}>Sessão não encontrada</Text>
+      <View style={[styles.container, { justifyContent: "center" }]}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
 
+  /** 🔹 Sessão não encontrada */
+  if (!session) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.emptyText}>Sessão não encontrada.</Text>
+      </View>
+    );
+  }
+
+  const matches = session.matches ?? [];
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{session.name || "Sessão sem nome"}</Text>
-      {session.location && <Text style={styles.subtitle}>📍 {session.location}</Text>}
+      {/* 🔹 Header */}
+      <View style={styles.header}>
+        <Text style={styles.title}>{session.name || "Sessão sem nome"}</Text>
+        {session.location && (
+          <Text style={styles.subtitle}>📍 {session.location}</Text>
+        )}
+        <Text
+          style={[
+            styles.status,
+            { color: session.isActive ? COLORS.success : "#999" },
+          ]}
+        >
+          {session.isActive ? "Ativa" : "Encerrada"}
+        </Text>
+      </View>
 
-      <SessionAddMatchForm sessionId={session.id} onSuccess={fetchSession} />
+      {/* 🔹 Formulário de nova partida */}
+      {session.isActive ? (
+        <SessionAddMatchForm sessionId={session.id} onSuccess={fetchSession} />
+      ) : (
+        <Text style={styles.infoText}>
+          ⚠️ Esta sessão foi encerrada. Não é possível adicionar novas partidas.
+        </Text>
+      )}
 
+      {/* 🔹 Lista de partidas */}
       <Text style={styles.sectionTitle}>Partidas desta sessão</Text>
       <FlatList
-        data={session.matches}
-        keyExtractor={(item, index) => item.id ?? index.toString()} // usa id da partida se existir
+        data={matches}
+        keyExtractor={(item, index) => item.id ?? index.toString()}
         renderItem={({ item }) => (
           <View style={styles.matchCard}>
             <Text style={styles.matchGame}>{item.gameName}</Text>
@@ -73,11 +109,19 @@ export default function SessionDetailScreen() {
           </View>
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>Nenhuma partida registada</Text>
+          <Text style={styles.emptyText}>Nenhuma partida registada.</Text>
         }
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchSession(); }} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetchSession();
+            }}
+            colors={[COLORS.primary]}
+          />
         }
+        contentContainerStyle={{ paddingBottom: 40 }}
       />
     </View>
   );
@@ -85,9 +129,18 @@ export default function SessionDetailScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: COLORS.background },
+  header: { marginBottom: 12 },
   title: { fontSize: 22, fontWeight: "bold", color: COLORS.primary },
-  subtitle: { fontSize: 16, color: COLORS.onBackground, marginBottom: 10 },
+  subtitle: { fontSize: 16, color: COLORS.onBackground, marginTop: 4 },
+  status: { fontSize: 14, marginTop: 4, fontWeight: "600" },
   sectionTitle: { fontSize: 18, fontWeight: "bold", marginVertical: 16 },
+  infoText: {
+    backgroundColor: "#f8d7da",
+    color: "#721c24",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
   matchCard: {
     backgroundColor: "#fff",
     padding: 16,

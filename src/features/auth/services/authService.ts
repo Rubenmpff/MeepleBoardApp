@@ -3,6 +3,9 @@ import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { tokenService } from "@/src/services/tokenService";
 
+import { store } from "@/src/store/store";
+import { setToken } from "@/src/features/auth/store/authSlice";
+
 interface AuthResponse {
   success: boolean;
   message?: string;
@@ -44,31 +47,33 @@ export const authService = {
    * Login + guardar tokens e utilizador
    */
   login: async (
-    loginData: { email: string; password: string },
-    rememberMe: boolean
-  ): Promise<AuthResponse> => {
-    try {
-      const res = await api.post("/auth/login", { ...loginData, isMobile: true });
-      console.log("📨 Resposta do login:", res.data);
+  loginData: { email: string; password: string },
+  rememberMe: boolean
+): Promise<AuthResponse> => {
+  try {
+    const res = await api.post("/auth/login", { ...loginData, isMobile: true });
+    console.log("📨 Resposta do login:", res.data);
 
-      const { token, refreshToken, user, success } = res.data;
+    const { token, refreshToken, user, success } = res.data;
 
-      if (!success || !token || !refreshToken || !user) {
-        return { success: false, message: "Dados inválidos do servidor." };
-      }
-
-      // Guardar os tokens de forma segura
-      await tokenService.storeTokens(token, refreshToken, rememberMe);
-
-      // Guardar o utilizador na chave correta
-      await SecureStore.setItemAsync("current_user", JSON.stringify(user));
-      console.log("👤 Utilizador guardado com sucesso:", user);
-
-      return { success: true };
-    } catch (err) {
-      return handleError(err, "login");
+    if (!success || !token || !refreshToken || !user) {
+      return { success: false, message: "Dados inválidos do servidor." };
     }
-  },
+
+    // 🔐 Guardar tokens no SecureStore
+    await tokenService.storeTokens(token, refreshToken, rememberMe);
+
+    // 🧠 IMPORTANTE: atualizar o Redux com o token decodificado
+    store.dispatch(setToken(token));
+
+    // (opcional, se quiseres guardar o user separadamente)
+    await SecureStore.setItemAsync("current_user", JSON.stringify(user));
+
+    return { success: true };
+  } catch (err) {
+    return handleError(err, "login");
+  }
+},
 
   /**
    * Confirmação de email via token recebido por link

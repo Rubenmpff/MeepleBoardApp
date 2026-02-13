@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import gameService from "../services/gameService";
 import type { Game } from "../types/Game";
-import { normalizeToGame } from "../utils/normalizeGame";
+import { normalizeToGame } from "../utils/normalizeToGame";
 
 type SuggestionScope = "base" | "all";
 const PAGE_SIZE = 10;

@@ -7,7 +7,7 @@ import { User } from "../types/User";
  * Fetches the list of all users from the backend.
  */
 export const getUsers = async (): Promise<User[]> => {
-  const response = await api.get("/MeepleBoard/users");
+  const response = await api.get("/users");
   return response.data;
 };
 
@@ -15,6 +15,6 @@ export const getUsers = async (): Promise<User[]> => {
  * Fetches the currently authenticated user from the backend.
  */
 export const getCurrentUser = async (): Promise<User> => {
-  const response = await api.get("/MeepleBoard/users/me");
+  const response = await api.get("/users/me");
   return response.data;
 };

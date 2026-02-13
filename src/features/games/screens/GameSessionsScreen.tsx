@@ -18,15 +18,23 @@ import { GameSession } from "../types/GameSession";
 export default function GameSessionsScreen() {
   const router = useRouter();
   const { sessions, loading, createSession, closeSession } = useGameSessions();
+
   const [newName, setNewName] = useState("");
   const [newLocation, setNewLocation] = useState("");
   const [creating, setCreating] = useState(false);
 
+  /** 🔹 Criação de sessão */
   const handleCreate = async () => {
-    if (!newName.trim() || creating) return;
+    if (creating) return;
+
+    if (newName.trim().length < 3) {
+      Alert.alert("Nome inválido", "A sessão deve ter pelo menos 3 caracteres.");
+      return;
+    }
+
     setCreating(true);
     try {
-      const session = await createSession(newName, newLocation);
+      const session = await createSession(newName.trim(), newLocation.trim());
       if (session) {
         setNewName("");
         setNewLocation("");
@@ -36,20 +44,39 @@ export default function GameSessionsScreen() {
         });
       }
     } catch (error) {
+      console.error("❌ Erro ao criar sessão:", error);
       Alert.alert("Erro", "Não foi possível criar a sessão.");
     } finally {
       setCreating(false);
     }
   };
 
-  const handleCloseSession = async (id: string) => {
-    try {
-      await closeSession(id);
-    } catch {
-      Alert.alert("Erro", "Não foi possível fechar a sessão.");
-    }
-  };
+  /** 🔹 Encerramento de sessão */
+  const handleCloseSession = useCallback(
+    (id: string) => {
+      Alert.alert(
+        "Fechar Sessão",
+        "Tens a certeza que queres encerrar esta sessão?",
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Fechar",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                await closeSession(id);
+              } catch {
+                Alert.alert("Erro", "Não foi possível fechar a sessão.");
+              }
+            },
+          },
+        ]
+      );
+    },
+    [closeSession]
+  );
 
+  /** 🔹 Renderiza cada sessão */
   const renderItem = useCallback(
     ({ item }: { item: GameSession }) => (
       <TouchableOpacity
@@ -63,14 +90,15 @@ export default function GameSessionsScreen() {
         }
       >
         <View style={{ flex: 1 }}>
-          <Text style={styles.cardTitle}>{item.name ?? "Sessão sem nome"}</Text>
+          <Text style={styles.cardTitle}>{item.name || "Sessão sem nome"}</Text>
           {item.location && (
             <Text style={styles.cardSubtitle}>📍 {item.location}</Text>
           )}
-          <Text style={styles.cardStatus}>
+          <Text style={[styles.cardStatus, { color: item.isActive ? COLORS.success : "#999" }]}>
             {item.isActive ? "Ativa" : "Encerrada"}
           </Text>
         </View>
+
         {item.isActive && (
           <TouchableOpacity
             style={styles.closeBtn}
@@ -81,28 +109,31 @@ export default function GameSessionsScreen() {
         )}
       </TouchableOpacity>
     ),
-    [router]
+    [router, handleCloseSession]
   );
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sessões de Jogo</Text>
 
+      {/* 🔹 Caixa de criação de nova sessão */}
       <View style={styles.createBox}>
         <TextInput
           placeholder="Nome da sessão"
           value={newName}
           onChangeText={setNewName}
           style={styles.input}
+          editable={!creating}
         />
         <TextInput
           placeholder="Local (opcional)"
           value={newLocation}
           onChangeText={setNewLocation}
           style={styles.input}
+          editable={!creating}
         />
         <TouchableOpacity
-          style={[styles.createBtn, creating && { opacity: 0.6 }]}
+          style={[styles.createBtn, creating && styles.disabledBtn]}
           onPress={handleCreate}
           disabled={creating}
         >
@@ -114,15 +145,16 @@ export default function GameSessionsScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* 🔹 Lista de sessões */}
       {loading ? (
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />
       ) : (
         <FlatList
           data={sessions}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>Nenhuma sessão criada ainda</Text>
+            <Text style={styles.emptyText}>Nenhuma sessão criada ainda.</Text>
           }
         />
       )}
@@ -163,6 +195,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
   },
+  disabledBtn: { opacity: 0.6 },
   createBtnText: { color: "#fff", fontWeight: "bold" },
   card: {
     flexDirection: "row",
@@ -182,7 +215,6 @@ const styles = StyleSheet.create({
   cardSubtitle: { fontSize: 14, color: "#666", marginTop: 4 },
   cardStatus: {
     fontSize: 12,
-    color: COLORS.primary,
     fontWeight: "600",
     marginTop: 4,
   },
