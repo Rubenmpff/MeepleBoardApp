@@ -24,11 +24,13 @@ import { Game } from "../types/Game";
 import { MatchFormData } from "../types/MatchForm";
 import { PlayerState } from "../../users/types/PlayerState";
 import { COLORS } from "@/src/constants/colors";
+import { useFriends } from "../../friends/hooks/useFriends";
 
 export default function RegisterMatchForm() {
   /* ────────────── hooks ────────────── */
   const { submitMatch, loading, error } = useRegisterMatch();
-  const { players, loading: playersLoading } = usePlayers();
+  const { friends, loading: friendsLoading } = useFriends();
+
 
   /* ────────────── local state ────────────── */
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
@@ -134,6 +136,7 @@ export default function RegisterMatchForm() {
               </TouchableOpacity>
             </View>
           )}
+          
 
           {/* ─── Expansions + players ─── */}
           {selectedGame && (
@@ -146,15 +149,17 @@ export default function RegisterMatchForm() {
                 />
               </View>
 
+              
+
               <View style={styles.card}>
-                {playersLoading ? (
+                {friendsLoading ? (
                   <ActivityIndicator size="large" color={COLORS.primary} />
                 ) : (
-                  <PlayerSelector
-                    users={players}
-                    players={playerState}
-                    onChange={setPlayerState}
-                  />
+                <PlayerSelector
+                users={friends}
+                players={playerState}
+                onChange={setPlayerState}
+                />
                 )}
               </View>
             </>

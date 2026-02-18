@@ -1,4 +1,4 @@
-// /app/(auth)/_layout.tsx
+// /app/_layout.tsx
 import { useEffect } from "react";
 import { View } from "react-native";
 import { Provider } from "react-redux";

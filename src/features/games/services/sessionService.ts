@@ -2,6 +2,7 @@ import api from "@/src/services/api";
 import { GameSession } from "../types/GameSession";
 import { MatchFormData } from "../types/MatchForm";
 import { tokenService } from "@/src/services/tokenService";
+import { mapMatchFormToRequest } from "../utils/mapMatchFormToRequest";
 
 const BASE_URL = "/session";
 
@@ -43,17 +44,23 @@ export const sessionService = {
     });
   },
 
-  /** 🔹 Adiciona um jogador à sessão */
-  addPlayer: async (sessionId: string, userId: string, isOrganizer = false): Promise<void> => {
+  /** 🔹 Adiciona um jogador à sessão
+   *  ⚠️ Não enviar isOrganizer do frontend (segurança/regra de negócio).
+   */
+  addPlayer: async (sessionId: string, userId: string): Promise<void> => {
     const token = await tokenService.getValidToken();
     await api.post(
       `${BASE_URL}/${sessionId}/players`,
-      { userId, isOrganizer },
+      { userId },
       { headers: { Authorization: `Bearer ${token}` } }
     );
   },
 
-  /** 🔹 Remove um jogador de uma sessão */
+  /**
+   * ❌ Remover jogadores da sessão (decisão de negócio: sessão só cresce)
+   * Mantido apenas para compatibilidade caso ainda exista UI antiga.
+   * Recomendação: não usar e remover chamadas no frontend.
+   */
   removePlayer: async (sessionId: string, userId: string): Promise<void> => {
     const token = await tokenService.getValidToken();
     await api.delete(`${BASE_URL}/${sessionId}/players/${userId}`, {
@@ -61,10 +68,16 @@ export const sessionService = {
     });
   },
 
-  /** 🔹 Adiciona uma partida (match) à sessão */
+  /** 🔹 Adiciona uma partida (match) à sessão
+   *  Envia payload "limpo" para o backend (playerIds + gameSessionId).
+   */
   addMatch: async (sessionId: string, match: MatchFormData): Promise<void> => {
     const token = await tokenService.getValidToken();
-    await api.post(`${BASE_URL}/${sessionId}/matches`, match, {
+
+    // Garantir que o match fica associado à sessão
+    const payload = mapMatchFormToRequest({ ...match, sessionId });
+
+    await api.post(`${BASE_URL}/${sessionId}/matches`, payload, {
       headers: { Authorization: `Bearer ${token}` },
     });
   },

@@ -21,6 +21,8 @@ import { PlayerState } from "../../users/types/PlayerState";
 import { toMatchPlayerDto } from "../../users/utils/playerMappers";
 import { GameSelector } from "../components/GameSelector";
 import { ExpansionSelector } from "../components/ExpansionSelector";
+import { useUser } from "@/src/features/users/hooks/useUser";
+
 
 export default function RegisterMatchForm() {
   const { submitMatch, loading, error } = useRegisterMatch();
@@ -33,6 +35,8 @@ export default function RegisterMatchForm() {
   const [duration, setDuration] = useState("");
   const [comments, setComments] = useState("");
   const [success, setSuccess] = useState(false);
+  const { user } = useUser();
+
 
   const handleSubmit = async () => {
     if (!selectedGame) {
@@ -133,6 +137,7 @@ export default function RegisterMatchForm() {
               users={players}
               players={playerState}
               onChange={setPlayerState}
+              currentUser={user ? { id: user.id, userName: user.userName } : undefined}
             />
           )}
         </>

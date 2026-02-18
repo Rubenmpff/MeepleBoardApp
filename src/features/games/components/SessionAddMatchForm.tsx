@@ -23,6 +23,7 @@ import { PlayerState } from "../../users/types/PlayerState";
 import { toMatchPlayerDto } from "../../users/utils/playerMappers";
 import { GameSelector } from "./GameSelector";
 import { ExpansionSelector } from "./ExpansionSelector";
+import { useFriends } from "../../friends/hooks/useFriends";
 
 type Props = {
   sessionId: string;
@@ -30,7 +31,7 @@ type Props = {
 };
 
 export default function SessionAddMatchForm({ sessionId, onSuccess }: Props) {
-  const { players, loading: playersLoading } = usePlayers();
+  const { friends, loading: friendsLoading } = useFriends();
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [selectedExpansions, setSelectedExpansions] = useState<Game[]>([]);
   const [playerState, setPlayerState] = useState<PlayerState[]>([]);
@@ -109,10 +110,14 @@ export default function SessionAddMatchForm({ sessionId, onSuccess }: Props) {
             onChange={setSelectedExpansions}
           />
 
-          {playersLoading ? (
+          {friendsLoading ? (
             <ActivityIndicator size="large" color={COLORS.primary} />
           ) : (
-            <PlayerSelector users={players} players={playerState} onChange={setPlayerState} />
+          <PlayerSelector
+          users={friends}
+          players={playerState}
+          onChange={setPlayerState}
+          />
           )}
         </>
       )}

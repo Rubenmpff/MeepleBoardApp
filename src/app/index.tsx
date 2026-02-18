@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { View, ActivityIndicator } from "react-native";
 import { COLORS } from "../constants/colors";
-import * as SecureStore from "expo-secure-store";
 import { tokenService } from "../services/tokenService";
 
 export default function IndexPage() {
@@ -14,26 +13,29 @@ export default function IndexPage() {
     const bootstrap = async () => {
       console.log("🚀 Bootstrapping...");
 
-      const validToken = await tokenService.getValidToken();
-      const remember = await SecureStore.getItemAsync("remember_me");
+      try {
+        const validToken = await tokenService.getValidToken();
+        console.log("🔐 Token valid?", !!validToken);
 
-      console.log("🧠 Remember me flag:", remember);
-      console.log("🔐 Token valid?", !!validToken);
-
-      if (validToken && remember === "true") {
-        console.log("✅ Valid and persistent session → navigating to dashboard");
-        router.replace("/dashboard");
-      } else {
-        console.log("🔓 No persistent session → clearing and redirecting to welcome");
+        if (validToken) {
+          // ✅ entra no grupo (app) onde está o Drawer
+          router.replace("/(app)/dashboard");
+        } else {
+          // ✅ sem token → limpa e volta ao welcome
+          await tokenService.clearAll();
+          router.replace("/welcome");
+        }
+      } catch (err) {
+        console.warn("❌ Bootstrap failed:", err);
         await tokenService.clearAll();
         router.replace("/welcome");
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     bootstrap();
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (
