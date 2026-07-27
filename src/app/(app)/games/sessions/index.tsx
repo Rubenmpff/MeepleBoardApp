@@ -1,4 +1,4 @@
 // app/sessions/index.tsx
-import GameSessionScreen from "@/src/features/games/screens/GameSessionsScreen";
+import SessionsListScreen from "@/src/features/games/screens/SessionsListScreen";
 
-export default GameSessionScreen;
+export default SessionsListScreen;
