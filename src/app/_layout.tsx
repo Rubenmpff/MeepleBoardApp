@@ -1,11 +1,27 @@
 // /app/_layout.tsx
 import { useEffect } from "react";
 import { View } from "react-native";
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import { store } from "../store/store";
 import { Slot, useRouter } from "expo-router";
 import * as Linking from "expo-linking";
 import Toast from "react-native-toast-message";
+import * as SecureStore from "expo-secure-store";
+import { setToken } from "@/src/features/auth/store/authSlice";
+
+function AuthBootstrapper() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    (async () => {
+      const token = await SecureStore.getItemAsync("secure_token");
+      // ✅ Isto vai preencher auth.token + auth.user
+      dispatch(setToken(token ?? null));
+    })();
+  }, [dispatch]);
+
+  return null;
+}
 
 export default function AuthLayout() {
   const router = useRouter();
@@ -44,6 +60,7 @@ export default function AuthLayout() {
   return (
     <Provider store={store}>
       <View style={{ flex: 1 }}>
+        <AuthBootstrapper />
         <Slot />
         <Toast />
       </View>

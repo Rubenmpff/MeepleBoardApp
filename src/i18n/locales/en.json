@@ -1,0 +1,28 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "back": "Back",
+    "loading": "Loading..."
+  },
+  "navigation": {
+    "home": "Home",
+    "library": "Library",
+    "friends": "Friends",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Configure your preferences here.",
+    "language": "Language",
+    "languageDescription": "Choose the application language.",
+    "portuguese": "Português",
+    "english": "English",
+    "system": "Device language",
+    "backToDashboard": "Back to Dashboard",
+    "logout": "Logout",
+    "logoutTitle": "Confirm logout",
+    "logoutConfirmation": "Are you sure you want to log out?"
+  }
+}

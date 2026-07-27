@@ -1,0 +1,28 @@
+{
+  "common": {
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "back": "Voltar",
+    "loading": "A carregar..."
+  },
+  "navigation": {
+    "home": "Início",
+    "library": "Biblioteca",
+    "friends": "Amigos",
+    "profile": "Perfil",
+    "settings": "Definições"
+  },
+  "settings": {
+    "title": "Definições",
+    "subtitle": "Configura aqui as tuas preferências.",
+    "language": "Idioma",
+    "languageDescription": "Escolhe o idioma da aplicação.",
+    "portuguese": "Português",
+    "english": "English",
+    "system": "Idioma do dispositivo",
+    "backToDashboard": "Voltar ao início",
+    "logout": "Terminar sessão",
+    "logoutTitle": "Terminar sessão",
+    "logoutConfirmation": "Tens a certeza de que pretendes terminar a sessão?"
+  }
+}
