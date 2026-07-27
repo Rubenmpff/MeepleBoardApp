@@ -5,71 +5,94 @@ import { MatchPlayerDto } from "./MatchPlayer";
 /** Tipos de modo de jogo suportados */
 export type GameMode = "SOLO" | "COOPERATIVE" | "COMPETITIVE";
 
-/**
- * Estrutura utilizada para criar ou editar uma partida
- * (dados enviados do frontend para o backend)
- */
+/* ============================================================
+   📥 Modelo usado para ENVIAR dados para o backend
+   ============================================================ */
 export interface MatchFormData {
-  /** ID do jogo principal */
   gameId: string;
-
-  /** Nome do jogo (cache para UI rápida) */
   gameName: string;
 
-  /** ID da sessão associada (opcional para partidas rápidas) */
+  /** Para match dentro de sessão de jogo */
   sessionId?: string;
 
-  /** Data/hora em que a partida foi jogada */
+  /** Para match dentro de uma campanha */
+  campaignId?: string;
+  campaignSessionNumber?: number;
+  campaignSessionTitle?: string;
+
   matchDate: string;
-
-  /** ID do jogador vencedor (opcional) */
   winnerId?: string;
-
-  /** Indica se é um jogo solo */
   isSoloGame: boolean;
-
-  /** Duração da partida em minutos (opcional) */
   durationInMinutes?: number;
-
-  /** Local onde foi jogada (opcional) */
   location?: string;
-
-  /** Observações ou resumo do resultado (opcional) */
   scoreSummary?: string;
+  players: MatchPlayerDto[];
+  gameMode?: GameMode;
+  expansions?: { bggId: number; name: string }[];
 
-  /** Jogadores participantes */
+  // ── Diário de partida ──────────────────────────────────────────────────
+  /** Avaliação pessoal (0–10). A média dá o rating pessoal do jogo. */
+  personalRating?: number;
+
+  /** Notas livres — momentos épicos, estratégias, história. */
+  notes?: string;
+
+  /** Tags separadas por vírgula (ex: "épico,reviravolta,campanha"). */
+  tags?: string;
+
+  /** Justificação para modo não oficial (não conta para rankings). */
+  unofficialModeJustification?: string;
+}
+
+/* ============================================================
+   📤 Modelo retornado pelo backend (espelha o MatchDto C#)
+   ============================================================ */
+export interface MatchDto {
+  id: string;
+  matchDate: string;
+  gameId: string;
+  gameName: string;
+  winnerId?: string;
+  winnerName?: string;
+  isSoloGame: boolean;
+  durationInMinutes?: number;
+  location?: string;
+  scoreSummary?: string;
   players: MatchPlayerDto[];
 
-  /** Tipo de modo de jogo (opcional) */
-  gameMode?: GameMode;
+  // ── Diário de partida ──────────────────────────────────────────────────
+  /** Avaliação pessoal do utilizador (0–10). */
+  personalRating?: number | null;
 
-  /** Expansões utilizadas (opcional) */
-  expansions?: {
-    bggId: number;
-    name: string;
-  }[];
+  /** Notas livres sobre a partida. */
+  notes?: string | null;
+
+  /** Tags separadas por vírgula. */
+  tags?: string | null;
+
+  /** Se true, esta partida não conta para rankings. */
+  isOfficialMode?: boolean;
+
+  /** Justificação do modo não oficial. */
+  unofficialModeJustification?: string | null;
+
+  // ── Estado do diário ──────────────────────────────────────────────────
+  /**
+   * Estado do diário desta partida.
+   * "Open"   → à espera que todos os jogadores avaliem
+   * "Closed" → fechado (manual, automático após 1 dia, ou todos avaliaram)
+   */
+  journalStatus?: "Open" | "Closed";
+
+  /** Data em que o diário foi fechado. */
+  closedAt?: string | null;
 }
 
-/**
- * Estrutura de partida completa retornada pelo backend
- * (inclui ID único e metadados calculados)
- */
-export interface MatchDto extends MatchFormData {
-  /** ID único da partida (gerado pelo backend) */
-  id: string;
-
-  /** Nome do vencedor (opcional) */
-  winnerName?: string;
-}
-
-/** Representação simplificada da última partida jogada */
+/* ============================================================
+   📌 Última partida
+   ============================================================ */
 export interface LastMatch {
-  /** Nome do jogo */
   name: string;
-
-  /** Data em que foi jogado */
   date: string;
-
-  /** Nome do vencedor */
   winner: string;
 }

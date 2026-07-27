@@ -8,6 +8,12 @@ export const COLORS = {
     error: "#D32F2F", // 🔴 Vermelho para erros
     success: "#388E3C", // 🟢 Verde para sucesso
     active: "#1E88E5",     // azul (ativo)
-    inactive: "#999999",   // cinza (inativo)
+    inactive: "#999999",   // cinza (inativo)    
+    star: "#F9A825",      // ⭐ amarelo dourado para estrelas
+    campaign: "#7B1FA2",  // 🟣 roxo para campanhas
+    journal: "#00897B",   // 🟢 verde azulado para diário
+    card: "#FFFFFF",      // cards brancos
+    border: "#E0E0E0",    // bordas suaves
+    textMuted: "#90A4AE", // texto secundário
   };
   

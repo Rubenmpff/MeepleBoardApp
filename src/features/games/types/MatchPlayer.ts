@@ -1,10 +1,17 @@
 // src/features/games/types/MatchPlayer.ts
 
 /**
- * Representa os dados de um jogador dentro de uma partida.
- * Usado ao submeter resultados ou ao carregar partidas do backend.
+ * Representa um jogador dentro de uma partida.
+ * - No FE podes enviar só userId/isWinner/score/rankPosition
+ * - Do BE pode vir também id/matchId
  */
 export interface MatchPlayerDto {
+  /** (Opcional) ID do registo MatchPlayer (se o backend devolver) */
+  id?: string;
+
+  /** (Opcional) MatchId (se o backend devolver) */
+  matchId?: string;
+
   /** ID do utilizador participante */
   userId: string;
 

@@ -1,4 +1,3 @@
-// src/constants/routes.ts
 export const ROUTES = {
   HOME: "/dashboard",
 
@@ -8,9 +7,13 @@ export const ROUTES = {
   REGISTER_MATCH: "/games/register-match",
   LIBRARY: "/games/library",
 
+  SESSIONS: "/games/sessions",
+  SESSION_DETAIL: "/games/sessions/[id]",
 
-  SESSIONS: "/games/sessions",       // lista de sessões
-  SESSION_DETAIL: "/games/sessions/[id]", // detalhe da sessão
+  // ── Campanhas
+  CAMPAIGNS: "/(app)/games/campaigns",
+  CAMPAIGN_DETAIL: "/(app)/games/campaigns/[id]",
+  CAMPAIGN_CREATE: "/(app)/games/campaigns/create",
 
   SETTINGS: "/settings",
   PROFILE: "/profile",

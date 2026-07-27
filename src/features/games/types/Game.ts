@@ -32,14 +32,24 @@ export interface Game {
   /** Complexity (weight) from BGG */
   averageWeight?: number;
 
+  // ─── Player count & game modes ────────────────────────────────────────────
+
   /** Minimum number of players */
   minPlayers?: number;
 
   /** Maximum number of players */
   maxPlayers?: number;
 
-  /** Whether the game supports solo play */
+  /** Whether the game supports solo play (minPlayers === 1) */
   supportsSoloMode?: boolean;
+
+  /**
+   * Whether the game is cooperative.
+   * Determined by the "Cooperative Game" mechanic on BGG.
+   */
+  isCooperative?: boolean;
+
+  // ─────────────────────────────────────────────────────────────────────────
 
   /** Optional list of categories (e.g. strategy, party) */
   categories?: string[];

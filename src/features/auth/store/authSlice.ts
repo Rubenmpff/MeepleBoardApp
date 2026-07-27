@@ -1,6 +1,6 @@
 // src/features/auth/store/authSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
 import { User } from "@/src/features/users/types/User";
 
@@ -14,14 +14,32 @@ const initialState: AuthState = {
   token: null,
 };
 
-// Função auxiliar para decodificar o JWT
+type AnyJwt = Record<string, any>;
+
 function decodeToken(token: string): User | null {
   try {
-    const decoded: any = jwtDecode(token);
+    const decoded: AnyJwt = jwtDecode(token);
+
+    // ⚠️ NameIdentifier às vezes vem como URI no ASP.NET
+    const nameId =
+      decoded.sub ||
+      decoded.nameid ||
+      decoded.id ||
+      decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+
+    const userName =
+      decoded.unique_name ||
+      decoded.userName ||
+      decoded.name ||
+      decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
+      "Unknown";
+
+    if (!nameId) return null;
+
     return {
-      id: decoded.sub || decoded.nameid || decoded.id,
-      userName: decoded.unique_name || decoded.userName || "Unknown",
-      email: decoded.email || undefined,
+      id: String(nameId),
+      userName: String(userName),
+      email: decoded.email ? String(decoded.email) : undefined,
     };
   } catch (err) {
     console.error("Erro ao decodificar token:", err);
@@ -37,20 +55,26 @@ const authSlice = createSlice({
       state.token = action.payload;
 
       if (action.payload) {
-        AsyncStorage.setItem("token", action.payload);
+        // ✅ Guardar no SecureStore (mesma fonte da API)
+        SecureStore.setItemAsync("secure_token", action.payload);
         state.user = decodeToken(action.payload);
       } else {
-        AsyncStorage.removeItem("token");
+        SecureStore.deleteItemAsync("secure_token");
         state.user = null;
       }
     },
+
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
     },
+
     logout: (state) => {
       state.user = null;
       state.token = null;
-      AsyncStorage.removeItem("token");
+      SecureStore.deleteItemAsync("secure_token");
+      SecureStore.deleteItemAsync("secure_refresh_token");
+      SecureStore.deleteItemAsync("remember_me");
+      SecureStore.deleteItemAsync("current_user");
     },
   },
 });

@@ -4,11 +4,13 @@ import { GameSuggestion } from "../types/GameSuggestion";
 
 /**
  * Converte sempre um Game ou GameSuggestion num Game válido.
- * - Se já for um Game da BD local, devolve-o como está.
- * - Se for apenas uma sugestão, cria um objeto Game mínimo.
+ * - Se já for um Game da BD local (tem id), devolve-o como está.
+ * - Se for apenas uma sugestão, cria um objeto Game mínimo
+ *   preservando todos os campos disponíveis incluindo
+ *   minPlayers, maxPlayers, supportsSoloMode e isCooperative.
  */
 export function normalizeToGame(selected: Game | GameSuggestion): Game {
-  // Se já tem um id local, assumimos que é um Game completo
+  // Se já tem um id local, é um Game completo da BD
   if ("id" in selected && selected.id) {
     return {
       ...selected,
@@ -20,19 +22,24 @@ export function normalizeToGame(selected: Game | GameSuggestion): Game {
   const suggestion = selected as GameSuggestion;
 
   return {
-    id: "", // ainda não importado localmente
+    id: "",                                         // ainda não importado localmente
     name: suggestion.name,
     description: "",
     imageUrl: suggestion.imageUrl ?? "",
     yearPublished: suggestion.yearPublished,
-    isExpansion: (suggestion as any).isExpansion ?? false,
+    isExpansion: suggestion.isExpansion ?? false,
     bggId: suggestion.bggId,
     bggRanking: undefined,
     averageRating: undefined,
     averageWeight: undefined,
-    minPlayers: undefined,
-    maxPlayers: undefined,
-    supportsSoloMode: undefined,
+
+    // ── Campos de modos de jogo — preservados da sugestão ─────────────────
+    minPlayers: suggestion.minPlayers,
+    maxPlayers: suggestion.maxPlayers,
+    supportsSoloMode: suggestion.supportsSoloMode,
+    isCooperative: suggestion.isCooperative,
+    // ───────────────────────────────────────────────────────────────────────
+
     categories: [],
     baseGameId: null,
     baseGameBggId: null,

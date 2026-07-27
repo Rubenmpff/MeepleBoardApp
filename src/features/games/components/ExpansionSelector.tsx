@@ -3,7 +3,7 @@ import {
   View,
   Text,
   ActivityIndicator,
-  FlatList,
+  ScrollView,
   TouchableOpacity,
   Image,
   StyleSheet,
@@ -15,42 +15,40 @@ import { Game } from "../types/Game";
 import { GameSuggestion } from "../types/GameSuggestion";
 
 /* -------------------------------------------------------------------------- */
-/* Props                                                                      */
+/* Props                                                                       */
 /* -------------------------------------------------------------------------- */
 type Props = {
-  /** BGG ID of the base game whose expansions we want to list.                */
+  /** BGG ID of the base game whose expansions we want to list. */
   baseGameId: string;
 
-  /** List of already-selected expansions.                                     */
+  /** List of already-selected expansions. */
   selectedExpansions: Game[];
 
-  /** Change callback (prop-drill back up).                                    */
+  /** Change callback (prop-drill back up). */
   onChange: (newSelected: Game[]) => void;
 };
 
 /* -------------------------------------------------------------------------- */
-/* Component                                                                  */
+/* Component                                                                   */
 /* -------------------------------------------------------------------------- */
 export const ExpansionSelector = memo(
   ({ baseGameId, selectedExpansions, onChange }: Props) => {
     const [expansions, setExpansions] = useState<Game[]>([]);
     const [loading, setLoading] = useState(false);
 
-    /* ─────────────────────────── Fetch expansions ────────────────────────── */
+    /* ── Fetch expansions ── */
     useEffect(() => {
-      /* Skip if the caller hasn’t provided a valid ID yet. */
       if (!baseGameId) {
         setExpansions([]);
         return;
       }
 
-      const fetch = async () => {
+      const fetchExpansions = async () => {
         setLoading(true);
         try {
           const raw: GameSuggestion[] =
             await gameService.getExpansionsOfBase(baseGameId);
 
-          /* Normalise data for the UI layer. */
           const mapped: Game[] = raw.map((exp) => ({
             id: exp.bggId?.toString() ?? `exp-${exp.name}`,
             name: exp.name,
@@ -66,7 +64,7 @@ export const ExpansionSelector = memo(
           console.error("❌ Error fetching expansions:", err);
           Toast.show({
             type: "error",
-            text1: "Couldn’t load expansions",
+            text1: "Couldn't load expansions",
             text2: "Please check your connection and try again.",
           });
           setExpansions([]);
@@ -75,10 +73,10 @@ export const ExpansionSelector = memo(
         }
       };
 
-      fetch();
+      fetchExpansions();
     }, [baseGameId]);
 
-    /* ───────────────────────── Toggle selection ──────────────────────────── */
+    /* ── Toggle selection ── */
     const toggleExpansion = useCallback(
       (expansion: Game) => {
         const alreadySelected = selectedExpansions.some(
@@ -94,55 +92,48 @@ export const ExpansionSelector = memo(
       [selectedExpansions, onChange],
     );
 
-    /* ─────────────────────────── Render item ─────────────────────────────── */
-    const renderItem = ({ item }: { item: Game }) => {
-      const isSelected = selectedExpansions.some((e) => e.id === item.id);
-
-      return (
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel={`Toggle expansion ${item.name}`}
-          onPress={() => toggleExpansion(item)}
-          style={[
-            styles.expansionItem,
-            isSelected && styles.selectedItem,
-          ]}
-        >
-          {Boolean(item.imageUrl) && (
-            <Image source={{ uri: item.imageUrl! }} style={styles.image} />
-          )}
-
-          {/* Game name – always wrap raw strings in <Text>. */}
-          <Text style={styles.name} numberOfLines={1}>
-            {item.name}
-          </Text>
-
-          {isSelected && <Text style={styles.checkmark}>✅</Text>}
-        </TouchableOpacity>
-      );
-    };
-
-    /* ---------------------------------------------------------------------- */
+    /* ── Render ── */
     return (
       <View style={{ marginTop: 16 }}>
         <Text style={styles.label}>Expansions used</Text>
 
         {loading ? (
           <ActivityIndicator size="small" />
+        ) : expansions.length === 0 ? (
+          <Text style={styles.emptyText}>
+            No expansions found for this game.
+          </Text>
         ) : (
-          <FlatList
-            data={expansions}
-            keyExtractor={(g) => g.id}
-            renderItem={renderItem}
+          /* ✅ ScrollView + map em vez de FlatList para evitar VirtualizedLists aninhadas */
+          <ScrollView
             style={{ maxHeight: 250 }}
-            contentContainerStyle={{ paddingBottom: 10 }}
+            nestedScrollEnabled
             keyboardShouldPersistTaps="handled"
-            ListEmptyComponent={
-              <Text style={styles.emptyText}>
-                No expansions found for this game.
-              </Text>
-            }
-          />
+          >
+            {expansions.map((item) => {
+              const isSelected = selectedExpansions.some((e) => e.id === item.id);
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Toggle expansion ${item.name}`}
+                  onPress={() => toggleExpansion(item)}
+                  style={[
+                    styles.expansionItem,
+                    isSelected && styles.selectedItem,
+                  ]}
+                >
+                  {Boolean(item.imageUrl) && (
+                    <Image source={{ uri: item.imageUrl! }} style={styles.image} />
+                  )}
+                  <Text style={styles.name} numberOfLines={1}>
+                    {item.name}
+                  </Text>
+                  {isSelected && <Text style={styles.checkmark}>✅</Text>}
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
         )}
       </View>
     );
@@ -150,7 +141,7 @@ export const ExpansionSelector = memo(
 );
 
 /* -------------------------------------------------------------------------- */
-/* Styles                                                                     */
+/* Styles                                                                      */
 /* -------------------------------------------------------------------------- */
 const styles = StyleSheet.create({
   label: {

@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import {
   View,
   TextInput,
-  FlatList,
+  ScrollView,
   Text,
   TouchableOpacity,
   Image,
@@ -80,20 +80,25 @@ export const GameSelector = ({ onSelect }: Props) => {
         <ActivityIndicator style={{ marginTop: 10 }} />
       )}
 
+      {/* ✅ ScrollView + map em vez de FlatList para evitar VirtualizedLists aninhadas */}
       {suggestions.length > 0 && (
         <View style={styles.card}>
-          <FlatList
-            data={suggestions}
-            keyExtractor={(item) => `suggestion-${item.bggId}`}
-            keyboardShouldPersistTaps="handled"
-            scrollEnabled
-            nestedScrollEnabled
+          <ScrollView
             style={{ maxHeight: 200 }}
-            contentContainerStyle={{ paddingBottom: 10 }}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.5}
-            renderItem={({ item }) => (
+            keyboardShouldPersistTaps="handled"
+            nestedScrollEnabled
+            onScroll={({ nativeEvent }) => {
+              // Carrega mais quando chega ao fim
+              const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+              const isNearEnd =
+                layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+              if (isNearEnd) handleLoadMore();
+            }}
+            scrollEventThrottle={200}
+          >
+            {suggestions.map((item) => (
               <TouchableOpacity
+                key={`suggestion-${item.bggId}`}
                 onPress={() => handleSelect(item.name)}
                 style={styles.item}
               >
@@ -109,19 +114,18 @@ export const GameSelector = ({ onSelect }: Props) => {
                     />
                   </View>
                 )}
-
                 <Text style={styles.itemText}>
                   {item.name}
                   {item.yearPublished ? ` (${item.yearPublished})` : ""}
                 </Text>
               </TouchableOpacity>
+            ))}
+
+            {/* Footer loader */}
+            {loading && suggestions.length > 0 && (
+              <ActivityIndicator style={{ marginBottom: 8, marginTop: 4 }} />
             )}
-            ListFooterComponent={() =>
-              loading && suggestions.length > 0 ? (
-                <ActivityIndicator style={{ marginBottom: 8 }} />
-              ) : null
-            }
-          />
+          </ScrollView>
         </View>
       )}
 
