@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "MeepleBoardApp",
-    "slug": "MeepleBoardApp",
+    "slug": "meepleboardapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -56,10 +56,27 @@
       ],
       "expo-secure-store",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#6200EE",
+          "sounds": []
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "94aba926-ee4a-49e6-920a-de8e4fc12492"
+      }
+    },
+    "owner": "rubenmpff"
   }
 }
