@@ -10,12 +10,12 @@ const i18next = require('i18next');
 const root = path.resolve(__dirname, '../..');
 
 async function renderNative(source, exportName, props = {}, options = {}) {
-  const resources = Object.fromEntries(['pt', 'en'].map(lang => [lang, Object.fromEntries(['games', 'library', 'common'].map(ns => [ns,
+  const resources = Object.fromEntries(['pt', 'en'].map(lang => [lang, Object.fromEntries(['games', 'library', 'common', 'matches'].map(ns => [ns,
     JSON.parse(fs.readFileSync(path.join(root, `src/i18n/locales/${lang}/${ns}.json`), 'utf8')),
   ]))]));
   const i18n = i18next.createInstance();
   await i18n.init({ lng: options.language || 'pt', resources, interpolation: { escapeValue: false } });
-  const controls = [], lists = [], routes = [], calls = [], inputs = [], cache = new Map();
+  const controls = [], lists = [], routes = [], calls = [], inputs = [], updates = [], cache = new Map();
   let stateIndex = 0;
   const host = ({ children }) => React.createElement('div', null, children);
   const button = p => { controls.push(p); return React.createElement('button', null, p.children); };
@@ -25,6 +25,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     Modal: p => p.visible ? React.createElement(host, p) : null,
     TextInput: p => { inputs.push(p); return null; }, TouchableOpacity: button, Pressable: button,
     RefreshControl: () => null, Alert: { alert: (...args) => calls.push(['alert', ...args]) },
+    Keyboard: { dismiss: () => calls.push(['dismissKeyboard']) },
     useWindowDimensions: () => ({ width: options.width || 390, fontScale: options.fontScale || 1 }),
     StyleSheet: { create: v => v, hairlineWidth: 1, absoluteFill: {} },
     Animated: { Value: class { constructor(value) { this.value = value; } }, spring: () => ({ start() {} }), timing: () => ({ start() {} }), View: host },
@@ -47,6 +48,12 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     'react-redux': { useSelector: fn => fn({ auth: { user: { id: 'me' } }, library: { items: options.library || [] } }) },
     'react-native-toast-message': { __esModule: true, default: { show: p => calls.push(['toast', p]) } },
     'expo-haptics': { impactAsync: async () => {}, ImpactFeedbackStyle: {} },
+    'lottie-react-native': { __esModule: true, default: () => null },
+    'expo-image-picker': {
+      MediaTypeOptions: { Images: 'images' },
+      requestMediaLibraryPermissionsAsync: async () => { calls.push(['photoPermission']); return { granted: options.photoPermission !== false }; },
+      launchImageLibraryAsync: async () => { calls.push(['pickPhoto']); return options.photoResult || { canceled: true }; },
+    },
   };
   const hooks = {
     useUserLibrary: () => ({ library: options.library || [], loading: !!options.loading, error: options.error, refetch: async () => calls.push(['refetch']) }),
@@ -56,6 +63,10 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     useGameSuggestions: () => ({ suggestions: options.suggestions || [], loading: !!options.loading, error: options.error, hasMore: true, fetchSuggestions: async (...args) => calls.push(['fetchSuggestions', ...args]), resetSuggestions() {} }),
     useRecentSearches: () => ({ recentSearches: [], addSearch() {}, removeSearch() {}, clearSearches() {} }),
     useHotGames: () => ({ hotGames: [] }), useIsOnline: () => options.online !== false,
+    useFriends: () => ({ friends: options.friends || [], loading: false }),
+    useGameSearch: () => ({ searchGame: async () => null, loading: false }),
+    useRegisterMatch: () => ({ loading: !!options.saving, error: options.error,
+      submitMatch: async payload => { calls.push(['submitMatch', payload]); return options.createdMatch || null; } }),
   };
   function load(filename) {
     if (cache.has(filename)) return cache.get(filename).exports;
@@ -64,7 +75,8 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     module.require = id => {
       if (id === 'react' && filename === path.join(root, source)) return { ...React, useState: initial => {
         const index = stateIndex++;
-        return React.useState(options.states && Object.hasOwn(options.states, index) ? options.states[index] : initial);
+        const [value] = React.useState(options.states && Object.hasOwn(options.states, index) ? options.states[index] : initial);
+        return [value, next => updates.push([index, typeof next === 'function' ? next(value) : next])];
       } };
       if (mocks[id]) return mocks[id];
       const hook = id.split('/').pop();
@@ -74,6 +86,11 @@ async function renderNative(source, exportName, props = {}, options = {}) {
         getHistoryByGame: async id => { calls.push(['getHistoryByGame', id]); return []; },
         getUserRatingForGame: async () => null,
         getByGame: async id => { calls.push(['getByGame', id]); return []; },
+        ...Object.fromEntries(Object.entries(options.services || {}).map(([method, result]) => [method, async (...args) => {
+          calls.push([method, ...args]);
+          if (result instanceof Error) throw result;
+          return result;
+        }])),
       } };
       if (id.startsWith('@/') || id.startsWith('.')) {
         const base = id.startsWith('@/') ? path.join(root, id.slice(2)) : path.resolve(path.dirname(filename), id);
@@ -89,7 +106,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
   }
   const component = load(path.join(root, source))[exportName];
   const html = renderToStaticMarkup(React.createElement(component, props));
-  return { html, controls, lists, routes, calls, inputs, i18n, load: file => load(path.join(root, file)),
+  return { html, controls, lists, routes, calls, inputs, updates, i18n, load: file => load(path.join(root, file)),
     async press(label) {
       const p = controls.find(c => c.accessibilityLabel === label);
       if (!p) throw new Error(`Missing button: ${label}`);

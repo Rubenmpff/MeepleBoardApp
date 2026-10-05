@@ -1,10 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import DialogSurface from "@/src/components/ui/DialogSurface";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View, Text, TextInput, TouchableOpacity, Alert,
   ActivityIndicator, Image, Platform, StyleSheet, ScrollView, Modal,
-  KeyboardAvoidingView,
+  KeyboardAvoidingView, Keyboard,
 } from "react-native";
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import * as ImagePicker from "expo-image-picker";
 
@@ -20,7 +22,8 @@ import { StarRating } from "../../../../shared/components/StarRating";
 import { Game } from "../../catalog/types/Game";
 import { MatchFormData } from "../types/MatchForm";
 import { PlayerState } from "../../../users/types/PlayerState";
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { useFriends } from "../../../friends/hooks/useFriends";
 import { GameSession } from "../../sessions/types/GameSession";
 import { sessionPlayerGuards } from "../../sessions/types/GameSessionPlayer";
@@ -42,6 +45,7 @@ type Step = 0 | 1 | 2 | 3;
 
 export default function RegisterMatchForm({ sessionId, currentUser, disableScroll = false }: Props) {
   const { t, i18n } = useTranslation("matches");
+  const scrollRef = useRef<ScrollView>(null);
   const isSessionMatch = !!sessionId;
 
   const steps = useMemo(
@@ -74,6 +78,11 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const [session, setSession] = useState<GameSession | null>(null);
   const [sessionLoading, setSessionLoading] = useState(false);
   const [step, setStep] = useState<Step>(0);
+  useEffect(() => {
+    Keyboard.dismiss();
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [step]);
+
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [editingGame, setEditingGame] = useState(true);
   const [selectedExpansions, setSelectedExpansions] = useState<Game[]>([]);
@@ -200,12 +209,12 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
   const handlePickPendingPhoto = async () => {
     if (pendingPhotos.length >= MAX_PHOTOS) {
-      Alert.alert(t("validation.errorTitle"), `Só podes escolher até ${MAX_PHOTOS} fotos.`);
+      Alert.alert(t("validation.errorTitle"), t("photos.limit", { count: MAX_PHOTOS }));
       return;
     }
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("Permissão necessária", "Precisamos de acesso às tuas fotos para adicionares imagens.");
+      Alert.alert(t("photos.permissionTitle"), t("photos.permission"));
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -289,9 +298,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
         }
         setUploadingPhotos(false);
         if (failed > 0) {
-          photoWarning = failed === pendingPhotos.length
-            ? "\n\n⚠️ Não foi possível enviar as fotos."
-            : `\n\n⚠️ ${failed} de ${pendingPhotos.length} fotos não foram enviadas.`;
+          photoWarning = "\n\n" + t("photos.partialFailure", { failed, total: pendingPhotos.length });
         }
       }
 
@@ -339,13 +346,31 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const multiAvailable = availableModes.multiplayer.available;
   const coopAvailable = availableModes.cooperative.available;
 
+  const footer = (
+    <View style={disableScroll ? styles.navRowInline : styles.stickyBar}>
+      <View style={styles.navRow}>
+        {step > 0 && <View style={{ flex: 1, minWidth: 100 }}>
+          <PrimaryButton title={t("navigation.back")} variant="secondary" onPress={goPrev} />
+        </View>}
+        <View style={{ flex: 2, minWidth: 140 }}>
+          {step < 3 ? (
+            <PrimaryButton title={t("navigation.continue")} onPress={goNext} disabled={!canGoNext()} />
+          ) : (
+            <PrimaryButton title={uploadingPhotos ? t("photos.uploading") : t("navigation.save")}
+              onPress={handleSubmit} loading={loading || uploadingPhotos} />
+          )}
+        </View>
+      </View>
+    </View>
+  );
+
   const content = (
-    <View style={disableScroll ? undefined : { flex: 1, backgroundColor: COLORS.background }}>
+    <View style={{ backgroundColor: COLORS.background }}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>
+        {disableScroll && <Text style={styles.title}>
           {isSessionMatch ? t("header.addMatch") : t("header.registerMatch")}
-        </Text>
+        </Text>}
         <View style={styles.badgeRow}>
           <View style={[styles.badge, isSessionMatch ? styles.badgeSession : styles.badgeQuick]}>
             <Text style={[styles.badgeText, isSessionMatch ? styles.badgeSessionText : styles.badgeQuickText]}>
@@ -367,7 +392,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
         <View style={styles.card}>
           <SectionTitle icon="sports-esports" label={t("game.sectionTitle")} />
           {editingGame ? (
-            <GameSelector onSelect={(game) => { setSelectedGame(game); setSelectedExpansions([]); setEditingGame(false); }} />
+            <GameSelector appearance="refresh" onSelect={(game) => { setSelectedGame(game); setSelectedExpansions([]); setEditingGame(false); }} />
           ) : (
             <View>
               <View style={styles.gameRow}>
@@ -390,9 +415,9 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
                   </Text>
                   {selectedGame && (
                     <View style={styles.modeBadgesRow}>
-                      {soloAvailable && <View style={[styles.modeBadge, { backgroundColor: COLORS.success + "20" }]}><Text style={[styles.modeBadgeText, { color: COLORS.success }]}>Solo</Text></View>}
-                      {multiAvailable && <View style={[styles.modeBadge, { backgroundColor: COLORS.primary + "20" }]}><Text style={[styles.modeBadgeText, { color: COLORS.primary }]}>Multi</Text></View>}
-                      {coopAvailable && <View style={[styles.modeBadge, { backgroundColor: COLORS.secondary + "20" }]}><Text style={[styles.modeBadgeText, { color: COLORS.secondary }]}>Coop</Text></View>}
+                      {soloAvailable && <View style={[styles.modeBadge, { backgroundColor: COLORS.success + "20" }]}><Text style={[styles.modeBadgeText, { color: COLORS.success }]}>{t("modes.solo")}</Text></View>}
+                      {multiAvailable && <View style={[styles.modeBadge, { backgroundColor: COLORS.primary + "20" }]}><Text style={[styles.modeBadgeText, { color: COLORS.primary }]}>{t("modes.multiplayer")}</Text></View>}
+                      {coopAvailable && <View style={[styles.modeBadge, { backgroundColor: COLORS.secondary + "20" }]}><Text style={[styles.modeBadgeText, { color: COLORS.secondary }]}>{t("modes.cooperative")}</Text></View>}
                     </View>
                   )}
                 </View>
@@ -403,7 +428,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
               {selectedGame && (
                 <View style={{ marginTop: 16 }}>
                   <Text style={styles.subLabel}>{t("game.expansionsOptional")}</Text>
-                  <ExpansionSelector baseGameId={selectedGame.id} selectedExpansions={selectedExpansions} onChange={setSelectedExpansions} />
+                  <ExpansionSelector appearance="refresh" baseGameId={selectedGame.id} selectedExpansions={selectedExpansions} onChange={setSelectedExpansions} />
                 </View>
               )}
             </View>
@@ -449,9 +474,10 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
                   key={mode}
                   style={[styles.modeBtn, isActive && { borderColor: color, backgroundColor: color + "18" }, !info.available && styles.modeBtnUnavailable]}
                   onPress={() => handleModePress(mode)} activeOpacity={0.8}
+                  accessibilityRole="radio" accessibilityLabel={label} accessibilityState={{ selected: isActive }}
                 >
-                  <MaterialIcons name={icon as any} size={24} color={isActive ? color : !info.available ? "#ccc" : "#aaa"} />
-                  <Text style={[styles.modeBtnLabel, isActive && { color }, !info.available && { color: "#ccc" }]}>{label}</Text>
+                  <MaterialIcons name={icon as any} size={24} color={isActive ? color : COLORS.textMuted} />
+                  <Text style={[styles.modeBtnLabel, isActive && { color }, !info.available && { color: COLORS.textMuted }]}>{label}</Text>
                   {info.available && info.source && (
                     <View style={[styles.sourceBadge, info.source === "bgg_official" && styles.sourceBadgeOfficial, info.source === "expansion" && styles.sourceBadgeExpansion]}>
                       <Text style={[styles.sourceBadgeText, info.source === "bgg_official" && { color: COLORS.success }, info.source === "expansion" && { color: "#1E88E5" }]}>
@@ -481,7 +507,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
               <View style={styles.resultRow}>
                 <ResultButton emoji="🏆" label={t("modes.playerWon")}        active={soloResult === "player_win"} activeColor={COLORS.success} onPress={() => setSoloResult("player_win")} />
                 <ResultButton emoji="💀" label={t("modes.gameWon")} active={soloResult === "game_win"}   activeColor={COLORS.error}   onPress={() => setSoloResult("game_win")} />
-                <ResultButton emoji="—"  label={t("modes.noResult")} active={soloResult === "none"}        activeColor="#888"           onPress={() => setSoloResult("none")} />
+                <ResultButton emoji="—"  label={t("modes.noResult")} active={soloResult === "none"}        activeColor={COLORS.textMuted}           onPress={() => setSoloResult("none")} />
               </View>
             </View>
           )}
@@ -501,8 +527,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
           )}
 
           <Modal visible={showUnofficialModal} transparent animationType="fade">
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalBox}>
+            <DialogSurface>
                 <Text style={styles.modalTitle}>{t("modes.modalTitle")}</Text>
                 <Text style={styles.modalDesc}>
                   {t("modes.modalBeforeMode")}
@@ -518,8 +543,9 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
                   style={styles.modalInput}
                   value={unofficialJustification}
                   onChangeText={setUnofficialJustification}
+                  accessibilityLabel={t("modes.reasonLabel")}
                   placeholder={t("modes.reasonPlaceholder")}
-                  placeholderTextColor="#bbb"
+                  placeholderTextColor={COLORS.textMuted}
                   multiline numberOfLines={3}
                   textAlignVertical="top"
                   maxLength={200}
@@ -537,8 +563,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
                     <Text style={styles.modalConfirmText}>{t("modes.useAnyway")}</Text>
                   </TouchableOpacity>
                 </View>
-              </View>
-            </View>
+            </DialogSurface>
           </Modal>
         </View>
       )}
@@ -559,9 +584,10 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
                 </View>
                 <TextInput
                   style={styles.scoreInput}
+                  accessibilityLabel={t("players.finalScoreOptional")}
                   value={playerState[0]?.score ?? ""}
                   onChangeText={(v) => setPlayerState([{ id: currentUser!.id, username: currentUser!.userName, score: v, isWinner: false }])}
-                  keyboardType="numeric" placeholder="—" placeholderTextColor="#aaa"
+                  keyboardType="numeric" placeholder="—" placeholderTextColor={COLORS.textMuted}
                 />
               </View>
               <View style={styles.soloResultSummary}>
@@ -573,6 +599,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
             <ActivityIndicator size="large" color={COLORS.primary} />
           ) : (
             <PlayerSelector
+                title={t("steps.players")}
               users={availableUsers} players={playerState} onChange={setPlayerState}
               currentUser={currentUserForSelector} lockCurrentUser={!isSessionMatch}
               mode={isSessionMatch ? "session" : "quick"} maxResults={12}
@@ -594,7 +621,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
           <View style={styles.card}>
             <SectionTitle icon="auto-stories" label={t("details.journalTitle")} />
             <Text style={styles.subLabel}>{t("details.ratingLabel")}</Text>
-            <StarRating value={personalRating} onChange={setPersonalRating} size={30} />
+            <StarRating appearance="refresh" value={personalRating} onChange={setPersonalRating} size={30} />
             <View style={{ marginTop: 16 }}>
               <DetailField
                 label={t("details.notesLabel")}
@@ -618,26 +645,26 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
             </View>
 
             <Text style={[styles.subLabel, { marginTop: 16 }]}>
-              Fotos (opcional) {pendingPhotos.length > 0 ? `— ${pendingPhotos.length}/${MAX_PHOTOS}` : ""}
+              {t("photos.label")} {pendingPhotos.length > 0 ? `— ${pendingPhotos.length}/${MAX_PHOTOS}` : ""}
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {pendingPhotos.map((uri, pi) => (
                 <View key={pi} style={styles.photoThumbWrap}>
                   <Image source={{ uri }} style={styles.photoThumb} />
-                  <TouchableOpacity style={styles.photoRemoveBtn} onPress={() => handleRemovePendingPhoto(uri)}>
+                  <TouchableOpacity style={styles.photoRemoveBtn} accessibilityRole="button" accessibilityLabel={t("photos.remove")} onPress={() => handleRemovePendingPhoto(uri)}>
                     <MaterialIcons name="close" size={14} color="#fff" />
                   </TouchableOpacity>
                 </View>
               ))}
               {pendingPhotos.length < MAX_PHOTOS && (
-                <TouchableOpacity style={styles.photoAddBtn} onPress={handlePickPendingPhoto} activeOpacity={0.8}>
+                <TouchableOpacity style={styles.photoAddBtn} accessibilityRole="button" accessibilityLabel={t("photos.add")} onPress={handlePickPendingPhoto} activeOpacity={0.8}>
                   <MaterialIcons name="add-a-photo" size={20} color={COLORS.primary} />
-                  <Text style={styles.photoAddText}>Adicionar</Text>
+                  <Text style={styles.photoAddText}>{t("photos.add")}</Text>
                 </TouchableOpacity>
               )}
             </ScrollView>
             <Text style={styles.hint}>
-              As fotos são enviadas depois de guardares a partida.
+              {t("photos.hint")}
             </Text>
           </View>
 
@@ -665,32 +692,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
         </View>
       )}
 
-      {!disableScroll && <View style={{ height: 100 }} />}
-
-      <View style={disableScroll ? styles.navRowInline : styles.stickyBar}>
-        <View style={styles.navRow}>
-          {step > 0 ? (
-            <TouchableOpacity style={styles.backBtn} onPress={goPrev}>
-              <MaterialIcons name="arrow-back" size={20} color={COLORS.primary} />
-              <Text style={styles.backBtnText}>{t("navigation.back")}</Text>
-            </TouchableOpacity>
-          ) : <View style={{ flex: 1 }} />}
-
-          {step < 3 ? (
-            <TouchableOpacity style={[styles.nextBtn, !canGoNext() && styles.nextBtnDisabled]} onPress={goNext} disabled={!canGoNext()}>
-              <Text style={styles.nextBtnText}>{t("navigation.continue")}</Text>
-              <MaterialIcons name="arrow-forward" size={20} color="#fff" />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={[styles.saveBtn, (loading || uploadingPhotos) && { opacity: 0.6 }]} onPress={handleSubmit} disabled={loading || uploadingPhotos}>
-              {loading || uploadingPhotos
-                ? <><ActivityIndicator color="#fff" />{uploadingPhotos && <Text style={styles.saveBtnText}>  A enviar fotos...</Text>}</>
-                : <><Ionicons name="checkmark-circle" size={20} color="#fff" /><Text style={styles.saveBtnText}>{t("navigation.save")}</Text></>
-              }
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+      {disableScroll && footer}
     </View>
   );
 
@@ -702,15 +704,17 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: COLORS.background }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       <ScrollView
+        ref={scrollRef}
+        keyboardDismissMode="on-drag"
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled
       >
         {content}
       </ScrollView>
+      {footer}
     </KeyboardAvoidingView>
   );
 }
@@ -752,7 +756,7 @@ function ResultButton({ emoji, label, active, activeColor, onPress }: {
   emoji: string; label: string; active: boolean; activeColor: string; onPress: () => void;
 }) {
   return (
-    <TouchableOpacity style={[styles.resultBtn, active && { borderColor: activeColor, backgroundColor: activeColor + "18" }]} onPress={onPress} activeOpacity={0.8}>
+    <TouchableOpacity style={[styles.resultBtn, active && { borderColor: activeColor, backgroundColor: activeColor + "18" }]} onPress={onPress} activeOpacity={0.8} accessibilityRole="radio" accessibilityState={{ selected: active }} accessibilityLabel={label}>
       <Text style={styles.resultEmoji}>{emoji}</Text>
       <Text style={[styles.resultLabel, active && { color: activeColor, fontWeight: "700" }]}>{label}</Text>
     </TouchableOpacity>
@@ -767,8 +771,8 @@ function DetailField({ label, placeholder, value, onChangeText, keyboardType, mu
     <View style={styles.detailField}>
       <Text style={styles.detailLabel}>{label}</Text>
       <TextInput
-        style={[styles.detailInput, multiline && { height: (numberOfLines ?? 3) * 26, paddingTop: 10 }]}
-        placeholder={placeholder} placeholderTextColor="#aaa" value={value} onChangeText={onChangeText}
+        style={[styles.detailInput, multiline && { minHeight: (numberOfLines ?? 3) * 26, paddingTop: 10 }]}
+        accessibilityLabel={label} placeholder={placeholder} placeholderTextColor={COLORS.textMuted} value={value} onChangeText={onChangeText}
         keyboardType={keyboardType ?? "default"} multiline={multiline} numberOfLines={numberOfLines}
         textAlignVertical={multiline ? "top" : "center"}
       />
@@ -780,7 +784,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.summaryRow}>
       <Text style={styles.summaryLabel}>{label}</Text>
-      <Text style={styles.summaryValue} numberOfLines={2}>{value}</Text>
+      <Text style={styles.summaryValue}>{value}</Text>
     </View>
   );
 }
@@ -790,7 +794,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
 
   header: { marginBottom: 16 },
-  title: { fontSize: 22, fontWeight: "800", color: COLORS.primary },
+  title: { ...UI_STYLES.title },
   badgeRow: { flexDirection: "row", marginTop: 6, gap: 8, flexWrap: "wrap" },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   badgeQuick: { backgroundColor: COLORS.primary + "18" },
@@ -802,125 +806,110 @@ const styles = StyleSheet.create({
   unofficialBadgeText: { fontSize: 11, fontWeight: "700", color: "#f39c12" },
 
   progressContainer: { flexDirection: "row", alignItems: "flex-start", marginBottom: 20 },
-  progressStep: { alignItems: "center", gap: 4 },
-  progressDot: { width: 28, height: 28, borderRadius: 14, backgroundColor: "#e0e0e0", alignItems: "center", justifyContent: "center" },
+  progressStep: { flex: 1, minWidth: 0, alignItems: "center", gap: 4 },
+  progressDot: { width: 32, height: 32, borderRadius: 16, backgroundColor: COLORS.border, alignItems: "center", justifyContent: "center" },
   progressDotDone: { backgroundColor: COLORS.success },
   progressDotActive: { backgroundColor: COLORS.primary },
-  progressDotText: { fontSize: 12, fontWeight: "700", color: "#888" },
+  progressDotText: { fontSize: 12, fontWeight: "700", color: COLORS.textMuted },
   progressDotTextActive: { color: "#fff" },
-  progressLabel: { fontSize: 10, color: "#aaa", marginTop: 2, textAlign: "center" },
+  progressLabel: { ...UI_STYLES.caption, color: COLORS.textMuted, textAlign: "center" },
   progressLabelActive: { color: COLORS.primary, fontWeight: "700" },
   progressLabelDone: { color: COLORS.success },
-  progressLine: { flex: 1, height: 2, backgroundColor: "#e0e0e0", alignSelf: "flex-start", marginTop: 13, marginBottom: 16, marginHorizontal: 2 },
+  progressLine: { width: 8, height: 2, backgroundColor: COLORS.border, marginTop: 15 },
   progressLineDone: { backgroundColor: COLORS.success },
 
-  card: { backgroundColor: "#fff", borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: "#eee", shadowColor: "#000", shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
+  card: { ...UI_STYLES.card, padding: 16, marginBottom: 16 },
   sectionTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 },
-  sectionTitleText: { fontSize: 15, fontWeight: "800", color: COLORS.onBackground },
+  sectionTitleText: { ...UI_STYLES.section },
 
   gameRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   gameThumb: { width: 60, height: 60, borderRadius: 10, backgroundColor: "#f0f0f0" },
   gameThumbPlaceholder: { alignItems: "center", justifyContent: "center" },
-  gameName: { fontSize: 16, fontWeight: "800", color: COLORS.onBackground },
-  gameMeta: { fontSize: 12, color: "#888", marginTop: 3 },
+  gameName: { ...UI_STYLES.section },
+  gameMeta: { ...UI_STYLES.caption, color: COLORS.textMuted, marginTop: 4 },
   modeBadgesRow: { flexDirection: "row", gap: 4, marginTop: 6, flexWrap: "wrap" },
   modeBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
   modeBadgeText: { fontSize: 11, fontWeight: "700" },
-  changeBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, backgroundColor: "#f4f4f4" },
+  changeBtn: { ...UI_STYLES.control, paddingHorizontal: 12, backgroundColor: COLORS.primarySoft },
   changeBtnText: { fontSize: 13, fontWeight: "700", color: COLORS.primary },
   subLabel: { fontSize: 13, fontWeight: "700", color: COLORS.onBackground, marginBottom: 8 },
 
   gameInfoBox: { backgroundColor: "#f4f7ff", borderRadius: 10, padding: 12, marginBottom: 14, borderWidth: 1, borderColor: COLORS.primary + "20" },
   gameInfoName: { fontSize: 14, fontWeight: "800", color: COLORS.onBackground, marginBottom: 2 },
-  gameInfoMeta: { fontSize: 12, color: "#666" },
+  gameInfoMeta: { fontSize: 12, color: COLORS.textMuted },
   expansionNote: { fontSize: 11, color: "#1E88E5", marginTop: 4, fontWeight: "600" },
 
-  modeRow: { flexDirection: "row", gap: 8 },
-  modeBtn: { flex: 1, alignItems: "center", paddingVertical: 14, paddingHorizontal: 4, borderRadius: 12, borderWidth: 1.5, borderColor: "#e0e0e0", backgroundColor: "#fafafa", gap: 4 },
+  modeRow: { gap: 8 },
+  modeBtn: { minHeight: 64, alignItems: "center", padding: 12, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, gap: 4 },
   modeBtnUnavailable: { backgroundColor: "#f5f5f5", borderColor: "#eee", borderStyle: "dashed" },
-  modeBtnLabel: { fontSize: 11, fontWeight: "700", color: "#aaa", textAlign: "center" },
+  modeBtnLabel: { ...UI_STYLES.body, fontWeight: "700", color: COLORS.textMuted, textAlign: "center" },
   sourceBadge: { paddingHorizontal: 5, paddingVertical: 2, borderRadius: 999, marginTop: 2 },
   sourceBadgeOfficial: { backgroundColor: "#E8F5E9" },
   sourceBadgeExpansion: { backgroundColor: "#E3F2FD" },
-  sourceBadgeText: { fontSize: 9, fontWeight: "700" },
+  sourceBadgeText: { ...UI_STYLES.caption, fontWeight: "700" },
   forceBadge: { backgroundColor: "#f0f0f0", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 999, marginTop: 2 },
-  forceBadgeText: { fontSize: 9, fontWeight: "700", color: "#888" },
+  forceBadgeText: { ...UI_STYLES.caption, color: COLORS.textMuted },
   unofficialSmallBadge: { position: "absolute", top: 4, right: 4 },
   unofficialSmallBadgeText: { fontSize: 10 },
   unofficialWarning: { flexDirection: "row", alignItems: "flex-start", gap: 6, backgroundColor: "#fff8e1", borderRadius: 10, padding: 10, marginTop: 10, borderWidth: 1, borderColor: "#ffe082" },
   unofficialWarningText: { flex: 1, fontSize: 11, color: "#856404", lineHeight: 16 },
 
-  resultRow: { flexDirection: "row", gap: 8 },
-  resultBtn: { flex: 1, alignItems: "center", paddingVertical: 14, borderRadius: 12, borderWidth: 1.5, borderColor: "#e0e0e0", backgroundColor: "#fafafa", gap: 4 },
+  resultRow: { gap: 8 },
+  resultBtn: { ...UI_STYLES.control, padding: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, flexDirection: "row", gap: 8 },
   resultEmoji: { fontSize: 22 },
-  resultLabel: { fontSize: 11, fontWeight: "600", color: "#888", textAlign: "center" },
+  resultLabel: { ...UI_STYLES.body, color: COLORS.textMuted, flexShrink: 1 },
 
   soloPlayerRow: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, backgroundColor: "#f9f9f9", borderRadius: 12, borderWidth: 1, borderColor: "#eee" },
   playerAvatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.primary + "20", alignItems: "center", justifyContent: "center" },
   playerAvatarText: { fontSize: 16, fontWeight: "800", color: COLORS.primary },
   playerName: { fontSize: 15, fontWeight: "700", color: COLORS.onBackground },
-  playerSub: { fontSize: 12, color: "#888", marginTop: 2 },
-  scoreInput: { width: 72, borderWidth: 1, borderColor: "#ddd", borderRadius: 10, padding: 10, textAlign: "center", fontSize: 16, fontWeight: "700", backgroundColor: "#fff", color: COLORS.onBackground },
+  playerSub: { fontSize: 12, color: COLORS.textMuted, marginTop: 2 },
+  scoreInput: { ...UI_STYLES.field, width: 92, textAlign: "center", fontWeight: "700" },
   soloResultSummary: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 12, padding: 12, backgroundColor: "#f0f4ff", borderRadius: 10, borderWidth: 1, borderColor: COLORS.primary + "30" },
-  soloResultLabel: { fontSize: 13, color: "#666", fontWeight: "600" },
+  soloResultLabel: { fontSize: 13, color: COLORS.textMuted, fontWeight: "600" },
   soloResultValue: { fontSize: 14, fontWeight: "800", color: COLORS.onBackground },
 
   detailField: { marginBottom: 12 },
-  detailLabel: { fontSize: 13, fontWeight: "700", color: COLORS.onBackground, marginBottom: 6 },
-  detailInput: { borderWidth: 1, borderColor: "#ddd", borderRadius: 12, padding: 12, fontSize: 14, backgroundColor: "#fff", color: COLORS.onBackground },
+  detailLabel: { ...UI_STYLES.body, fontWeight: "700", marginBottom: 8 },
+  detailInput: { ...UI_STYLES.field },
 
   tagsPreviewRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 6 },
   tagChip: { backgroundColor: COLORS.primary + "14", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   tagChipText: { fontSize: 12, color: COLORS.primary, fontWeight: "600" },
 
-  photoThumb: { width: 72, height: 72, borderRadius: 10, marginRight: 8, backgroundColor: "#eee" },
-  photoThumbWrap: { position: "relative", marginRight: 8 },
-  photoRemoveBtn: {
-    position: "absolute", top: -6, right: 2, width: 20, height: 20, borderRadius: 10,
-    backgroundColor: "rgba(0,0,0,0.6)", alignItems: "center", justifyContent: "center",
-  },
-  photoAddBtn: {
-    width: 72, height: 72, borderRadius: 10, borderWidth: 1.5, borderColor: COLORS.primary + "40",
-    borderStyle: "dashed", alignItems: "center", justifyContent: "center", backgroundColor: COLORS.primary + "08",
-  },
-  photoAddText: { fontSize: 10, color: COLORS.primary, fontWeight: "700", marginTop: 4 },
+  photoThumb: { width: 96, height: 96, borderRadius: 12, backgroundColor: COLORS.border },
+  photoThumbWrap: { position: "relative", marginRight: 12 },
+  photoRemoveBtn: { ...UI_STYLES.iconButton, position: "absolute", top: 0, right: 0, backgroundColor: "rgba(0,0,0,0.75)" },
+  photoAddBtn: { width: 96, height: 96, borderRadius: 12, borderWidth: 1, borderColor: COLORS.primary, alignItems: "center", justifyContent: "center", backgroundColor: COLORS.primarySoft },
+  photoAddText: { ...UI_STYLES.caption, color: COLORS.primary, fontWeight: "700", marginTop: 4 },
 
-  summaryCard: { backgroundColor: "#f7f9ff", borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: COLORS.primary + "30" },
-  summaryTitle: { fontSize: 14, fontWeight: "800", color: COLORS.primary, marginBottom: 12 },
+  summaryCard: { ...UI_STYLES.card, padding: 16, marginBottom: 16, backgroundColor: COLORS.primarySoft },
+  summaryTitle: { ...UI_STYLES.section, marginBottom: 12 },
   summaryRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingVertical: 7, borderBottomWidth: 0.5, borderBottomColor: "#e0e8f4" },
-  summaryLabel: { fontSize: 13, color: "#888", fontWeight: "600", flex: 1 },
-  summaryValue: { fontSize: 13, color: COLORS.onBackground, fontWeight: "700", flex: 1.5, textAlign: "right" },
+  summaryLabel: { ...UI_STYLES.caption, color: COLORS.textMuted, flex: 1 },
+  summaryValue: { ...UI_STYLES.body, fontWeight: "700", flex: 1.5, textAlign: "right" },
 
   errorText: { color: COLORS.error, fontWeight: "700", textAlign: "center", marginTop: 10, fontSize: 14 },
 
-  stickyBar: { position: "absolute", left: 0, right: 0, bottom: 0, paddingHorizontal: 16, paddingTop: 12, paddingBottom: Platform.OS === "ios" ? 28 : 16, backgroundColor: "rgba(255,255,255,0.96)", borderTopWidth: 1, borderTopColor: "#eee" },
+  stickyBar: { padding: 16, backgroundColor: COLORS.card, borderTopWidth: 1, borderTopColor: COLORS.border },
   navRowInline: { paddingHorizontal: 0, paddingTop: 12, paddingBottom: 4, borderTopWidth: 1, borderTopColor: "#eee", marginTop: 8 },
-  navRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-  backBtn: { flexDirection: "row", alignItems: "center", gap: 4, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, borderWidth: 1, borderColor: COLORS.primary + "40", backgroundColor: "#fff" },
-  backBtnText: { fontSize: 14, fontWeight: "700", color: COLORS.primary },
-  nextBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 14, borderRadius: 12, backgroundColor: COLORS.primary },
-  nextBtnDisabled: { backgroundColor: "#ccc" },
-  nextBtnText: { fontSize: 15, fontWeight: "800", color: "#fff" },
-  saveBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 14, borderRadius: 12, backgroundColor: COLORS.success },
-  saveBtnText: { fontSize: 15, fontWeight: "800", color: "#fff" },
+  navRow: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 10 },
 
   noticeWarn: { backgroundColor: "#fff3cd", borderRadius: 14, padding: 16, margin: 16, borderWidth: 1, borderColor: "#ffeeba", alignItems: "center" },
   noticeDanger: { backgroundColor: "#f8d7da", borderRadius: 14, padding: 16, margin: 16, borderWidth: 1, borderColor: "#f5c6cb", alignItems: "center" },
   noticeTitle: { fontWeight: "800", color: "#333", fontSize: 16, marginBottom: 8, textAlign: "center" },
-  noticeText: { color: "#555", fontWeight: "600", textAlign: "center", marginTop: 4 },
+  noticeText: { color: COLORS.textMuted, fontWeight: "600", textAlign: "center", marginTop: 4 },
 
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", padding: 24 },
-  modalBox: { backgroundColor: "#fff", borderRadius: 20, padding: 24, width: "100%" },
   modalTitle: { fontSize: 18, fontWeight: "800", color: "#333", marginBottom: 10 },
-  modalDesc: { fontSize: 14, color: "#555", lineHeight: 20, marginBottom: 16 },
+  modalDesc: { fontSize: 14, color: COLORS.textMuted, lineHeight: 20, marginBottom: 16 },
   modalLabel: { fontSize: 13, fontWeight: "700", color: "#333", marginBottom: 6 },
-  modalInput: { borderWidth: 1, borderColor: "#ddd", borderRadius: 12, padding: 12, fontSize: 14, height: 80, backgroundColor: "#fafafa", color: "#333" },
-  modalHint: { fontSize: 11, color: "#bbb", textAlign: "right", marginTop: 4, marginBottom: 16 },
+  modalInput: { ...UI_STYLES.field, minHeight: 100, textAlignVertical: "top" },
+  modalHint: { fontSize: 11, color: COLORS.textMuted, textAlign: "right", marginTop: 4, marginBottom: 16 },
   modalActions: { flexDirection: "row", gap: 10 },
-  modalCancelBtn: { flex: 1, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: "#ddd", alignItems: "center" },
-  modalCancelText: { color: "#666", fontWeight: "600" },
-  modalConfirmBtn: { flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: "#f39c12", alignItems: "center" },
+  modalCancelBtn: { ...UI_STYLES.button, flex: 1, backgroundColor: COLORS.primarySoft },
+  modalCancelText: { color: COLORS.textMuted, fontWeight: "600" },
+  modalConfirmBtn: { ...UI_STYLES.button, flex: 1, backgroundColor: COLORS.primary },
   modalConfirmText: { color: "#fff", fontWeight: "700" },
 
-  hint: { fontSize: 11, color: "#888", fontStyle: "italic", marginTop: 10, textAlign: "center", lineHeight: 16 },
+  hint: { ...UI_STYLES.caption, color: COLORS.textMuted, marginTop: 12 },
 });

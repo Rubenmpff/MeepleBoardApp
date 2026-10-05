@@ -1,3 +1,7 @@
+import { useTranslation } from "react-i18next";
+import { SafeAreaView } from "react-native-safe-area-context";
+import ScreenHeader from "@/src/components/navigation/ScreenHeader";
+import ScreenState from "@/src/components/ui/ScreenState";
 /**
  * PendingJournalScreen.tsx
  *
@@ -17,27 +21,32 @@ import {
   TouchableOpacity,
   ScrollView,
   RefreshControl,
-  ActivityIndicator,
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 
 import matchService from "@/src/features/games/matches/services/matchService";
 import { MatchDto } from "@/src/features/games/matches/types/MatchForm";
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 
 export default function PendingJournalScreen() {
+  const { t, i18n } = useTranslation("matches");
   const router = useRouter();
   const [matches, setMatches] = useState<MatchDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  const [loadError, setLoadError] = useState(false);
+
   const load = useCallback(async (silent = false) => {
     try {
+      setLoadError(false);
       if (!silent) setLoading(true);
       const data = await matchService.getPendingJournalMatches();
       setMatches(data);
     } catch (err) {
+      setLoadError(true);
       console.error("Erro ao carregar partidas pendentes", err);
     } finally {
       setLoading(false);
@@ -53,17 +62,19 @@ export default function PendingJournalScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
+      <SafeAreaView style={styles.screen}>
+        <ScreenHeader title={t("ui.pendingTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} />
+        <ScreenState loading message={t("ui.loading")} />
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={styles.screen}>
+      <ScreenHeader title={t("ui.pendingTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} />
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Avaliações pendentes</Text>
+        <Text style={styles.infoText}>{t("ui.pendingCount", { count: matches.length })}</Text>
 
         {matches.length > 0 && (
           <View style={styles.headerBadge}>
@@ -87,7 +98,7 @@ export default function PendingJournalScreen() {
           />
         }
       >
-        {matches.length === 0 ? (
+        {loadError ? <ScreenState error message={t("ui.pendingError")} onRetry={() => load()} retryLabel={t("ui.retry")} /> : matches.length === 0 ? (
           <View style={styles.emptyWrap}>
             <MaterialIcons
               name="check-circle"
@@ -96,31 +107,19 @@ export default function PendingJournalScreen() {
             />
 
             <Text style={styles.emptyTitle}>
-              Tudo em dia!
+              {t("ui.emptyTitle")}
             </Text>
 
             <Text style={styles.emptyText}>
-              Não tens partidas pendentes de avaliação.
+              {t("ui.emptyBody")}
             </Text>
           </View>
         ) : (
           <>
-            <View style={styles.infoBox}>
-              <MaterialIcons
-                name="info-outline"
-                size={14}
-                color={COLORS.primary}
-              />
-
-              <Text style={styles.infoText}>
-                Tens {matches.length} partida
-                {matches.length > 1 ? "s" : ""} à espera da tua avaliação.
-                Os outros jogadores estão à espera!
-              </Text>
-            </View>
-
             {matches.map((match) => (
               <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={t("ui.evaluate") + ": " + match.gameName}
                 key={match.id}
                 style={styles.card}
                 onPress={() =>
@@ -146,7 +145,7 @@ export default function PendingJournalScreen() {
 
                     <Text style={styles.matchDate}>
                       {new Date(match.matchDate).toLocaleDateString(
-                        "pt-PT",
+                        i18n.language === "pt" ? "pt-PT" : "en-GB",
                         {
                           day: "numeric",
                           month: "short",
@@ -159,7 +158,7 @@ export default function PendingJournalScreen() {
                   <MaterialIcons
                     name="chevron-right"
                     size={22}
-                    color="#ccc"
+                    color={COLORS.textMuted}
                   />
                 </View>
 
@@ -169,7 +168,7 @@ export default function PendingJournalScreen() {
                     <MaterialIcons
                       name="people"
                       size={13}
-                      color="#aaa"
+                      color={COLORS.textMuted}
                     />
 
                     <Text style={styles.playersText}>
@@ -209,7 +208,7 @@ export default function PendingJournalScreen() {
                   />
 
                   <Text style={styles.evaluateBtnText}>
-                    Avaliar esta partida
+                    {t("ui.evaluate")}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -217,7 +216,7 @@ export default function PendingJournalScreen() {
           </>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -227,11 +226,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
 
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
 
   content: {
     padding: 16,
@@ -249,11 +243,6 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
   },
 
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: COLORS.primary,
-  },
 
   headerBadge: {
     backgroundColor: COLORS.error,
@@ -271,37 +260,10 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  infoBox: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 8,
-    backgroundColor: COLORS.primary + "0A",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: COLORS.primary + "25",
-  },
 
-  infoText: {
-    flex: 1,
-    fontSize: 13,
-    color: "#555",
-    lineHeight: 18,
-  },
+  infoText: { ...UI_STYLES.body, flex: 1 },
 
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#eee",
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
-  },
+  card: { ...UI_STYLES.card, padding: 16, marginBottom: 16 },
 
   cardHeader: {
     flexDirection: "row",
@@ -319,17 +281,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  gameName: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: COLORS.onBackground,
-  },
+  gameName: { ...UI_STYLES.section },
 
-  matchDate: {
-    fontSize: 12,
-    color: "#888",
-    marginTop: 2,
-  },
+  matchDate: { ...UI_STYLES.caption, color: COLORS.textMuted, marginTop: 4 },
 
   playersRow: {
     flexDirection: "row",
@@ -338,33 +292,13 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
 
-  playersText: {
-    fontSize: 12,
-    color: "#888",
-  },
+  playersText: { ...UI_STYLES.caption, color: COLORS.textMuted, flex: 1 },
 
-  metaRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 10,
-  },
+  metaRow: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginBottom: 12 },
 
-  metaText: {
-    fontSize: 12,
-    color: "#aaa",
-    fontWeight: "600",
-  },
+  metaText: { ...UI_STYLES.caption, color: COLORS.textMuted },
 
-  evaluateBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: COLORS.primary + "10",
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    alignSelf: "flex-start",
-  },
+  evaluateBtn: { ...UI_STYLES.control, flexDirection: "row", gap: 8, backgroundColor: COLORS.primarySoft, paddingHorizontal: 12, alignSelf: "flex-start" },
 
   evaluateBtnText: {
     fontSize: 13,
@@ -378,16 +312,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#ccc",
-  },
+  emptyTitle: { ...UI_STYLES.section },
 
-  emptyText: {
-    fontSize: 14,
-    color: "#aaa",
-    textAlign: "center",
-    lineHeight: 20,
-  },
+  emptyText: { ...UI_STYLES.body, color: COLORS.textMuted, textAlign: "center" },
 });

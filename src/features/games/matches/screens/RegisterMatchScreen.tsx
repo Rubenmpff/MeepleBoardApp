@@ -1,18 +1,23 @@
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
+import ScreenHeader from "@/src/components/navigation/ScreenHeader";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import RegisterMatchForm from "@/src/features/games/matches/components/RegisterMatchForm";
 import { RootState } from "@/src/store/store";
 
 export default function RegisterMatchScreen() {
+  const { t } = useTranslation("matches");
   const user = useSelector(
     (state: RootState) => state.auth.user
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <ScreenHeader title={t("header.registerMatch")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} />
       <RegisterMatchForm
         currentUser={
           user
@@ -23,7 +28,7 @@ export default function RegisterMatchScreen() {
             : undefined
         }
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

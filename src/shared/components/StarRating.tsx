@@ -6,6 +6,7 @@ import {
   View,
 } from "react-native";
 import { useTranslation } from "react-i18next";
+import { UI_COLORS, APP_THEME } from "@/src/styles/appTheme";
 
 interface StarRatingProps {
   value?: number | null;
@@ -13,6 +14,7 @@ interface StarRatingProps {
   readonly?: boolean;
   size?: number;
   showLabel?: boolean;
+  appearance?: "default" | "refresh";
 }
 
 const STAR_COLOR = "#F9A825";
@@ -26,6 +28,7 @@ function Star({
   readonly,
   halfAccessibilityLabel,
   fullAccessibilityLabel,
+  refresh,
 }: {
   index: number;
   value: number;
@@ -34,6 +37,7 @@ function Star({
   readonly?: boolean;
   halfAccessibilityLabel: string;
   fullAccessibilityLabel: string;
+  refresh?: boolean;
 }) {
   const full = value >= index;
   const half = !full && value >= index - 0.5;
@@ -51,13 +55,15 @@ function Star({
   }
 
   return (
-    <View style={{ width: size, height: size, position: "relative" }}>
+    <View style={{ width: refresh ? 100 : size, height: refresh ? 64 : size, position: "relative" }}>
       <Text
+        allowFontScaling={!refresh}
         style={[
           styles.starBase,
           {
             fontSize: size,
-            color: full ? STAR_COLOR : STAR_EMPTY,
+            color: refresh ? (full ? UI_COLORS.secondary : UI_COLORS.textMuted) : (full ? STAR_COLOR : STAR_EMPTY),
+            ...(refresh ? { position: "absolute", left: (100 - size) / 2 } as const : {}),
           },
         ]}
       >
@@ -65,11 +71,12 @@ function Star({
       </Text>
 
       {half && (
-        <View style={[styles.halfClip, { width: size / 2 }]}>
+        <View style={[styles.halfClip, { width: size / 2, left: refresh ? (100 - size) / 2 : 0 }]}>
           <Text
+            allowFontScaling={!refresh}
             style={[
               styles.starBase,
-              { fontSize: size, color: STAR_COLOR },
+              { fontSize: size, color: refresh ? UI_COLORS.secondary : STAR_COLOR },
             ]}
           >
             ★
@@ -82,21 +89,25 @@ function Star({
           <TouchableOpacity
             style={[
               styles.touchHalf,
-              { width: size / 2, height: size, left: 0 },
+              { width: refresh ? 50 : size / 2, height: refresh ? 64 : size, left: 0 },
             ]}
             onPress={setHalf}
             accessibilityRole="button"
             accessibilityLabel={halfAccessibilityLabel}
-          />
+          >
+            {refresh && <Text style={styles.choice}>{index - 0.5}</Text>}
+          </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.touchHalf,
-              { width: size / 2, height: size, right: 0 },
+              { width: refresh ? 50 : size / 2, height: refresh ? 64 : size, right: 0 },
             ]}
             onPress={setFull}
             accessibilityRole="button"
             accessibilityLabel={fullAccessibilityLabel}
-          />
+          >
+            {refresh && <Text style={styles.choice}>{index}</Text>}
+          </TouchableOpacity>
         </>
       )}
     </View>
@@ -109,9 +120,11 @@ export function StarRating({
   readonly = false,
   size = 32,
   showLabel = true,
+  appearance = "default",
 }: StarRatingProps) {
   const { t } = useTranslation("games");
   const current = value ?? 0;
+  const refresh = appearance === "refresh" && !readonly;
 
   function getRatingLabel(rating: number): string {
     if (rating === 0) return t("rating.none");
@@ -129,7 +142,7 @@ export function StarRating({
 
   return (
     <View style={styles.container}>
-      <View style={styles.starsRow}>
+      <View style={[styles.starsRow, appearance === "refresh" && { flexWrap: "wrap" }, refresh && styles.refreshRow]}>
         {Array.from({ length: 10 }, (_, index) => {
           const star = index + 1;
 
@@ -141,6 +154,7 @@ export function StarRating({
               size={size}
               onChange={onChange}
               readonly={readonly}
+              refresh={refresh}
               halfAccessibilityLabel={t(
                 "rating.setHalfAccessibility",
                 { value: star - 0.5 }
@@ -156,7 +170,7 @@ export function StarRating({
 
       {showLabel && current > 0 && (
         <View style={styles.labelRow}>
-          <Text style={styles.labelValue}>
+          <Text style={[styles.labelValue, refresh && { color: UI_COLORS.onBackground }]}>
             {current.toFixed(1)}/10
           </Text>
           <Text style={styles.labelText}>
@@ -166,7 +180,7 @@ export function StarRating({
       )}
 
       {showLabel && current === 0 && !readonly && (
-        <Text style={styles.labelEmpty}>{t("rating.tapToRate")}</Text>
+        <Text style={[styles.labelEmpty, refresh && { ...APP_THEME.text.caption, color: UI_COLORS.textMuted }]}>{t("rating.tapToRate")}</Text>
       )}
     </View>
   );
@@ -175,6 +189,8 @@ export function StarRating({
 const styles = StyleSheet.create({
   container: { alignItems: "flex-start" },
   starsRow: { flexDirection: "row", gap: 4 },
+  refreshRow: { flexWrap: "wrap", gap: 8 },
+  choice: { ...APP_THEME.text.caption, position: "absolute", bottom: 0, alignSelf: "center", color: UI_COLORS.textMuted },
   starBase: { lineHeight: undefined },
   halfClip: {
     position: "absolute",

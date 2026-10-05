@@ -1,3 +1,6 @@
+import { useTranslation } from "react-i18next";
+import ScreenHeader from "@/src/components/navigation/ScreenHeader";
+import ScreenState from "@/src/components/ui/ScreenState";
 /**
  * MatchDetailScreen.tsx
  *
@@ -9,7 +12,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View,
+  Image, ScrollView, StyleSheet, Text, TouchableOpacity, View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -18,11 +21,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import matchService from "../services/matchService";
 import { MatchDto } from "../types/MatchForm";
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { ROUTES } from "@/src/constants/routes";
 import { RootState } from "@/src/store/store";
 
 export default function MatchDetailScreen() {
+  const { t, i18n } = useTranslation("matches");
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -30,16 +35,19 @@ export default function MatchDetailScreen() {
   const [match, setMatch] = useState<MatchDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;
+    setNotFound(false);
+    setLoadError(false);
     setLoading(true);
     try {
       const data = await matchService.getById(id);
       if (!data) setNotFound(true);
       setMatch(data);
     } catch {
-      setNotFound(true);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -47,13 +55,13 @@ export default function MatchDetailScreen() {
 
   useEffect(() => { void load(); }, [load]);
 
-  if (loading) return <SafeAreaView style={styles.center}><ActivityIndicator color={COLORS.primary} /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={styles.screen}><ScreenHeader title={t("ui.detailsTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} /><ScreenState loading message={t("ui.loading")} /></SafeAreaView>;
 
-  if (notFound || !match) {
+  if (loadError || notFound || !match) {
     return (
-      <SafeAreaView style={styles.center}>
-        <Ionicons name="dice-outline" size={40} color={COLORS.textMuted} />
-        <Text style={styles.emptyTitle}>Partida não encontrada.</Text>
+      <SafeAreaView style={styles.screen}>
+        <ScreenHeader title={t("ui.detailsTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} />
+        <ScreenState error={loadError} message={t(loadError ? "ui.loadError" : "ui.notFound")} onRetry={load} retryLabel={t("ui.retry")} />
       </SafeAreaView>
     );
   }
@@ -63,6 +71,7 @@ export default function MatchDetailScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={["left", "right", "bottom", "top"]}>
+      <ScreenHeader title={t("ui.detailsTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           {match.gameImageUrl ? (
@@ -73,10 +82,10 @@ export default function MatchDetailScreen() {
             </View>
           )}
           <View style={styles.headerInfo}>
-            <Text style={styles.gameName} numberOfLines={2}>{match.gameName}</Text>
-            <Text style={styles.date}>{formatDate(match.matchDate)}</Text>
-            <TouchableOpacity onPress={() => router.push({ pathname: ROUTES.GAME_DETAILS, params: { id: match.gameId } } as never)}>
-              <Text style={styles.link}>Ver jogo</Text>
+            <Text style={styles.gameName} >{match.gameName}</Text>
+            <Text style={styles.date}>{formatDate(match.matchDate, i18n.language)}</Text>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("ui.viewGame")} onPress={() => router.push({ pathname: ROUTES.GAME_DETAILS, params: { id: match.gameId } } as never)}>
+              <Text style={styles.link}>{t("ui.viewGame")}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -90,7 +99,7 @@ export default function MatchDetailScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Jogadores</Text>
+          <Text style={styles.sectionTitle}>{t("steps.players")}</Text>
           <View style={styles.card}>
             {players.map((p, index) => (
               <View key={p.id ?? p.userId} style={[styles.playerRow, index === players.length - 1 && styles.playerRowLast]}>
@@ -101,10 +110,10 @@ export default function MatchDetailScreen() {
                     <Text style={styles.rankBadgeText}>{p.rankPosition ?? index + 1}</Text>
                   )}
                 </View>
-                <Text style={[styles.playerName, isMine(p.userId) && styles.playerNameMine]} numberOfLines={1}>
-                  {isMine(p.userId) ? "Tu" : p.userName ?? "Jogador"}
+                <Text style={[styles.playerName, isMine(p.userId) && styles.playerNameMine]}>
+                  {isMine(p.userId) ? t("players.you") : p.userName ?? t("players.player")}
                 </Text>
-                {typeof p.score === "number" && <Text style={styles.playerScore}>{p.score} pts</Text>}
+                {typeof p.score === "number" && <Text style={styles.playerScore}>{t("ui.points", { score: p.score })}</Text>}
               </View>
             ))}
           </View>
@@ -112,7 +121,7 @@ export default function MatchDetailScreen() {
 
         {!!match.scoreSummary && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Resumo</Text>
+            <Text style={styles.sectionTitle}>{t("ui.summary")}</Text>
             <View style={styles.card}><Text style={styles.scoreSummary}>{match.scoreSummary}</Text></View>
           </View>
         )}
@@ -136,49 +145,39 @@ function duration(minutes: number) {
   return h ? `${h}h${m ? ` ${m}m` : ""}` : `${m}m`;
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("pt-PT", { day: "numeric", month: "long", year: "numeric" }).format(new Date(value));
+function formatDate(value: string, language: string) {
+  return new Intl.DateTimeFormat(language === "pt" ? "pt-PT" : "en-GB", { day: "numeric", month: "long", year: "numeric" }).format(new Date(value));
 }
-
-const cardShadow = {
-  shadowColor: "#0B1220",
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.06,
-  shadowRadius: 12,
-  elevation: 2,
-};
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: COLORS.background, gap: 10 },
-  emptyTitle: { color: COLORS.textMuted, fontWeight: "700" },
   content: { padding: 16, paddingBottom: 40 },
 
   header: { flexDirection: "row", alignItems: "center" },
   cover: { width: 76, height: 76, borderRadius: 14, backgroundColor: COLORS.surface },
   coverPlaceholder: { alignItems: "center", justifyContent: "center" },
   headerInfo: { flex: 1, marginLeft: 14 },
-  gameName: { fontSize: 20, fontWeight: "800", color: COLORS.onBackground },
-  date: { marginTop: 3, color: COLORS.textMuted, fontSize: 13 },
-  link: { marginTop: 6, color: COLORS.primary, fontWeight: "700", fontSize: 13 },
+  gameName: { ...UI_STYLES.title },
+  date: { ...UI_STYLES.caption, color: COLORS.textMuted, marginTop: 4 },
+  link: { ...UI_STYLES.body, color: COLORS.primary, fontWeight: "700", paddingVertical: 12 },
 
   metaRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 16 },
   metaChip: { flexDirection: "row", alignItems: "center", backgroundColor: COLORS.surface, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, gap: 6 },
-  metaChipText: { color: COLORS.textMuted, fontSize: 12, fontWeight: "600" },
+  metaChipText: { ...UI_STYLES.caption, color: COLORS.textMuted, flexShrink: 1 },
 
   section: { marginTop: 22 },
-  sectionTitle: { fontSize: 16, fontWeight: "800", color: COLORS.onBackground, marginBottom: 9 },
+  sectionTitle: { ...UI_STYLES.section, marginBottom: 12 },
   // Sem overflow:"hidden" — no iOS isso corta a sombra do card.
-  card: { backgroundColor: COLORS.card, borderRadius: 16, ...cardShadow },
+  card: { ...UI_STYLES.card },
 
   playerRow: { flexDirection: "row", alignItems: "center", padding: 13, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.border },
   playerRowLast: { borderBottomWidth: 0 },
   rankBadge: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: COLORS.surface },
   rankBadgeWinner: { backgroundColor: COLORS.star },
   rankBadgeText: { fontWeight: "800", color: COLORS.textMuted, fontSize: 12 },
-  playerName: { flex: 1, marginLeft: 11, fontWeight: "700", color: COLORS.onBackground },
+  playerName: { ...UI_STYLES.body, flex: 1, marginLeft: 12, fontWeight: "700" },
   playerNameMine: { color: COLORS.primary },
-  playerScore: { fontWeight: "800", color: COLORS.onBackground },
+  playerScore: { ...UI_STYLES.body, fontWeight: "800", flexShrink: 1 },
 
-  scoreSummary: { padding: 14, color: COLORS.onBackground, lineHeight: 20 },
+  scoreSummary: { ...UI_STYLES.body, padding: 16 },
 });

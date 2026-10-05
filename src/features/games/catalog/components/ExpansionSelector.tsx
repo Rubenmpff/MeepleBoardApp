@@ -1,3 +1,4 @@
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -17,13 +18,14 @@ import { Game } from "../types/Game";
 import { GameSuggestion } from "../types/GameSuggestion";
 
 type Props = {
+  appearance?: "default" | "refresh";
   baseGameId: string;
   selectedExpansions: Game[];
   onChange: (newSelected: Game[]) => void;
 };
 
 export const ExpansionSelector = memo(
-  ({ baseGameId, selectedExpansions, onChange }: Props) => {
+  ({ baseGameId, selectedExpansions, onChange, appearance = "default" }: Props) => {
     const { t } = useTranslation("games");
     const [expansions, setExpansions] = useState<Game[]>([]);
     const [loading, setLoading] = useState(false);
@@ -100,7 +102,7 @@ export const ExpansionSelector = memo(
 
     return (
       <View style={styles.container}>
-        <Text style={styles.label}>{t("expansions.title")}</Text>
+        <Text style={[styles.label, appearance === "refresh" && UI_STYLES.body]}>{t("expansions.title")}</Text>
 
         {loading ? (
           <ActivityIndicator size="small" color={COLORS.primary} />
@@ -129,6 +131,7 @@ export const ExpansionSelector = memo(
                   onPress={() => toggleExpansion(item)}
                   style={[
                     styles.expansionItem,
+                    appearance === "refresh" && { ...UI_STYLES.card, minHeight: 64, padding: 12 },
                     isSelected && styles.selectedItem,
                   ]}
                 >
@@ -139,7 +142,7 @@ export const ExpansionSelector = memo(
                     />
                   )}
 
-                  <Text style={styles.name} numberOfLines={1}>
+                  <Text style={[styles.name, appearance === "refresh" && UI_STYLES.body]} numberOfLines={appearance === "refresh" ? undefined : 1}>
                     {item.name}
                   </Text>
 

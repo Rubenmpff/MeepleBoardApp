@@ -1,3 +1,4 @@
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -21,9 +22,10 @@ import { Game } from "../types/Game";
 
 type Props = {
   onSelect: (game: Game) => void;
+  appearance?: "default" | "refresh";
 };
 
-export const GameSelector = ({ onSelect }: Props) => {
+export const GameSelector = ({ onSelect, appearance = "default" }: Props) => {
   const { t } = useTranslation("games");
   const [query, setQuery] = useState("");
   const [notFound, setNotFound] = useState(false);
@@ -89,7 +91,7 @@ export const GameSelector = ({ onSelect }: Props) => {
           setNotFound(false);
           debouncedFetch(text);
         }}
-        style={styles.input}
+        style={[styles.input, appearance === "refresh" && UI_STYLES.field]}
         placeholderTextColor={COLORS.textMuted}
         autoCorrect={false}
       />
@@ -102,7 +104,7 @@ export const GameSelector = ({ onSelect }: Props) => {
       )}
 
       {suggestions.length > 0 && (
-        <View style={styles.card}>
+        <View style={[styles.card, appearance === "refresh" && UI_STYLES.card]}>
           <ScrollView
             style={styles.results}
             keyboardShouldPersistTaps="handled"
@@ -129,7 +131,7 @@ export const GameSelector = ({ onSelect }: Props) => {
                 onPress={() => {
                   void handleSelect(item.name);
                 }}
-                style={styles.item}
+                style={[styles.item, appearance === "refresh" && { minHeight: 64, padding: 12 }]}
                 accessibilityRole="button"
               >
                 {item.imageUrl ? (
@@ -148,7 +150,7 @@ export const GameSelector = ({ onSelect }: Props) => {
                   </View>
                 )}
 
-                <Text style={styles.itemText}>
+                <Text style={[styles.itemText, appearance === "refresh" && UI_STYLES.body]}>
                   {item.name}
                   {item.yearPublished
                     ? ` (${item.yearPublished})`

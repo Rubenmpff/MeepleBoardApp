@@ -6,13 +6,14 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  FlatList,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 import { MaterialIcons } from "@expo/vector-icons";
 
 import { User } from "../types/User";
 import { PlayerState } from "../types/PlayerState";
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 
 type Props = {
   /** Lista de utilizadores disponíveis para adicionar (friends ou membros accepted da sessão) */
@@ -84,11 +85,12 @@ export default function PlayerSelector({
   players,
   onChange,
   currentUser,
-  title = "Players",
+  title,
   mode = "quick",
   lockCurrentUser,
   maxResults = 12,
 }: Props) {
+  const { t } = useTranslation("matches");
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -178,7 +180,7 @@ export default function PlayerSelector({
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
-        {title} {selectedCount > 0 ? `(${selectedCount})` : ""}
+        {title ?? t("steps.players")} {selectedCount > 0 ? `(${selectedCount})` : ""}
       </Text>
 
       {/* Selected chips */}
@@ -187,11 +189,11 @@ export default function PlayerSelector({
           {players.map((p) => (
             <View key={p.id} style={[styles.chip, p.isWinner && styles.chipWinner]}>
               <Text style={styles.chipText}>
-                {p.username} {isMe(p.id) ? "(you)" : ""}
+                {p.username} {isMe(p.id) ? `(${t("players.you")})` : ""}
               </Text>
 
               {!(shouldLockMe && isMe(p.id)) && (
-                <TouchableOpacity onPress={() => removePlayer(p.id)} style={styles.chipRemove}>
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("selector.removePlayer", { name: p.username })} onPress={() => removePlayer(p.id)} style={styles.chipRemove}>
                   <Text style={styles.chipRemoveText}>×</Text>
                 </TouchableOpacity>
               )}
@@ -201,11 +203,13 @@ export default function PlayerSelector({
       )}
 
       {/* Search bar */}
-      <Text style={styles.section}>Add players</Text>
+      <Text style={styles.section}>{t("selector.addPlayers")}</Text>
       <View style={styles.searchWrap}>
-        <MaterialIcons name="search" size={18} color="#777" />
+        <MaterialIcons name="search" size={18} color={COLORS.textMuted} />
         <TextInput
-          placeholder={mode === "session" ? "Search members..." : "Search friends..."}
+          placeholder={mode === "session" ? t("selector.searchMembers") : t("selector.searchFriends")}
+          accessibilityLabel={mode === "session" ? t("selector.searchMembers") : t("selector.searchFriends")}
+          placeholderTextColor={COLORS.textMuted}
           value={query}
           onChangeText={setQuery}
           style={styles.searchInput}
@@ -214,8 +218,8 @@ export default function PlayerSelector({
           returnKeyType="search"
         />
         {!!query && (
-          <TouchableOpacity onPress={clearSearch} style={styles.clearBtn} hitSlop={8}>
-            <MaterialIcons name="close" size={18} color="#777" />
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("selector.clear")} onPress={clearSearch} style={styles.clearBtn} hitSlop={8}>
+            <MaterialIcons name="close" size={18} color={COLORS.textMuted} />
           </TouchableOpacity>
         )}
       </View>
@@ -223,54 +227,53 @@ export default function PlayerSelector({
       {/* Suggestions */}
       {filteredToAdd.length === 0 ? (
         <Text style={styles.emptyText}>
-          {debouncedQuery.trim() ? "No matches found." : "No more players to add."}
+          {debouncedQuery.trim() ? t("selector.noMatches") : t("selector.noMore")}
         </Text>
       ) : (
-        <FlatList
-          data={filteredToAdd}
-          keyExtractor={(i) => i.id}
-          scrollEnabled={false}
-          renderItem={({ item }) => {
+        <View>
+          {filteredToAdd.map((item) => {
             const parts = highlightParts(item.userName || "—", debouncedQuery);
             return (
-              <View style={styles.friendRow}>
-                <Text style={styles.friendName} numberOfLines={1}>
+              <View key={item.id} style={styles.friendRow}>
+                <Text style={styles.friendName}>
                   {parts.map((p, idx) => (
                     <Text key={idx} style={p.match ? styles.friendNameMatch : undefined}>
                       {p.text}
                     </Text>
                   ))}
                 </Text>
-                <TouchableOpacity style={styles.addBtn} onPress={() => addPlayer(item)}>
-                  <Text style={styles.addBtnText}>Add</Text>
+                <TouchableOpacity style={styles.addBtn} accessibilityRole="button" accessibilityLabel={t("selector.addPlayer", { name: item.userName })} onPress={() => addPlayer(item)}>
+                  <Text style={styles.addBtnText}>{t("selector.add")}</Text>
                 </TouchableOpacity>
               </View>
             );
-          }}
-        />
+          })}
+        </View>
       )}
 
       {/* Details */}
       {players.length > 0 && (
         <>
-          <Text style={styles.section}>Details</Text>
+          <Text style={styles.section}>{t("selector.details")}</Text>
 
           {players.map((p) => (
             <View key={p.id} style={styles.playerCard}>
               <View style={styles.playerHeader}>
                 <Text style={styles.playerName}>
-                  {p.username} {isMe(p.id) ? "(you)" : ""}
+                  {p.username} {isMe(p.id) ? `(${t("players.you")})` : ""}
                 </Text>
 
                 {!(shouldLockMe && isMe(p.id)) && (
-                  <TouchableOpacity style={styles.removeBtn} onPress={() => removePlayer(p.id)}>
-                    <Text style={styles.removeBtnText}>Remove</Text>
+                  <TouchableOpacity style={styles.removeBtn} accessibilityRole="button" accessibilityLabel={t("selector.removePlayer", { name: p.username })} onPress={() => removePlayer(p.id)}>
+                    <Text style={styles.removeBtnText}>{t("selector.remove")}</Text>
                   </TouchableOpacity>
                 )}
               </View>
 
               <TextInput
-                placeholder="Score (optional)"
+                placeholder={t("players.finalScoreOptional")}
+                accessibilityLabel={t("selector.scoreFor", { name: p.username })}
+                placeholderTextColor={COLORS.textMuted}
                 style={styles.score}
                 value={p.score ?? ""}
                 keyboardType="numeric"
@@ -280,13 +283,13 @@ export default function PlayerSelector({
               {winnerEnabled ? (
                 <TouchableOpacity
                   style={[styles.winnerBtn, p.isWinner && styles.winnerBtnActive]}
-                  onPress={() => setWinner(p.id)}
+                  accessibilityRole="radio" accessibilityLabel={t("selector.winnerFor", { name: p.username })} accessibilityState={{ selected: p.isWinner }} onPress={() => setWinner(p.id)}
                 >
-                  <Text style={styles.winnerText}>{p.isWinner ? "🏆 Winner" : "Set as winner"}</Text>
+                  <Text style={styles.winnerText}>{p.isWinner ? t("selector.winner") : t("selector.setWinner")}</Text>
                 </TouchableOpacity>
               ) : (
                 <View style={styles.winnerHintBox}>
-                  <Text style={styles.winnerHintText}>Solo match: winner is optional.</Text>
+                  <Text style={styles.winnerHintText}>{t("selector.soloHint")}</Text>
                 </View>
               )}
             </View>
@@ -299,47 +302,22 @@ export default function PlayerSelector({
 
 const styles = StyleSheet.create({
   container: { marginTop: 10 },
-  title: { fontWeight: "900", fontSize: 16, marginBottom: 10, color: COLORS.onBackground },
+  title: { ...UI_STYLES.section, marginBottom: 12 },
 
   chipsWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 10 },
-  chip: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f1f1f1",
-    borderRadius: 999,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-  },
+  chip: { maxWidth: "100%", flexDirection: "row", alignItems: "center", backgroundColor: COLORS.primarySoft, borderRadius: 12, paddingLeft: 12, paddingRight: 4, minHeight: 44 },
   chipWinner: { backgroundColor: "rgba(92,184,92,0.20)" },
-  chipText: { fontWeight: "800", color: COLORS.onBackground },
-  chipRemove: {
-    marginLeft: 8,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ddd",
-  },
+  chipText: { ...UI_STYLES.body, flexShrink: 1 },
+  chipRemove: { ...UI_STYLES.iconButton, marginLeft: 4 },
   chipRemoveText: { fontWeight: "900", color: "#444", marginTop: -1 },
 
-  section: { marginTop: 10, marginBottom: 8, fontWeight: "900", color: COLORS.onBackground },
+  section: { ...UI_STYLES.body, fontWeight: "700", marginTop: 16, marginBottom: 8 },
 
-  searchWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: "#fff",
-  },
-  searchInput: { flex: 1, fontWeight: "700", color: COLORS.onBackground },
-  clearBtn: { padding: 2 },
+  searchWrap: { ...UI_STYLES.field, flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 0 },
+  searchInput: { ...UI_STYLES.body, flex: 1, minHeight: 52, color: COLORS.onBackground },
+  clearBtn: { ...UI_STYLES.iconButton },
 
-  emptyText: { color: "#666", marginTop: 8, marginBottom: 8, fontWeight: "700" },
+  emptyText: { ...UI_STYLES.caption, color: COLORS.textMuted, marginVertical: 12 },
 
   friendRow: {
     flexDirection: "row",
@@ -353,20 +331,20 @@ const styles = StyleSheet.create({
   friendName: { fontSize: 15, fontWeight: "900", color: COLORS.onBackground, flex: 1, paddingRight: 10 },
   friendNameMatch: { textDecorationLine: "underline" },
 
-  addBtn: { backgroundColor: COLORS.primary, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 },
+  addBtn: { ...UI_STYLES.control, paddingHorizontal: 16, backgroundColor: COLORS.primary },
   addBtnText: { color: "#fff", fontWeight: "900" },
 
-  playerCard: { backgroundColor: "#fff", borderRadius: 12, borderWidth: 1, borderColor: "#eee", padding: 12, marginTop: 10 },
-  playerHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 },
-  playerName: { fontSize: 16, fontWeight: "900", color: COLORS.onBackground },
+  playerCard: { ...UI_STYLES.card, padding: 16, marginTop: 12 },
+  playerHeader: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 12 },
+  playerName: { ...UI_STYLES.body, fontWeight: "700", flex: 1, minWidth: 90 },
 
-  removeBtn: { backgroundColor: "#d9534f", paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 },
+  removeBtn: { ...UI_STYLES.control, paddingHorizontal: 12, backgroundColor: COLORS.error },
   removeBtnText: { color: "#fff", fontWeight: "900" },
 
-  score: { borderWidth: 1, borderColor: "#ccc", borderRadius: 12, padding: 10, backgroundColor: "#fff", marginBottom: 10, fontWeight: "700" },
+  score: { ...UI_STYLES.field, marginBottom: 12 },
 
-  winnerBtn: { backgroundColor: "#ccc", paddingVertical: 12, borderRadius: 12, alignItems: "center" },
-  winnerBtnActive: { backgroundColor: "#5cb85c" },
+  winnerBtn: { ...UI_STYLES.button, backgroundColor: COLORS.textMuted },
+  winnerBtnActive: { backgroundColor: COLORS.success },
   winnerText: { color: "#fff", fontWeight: "900" },
 
   winnerHintBox: {
@@ -378,5 +356,5 @@ const styles = StyleSheet.create({
     borderColor: "#eee",
     alignItems: "center",
   },
-  winnerHintText: { color: "#777", fontWeight: "900" },
+  winnerHintText: { ...UI_STYLES.caption, color: COLORS.textMuted },
 });

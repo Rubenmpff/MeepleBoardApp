@@ -4,16 +4,16 @@ import { APP_THEME as theme } from "@/src/styles/appTheme";
 
 type Props = {
   title: string; description?: string; icon?: ReactNode; onPress: () => void;
-  variant?: "primary" | "secondary"; loading?: boolean;
+  variant?: "primary" | "secondary"; loading?: boolean; disabled?: boolean;
 };
 
-export default function PrimaryButton({ title, description, icon, onPress, variant = "primary", loading }: Props) {
+export default function PrimaryButton({ title, description, icon, onPress, variant = "primary", loading, disabled }: Props) {
   const secondary = variant === "secondary";
   return (
     <Pressable
-      style={({ pressed }) => [styles.base, secondary && styles.secondary, (pressed || loading) && styles.pressed]}
-      onPress={onPress} disabled={loading} accessibilityRole="button" accessibilityLabel={title}
-      accessibilityHint={description} accessibilityState={{ disabled: !!loading, busy: !!loading }}
+      style={({ pressed }) => [styles.base, secondary && styles.secondary, (pressed || loading) && styles.pressed, disabled && styles.disabled]}
+      onPress={onPress} disabled={!!loading || !!disabled} accessibilityRole="button" accessibilityLabel={title}
+      accessibilityHint={description} accessibilityState={{ disabled: !!loading || !!disabled, busy: !!loading }}
     >
       {loading ? <ActivityIndicator color={secondary ? theme.colors.primary : theme.colors.onPrimary} /> : (
         <>
@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
   },
   secondary: { backgroundColor: theme.colors.primarySoft, borderRadius: theme.radius.small },
   pressed: { opacity: 0.8 },
+  disabled: { opacity: 0.45 },
   content: { flex: 1, minWidth: 0 },
   title: { fontSize: 17, lineHeight: 24, fontWeight: "700", color: theme.colors.onPrimary },
   secondaryText: { color: theme.colors.primary },
