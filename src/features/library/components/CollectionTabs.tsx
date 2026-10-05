@@ -1,16 +1,18 @@
+import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionTabs.tsx
 import React, { useRef } from "react";
 import { Animated, LayoutChangeEvent, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
 
 export type CollectionTab = "ALL" | GameLibraryStatus.Owned | GameLibraryStatus.Wishlist | "PLAYED";
 
 const TABS: { value: CollectionTab; label: string }[] = [
-  { value: "ALL", label: "Todos" },
-  { value: GameLibraryStatus.Owned, label: "Tenho" },
-  { value: GameLibraryStatus.Wishlist, label: "Quero" },
-  { value: "PLAYED", label: "Já joguei" },
+  { value: "ALL", label: "all" },
+  { value: GameLibraryStatus.Owned, label: "owned" },
+  { value: GameLibraryStatus.Wishlist, label: "wanted" },
+  { value: "PLAYED", label: "playedTab" },
 ];
 
 type Props = {
@@ -19,6 +21,7 @@ type Props = {
 };
 
 export function CollectionTabs({ active, onChange }: Props) {
+  const { t: uiT } = useTranslation("library");
   const indicatorX = useRef(new Animated.Value(0)).current;
   const tabWidths = useRef<number[]>([]);
 
@@ -38,6 +41,9 @@ export function CollectionTabs({ active, onChange }: Props) {
         {TABS.map((tab, index) => (
           <TouchableOpacity
             key={String(tab.value)}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: active === tab.value }}
+            accessibilityLabel={uiT(`ui.${tab.label}`)}
             style={styles.tab}
             onLayout={handleLayout(index)}
             onPress={() => {
@@ -47,7 +53,7 @@ export function CollectionTabs({ active, onChange }: Props) {
             activeOpacity={0.7}
           >
             <Text style={[styles.tabText, active === tab.value && styles.tabTextActive]}>
-              {tab.label}
+              {uiT(`ui.${tab.label}`)}
             </Text>
           </TouchableOpacity>
         ))}
@@ -66,8 +72,8 @@ export function CollectionTabs({ active, onChange }: Props) {
 const styles = StyleSheet.create({
   wrap: { marginBottom: 14 },
   row: { flexDirection: "row" },
-  tab: { flex: 1, paddingVertical: 10, alignItems: "center" },
-  tabText: { fontSize: 13, fontWeight: "600", color: COLORS.textMuted },
+  tab: { ...UI_STYLES.control, flex: 1, paddingVertical: 10, alignItems: "center" },
+  tabText: { ...UI_STYLES.caption, fontWeight: "600", color: COLORS.textMuted, textAlign: "center" },
   tabTextActive: { color: COLORS.primary, fontWeight: "800" },
   trackBg: { height: 2, backgroundColor: COLORS.border, marginTop: -2 },
   indicator: { height: 2, backgroundColor: COLORS.primary, marginTop: -2, borderRadius: 2 },

@@ -4,14 +4,20 @@ import {
   RefreshControl,
   StyleSheet,
   View,
+  Text,
+  useWindowDimensions,
 } from "react-native";
 import { router } from "expo-router";
 import {
   SafeAreaView,
 } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import { useTranslation } from "react-i18next";
+import { APP_THEME as theme } from "@/src/styles/appTheme";
+import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import SectionCard from "@/src/components/ui/SectionCard";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 
 import { CollectionHeader } from "../components/CollectionHeader";
 import { CollectionSearchBar } from "../components/CollectionSearchBar";
@@ -42,6 +48,8 @@ import {
 import { ROUTES } from "@/src/constants/routes";
 
 export default function MyLibraryScreen() {
+  const { t } = useTranslation("library");
+  const { width, fontScale } = useWindowDimensions();
   const { library = [], loading, error, refetch } = useUserLibrary();
   const { playedGames, loading: playedLoading } = usePlayedGames();
   const { removeGame, updateGame } = useLibraryActions();
@@ -105,10 +113,10 @@ export default function MyLibraryScreen() {
       if (entry.status === GameLibraryStatus.Wishlist) {
         try {
           await updateGame(entry.gameId, GameLibraryStatus.Owned, entry.pricePaid);
-          Toast.show({ type: "success", text1: `Agora tens ${entry.gameName} 🎉` });
+          Toast.show({ type: "success", text1: t("ui.added", { name: entry.gameName }) });
         } catch (err) {
           console.error("Erro ao mover para a coleção:", err);
-          Toast.show({ type: "error", text1: "Não foi possível adicionar à coleção." });
+          Toast.show({ type: "error", text1: t("ui.addError") });
         }
         return;
       }
@@ -117,7 +125,7 @@ export default function MyLibraryScreen() {
       // pré-selecionado por parâmetro — navega para o ecrã genérico.
       router.push(ROUTES.REGISTER_MATCH as any);
     },
-    [updateGame]
+    [updateGame, t]
   );
 
   const handleCardPress = useCallback((entry: CollectionEntry) => {
@@ -151,84 +159,87 @@ export default function MyLibraryScreen() {
 
   const emptyVariant =
     filterCount > 0 ? "filters" :
-    search.trim() ? "search" :
-    activeTab === GameLibraryStatus.Wishlist ? "wishlist" :
-    activeTab === "PLAYED" ? "played" : "collection";
+      search.trim() ? "search" :
+        activeTab === GameLibraryStatus.Wishlist ? "wishlist" :
+          activeTab === "PLAYED" ? "played" : "collection";
+
+  const columns = viewMode === "grid" && width >= 360 && fontScale <= 1.25 ? 2 : 1;
+  const listHeader = (
+    <View>
+      <CollectionHeader
+        totalCount={counts.total}
+        ownedCount={counts.owned}
+        wishlistCount={counts.wishlist}
+        playedCount={counts.played}
+        totalSpent={counts.totalSpent}
+        activeFilter={activeTab}
+        onAddPress={() => router.push("/games/search")}
+      />
+
+      <CollectionSearchBar value={search} onChangeText={setSearch} />
+
+      <CollectionTabs active={activeTab} onChange={setActiveTab} />
+
+      <CollectionToolbar
+        viewMode={viewMode}
+        onChangeViewMode={setViewMode}
+        activeFilterCount={filterCount}
+        onFiltersPress={() => setFiltersVisible(true)}
+        sort={sort}
+        onSortPress={() => setSortVisible(true)}
+      />
+
+      <ActiveFilterChips
+        filters={filters}
+        onChange={setFilters}
+        onClearAll={() => setFilters(EMPTY_FILTERS)}
+      />
+
+      {activeTab === "ALL" && !search.trim() && filterCount === 0 && (
+        <CollectionHighlight
+          entries={allEntries}
+          onViewGame={handleCardPress}
+          onRegisterMatch={handlePrimaryAction}
+        />
+      )}
+
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right", "bottom"]}>
       <View style={styles.content}>
-        <CollectionHeader
-          totalCount={counts.total}
-          ownedCount={counts.owned}
-          wishlistCount={counts.wishlist}
-          playedCount={counts.played}
-          totalSpent={counts.totalSpent}
-          activeFilter={activeTab}
-          onAddPress={() => router.push("/games/search")}
-        />
-
-        <CollectionSearchBar value={search} onChangeText={setSearch} />
-
-        <CollectionTabs active={activeTab} onChange={setActiveTab} />
-
-        <CollectionToolbar
-          viewMode={viewMode}
-          onChangeViewMode={setViewMode}
-          activeFilterCount={filterCount}
-          onFiltersPress={() => setFiltersVisible(true)}
-          sort={sort}
-          onSortPress={() => setSortVisible(true)}
-        />
-
-        <ActiveFilterChips
-          filters={filters}
-          onChange={setFilters}
-          onClearAll={() => setFilters(EMPTY_FILTERS)}
-        />
-
-        {activeTab === "ALL" && !search.trim() && filterCount === 0 && (
-          <CollectionHighlight
-            entries={allEntries}
-            onViewGame={handleCardPress}
-            onRegisterMatch={handlePrimaryAction}
-          />
-        )}
-
-        {isLoading ? (
-          <CollectionSkeleton viewMode={viewMode} />
-        ) : visibleEntries.length === 0 ? (
-          <CollectionEmptyState
-            variant={emptyVariant as any}
-            onActionPress={
-              filterCount > 0 ? () => setFilters(EMPTY_FILTERS) :
-              search.trim() ? () => setSearch("") :
-              () => router.push("/games/search")
-            }
-          />
-        ) : (
-          <FlatList
-            key={viewMode} // força novo layout ao trocar grelha/lista
-            data={visibleEntries}
-            keyExtractor={(item) => item.gameId}
-            numColumns={viewMode === "grid" ? 2 : 1}
-            columnWrapperStyle={viewMode === "grid" ? styles.gridColumnWrap : undefined}
-            renderItem={({ item, index }) =>
-              viewMode === "grid" ? (
-                <View style={styles.gridItemWrap}>
-                  <CollectionFadeIn index={index}>
-                    <CollectionGridCard
-                      entry={item}
-                      onPress={() => handleCardPress(item)}
-                      onLongPress={() => handleLongPress(item)}
-                      onPrimaryAction={() => handlePrimaryAction(item)}
-                      onMenuPress={() => setActionsEntry(item)}
-                    />
-                  </CollectionFadeIn>
-                </View>
-              ) : (
+        <FlatList
+          key={`${viewMode}-${columns}`}
+          data={isLoading ? [] : visibleEntries}
+          ListHeaderComponent={listHeader}
+          ListEmptyComponent={isLoading ? (
+            <View accessibilityLabel={t("common:loading")} accessibilityState={{ busy: true }}>
+              <CollectionSkeleton viewMode={viewMode} />
+            </View>
+          ) : error ? (
+            <SectionCard>
+              <Text style={styles.errorText} accessibilityRole="alert">{t("toast.loadErrorDescription")}</Text>
+              <PrimaryButton title={t("screen.retry")} onPress={() => { void refetch(); }} variant="secondary" />
+            </SectionCard>
+          ) : (
+            <CollectionEmptyState
+              variant={emptyVariant as any}
+              onActionPress={
+                filterCount > 0 ? () => setFilters(EMPTY_FILTERS) :
+                  search.trim() ? () => setSearch("") :
+                    () => router.push("/games/search")
+              }
+            />
+          )}
+          keyExtractor={(item) => item.gameId}
+          numColumns={columns}
+          columnWrapperStyle={columns === 2 ? styles.gridColumnWrap : undefined}
+          renderItem={({ item, index }) =>
+            viewMode === "grid" ? (
+              <View style={styles.gridItemWrap}>
                 <CollectionFadeIn index={index}>
-                  <CollectionListItem
+                  <CollectionGridCard
                     entry={item}
                     onPress={() => handleCardPress(item)}
                     onLongPress={() => handleLongPress(item)}
@@ -236,14 +247,25 @@ export default function MyLibraryScreen() {
                     onMenuPress={() => setActionsEntry(item)}
                   />
                 </CollectionFadeIn>
-              )
-            }
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
-            }
-            contentContainerStyle={styles.listContent}
-          />
-        )}
+              </View>
+            ) : (
+              <CollectionFadeIn index={index}>
+                <CollectionListItem
+                  entry={item}
+                  onPress={() => handleCardPress(item)}
+                  onLongPress={() => handleLongPress(item)}
+                  onPrimaryAction={() => handlePrimaryAction(item)}
+                  onMenuPress={() => setActionsEntry(item)}
+                />
+              </CollectionFadeIn>
+            )
+          }
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+          }
+          contentContainerStyle={styles.listContent}
+          keyboardShouldPersistTaps="handled"
+        />
       </View>
 
       {manageEntry?.game && (
@@ -281,9 +303,10 @@ export default function MyLibraryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  content: { flex: 1, paddingHorizontal: 16, paddingTop: 12 },
-  gridColumnWrap: { gap: 12 },
-  gridItemWrap: { flex: 1, marginBottom: 12 },
-  listContent: { paddingBottom: 24 },
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  content: { flex: 1, width: "100%", maxWidth: 680, alignSelf: "center" },
+  gridColumnWrap: { gap: theme.space.md },
+  gridItemWrap: { flex: 1, marginBottom: theme.space.md },
+  listContent: { padding: theme.space.lg, paddingBottom: theme.space.xxl },
+  errorText: { ...theme.text.body, color: theme.colors.muted, marginBottom: theme.space.lg },
 });

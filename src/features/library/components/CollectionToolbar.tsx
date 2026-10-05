@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionToolbar.tsx
 
 import React from "react";
@@ -9,11 +10,11 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 
 import { ViewMode } from "../hooks/useViewModePreference";
 import {
-  SORT_LABELS,
   SortOption,
 } from "../utils/collectionHelpers";
 
@@ -34,6 +35,7 @@ export function CollectionToolbar({
   sort,
   onSortPress,
 }: Props) {
+  const { t: uiT } = useTranslation("library");
   return (
     <View style={styles.row}>
       <TouchableOpacity
@@ -41,7 +43,7 @@ export function CollectionToolbar({
         onPress={onFiltersPress}
         activeOpacity={0.8}
         accessibilityRole="button"
-        accessibilityLabel="Abrir filtros"
+        accessibilityLabel={uiT("ui.openFilters")}
       >
         <MaterialIcons
           name="tune"
@@ -50,7 +52,7 @@ export function CollectionToolbar({
         />
 
         <Text style={styles.filtersText}>
-          Filtros
+          {uiT("ui.filters")}
         </Text>
 
         {activeFilterCount > 0 && (
@@ -67,13 +69,13 @@ export function CollectionToolbar({
         onPress={onSortPress}
         activeOpacity={0.8}
         accessibilityRole="button"
-        accessibilityLabel="Alterar ordenação"
+        accessibilityLabel={uiT("ui.changeSort")}
       >
         <Text
           style={styles.sortText}
-          numberOfLines={1}
+          numberOfLines={2}
         >
-          {SORT_LABELS[sort]}
+          {uiT(`ui.sort.${sort}`)}
         </Text>
 
         <MaterialIcons
@@ -91,7 +93,7 @@ export function CollectionToolbar({
           style={[
             styles.viewBtn,
             viewMode === "grid" &&
-              styles.viewBtnActive,
+            styles.viewBtnActive,
           ]}
           onPress={() =>
             onChangeViewMode("grid")
@@ -102,7 +104,7 @@ export function CollectionToolbar({
             checked:
               viewMode === "grid",
           }}
-          accessibilityLabel="Vista em grelha"
+          accessibilityLabel={uiT("ui.grid")}
         >
           <MaterialIcons
             name="view-module"
@@ -119,7 +121,7 @@ export function CollectionToolbar({
           style={[
             styles.viewBtn,
             viewMode === "list" &&
-              styles.viewBtnActive,
+            styles.viewBtnActive,
           ]}
           onPress={() =>
             onChangeViewMode("list")
@@ -130,7 +132,7 @@ export function CollectionToolbar({
             checked:
               viewMode === "list",
           }}
-          accessibilityLabel="Vista em lista"
+          accessibilityLabel={uiT("ui.list")}
         >
           <MaterialIcons
             name="view-list"
@@ -149,6 +151,7 @@ export function CollectionToolbar({
 
 const styles = StyleSheet.create({
   row: {
+    flexWrap: "wrap",
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
@@ -156,23 +159,18 @@ const styles = StyleSheet.create({
   },
 
   filtersBtn: {
-    minHeight: 40,
+    ...UI_STYLES.control,
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.border,
     paddingHorizontal: 10,
     paddingVertical: 8,
   },
 
-  filtersText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: COLORS.onBackground,
-  },
+  filtersText: { ...UI_STYLES.caption, fontWeight: "700", color: COLORS.onBackground },
 
   badge: {
     minWidth: 17,
@@ -191,29 +189,23 @@ const styles = StyleSheet.create({
   },
 
   sortBtn: {
+    minWidth: 140,
+    ...UI_STYLES.control,
     flex: 1,
-    minHeight: 40,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
     gap: 4,
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.border,
     paddingHorizontal: 10,
     paddingVertical: 8,
   },
 
-  sortText: {
-    flexShrink: 1,
-    fontSize: 12,
-    fontWeight: "700",
-    color: COLORS.onBackground,
-  },
+  sortText: { ...UI_STYLES.caption, flexShrink: 1, fontWeight: "700", color: COLORS.onBackground },
 
   viewToggle: {
-    minHeight: 40,
+    minHeight: 44,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: COLORS.surface,
@@ -222,13 +214,7 @@ const styles = StyleSheet.create({
     gap: 3,
   },
 
-  viewBtn: {
-    width: 35,
-    height: 34,
-    borderRadius: 9,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  viewBtn: { ...UI_STYLES.iconButton },
 
   viewBtnActive: {
     backgroundColor: COLORS.primary,

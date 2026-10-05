@@ -1,7 +1,8 @@
 // src/features/library/components/CollectionSkeleton.tsx
 import React, { useEffect, useRef } from "react";
 import { Animated, StyleSheet, View } from "react-native";
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { ViewMode } from "../hooks/useViewModePreference";
 
 function usePulse() {
@@ -67,12 +68,6 @@ export function CollectionSkeleton({ viewMode, count = 6 }: { viewMode: ViewMode
 const styles = StyleSheet.create({
   block: { backgroundColor: COLORS.border, borderRadius: 6 },
   gridWrap: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  gridCard: {
-    width: "47%", backgroundColor: COLORS.card, borderRadius: 14, overflow: "hidden",
-    borderWidth: 1, borderColor: COLORS.border,
-  },
-  listRow: {
-    flexDirection: "row", gap: 12, backgroundColor: COLORS.card, borderRadius: 14, padding: 10,
-    marginBottom: 10, borderWidth: 1, borderColor: COLORS.border,
-  },
+  gridCard: { ...UI_STYLES.card, width: "47%", overflow: "hidden" },
+  listRow: { ...UI_STYLES.card, flexDirection: "row", gap: 12, padding: 10, marginBottom: 10 },
 });

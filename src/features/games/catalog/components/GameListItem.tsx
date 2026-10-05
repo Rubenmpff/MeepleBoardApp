@@ -9,7 +9,8 @@ import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { MaterialIcons } from "@expo/vector-icons";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { Game } from "../types/Game";
 import { GameSuggestion } from "../types/GameSuggestion";
 import { GameLibraryStatus } from "@/src/features/library/types/GameLibraryStatus";
@@ -87,21 +88,21 @@ export function GameListItem({
     }
 
     return minPlayers === maxPlayers
-      ? `${minPlayers} jog.`
-      : `${minPlayers}–${maxPlayers} jog.`;
-  }, [minPlayers, maxPlayers]);
+      ? t("ui.playersCount", { range: minPlayers })
+      : t("ui.playersCount", { range: `${minPlayers}–${maxPlayers}` });
+  }, [minPlayers, maxPlayers, t]);
 
   const statusLabel = useMemo(() => {
     if (libraryStatus === GameLibraryStatus.Owned) {
-      return "Tenho";
+      return t("ui.owned");
     }
 
     if (libraryStatus === GameLibraryStatus.Wishlist) {
-      return "Quero";
+      return t("ui.wanted");
     }
 
     return null;
-  }, [libraryStatus]);
+  }, [libraryStatus, t]);
 
   const bggRatingLabel =
     averageRating != null && averageRating > 0
@@ -186,19 +187,19 @@ export function GameListItem({
             style={[
               styles.typeBadge,
               isExpansion &&
-                styles.typeBadgeExpansion,
+              styles.typeBadgeExpansion,
             ]}
           >
             <Text
               style={[
                 styles.typeBadgeText,
                 isExpansion &&
-                  styles.typeBadgeTextExpansion,
+                styles.typeBadgeTextExpansion,
               ]}
             >
               {isExpansion
-                ? "Expansão"
-                : "Jogo base"}
+                ? t("ui.expansion")
+                : t("ui.baseGame")}
             </Text>
           </View>
 
@@ -230,7 +231,7 @@ export function GameListItem({
             </View>
           ) : (
             <Text style={styles.metaTextMuted}>
-              Sem nota BGG
+              {t("ui.noBgg")}
             </Text>
           )}
 
@@ -268,7 +269,7 @@ export function GameListItem({
                 <MaterialIcons
                   name={
                     libraryStatus ===
-                    GameLibraryStatus.Wishlist
+                      GameLibraryStatus.Wishlist
                       ? "favorite-border"
                       : "inventory-2"
                   }
@@ -292,10 +293,7 @@ export function GameListItem({
                   color={COLORS.onBackground}
                 />
                 <Text style={styles.playedText}>
-                  {timesPlayed}{" "}
-                  {timesPlayed === 1
-                    ? "partida"
-                    : "partidas"}
+                  {t("ui.matchesCount", { count: timesPlayed })}
                 </Text>
               </View>
             )}
@@ -358,20 +356,11 @@ export function GameListItem({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: COLORS.border,
-    borderRadius: 14,
-    padding: 10,
-    marginBottom: 10,
-  },
+  card: { ...UI_STYLES.card, flexDirection: "row", alignItems: "center", padding: 10, marginBottom: 10 },
 
   imageWrapper: {
-    width: 82,
-    height: 82,
+    width: 64,
+    height: 64,
     marginRight: 12,
     position: "relative",
   },
@@ -398,8 +387,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor:
-      COLORS.success ?? "#2E7D32",
+    backgroundColor: COLORS.success ?? "#2E7D32",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
@@ -417,13 +405,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
 
-  name: {
-    flex: 1,
-    fontWeight: "800",
-    fontSize: 16,
-    lineHeight: 20,
-    color: COLORS.onBackground,
-  },
+  name: { ...UI_STYLES.body, flex: 1, fontWeight: "800", color: COLORS.onBackground },
 
   badgesRow: {
     flexDirection: "row",
@@ -433,11 +415,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
 
-  yearText: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    fontWeight: "600",
-  },
+  yearText: { ...UI_STYLES.caption, color: COLORS.textMuted, fontWeight: "600" },
 
   typeBadge: {
     paddingHorizontal: 7,
@@ -452,11 +430,7 @@ const styles = StyleSheet.create({
       COLORS.campaign + "14",
   },
 
-  typeBadgeText: {
-    fontSize: 10,
-    fontWeight: "800",
-    color: COLORS.primary,
-  },
+  typeBadgeText: { ...UI_STYLES.caption, fontWeight: "800", color: COLORS.primary },
 
   typeBadgeTextExpansion: {
     color: COLORS.campaign,
@@ -471,15 +445,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: COLORS.primary + "55",
-    backgroundColor:
-      COLORS.primary + "0D",
+    backgroundColor: COLORS.primary + "0D",
   },
 
-  localBadgeText: {
-    fontSize: 10,
-    fontWeight: "800",
-    color: COLORS.primary,
-  },
+  localBadgeText: { ...UI_STYLES.caption, fontWeight: "800", color: COLORS.primary },
 
   statsRow: {
     flexDirection: "row",
@@ -495,22 +464,11 @@ const styles = StyleSheet.create({
     gap: 3,
   },
 
-  statText: {
-    fontSize: 12,
-    color: COLORS.onBackground,
-    fontWeight: "600",
-  },
+  statText: { ...UI_STYLES.caption, color: COLORS.onBackground, fontWeight: "600" },
 
-  metaTextMb: {
-    fontSize: 12,
-    color: COLORS.secondary,
-    fontWeight: "800",
-  },
+  metaTextMb: { ...UI_STYLES.caption, color: COLORS.secondary, fontWeight: "800" },
 
-  metaTextMuted: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-  },
+  metaTextMuted: { ...UI_STYLES.muted },
 
   userMetaRow: {
     flexDirection: "row",
@@ -526,16 +484,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: 999,
-    backgroundColor:
-      (COLORS.success ?? "#2E7D32") +
-      "14",
+    backgroundColor: (COLORS.success ?? "#2E7D32") + "14",
   },
 
   statusText: {
-    fontSize: 11,
-    fontWeight: "800",
-    color:
-      COLORS.success ?? "#2E7D32",
+    ...UI_STYLES.caption, fontWeight: "800", color:
+      COLORS.success ?? "#2E7D32"
   },
 
   playedPill: {
@@ -545,50 +499,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: 999,
-    backgroundColor:
-      COLORS.background,
+    backgroundColor: COLORS.background,
   },
 
-  playedText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: COLORS.onBackground,
-  },
+  playedText: { ...UI_STYLES.caption, fontWeight: "700", color: COLORS.onBackground },
 
   actionColumn: {
-    width: 42,
+    width: 44,
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 7,
   },
 
   addBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    ...UI_STYLES.iconButton,
     backgroundColor: COLORS.primary,
-    alignItems: "center",
-    justifyContent: "center",
     shadowColor: COLORS.primary,
     shadowOpacity: 0.22,
     shadowRadius: 5,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2, },
     elevation: 2,
   },
 
-  manageBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: COLORS.background,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: COLORS.border,
-  },
+  manageBtn: { ...UI_STYLES.iconButton, backgroundColor: COLORS.background, borderWidth: StyleSheet.hairlineWidth, borderColor: COLORS.border },
 
   chevron: {
     marginTop: 6,

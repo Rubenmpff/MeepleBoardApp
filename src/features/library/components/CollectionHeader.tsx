@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionHeader.tsx
 
 import React from "react";
@@ -9,7 +10,8 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
 
@@ -20,10 +22,10 @@ type Props = {
   playedCount: number;
   totalSpent: number;
   activeFilter:
-    | "ALL"
-    | "PLAYED"
-    | GameLibraryStatus.Owned
-    | GameLibraryStatus.Wishlist;
+  | "ALL"
+  | "PLAYED"
+  | GameLibraryStatus.Owned
+  | GameLibraryStatus.Wishlist;
   onAddPress: () => void;
 };
 
@@ -36,17 +38,17 @@ export function CollectionHeader({
   activeFilter,
   onAddPress,
 }: Props) {
+  const { t: uiT, i18n } = useTranslation("library");
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <View style={styles.headerText}>
-          <Text style={styles.title}>
-            Minha coleção
+          <Text style={styles.title} accessibilityRole="header">
+            {uiT("ui.title")}
           </Text>
 
           <Text style={styles.subtitle}>
-            {totalCount} jogo
-            {totalCount === 1 ? "" : "s"}
+            {uiT("ui.gamesCount", { count: totalCount })}
           </Text>
         </View>
 
@@ -55,7 +57,7 @@ export function CollectionHeader({
           onPress={onAddPress}
           activeOpacity={0.78}
           accessibilityRole="button"
-          accessibilityLabel="Adicionar jogo"
+          accessibilityLabel={uiT("ui.add")}
         >
           <MaterialIcons
             name="add"
@@ -68,21 +70,21 @@ export function CollectionHeader({
       <View style={styles.summaryRow}>
         <SummaryItem
           value={ownedCount}
-          label="Tenho"
+          label={uiT("ui.owned")}
         />
 
         <View style={styles.divider} />
 
         <SummaryItem
           value={wishlistCount}
-          label="Quero"
+          label={uiT("ui.wanted")}
         />
 
         <View style={styles.divider} />
 
         <SummaryItem
           value={playedCount}
-          label="Jogados"
+          label={uiT("ui.played")}
         />
       </View>
 
@@ -90,11 +92,11 @@ export function CollectionHeader({
         totalSpent > 0 && (
           <View style={styles.spentRow}>
             <Text style={styles.spentLabel}>
-              Valor registado
+              {uiT("ui.spent")}
             </Text>
 
             <Text style={styles.spentValue}>
-              {new Intl.NumberFormat("pt-PT", {
+              {new Intl.NumberFormat(i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB", {
                 style: "currency",
                 currency: "EUR",
               }).format(totalSpent)}
@@ -143,43 +145,21 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
 
-  title: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: COLORS.onBackground,
-  },
+  title: { ...UI_STYLES.title },
 
-  subtitle: {
-    marginTop: 2,
-    fontSize: 12,
-    fontWeight: "500",
-    color: COLORS.textMuted,
-  },
+  subtitle: { ...UI_STYLES.muted, marginTop: 2, fontWeight: "500" },
 
-  addButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: COLORS.card,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: COLORS.border,
-  },
+  addButton: { ...UI_STYLES.iconButton, backgroundColor: COLORS.card, borderWidth: StyleSheet.hairlineWidth, borderColor: COLORS.border },
 
   summaryRow: {
+    ...UI_STYLES.card,
     minHeight: 58,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.card,
-    borderRadius: 16,
     paddingHorizontal: 10,
     paddingVertical: 8,
     shadowColor: "#0B1220",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2, },
     shadowOpacity: 0.045,
     shadowRadius: 8,
     elevation: 1,
@@ -191,18 +171,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  summaryValue: {
-    fontSize: 17,
-    fontWeight: "800",
-    color: COLORS.onBackground,
-  },
+  summaryValue: { ...UI_STYLES.section },
 
-  summaryLabel: {
-    marginTop: 2,
-    fontSize: 10,
-    fontWeight: "600",
-    color: COLORS.textMuted,
-  },
+  summaryLabel: { ...UI_STYLES.muted, marginTop: 2, fontWeight: "600" },
 
   divider: {
     width: StyleSheet.hairlineWidth,
@@ -218,14 +189,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
 
-  spentLabel: {
-    fontSize: 11,
-    color: COLORS.textMuted,
-  },
+  spentLabel: { ...UI_STYLES.muted },
 
-  spentValue: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: COLORS.secondary,
-  },
+  spentValue: { ...UI_STYLES.caption, fontWeight: "700", color: COLORS.secondary },
 });

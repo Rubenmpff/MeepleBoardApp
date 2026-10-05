@@ -1,3 +1,5 @@
+import SheetSurface from "@/src/components/ui/SheetSurface";
+import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionGameActionsSheet.tsx
 import React, { useCallback, useState } from "react";
 import {
@@ -13,7 +15,8 @@ import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { ROUTES } from "@/src/constants/routes";
 import { useLibraryActions } from "../hooks/useLibraryActions";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
@@ -35,6 +38,7 @@ type ActionItem = {
 };
 
 export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: Props) {
+  const { t: uiT } = useTranslation("library");
   const { addGame, updateGame, removeGame } = useLibraryActions();
   const [busy, setBusy] = useState(false);
 
@@ -46,12 +50,12 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
         onClose();
       } catch (err) {
         console.error("Erro na ação da coleção:", err);
-        Toast.show({ type: "error", text1: "Não foi possível concluir esta ação." });
+        Toast.show({ type: "error", text1: uiT("ui.actionError") });
       } finally {
         setBusy(false);
       }
     },
-    [onClose]
+    [onClose, uiT]
   );
 
   if (!entry) return null;
@@ -64,7 +68,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
 
   actions.push({
     key: "view",
-    label: "Ver página do jogo",
+    label: uiT("ui.viewPage"),
     icon: "info-outline",
     onPress: () => {
       router.push({ pathname: ROUTES.GAME_DETAILS, params: { id: entry.gameId } });
@@ -74,7 +78,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
 
   actions.push({
     key: "register",
-    label: entry.timesPlayed > 0 ? "Registar partida" : "Registar primeira partida",
+    label: entry.timesPlayed > 0 ? uiT("ui.register") : uiT("ui.registerFirst"),
     icon: "add-circle-outline",
     onPress: () => {
       // ⚠️ Dependência: ainda não pré-seleciona o jogo (ver Fase 1)
@@ -86,37 +90,37 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
   if (isOwned) {
     actions.push({
       key: "edit",
-      label: "Editar dados da coleção",
+      label: uiT("ui.editEntry"),
       icon: "edit",
       onPress: () => { onEdit(entry); onClose(); },
     });
     actions.push({
       key: "toWishlist",
-      label: "Mover para Quero",
+      label: uiT("ui.moveWishlist"),
       icon: "favorite-border",
       onPress: () => run(() => updateGame(entry.gameId, GameLibraryStatus.Wishlist, undefined)),
     });
     actions.push({
       key: "remove",
-      label: "Remover da coleção",
+      label: uiT("ui.removeCollection"),
       icon: "delete-outline",
       danger: true,
       onPress: () =>
-        Alert.alert("Remover jogo", `Remover "${entry.gameName}" da tua coleção?`, [
-          { text: "Cancelar", style: "cancel" },
-          { text: "Remover", style: "destructive", onPress: () => run(() => removeGame(entry.gameId)) },
+        Alert.alert(uiT("ui.removeTitle"), uiT("ui.removeConfirm", { name: entry.gameName }), [
+          { text: uiT("ui.cancel"), style: "cancel" },
+          { text: uiT("ui.remove"), style: "destructive", onPress: () => run(() => removeGame(entry.gameId)) },
         ]),
     });
   } else if (isWishlist) {
     actions.push({
       key: "toOwned",
-      label: "Adicionar à coleção",
+      label: uiT("ui.addCollection"),
       icon: "library-add",
       onPress: () => run(() => updateGame(entry.gameId, GameLibraryStatus.Owned, undefined)),
     });
     actions.push({
       key: "removeWishlist",
-      label: "Remover da wishlist",
+      label: uiT("ui.removeWishlist"),
       icon: "delete-outline",
       danger: true,
       onPress: () => run(() => removeGame(entry.gameId)),
@@ -125,7 +129,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
     // Só jogado, nunca esteve na biblioteca
     actions.push({
       key: "addOwned",
-      label: "Adicionar à coleção",
+      label: uiT("ui.addCollection"),
       icon: "library-add",
       onPress: () =>
         run(() =>
@@ -137,7 +141,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
     });
     actions.push({
       key: "addWishlist",
-      label: "Adicionar à wishlist",
+      label: uiT("ui.addWishlist"),
       icon: "favorite-border",
       onPress: () =>
         run(() =>
@@ -152,7 +156,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+        <SheetSurface style={styles.sheet}>
           <View style={styles.handle} />
           <Text style={styles.title} numberOfLines={1}>{entry.gameName}</Text>
 
@@ -161,7 +165,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
           ) : (
             actions.map((action) => (
               <Pressable
-                key={action.key}
+                key={action.key} accessibilityRole="button" accessibilityLabel={action.label}
                 style={styles.row}
                 onPress={action.onPress}
                 android_ripple={{ color: COLORS.border }}
@@ -177,7 +181,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
               </Pressable>
             ))
           )}
-        </Pressable>
+        </SheetSurface>
       </Pressable>
     </Modal>
   );
@@ -186,11 +190,15 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
 const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" },
   sheet: {
-    backgroundColor: COLORS.card, borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    paddingHorizontal: 16, paddingTop: 10, paddingBottom: 28,
+    backgroundColor: COLORS.card,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 28,
   },
   handle: { width: 36, height: 4, borderRadius: 2, backgroundColor: COLORS.border, alignSelf: "center", marginBottom: 12 },
-  title: { fontSize: 15, fontWeight: "800", color: COLORS.onBackground, marginBottom: 8, paddingHorizontal: 4 },
-  row: { flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 13, paddingHorizontal: 4 },
-  rowText: { fontSize: 14, fontWeight: "600", color: COLORS.onBackground },
+  title: { ...UI_STYLES.section, marginBottom: 8, paddingHorizontal: 4 },
+  row: { ...UI_STYLES.control, flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 13, paddingHorizontal: 4 },
+  rowText: { ...UI_STYLES.body, fontWeight: "600", color: COLORS.onBackground },
 });

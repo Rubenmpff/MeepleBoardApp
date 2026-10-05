@@ -12,6 +12,8 @@ import {
 } from "expo-router";
 
 import { COLORS } from "@/src/constants/colors";
+import { APP_THEME } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 
 type HeaderMode = "back" | "menu";
 
@@ -22,6 +24,8 @@ type Props = {
   rightIcon?: keyof typeof Ionicons.glyphMap;
   onRightPress?: () => void;
   onLeftPress?: () => void;
+  appearance?: "default" | "refresh";
+  leftAccessibilityLabel?: string;
 };
 
 export default function ScreenHeader({
@@ -31,6 +35,8 @@ export default function ScreenHeader({
   rightIcon,
   onRightPress,
   onLeftPress,
+  appearance = "default",
+  leftAccessibilityLabel,
 }: Props) {
   const router = useRouter();
   const navigation = useNavigation();
@@ -67,14 +73,14 @@ export default function ScreenHeader({
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={styles.leftButton}
+        style={[styles.leftButton, appearance === "refresh" && refreshed.button]}
         onPress={handleLeftPress}
         activeOpacity={0.82}
         accessibilityRole="button"
         accessibilityLabel={
-          mode === "back"
+          leftAccessibilityLabel ?? (mode === "back"
             ? "Voltar"
-            : "Abrir menu"
+            : "Abrir menu")
         }
       >
         <Ionicons
@@ -90,15 +96,16 @@ export default function ScreenHeader({
 
       <View style={styles.textBlock}>
         <Text
-          style={styles.title}
-          numberOfLines={1}
+          style={[styles.title, appearance === "refresh" && UI_STYLES.title]}
+          numberOfLines={appearance === "refresh" ? undefined : 1}
+          accessibilityRole="header"
         >
           {title}
         </Text>
 
         {!!subtitle && (
           <Text
-            style={styles.subtitle}
+            style={[styles.subtitle, appearance === "refresh" && UI_STYLES.muted]}
             numberOfLines={2}
           >
             {subtitle}
@@ -108,7 +115,7 @@ export default function ScreenHeader({
 
       {rightIcon && onRightPress ? (
         <TouchableOpacity
-          style={styles.rightButton}
+          style={[styles.rightButton, appearance === "refresh" && refreshed.button]}
           onPress={onRightPress}
           activeOpacity={0.82}
           accessibilityRole="button"
@@ -120,11 +127,15 @@ export default function ScreenHeader({
           />
         </TouchableOpacity>
       ) : (
-        <View style={styles.rightSpacer} />
+        <View style={[styles.rightSpacer, appearance === "refresh" && { width: 44 }]} />
       )}
     </View>
   );
 }
+
+const refreshed = StyleSheet.create({
+  button: { ...UI_STYLES.iconButton, backgroundColor: APP_THEME.colors.card, borderColor: APP_THEME.colors.border },
+});
 
 const styles = StyleSheet.create({
   container: {

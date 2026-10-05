@@ -29,7 +29,9 @@ import Toast from "react-native-toast-message";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import ScreenHeader from "@/src/components/navigation/ScreenHeader";
-import { COLORS } from "@/src/constants/colors";
+import ScreenState from "@/src/components/ui/ScreenState";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { ROUTES } from "@/src/constants/routes";
 import { useGameSuggestions } from "../hooks/useGameSuggestions";
 import { useRecentSearches } from "../hooks/useRecentSearches";
@@ -51,7 +53,6 @@ import {
 import {
   GameSearchSortSheet,
   SearchSortOption,
-  SEARCH_SORT_LABELS,
   sortSearchResults,
 } from "../components/GameSearchSortSheet";
 import AddToLibraryModal from "@/src/features/library/components/AddToLibraryModal";
@@ -207,12 +208,13 @@ export default function GameSearchScreen() {
     typeFilter === "all"
       ? undefined
       : typeFilter ===
-          "expansion";
+      "expansion";
 
   const {
     suggestions,
+    error: suggestionsError,
     loading:
-      loadingSuggestions,
+    loadingSuggestions,
     fetchSuggestions,
     hasMore,
     resetSuggestions,
@@ -254,7 +256,7 @@ export default function GameSearchScreen() {
   const {
     addGame,
     loading:
-      updatingLibrary,
+    updatingLibrary,
   } = useLibraryActions();
 
   const {
@@ -515,11 +517,11 @@ export default function GameSearchScreen() {
           (entryGameId &&
             gameId &&
             entryGameId ===
-              gameId) ||
+            gameId) ||
           (entryBggId &&
             gameBggId &&
             entryBggId ===
-              gameBggId)
+            gameBggId)
         );
       },
       []
@@ -575,12 +577,12 @@ export default function GameSearchScreen() {
             (item) =>
               (gameId &&
                 item.gameId ===
-                  gameId) ||
+                gameId) ||
               (game.bggId &&
                 item.gameId ===
-                  String(
-                    game.bggId
-                  ))
+                String(
+                  game.bggId
+                ))
           );
 
         return (
@@ -640,9 +642,9 @@ export default function GameSearchScreen() {
       let result:
         | Game[]
         | (
-            | Game
-            | GameSuggestion
-          )[] =
+          | Game
+          | GameSuggestion
+        )[] =
         localMatches;
 
       if (
@@ -652,7 +654,7 @@ export default function GameSearchScreen() {
           result.filter(
             (game) =>
               typeFilter ===
-              "expansion"
+                "expansion"
                 ? !!game.isExpansion
                 : !game.isExpansion
           );
@@ -784,7 +786,7 @@ export default function GameSearchScreen() {
 
       if (
         normalizedQuery.length <
-          MIN_NETWORK_SEARCH_LENGTH ||
+        MIN_NETWORK_SEARCH_LENGTH ||
         !isOnline
       ) {
         return localFallbackList;
@@ -827,11 +829,11 @@ export default function GameSearchScreen() {
       !ENABLE_SILENT_COVER_REFRESH ||
       !isOnline ||
       normalizedQuery.length <
-        MIN_NETWORK_SEARCH_LENGTH ||
+      MIN_NETWORK_SEARCH_LENGTH ||
       loadingSuggestions ||
       refreshing ||
       enrichedSuggestions.length ===
-        0 ||
+      0 ||
       coverRefreshAttemptedRef.current
     ) {
       return;
@@ -926,9 +928,9 @@ export default function GameSearchScreen() {
   useEffect(() => {
     if (
       displayedList.length ===
-        0 ||
+      0 ||
       normalizedQuery.length <
-        1
+      1
     ) {
       return;
     }
@@ -951,7 +953,7 @@ export default function GameSearchScreen() {
         const formattedValue =
           value.length > 0
             ? value.charAt(0).toUpperCase() +
-              value.slice(1)
+            value.slice(1)
             : "";
 
         setQuery(formattedValue);
@@ -978,7 +980,7 @@ export default function GameSearchScreen() {
       async () => {
         if (
           normalizedQuery.length <
-            MIN_NETWORK_SEARCH_LENGTH ||
+          MIN_NETWORK_SEARCH_LENGTH ||
           !isOnline
         ) {
           return;
@@ -1013,7 +1015,7 @@ export default function GameSearchScreen() {
         loadMoreInFlightRef.current ||
         !isOnline ||
         normalizedQuery.length <
-          MIN_NETWORK_SEARCH_LENGTH ||
+        MIN_NETWORK_SEARCH_LENGTH ||
         loadingSuggestions ||
         !hasMore ||
         refreshing
@@ -1099,7 +1101,7 @@ export default function GameSearchScreen() {
               .NotificationFeedbackType
               .Success
           )
-          .catch(() => {});
+          .catch(() => { });
 
         Toast.show({
           type: "success",
@@ -1166,167 +1168,157 @@ export default function GameSearchScreen() {
     loadingSuggestions &&
     suggestions.length === 0 &&
     normalizedQuery.length >=
-      MIN_NETWORK_SEARCH_LENGTH &&
+    MIN_NETWORK_SEARCH_LENGTH &&
     isOnline;
 
-  return (
-    <SafeAreaView
-      style={
-        styles.container
+  const listHeader = (<View>
+    <ScreenHeader
+      mode="menu" appearance="refresh" leftAccessibilityLabel={t("ui.menu")}
+      title={t("ui.searchTitle")}
+    />
+
+    <TextInput
+      placeholder={t(
+        "search.placeholder"
+      )}
+      value={query}
+      onChangeText={
+        handleTextChange
       }
-      edges={[
-        "top",
-        "left",
-        "right",
-        "bottom",
-      ]}
-    >
-      <ScreenHeader
-        mode="menu"
-        title="Pesquisar jogos"
-      />
+      autoCapitalize="sentences"
+      style={styles.input}
+      accessibilityLabel={t("search.placeholder")}
+      placeholderTextColor={
+        COLORS.textMuted
+      }
+    />
 
-      <TextInput
-        placeholder={t(
-          "search.placeholder"
-        )}
-        value={query}
-        onChangeText={
-          handleTextChange
+    {!isOnline && (
+      <View
+        style={
+          styles.offlineBanner
         }
-        autoCapitalize="sentences"
-        style={styles.input}
-        placeholderTextColor={
-          COLORS.textMuted
-        }
-      />
+      >
+        <MaterialIcons
+          name="cloud-off"
+          size={14}
+          color="#856404"
+        />
 
-      {!isOnline && (
-        <View
+        <Text
           style={
-            styles.offlineBanner
+            styles.offlineBannerText
           }
         >
-          <MaterialIcons
-            name="cloud-off"
-            size={14}
-            color="#856404"
-          />
-
-          <Text
-            style={
-              styles.offlineBannerText
-            }
-          >
-            {usedCacheWhileOffline ||
+          {usedCacheWhileOffline ||
             localMatches.length >
-              0
-              ? "Resultados guardados · Offline"
-              : "Sem ligação à internet — só vês o que já tinhas pesquisado antes."}
-          </Text>
-        </View>
-      )}
+            0
+            ? t("ui.offlineCached")
+            : t("ui.offline")}
+        </Text>
+      </View>
+    )}
 
-      {!showInitialContent && (
-        <>
-          <View
-            style={
-              styles.typeFilterRow
-            }
-          >
-            {(
-              [
-                {
-                  key: "all",
-                  label: "Todos",
-                },
-                {
-                  key: "base",
-                  label:
-                    "Jogos base",
-                },
-                {
-                  key:
-                    "expansion",
-                  label:
-                    "Expansões",
-                },
-              ] as {
-                key: TypeFilter;
-                label: string;
-              }[]
-            ).map((option) => (
-              <TouchableOpacity
-                key={
-                  option.key
-                }
-                style={[
-                  styles.typeFilterChip,
-                  typeFilter ===
-                    option.key &&
-                    styles.typeFilterChipActive,
-                ]}
-                onPress={() =>
-                  setTypeFilter(
-                    option.key
-                  )
-                }
-                activeOpacity={
-                  0.8
-                }
-              >
-                <Text
-                  style={[
-                    styles.typeFilterText,
-                    typeFilter ===
-                      option.key &&
-                      styles.typeFilterTextActive,
-                  ]}
-                >
-                  {
-                    option.label
-                  }
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <View
-            style={
-              styles.toolbarRow
-            }
-          >
-            <TouchableOpacity
-              style={
-                styles.toolbarBtn
+    {!showInitialContent && (
+      <>
+        <View
+          style={
+            styles.typeFilterRow
+          }
+        >
+          {(
+            [
+              {
+                key: "all",
+                label: t("ui.all"),
+              },
+              {
+                key: "base",
+                label:
+                  t("ui.baseGames"),
+              },
+              {
+                key:
+                  "expansion",
+                label:
+                  t("ui.expansions"),
+              },
+            ] as {
+              key: TypeFilter;
+              label: string;
+            }[]
+          ).map((option) => (
+            <TouchableOpacity accessibilityRole="button"
+              key={
+                option.key
               }
+              style={[
+                styles.typeFilterChip,
+                typeFilter ===
+                option.key &&
+                styles.typeFilterChipActive,
+              ]}
               onPress={() =>
-                setFiltersVisible(
-                  true
+                setTypeFilter(
+                  option.key
                 )
               }
               activeOpacity={
                 0.8
               }
             >
-              <MaterialIcons
-                name="tune"
-                size={15}
-                color={
-                  COLORS.onBackground
-                }
-              />
-
               <Text
-                style={
-                  styles.toolbarBtnText
-                }
+                style={[
+                  styles.typeFilterText,
+                  typeFilter ===
+                  option.key &&
+                  styles.typeFilterTextActive,
+                ]}
               >
-                Filtros
+                {
+                  option.label
+                }
               </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-              {activeFilterCount >
-                0 && (
+        <View
+          style={
+            styles.toolbarRow
+          }
+        >
+          <TouchableOpacity accessibilityRole="button"
+            style={
+              styles.toolbarBtn
+            }
+            onPress={() =>
+              setFiltersVisible(
+                true
+              )
+            }
+            activeOpacity={
+              0.8
+            }
+          >
+            <MaterialIcons
+              name="tune"
+              size={15}
+              color={
+                COLORS.onBackground
+              }
+            />
+
+            <Text
+              style={
+                styles.toolbarBtnText
+              }
+            >
+              {t("ui.filters")}
+            </Text>
+
+            {activeFilterCount >
+              0 && (
                 <View
                   style={
                     styles.badge
@@ -1343,124 +1335,216 @@ export default function GameSearchScreen() {
                   </Text>
                 </View>
               )}
-            </TouchableOpacity>
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              style={
-                styles.toolbarBtnFlex
-              }
-              onPress={() =>
-                setSortVisible(
-                  true
-                )
-              }
-              activeOpacity={
-                0.8
-              }
-            >
-              <Text
-                style={
-                  styles.toolbarBtnText
-                }
-                numberOfLines={
-                  1
-                }
-              >
-                Ordenar:{" "}
-                {
-                  SEARCH_SORT_LABELS[
-                    sort
-                  ]
-                }
-              </Text>
-
-              <MaterialIcons
-                name="expand-more"
-                size={16}
-                color={
-                  COLORS.onBackground
-                }
-              />
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
-
-      {showInitialContent &&
-        recentSearches.length >
-          0 && (
-          <View
+          <TouchableOpacity accessibilityRole="button"
             style={
-              styles.recentBox
+              styles.toolbarBtnFlex
+            }
+            onPress={() =>
+              setSortVisible(
+                true
+              )
+            }
+            activeOpacity={
+              0.8
             }
           >
-            <View
+            <Text
               style={
-                styles.recentHeaderRow
+                styles.toolbarBtnText
+              }
+              numberOfLines={2}
+            >
+              Ordenar:{" "}
+              {
+                t(`ui.sort.${sort}`)
+              }
+            </Text>
+
+            <MaterialIcons
+              name="expand-more"
+              size={16}
+              color={
+                COLORS.onBackground
+              }
+            />
+          </TouchableOpacity>
+        </View>
+      </>
+    )}
+
+    {showInitialContent &&
+      recentSearches.length >
+      0 && (
+        <View
+          style={
+            styles.recentBox
+          }
+        >
+          <View
+            style={
+              styles.recentHeaderRow
+            }
+          >
+            <Text
+              style={
+                styles.recentHeader
+              }
+            >
+              {t("ui.recentSearches")}
+            </Text>
+
+            <TouchableOpacity accessibilityRole="button"
+              onPress={
+                clearSearches
               }
             >
               <Text
                 style={
-                  styles.recentHeader
+                  styles.recentClear
                 }
               >
-                Pesquisas
-                recentes
+                {t("ui.clear")}
               </Text>
+            </TouchableOpacity>
+          </View>
 
-              <TouchableOpacity
-                onPress={
-                  clearSearches
-                }
-              >
-                <Text
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={
+              false
+            }
+            style={
+              styles.recentChipsRow
+            }
+          >
+            {recentSearches.map(
+              (
+                entry,
+                index
+              ) => (
+                <TouchableOpacity accessibilityRole="button"
+                  key={`recent-${index}-${entry.term}`}
                   style={
-                    styles.recentClear
+                    styles.recentCard
+                  }
+                  onPress={() =>
+                    handleTapRecent(
+                      entry.term
+                    )
+                  }
+                  onLongPress={() =>
+                    removeSearch(
+                      entry.term
+                    )
+                  }
+                  activeOpacity={
+                    0.75
                   }
                 >
-                  Limpar
-                </Text>
-              </TouchableOpacity>
-            </View>
+                  {entry.imageUrl ? (
+                    <Image
+                      source={{
+                        uri:
+                          entry.imageUrl,
+                      }}
+                      style={
+                        styles.recentCardImg
+                      }
+                      transition={
+                        200
+                      }
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.recentCardImg,
+                        styles.recentCardImgPlaceholder,
+                      ]}
+                    >
+                      <MaterialIcons
+                        name="sports-esports"
+                        size={
+                          26
+                        }
+                        color={
+                          COLORS.primary
+                        }
+                      />
+                    </View>
+                  )}
 
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={
-                false
-              }
-              style={
-                styles.recentChipsRow
-              }
-            >
-              {recentSearches.map(
+                  <Text
+                    style={
+                      styles.recentCardText
+                    }
+                    numberOfLines={
+                      1
+                    }
+                  >
+                    {
+                      entry.term
+                    }
+                  </Text>
+                </TouchableOpacity>
+              )
+            )}
+          </ScrollView>
+        </View>
+      )}
+
+    {showInitialContent &&
+      hotGames.length >
+      0 && (
+        <View
+          style={
+            styles.recentBox
+          }
+        >
+          <Text
+            style={
+              styles.recentHeader
+            }
+          >
+            {t("ui.hotGames")}
+          </Text>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={
+              false
+            }
+            style={
+              styles.recentChipsRow
+            }
+          >
+            {hotGames
+              .slice(0, 15)
+              .map(
                 (
-                  entry,
+                  game,
                   index
                 ) => (
-                  <TouchableOpacity
-                    key={`recent-${index}-${entry.term}`}
+                  <TouchableOpacity accessibilityRole="button"
+                    key={`hot-${index}-${game.bggId ?? game.id ?? "x"}`}
                     style={
                       styles.recentCard
                     }
                     onPress={() =>
                       handleTapRecent(
-                        entry.term
-                      )
-                    }
-                    onLongPress={() =>
-                      removeSearch(
-                        entry.term
+                        game.name
                       )
                     }
                     activeOpacity={
                       0.75
                     }
                   >
-                    {entry.imageUrl ? (
+                    {game.imageUrl ? (
                       <Image
                         source={{
                           uri:
-                            entry.imageUrl,
+                            game.imageUrl,
                         }}
                         style={
                           styles.recentCardImg
@@ -1497,352 +1581,248 @@ export default function GameSearchScreen() {
                       }
                     >
                       {
-                        entry.term
+                        game.name
                       }
                     </Text>
                   </TouchableOpacity>
                 )
               )}
-            </ScrollView>
-          </View>
-        )}
-
-      {showInitialContent &&
-        hotGames.length >
-          0 && (
-          <View
-            style={
-              styles.recentBox
-            }
-          >
-            <Text
-              style={
-                styles.recentHeader
-              }
-            >
-              🔥 Em destaque
-              no BGG
-            </Text>
-
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={
-                false
-              }
-              style={
-                styles.recentChipsRow
-              }
-            >
-              {hotGames
-                .slice(0, 15)
-                .map(
-                  (
-                    game,
-                    index
-                  ) => (
-                    <TouchableOpacity
-                      key={`hot-${index}-${game.bggId ?? game.id ?? "x"}`}
-                      style={
-                        styles.recentCard
-                      }
-                      onPress={() =>
-                        handleTapRecent(
-                          game.name
-                        )
-                      }
-                      activeOpacity={
-                        0.75
-                      }
-                    >
-                      {game.imageUrl ? (
-                        <Image
-                          source={{
-                            uri:
-                              game.imageUrl,
-                          }}
-                          style={
-                            styles.recentCardImg
-                          }
-                          transition={
-                            200
-                          }
-                        />
-                      ) : (
-                        <View
-                          style={[
-                            styles.recentCardImg,
-                            styles.recentCardImgPlaceholder,
-                          ]}
-                        >
-                          <MaterialIcons
-                            name="sports-esports"
-                            size={
-                              26
-                            }
-                            color={
-                              COLORS.primary
-                            }
-                          />
-                        </View>
-                      )}
-
-                      <Text
-                        style={
-                          styles.recentCardText
-                        }
-                        numberOfLines={
-                          1
-                        }
-                      >
-                        {
-                          game.name
-                        }
-                      </Text>
-                    </TouchableOpacity>
-                  )
-                )}
-            </ScrollView>
-          </View>
-        )}
-
-      {showFirstPageLoader ? (
-        <View
-          style={
-            styles.firstPageLoader
-          }
-        >
-          <ActivityIndicator
-            size="large"
-            color={
-              COLORS.primary
-            }
-          />
-
-          <Text
-            style={
-              styles.searchingText
-            }
-          >
-            {t(
-              "search.searching"
-            )}
-          </Text>
+          </ScrollView>
         </View>
-      ) : (
-        <FlatList
-          data={
-            displayedList
-          }
-          extraData={
-            listExtraData
-          }
-          keyExtractor={(
-            item,
-            index
-          ) =>
-            item.bggId !=
+      )}
+
+    {suggestionsError && isOnline && (
+      <ScreenState error message={t("ui.loadError")} retryLabel={t("ui.retry")} onRetry={() => { void handleRefresh(); }} />
+    )}
+  </View>);
+
+  return (
+    <SafeAreaView
+      style={
+        styles.container
+      }
+      edges={[
+        "top",
+        "left",
+        "right",
+        "bottom",
+      ]}
+    >
+      <FlatList
+        ListHeaderComponent={listHeader}
+        keyboardShouldPersistTaps="handled"
+        data={showFirstPageLoader ? [] : displayedList}
+        extraData={
+          listExtraData
+        }
+        keyExtractor={(
+          item,
+          index
+        ) =>
+          item.bggId !=
             null
-              ? `bgg-${item.bggId}`
-              : item.id !=
-                  null
-                ? `id-${item.id}`
-                : `temp-${index}-${item.name}`
-          }
-          renderItem={({
-            item,
-          }) => {
-            const libEntry =
-              findLibraryEntry(
-                item
-              );
+            ? `bgg-${item.bggId}`
+            : item.id !=
+              null
+              ? `id-${item.id}`
+              : `temp-${index}-${item.name}`
+        }
+        renderItem={({
+          item,
+        }) => {
+          const libEntry =
+            findLibraryEntry(
+              item
+            );
 
-            return (
-              <GameListItem
-                game={item}
-                inLibrary={
-                  !!libEntry
-                }
-                libraryStatus={
-                  libEntry?.status
-                }
-                timesPlayed={
-                  findTimesPlayed(
-                    item
-                  )
-                }
-                onPress={async () => {
-                  try {
-                    setRefreshing(
-                      true
-                    );
-
-                    const localId =
-                      await ensureImportedId(
-                        item
-                      );
-
-                    if (
-                      !localId
-                    ) {
-                      Alert.alert(
-                        t(
-                          "search.openDetailsErrorTitle"
-                        ),
-                        t(
-                          "search.openDetailsErrorDescription"
-                        )
-                      );
-
-                      return;
-                    }
-
-                    router.push({
-                      pathname:
-                        ROUTES.GAME_DETAILS,
-                      params: {
-                        id:
-                          localId,
-                      },
-                    });
-                  } finally {
-                    setRefreshing(
-                      false
-                    );
-                  }
-                }}
-                onAdd={async () => {
-                  try {
-                    setRefreshing(
-                      true
-                    );
-
-                    const localId =
-                      await ensureImportedId(
-                        item
-                      );
-
-                    if (
-                      !localId
-                    ) {
-                      Alert.alert(
-                        t(
-                          "search.importErrorTitle"
-                        ),
-                        t(
-                          "search.importErrorDescription"
-                        )
-                      );
-
-                      return;
-                    }
-
-                    setSelected({
-                      ...item,
-                      id:
-                        localId,
-                    });
-
-                    setAddVisible(
-                      true
-                    );
-                  } catch (error) {
-                    logError(
-                      "Erro ao preparar adição",
-                      error
-                    );
-                  } finally {
-                    setRefreshing(
-                      false
-                    );
-                  }
-                }}
-                onManageLibrary={() => {
-                  setSelected(
-                    item
-                  );
-
-                  setManageVisible(
+          return (
+            <GameListItem
+              game={item}
+              inLibrary={
+                !!libEntry
+              }
+              libraryStatus={
+                libEntry?.status
+              }
+              timesPlayed={
+                findTimesPlayed(
+                  item
+                )
+              }
+              onPress={async () => {
+                try {
+                  setRefreshing(
                     true
                   );
-                }}
-              />
-            );
-          }}
-          refreshing={
-            refreshing
-          }
-          onRefresh={
-            handleRefresh
-          }
-          onScrollBeginDrag={
-            handleUserScroll
-          }
-          onMomentumScrollBegin={
-            handleUserScroll
-          }
-          onEndReached={
-            handleLoadMore
-          }
-          onEndReachedThreshold={
-            0.25
-          }
-          contentContainerStyle={{
-            paddingBottom: 40,
-            flexGrow: 1,
-          }}
-          scrollEventThrottle={
-            16
-          }
-          initialNumToRender={
-            10
-          }
-          removeClippedSubviews={
-            false
-          }
-          ListFooterComponent={
-            loadingSuggestions &&
+
+                  const localId =
+                    await ensureImportedId(
+                      item
+                    );
+
+                  if (
+                    !localId
+                  ) {
+                    Alert.alert(
+                      t(
+                        "search.openDetailsErrorTitle"
+                      ),
+                      t(
+                        "search.openDetailsErrorDescription"
+                      )
+                    );
+
+                    return;
+                  }
+
+                  router.push({
+                    pathname:
+                      ROUTES.GAME_DETAILS,
+                    params: {
+                      id:
+                        localId,
+                    },
+                  });
+                } finally {
+                  setRefreshing(
+                    false
+                  );
+                }
+              }}
+              onAdd={async () => {
+                try {
+                  setRefreshing(
+                    true
+                  );
+
+                  const localId =
+                    await ensureImportedId(
+                      item
+                    );
+
+                  if (
+                    !localId
+                  ) {
+                    Alert.alert(
+                      t(
+                        "search.importErrorTitle"
+                      ),
+                      t(
+                        "search.importErrorDescription"
+                      )
+                    );
+
+                    return;
+                  }
+
+                  setSelected({
+                    ...item,
+                    id:
+                      localId,
+                  });
+
+                  setAddVisible(
+                    true
+                  );
+                } catch (error) {
+                  logError(
+                    "Erro ao preparar adição",
+                    error
+                  );
+                } finally {
+                  setRefreshing(
+                    false
+                  );
+                }
+              }}
+              onManageLibrary={() => {
+                setSelected(
+                  item
+                );
+
+                setManageVisible(
+                  true
+                );
+              }}
+            />
+          );
+        }}
+        refreshing={
+          refreshing
+        }
+        onRefresh={
+          handleRefresh
+        }
+        onScrollBeginDrag={
+          handleUserScroll
+        }
+        onMomentumScrollBegin={
+          handleUserScroll
+        }
+        onEndReached={
+          handleLoadMore
+        }
+        onEndReachedThreshold={
+          0.25
+        }
+        contentContainerStyle={{
+          paddingBottom: 32, paddingHorizontal: 16, paddingTop: 12,
+          flexGrow: 1,
+        }}
+        scrollEventThrottle={
+          16
+        }
+        initialNumToRender={
+          10
+        }
+        removeClippedSubviews={
+          false
+        }
+        ListFooterComponent={
+          loadingSuggestions &&
             !silentCoverRefreshInFlight &&
             displayedList.length >
-              0 ? (
-              <ActivityIndicator
-                style={{
-                  marginVertical:
-                    16,
-                }}
-                color={
-                  COLORS.primary
-                }
-              />
-            ) : null
-          }
-          ListEmptyComponent={
-            normalizedQuery.length >=
-              1 &&
+            0 ? (
+            <ActivityIndicator
+              style={{
+                marginVertical:
+                  16,
+              }}
+              color={
+                COLORS.primary
+              }
+            />
+          ) : null
+        }
+        ListEmptyComponent={showFirstPageLoader ? (
+          <ScreenState loading message={t("search.searching")} />
+        ) : suggestionsError && isOnline ? null :
+          normalizedQuery.length >=
+            1 &&
             !loadingSuggestions ? (
-              <View
+            <View
+              style={
+                styles.emptyBox
+              }
+            >
+              <Text
                 style={
-                  styles.emptyBox
+                  styles.emptyText
                 }
               >
-                <Text
-                  style={
-                    styles.emptyText
-                  }
-                >
-                  {!isOnline
-                    ? "Sem ligação à internet.\nLiga-te à internet para pesquisar novos jogos."
-                    : normalizedQuery.length <
-                        MIN_NETWORK_SEARCH_LENGTH
-                      ? "Escreve mais uma letra para pesquisar o catálogo completo."
-                      : t(
-                          "search.empty"
-                        )}
-                </Text>
-              </View>
-            ) : null
-          }
-        />
-      )}
+                {!isOnline
+                  ? t("ui.offlineEmpty")
+                  : normalizedQuery.length <
+                    MIN_NETWORK_SEARCH_LENGTH
+                    ? t("ui.shortQuery")
+                    : t(
+                      "search.empty"
+                    )}
+              </Text>
+            </View>
+          ) : null
+        }
+      />
 
       {selectedGame &&
         !isInLibrary(
@@ -1913,24 +1893,24 @@ export default function GameSearchScreen() {
 
       {(refreshing ||
         updatingLibrary) && (
-        <Modal
-          transparent
-          animationType="fade"
-        >
-          <View
-            style={
-              styles.overlay
-            }
+          <Modal
+            transparent
+            animationType="fade"
           >
-            <ActivityIndicator
-              size="large"
-              color={
-                COLORS.primary
+            <View
+              style={
+                styles.overlay
               }
-            />
-          </View>
-        </Modal>
-      )}
+            >
+              <ActivityIndicator
+                size="large"
+                color={
+                  COLORS.primary
+                }
+              />
+            </View>
+          </Modal>
+        )}
     </SafeAreaView>
   );
 }
@@ -1941,58 +1921,40 @@ const styles =
       flex: 1,
       backgroundColor:
         COLORS.background,
-      padding: 16,
+
     },
 
-    input: {
-      borderWidth: 1,
-      borderColor:
-        COLORS.border,
-      borderRadius: 10,
-      backgroundColor:
-        COLORS.surface,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      marginBottom: 12,
-    },
+    input: { ...UI_STYLES.field, marginBottom: 12 },
 
     offlineBanner: {
       flexDirection: "row",
       alignItems: "center",
       gap: 6,
-      backgroundColor:
-        "#fff8e1",
+      backgroundColor: "#fff8e1",
       borderRadius: 10,
       borderWidth: 1,
-      borderColor:
-        "#ffe082",
+      borderColor: "#ffe082",
       paddingHorizontal: 10,
       paddingVertical: 7,
       marginBottom: 12,
     },
 
-    offlineBannerText: {
-      fontSize: 12,
-      color: "#856404",
-      fontWeight: "600",
-      flex: 1,
-    },
+    offlineBannerText: { ...UI_STYLES.caption, color: "#856404", fontWeight: "600", flex: 1 },
 
     typeFilterRow: {
+      flexWrap: "wrap",
       flexDirection: "row",
       gap: 8,
       marginBottom: 10,
     },
 
     typeFilterChip: {
+      ...UI_STYLES.control,
       paddingHorizontal: 12,
       paddingVertical: 6,
-      borderRadius: 999,
-      backgroundColor:
-        COLORS.surface,
+      backgroundColor: COLORS.surface,
       borderWidth: 1,
-      borderColor:
-        COLORS.border,
+      borderColor: COLORS.border,
     },
 
     typeFilterChipActive: {
@@ -2003,10 +1965,8 @@ const styles =
     },
 
     typeFilterText: {
-      fontSize: 12,
-      fontWeight: "700",
-      color:
-        COLORS.onBackground,
+      ...UI_STYLES.caption, fontWeight: "700", color:
+        COLORS.onBackground
     },
 
     typeFilterTextActive: {
@@ -2014,6 +1974,7 @@ const styles =
     },
 
     toolbarRow: {
+      flexWrap: "wrap",
       flexDirection: "row",
       alignItems: "center",
       gap: 8,
@@ -2021,52 +1982,43 @@ const styles =
     },
 
     toolbarBtn: {
+      ...UI_STYLES.control,
       flexDirection: "row",
       alignItems: "center",
       gap: 5,
-      backgroundColor:
-        COLORS.surface,
-      borderRadius: 10,
+      backgroundColor: COLORS.surface,
       borderWidth: 1,
-      borderColor:
-        COLORS.border,
+      borderColor: COLORS.border,
       paddingHorizontal: 10,
       paddingVertical: 8,
     },
 
     toolbarBtnFlex: {
+      minWidth: 160,
+      ...UI_STYLES.control,
       flex: 1,
       flexDirection: "row",
       alignItems: "center",
-      justifyContent:
-        "center",
       gap: 4,
-      backgroundColor:
-        COLORS.surface,
-      borderRadius: 10,
+      backgroundColor: COLORS.surface,
       borderWidth: 1,
-      borderColor:
-        COLORS.border,
+      borderColor: COLORS.border,
       paddingHorizontal: 10,
       paddingVertical: 8,
     },
 
     toolbarBtnText: {
-      fontSize: 12,
-      fontWeight: "700",
-      color:
-        COLORS.onBackground,
+      ...UI_STYLES.caption, fontWeight: "700", color:
+        COLORS.onBackground
     },
 
     badge: {
-      backgroundColor:
-        COLORS.primary,
+      backgroundColor: COLORS.primary,
       borderRadius: 999,
       minWidth: 16,
       height: 16,
       alignItems: "center",
-      justifyContent:
-        "center",
+      justifyContent: "center",
       paddingHorizontal: 3,
     },
 
@@ -2076,13 +2028,6 @@ const styles =
       color: "#fff",
     },
 
-    firstPageLoader: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent:
-        "center",
-      paddingBottom: 80,
-    },
 
     emptyBox: {
       alignItems: "center",
@@ -2090,11 +2035,7 @@ const styles =
       paddingHorizontal: 24,
     },
 
-    emptyText: {
-      color:
-        COLORS.textMuted,
-      textAlign: "center",
-    },
+    emptyText: { ...UI_STYLES.empty },
 
     recentBox: {
       marginBottom: 16,
@@ -2108,18 +2049,10 @@ const styles =
       marginBottom: 10,
     },
 
-    recentHeader: {
-      fontSize: 13,
-      fontWeight: "700",
-      color:
-        COLORS.textMuted,
-      marginBottom: 10,
-    },
+    recentHeader: { ...UI_STYLES.section, marginBottom: 10 },
 
     recentClear: {
-      fontSize: 12,
-      fontWeight: "700",
-      color: COLORS.primary,
+      minHeight: 44, paddingVertical: 12, ...UI_STYLES.caption, fontWeight: "700", color: COLORS.primary
     },
 
     recentChipsRow: {
@@ -2136,48 +2069,32 @@ const styles =
       width: 68,
       height: 68,
       borderRadius: 14,
-      backgroundColor:
-        "#eee",
+      backgroundColor: "#eee",
       marginBottom: 6,
       shadowColor: "#000",
       shadowOpacity: 0.08,
       shadowRadius: 5,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
+      shadowOffset: { width: 0, height: 2, },
       elevation: 2,
     },
 
     recentCardImgPlaceholder:
-      {
-        alignItems: "center",
-        justifyContent:
-          "center",
-      },
+    {
+      alignItems: "center",
+      justifyContent:
+        "center",
+    },
 
     recentCardText: {
-      fontSize: 12,
-      color:
-        COLORS.onBackground,
-      fontWeight: "600",
-      textAlign: "center",
+      ...UI_STYLES.caption, color:
+        COLORS.onBackground, fontWeight: "600", textAlign: "center"
     },
 
-    searchingText: {
-      textAlign: "center",
-      color: COLORS.primary,
-      fontStyle: "italic",
-      marginTop: 12,
-      fontSize: 14,
-    },
 
     overlay: {
       flex: 1,
-      backgroundColor:
-        "rgba(0,0,0,0.3)",
-      justifyContent:
-        "center",
+      backgroundColor: "rgba(0,0,0,0.3)",
+      justifyContent: "center",
       alignItems: "center",
     },
   });
