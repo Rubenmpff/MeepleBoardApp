@@ -2,65 +2,49 @@
  * CampaignListScreen.tsx
  * src/features/games/screens/CampaignListScreen.tsx
  */
-
+import { CAMPAIGN_STATUS_COLORS } from "@/src/styles/statusColors";
+import ScreenLayout from "@/src/components/ui/ScreenLayout";
+import ScreenState from "@/src/components/ui/ScreenState";
 import { useCallback, useState } from "react";
-import {
-  View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, RefreshControl, ActivityIndicator, Image,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl, Image } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-
 import campaignService from "../services/campaignService";
-import {
-  Campaign,
-  getCampaignStatusKey,
-  getStatusColor,
-} from "../types/Campaign";
-import { COLORS } from "@/src/constants/colors";
-
-
+import { Campaign, getCampaignStatusKey, getStatusColor } from "../types/Campaign";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 export default function CampaignListScreen() {
   const router = useRouter();
   const { t } = useTranslation("campaigns");
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
+  const [loadError, setLoadError] = useState(false);
   const load = useCallback(async (silent = false) => {
     try {
+      setLoadError(false);
       if (!silent) setLoading(true);
       const data = await campaignService.getMine();
       setCampaigns(data);
     } catch (err) {
+      setLoadError(true);
       console.error(t("list.loadError"), err);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }, [t]);
-
   useFocusEffect(useCallback(() => { load(); }, [load]));
-
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
-    );
-  }
-
+  if (loading) return <ScreenLayout title={t("list.title")}><ScreenState loading message={t("ui.loading")} /></ScreenLayout>;
   const active    = campaigns.filter(c => c.status === "Active");
   const completed = campaigns.filter(c => c.status === "Completed");
   const abandoned = campaigns.filter(c => c.status === "Abandoned");
-
   return (
-    <View style={styles.screen}>
+    <ScreenLayout title={t("list.title")}>
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>{t("list.title")}</Text>
           <Text style={styles.headerSub}>
             {campaigns.length === 0
               ? t("list.none")
@@ -70,14 +54,14 @@ export default function CampaignListScreen() {
         <TouchableOpacity
           style={styles.createBtn}
           onPress={() => router.push("/(app)/games/campaigns/create")}
-          activeOpacity={0.85}
+          activeOpacity={0.85} accessibilityRole="button"
         >
           <MaterialIcons name="add" size={20} color="#fff" />
           <Text style={styles.createBtnText}>{t("list.new")}</Text>
         </TouchableOpacity>
       </View>
-
       <ScrollView
+        keyboardDismissMode="on-drag"
         contentContainerStyle={styles.content}
         refreshControl={
           <RefreshControl
@@ -88,7 +72,7 @@ export default function CampaignListScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
-        {campaigns.length === 0 ? (
+        {loadError ? <ScreenState error message={t("list.loadError")} onRetry={() => load()} retryLabel={t("ui.retry")} /> : campaigns.length === 0 ? (
           <View style={styles.emptyWrap}>
             <View style={styles.emptyIcon}>
               <MaterialIcons name="explore" size={40} color={COLORS.primary} />
@@ -100,7 +84,7 @@ export default function CampaignListScreen() {
             <TouchableOpacity
               style={styles.emptyBtn}
               onPress={() => router.push("/(app)/games/campaigns/create")}
-              activeOpacity={0.85}
+              activeOpacity={0.85} accessibilityRole="button"
             >
               <MaterialIcons name="add-circle" size={18} color="#fff" />
               <Text style={styles.emptyBtnText}>{t("list.createFirst")}</Text>
@@ -133,10 +117,9 @@ export default function CampaignListScreen() {
         )}
         <View style={{ height: 40 }} />
       </ScrollView>
-    </View>
+    </ScreenLayout>
   );
 }
-
 function CampaignSection({ title, icon, color, data, onPress }: {
   title: string;
   icon: string;
@@ -160,14 +143,12 @@ function CampaignSection({ title, icon, color, data, onPress }: {
     </View>
   );
 }
-
 function CampaignCard({ campaign: c, onPress }: { campaign: Campaign; onPress: () => void }) {
-  const statusColor = getStatusColor(c.status);
+  const statusColor = CAMPAIGN_STATUS_COLORS[c.status];
   const { t } = useTranslation("campaigns");
   const statusLabel = t(getCampaignStatusKey(c.status));
-
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85} accessibilityRole="button" accessibilityLabel={c.name}>
       <View style={styles.cardInner}>
         {/* Imagem do jogo */}
         <View style={styles.cardImageWrap}>
@@ -181,27 +162,24 @@ function CampaignCard({ campaign: c, onPress }: { campaign: Campaign; onPress: (
           {/* Badge de status sobre a imagem */}
           <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
         </View>
-
         {/* Conteúdo */}
         <View style={styles.cardContent}>
           <View style={styles.cardTop}>
-            <Text style={styles.cardName} numberOfLines={1}>{c.name}</Text>
+            <Text style={styles.cardName}>{c.name}</Text>
             <View style={[styles.statusPill, { backgroundColor: statusColor + "18" }]}>
               <Text style={[styles.statusText, { color: statusColor }]}>{statusLabel}</Text>
             </View>
           </View>
-
           {c.gameName && (
             <Text style={styles.cardGame} numberOfLines={1}>🎲 {c.gameName}</Text>
           )}
-
           <View style={styles.cardMeta}>
             <View style={styles.metaItem}>
-              <MaterialIcons name="people" size={12} color={COLORS.textMuted ?? "#90A4AE"} />
+              <MaterialIcons name="people" size={12} color={COLORS.textMuted ?? COLORS.textMuted} />
               <Text style={styles.metaText}>{c.memberCount}</Text>
             </View>
             <View style={styles.metaItem}>
-              <MaterialIcons name="sports-esports" size={12} color={COLORS.textMuted ?? "#90A4AE"} />
+              <MaterialIcons name="sports-esports" size={12} color={COLORS.textMuted ?? COLORS.textMuted} />
               <Text style={styles.metaText}>{t("list.matches", { count: c.matchCount })}</Text>
             </View>
             {c.averagePersonalRating != null && (
@@ -210,7 +188,6 @@ function CampaignCard({ campaign: c, onPress }: { campaign: Campaign; onPress: (
               </View>
             )}
           </View>
-
           {/* Mini barra de progresso se tiver rating */}
           {c.averagePersonalRating != null && (
             <View style={styles.progressBar}>
@@ -221,48 +198,24 @@ function CampaignCard({ campaign: c, onPress }: { campaign: Campaign; onPress: (
             </View>
           )}
         </View>
-
         <MaterialIcons name="chevron-right" size={20} color="#ddd" />
       </View>
     </TouchableOpacity>
   );
 }
-
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-
-  header: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingHorizontal: 20, paddingVertical: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1, borderBottomColor: "#f0f0f0",
-  },
-  headerTitle: { fontSize: 24, fontWeight: "800", color: COLORS.onBackground },
-  headerSub: { fontSize: 13, color: COLORS.inactive, marginTop: 2 },
-  createBtn: {
-    flexDirection: "row", alignItems: "center", gap: 6,
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12,
-  },
+  header: { paddingHorizontal: 16, paddingBottom: 16, gap: 12 },
+  headerSub: { ...UI_STYLES.caption, color: COLORS.textMuted, marginTop: 4 },
+  createBtn: { ...UI_STYLES.button, flexDirection: "row", gap: 8, backgroundColor: COLORS.primary },
   createBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
-
   content: { padding: 16 },
-
   section: { marginBottom: 24 },
   sectionHeader: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 12 },
-  sectionTitle: { fontSize: 13, fontWeight: "800", textTransform: "uppercase", letterSpacing: 0.5 },
+  sectionTitle: { ...UI_STYLES.section, flexShrink: 1 },
   sectionBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999 },
-  sectionBadgeText: { fontSize: 12, fontWeight: "700" },
-
-  card: {
-    backgroundColor: "#fff", borderRadius: 16, marginBottom: 10,
-    borderWidth: 1, borderColor: "#f0f0f0",
-    shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 }, elevation: 2,
-  },
+  sectionBadgeText: { ...UI_STYLES.caption, fontWeight: "700" },
+  card: { ...UI_STYLES.card, marginBottom: 16 },
   cardInner: { flexDirection: "row", alignItems: "center", padding: 12, gap: 12 },
-
   cardImageWrap: { position: "relative" },
   cardImage: {
     width: 56, height: 56, borderRadius: 12,
@@ -274,37 +227,29 @@ const styles = StyleSheet.create({
     width: 12, height: 12, borderRadius: 6,
     borderWidth: 2, borderColor: "#fff",
   },
-
-  cardContent: { flex: 1 },
-  cardTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 4 },
-  cardName: { fontSize: 15, fontWeight: "800", color: COLORS.onBackground, flex: 1, marginRight: 8 },
+  cardContent: { flex: 1, minWidth: 0 },
+  cardTop: { gap: 8, marginBottom: 8 },
+  cardName: { ...UI_STYLES.section },
   statusPill: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
-  statusText: { fontSize: 10, fontWeight: "700" },
-  cardGame: { fontSize: 12, color: COLORS.inactive, marginBottom: 6 },
-
-  cardMeta: { flexDirection: "row", gap: 10, alignItems: "center" },
+  statusText: { ...UI_STYLES.caption, fontWeight: "700" },
+  cardGame: { ...UI_STYLES.body, color: COLORS.textMuted, marginBottom: 8 },
+  cardMeta: { flexDirection: "row", flexWrap: "wrap", gap: 12, alignItems: "center" },
   metaItem: { flexDirection: "row", alignItems: "center", gap: 3 },
-  metaText: { fontSize: 11, color: COLORS.inactive, fontWeight: "600" },
-  metaRating: { fontSize: 11, color: "#F9A825", fontWeight: "700" },
-
+  metaText: { ...UI_STYLES.caption, color: COLORS.textMuted },
+  metaRating: { ...UI_STYLES.caption, color: COLORS.secondary, fontWeight: "700" },
   progressBar: {
     height: 3, backgroundColor: "#f0f0f0", borderRadius: 999,
     marginTop: 8, overflow: "hidden",
   },
-  progressFill: { height: "100%", backgroundColor: "#F9A825", borderRadius: 999 },
-
+  progressFill: { height: "100%", backgroundColor: COLORS.secondary, borderRadius: 999 },
   emptyWrap: { alignItems: "center", paddingVertical: 60, gap: 12 },
   emptyIcon: {
-    width: 80, height: 80, borderRadius: 24,
+    width: 80, minHeight: 80, borderRadius: 24,
     backgroundColor: COLORS.primary + "10",
     alignItems: "center", justifyContent: "center",
   },
-  emptyTitle: { fontSize: 20, fontWeight: "800", color: COLORS.onBackground },
-  emptyText: { fontSize: 14, color: COLORS.inactive, textAlign: "center", lineHeight: 20 },
-  emptyBtn: {
-    flexDirection: "row", alignItems: "center", gap: 8,
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, marginTop: 8,
-  },
+  emptyTitle: { ...UI_STYLES.section, textAlign: "center" },
+  emptyText: { ...UI_STYLES.empty },
+  emptyBtn: { ...UI_STYLES.button, flexDirection: "row", gap: 8, marginTop: 12, backgroundColor: COLORS.primary },
   emptyBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
 });

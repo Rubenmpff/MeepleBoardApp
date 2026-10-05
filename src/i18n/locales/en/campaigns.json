@@ -11,13 +11,11 @@
     "you": "You",
     "comingSoon": "Coming soon"
   },
-
   "status": {
     "active": "Active",
     "completed": "Completed",
     "abandoned": "Abandoned"
   },
-
   "memberStatus": {
     "pending": "Pending",
     "accepted": "Member",
@@ -25,7 +23,6 @@
     "removed": "Removed",
     "left": "Left"
   },
-
   "create": {
     "title": "New Campaign",
     "selectGame": "Choose the game *",
@@ -37,76 +34,61 @@
     "notesPlaceholder": "World state, characters, objectives...",
     "information": "After creating the campaign, you can invite members, link matches and allow each player to write their own notes and ratings.",
     "button": "Create campaign",
-
     "missingGameTitle": "Game required",
     "missingGameMessage": "Choose the game for this campaign first.",
-
     "successTitle": "Campaign created!",
     "successMessage": "You can now invite members and link matches.",
-
-    "errorFallback": "The campaign could not be created."
+    "errorFallback": "The campaign could not be created.",
+    "notCampaignGameWarning": "BGG does not list Legacy/Campaign mechanics for this game. You can continue if you know it supports campaigns."
   },
-
   "list": {
     "title": "Campaigns",
     "new": "New",
     "none": "No campaigns yet",
     "activeCount_one": "{{count}} active campaign",
     "activeCount_other": "{{count}} active campaigns",
-
     "emptyTitle": "No campaigns yet",
     "emptyMessage": "Create a campaign to keep track of\nyour gaming adventures!",
     "createFirst": "Create first campaign",
-
     "sections": {
       "active": "Active",
       "completed": "Completed",
       "abandoned": "Abandoned"
     },
-
     "matches_one": "{{count}} match",
     "matches_other": "{{count}} matches",
-
     "loadError": "The campaigns could not be loaded."
   },
-
   "detail": {
     "notFound": "Campaign not found.",
     "loadError": "The campaign could not be loaded.",
-
     "invite": {
       "title": "You have been invited to this campaign!",
       "message": "Accept the invitation to join the group's adventures.",
       "accept": "Accept",
       "decline": "Decline"
     },
-
     "actions": {
       "complete": "Complete",
       "completeTitle": "Complete campaign",
       "completeConfirm": "Are you sure you want to complete this campaign?",
-
       "abandon": "Abandon",
       "abandonTitle": "Abandon campaign",
       "abandonConfirm": "This action cannot be undone."
     },
-
     "tabs": {
       "sessions": "Sessions ({{count}})",
       "members": "Members ({{count}})",
       "notes": "Notes"
     },
-
     "sessions": {
       "newEncounter": "New encounter",
       "emptyTitle": "No sessions yet",
       "emptyMessage": "Register the campaign's first encounter!",
       "session": "Session {{number}}",
       "encounter": "Encounter",
-
       "ratings_one": "{{count}} rating",
       "ratings_other": "{{count}} ratings",
-
       "evaluate": "Rate",
       "editRating": "Edit rating",
       "yourRating": "Your rating",
@@ -116,25 +98,20 @@
       "tags": "Tags",
       "tagsPlaceholder": "epic, plot twist, difficult...",
       "saveRating": "Save rating",
-
       "savedTitle": "Saved!",
       "savedMessage": "Your perspective has been saved.",
       "saveError": "The rating could not be saved.",
       "journalLoadError": "The journal could not be loaded."
     },
-
     "members": {
       "invite": "Invite member",
       "inviteSoon": "Member invitations will be available soon.",
-
       "removeTitle": "Remove member",
       "removeConfirm": "Remove {{name}} from the campaign?",
-
       "leave": "Leave campaign",
       "leaveTitle": "Leave campaign",
       "leaveConfirm": "Are you sure you want to leave this campaign?"
     },
-
     "notes": {
       "placeholder": "World state, characters, objectives, secrets...",
       "emptyTitle": "No notes yet",
@@ -143,33 +120,28 @@
       "write": "Write notes"
     }
   },
-
   "encounter": {
     "title": "New Encounter",
-
     "validation": {
       "missingData": "Some required encounter data is missing.",
       "selectPlayer": "Select at least one player.",
       "selectWinner": "Select the winner.",
       "invalidDuration": "The entered duration is invalid."
     },
-
     "sessionTitle": "Title (optional)",
     "sessionTitlePlaceholder": "E.g. Scenario 3 — The Crypt, January...",
-
     "players": {
       "title": "Who played today?",
       "hint": "Select the members who took part in this encounter.",
       "member": "Member"
     },
-
     "mode": {
       "title": "Game mode",
       "competitive": "Competitive",
       "cooperative": "Cooperative",
-      "solo": "Solo"
+      "solo": "Solo",
+      "undefined": "Not set"
     },
-
     "result": {
       "title": "Result",
       "teamTitle": "Team result",
@@ -180,7 +152,6 @@
       "teamLost": "We lost",
       "winner": "Winner"
     },
-
     "details": {
       "title": "Optional details",
       "duration": "⏱ Duration (minutes)",
@@ -190,7 +161,6 @@
       "score": "📝 Score summary",
       "scorePlaceholder": "E.g. Ruben 45, Miguel 38..."
     },
-
     "rating": {
       "title": "Your rating for this encounter",
       "value": "Rating (0–10)",
@@ -199,11 +169,19 @@
       "tags": "🏷️ Tags (comma-separated)",
       "tagsPlaceholder": "epic, plot twist, difficult..."
     },
-
     "submit": "Register encounter",
-
     "successTitle": "Encounter registered!",
-    "successMessage": "The other members will be notified so they can submit their ratings.",
-    "errorFallback": "The encounter could not be registered."
+    "successMessage": "The other members can now leave their notes.",
+    "errorFallback": "The encounter could not be registered.",
+    "outcome": "What happened? (optional)",
+    "outcomePlaceholder": "e.g. Boss defeated! We reached chapter 5…"
+  },
+  "ui": {
+    "loading": "Loading…",
+    "retry": "Try again",
+    "detailTitle": "Campaign details",
+    "changeGame": "Change game",
+    "selectPlayer": "Select {{name}}",
+    "removeMember": "Remove {{name}}"
   }
 }

@@ -5,55 +5,49 @@
  * Rota: /(app)/games/campaigns/encounter/create
  * Params: campaignId, gameId, gameName, memberIds, memberNames (separados por vírgula)
  */
-
-import React, { useState } from "react";
-import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView,
-  TextInput, Alert, ActivityIndicator, Platform, Image,
-} from "react-native";
+import { useTranslation } from "react-i18next";
+import ScreenLayout from "@/src/components/ui/ScreenLayout";
+import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, Image } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
-
 import matchService from "@/src/features/games/matches/services/matchService";
 import campaignService from "@/src/features/games/campaigns/services/campaignService";
 import { StarRating } from "@/src/shared/components/StarRating";
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { RootState } from "@/src/store/store";
-
 type GameMode = "competitive" | "cooperative" | "solo";
 type SoloResult = "player_win" | "game_win" | "none";
-
 export default function CreateCampaignEncounterScreen() {
+  const { t } = useTranslation("campaigns");
+  const { t: tm } = useTranslation("matches");
   const router = useRouter();
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const params = useLocalSearchParams();
-
   const campaignId  = typeof params.campaignId === "string" ? params.campaignId : "";
   const gameId      = typeof params.gameId === "string" ? params.gameId : "";
   const gameName    = typeof params.gameName === "string" ? decodeURIComponent(params.gameName) : "";
   const memberIds   = typeof params.memberIds === "string" ? params.memberIds.split(",").filter(Boolean) : [];
   const memberNames = typeof params.memberNames === "string" ? params.memberNames.split(",").filter(Boolean) : [];
-
   // ── Jogadores ────────────────────────────────────────────────────────────
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>(
     currentUser?.id ? [currentUser.id] : []
   );
-
   // ── Modo de jogo — OPCIONAL, colapsável ──────────────────────────────────
   const [showMode, setShowMode] = useState(false);
   const [gameMode, setGameMode] = useState<GameMode | null>(null); // null = não definido
   const [soloResult, setSoloResult] = useState<SoloResult>("none");
   const [winnerId, setWinnerId] = useState<string | undefined>();
   const [coopWin, setCoopWin] = useState<boolean | undefined>();
-
   // ── Detalhes ─────────────────────────────────────────────────────────────
   const [sessionTitle, setSessionTitle] = useState("");
   const [sessionOutcome, setSessionOutcome] = useState(""); // resultado livre
   const [duration, setDuration] = useState("");
   const [location, setLocation] = useState("");
-
   // ── Minha avaliação ───────────────────────────────────────────────────────
   const [personalRating, setPersonalRating] = useState<number | undefined>();
   const [notes, setNotes] = useState("");
@@ -61,48 +55,41 @@ export default function CreateCampaignEncounterScreen() {
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const MAX_PHOTOS = 5;
-
   const [saving, setSaving] = useState(false);
-
   const isSolo = gameMode === "solo";
   const isCoop = gameMode === "cooperative";
   const isComp = gameMode === "competitive";
-
   const getModeLabel = () => {
-    if (!gameMode) return "Não definido";
-    if (gameMode === "competitive") return "Competitivo";
-    if (gameMode === "cooperative") return "Cooperativo";
-    return "Solo";
+    if (!gameMode) return t("encounter.mode.undefined");
+    if (gameMode === "competitive") return t("encounter.mode.competitive");
+    if (gameMode === "cooperative") return t("encounter.mode.cooperative");
+    return t("encounter.mode.solo");
   };
-
   const getModeColor = () => {
     if (!gameMode) return COLORS.inactive;
     if (gameMode === "competitive") return COLORS.primary;
     if (gameMode === "cooperative") return COLORS.success;
     return COLORS.secondary;
   };
-
   const togglePlayer = (id: string) => {
     if (id === currentUser?.id) return;
     setSelectedPlayers(prev =>
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
     );
   };
-
   const getMemberName = (id: string) => {
-    if (id === currentUser?.id) return "Tu";
+    if (id === currentUser?.id) return t("common.you");
     const idx = memberIds.indexOf(id);
-    return memberNames[idx] ?? "Membro";
+    return memberNames[idx] ?? t("common.member");
   };
-
   const handlePickPendingPhoto = async () => {
     if (pendingPhotos.length >= MAX_PHOTOS) {
-      Alert.alert("Erro", `Só podes escolher até ${MAX_PHOTOS} fotos.`);
+      Alert.alert(t("common.error"), tm("photos.limit", { count: MAX_PHOTOS }));
       return;
     }
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("Permissão necessária", "Precisamos de acesso às tuas fotos para adicionares imagens.");
+      Alert.alert(tm("photos.permissionTitle"), tm("photos.permission"));
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -113,23 +100,18 @@ export default function CreateCampaignEncounterScreen() {
     if (result.canceled || !result.assets?.[0]?.uri) return;
     setPendingPhotos((prev) => [...prev, result.assets[0].uri]);
   };
-
   const handleRemovePendingPhoto = (uri: string) => {
     setPendingPhotos((prev) => prev.filter((p) => p !== uri));
   };
-
   const handleSubmit = async () => {
-    if (!gameId || !campaignId) return Alert.alert("Erro", "Dados em falta.");
-    if (selectedPlayers.length === 0) return Alert.alert("Erro", "Seleciona pelo menos um jogador.");
-
+    if (!gameId || !campaignId) return Alert.alert(t("common.error"), t("encounter.validation.missingData"));
+    if (selectedPlayers.length === 0) return Alert.alert(t("common.error"), t("encounter.validation.selectPlayer"));
     // Vencedor só obrigatório se modo competitivo definido
     if (isComp && !winnerId)
-      return Alert.alert("Erro", "Seleciona o vencedor em modo competitivo.");
-
+      return Alert.alert(t("common.error"), t("encounter.validation.selectWinner"));
     const dur = duration.trim() ? Number(duration) : undefined;
     if (dur !== undefined && (isNaN(dur) || dur <= 0))
-      return Alert.alert("Erro", "Duração inválida.");
-
+      return Alert.alert(t("common.error"), t("encounter.validation.invalidDuration"));
     setSaving(true);
     try {
       const match = await matchService.registerMatch({
@@ -151,13 +133,11 @@ export default function CreateCampaignEncounterScreen() {
         tags: tags.trim() || undefined,
         campaignId,
       });
-
       if (match?.id) {
         await campaignService.addMatch(campaignId, {
           matchId: match.id,
           sessionTitle: sessionTitle.trim() || undefined,
         });
-
         let photoWarning = "";
         if (pendingPhotos.length > 0) {
           setUploadingPhotos(true);
@@ -171,61 +151,53 @@ export default function CreateCampaignEncounterScreen() {
           }
           setUploadingPhotos(false);
           if (failed > 0) {
-            photoWarning = failed === pendingPhotos.length
-              ? "\n\n⚠️ Não foi possível enviar as fotos."
-              : `\n\n⚠️ ${failed} de ${pendingPhotos.length} fotos não foram enviadas.`;
+            photoWarning = "\n\n" + tm("photos.partialFailure", { failed, total: pendingPhotos.length });
           }
         }
-
         Alert.alert(
-          "✅ Encontro registado!",
-          "Os outros membros podem agora deixar as suas notas." + photoWarning,
-          [{ text: "OK", onPress: () => router.back() }]
+          t("encounter.successTitle"),
+          t("encounter.successMessage") + photoWarning,
+          [{ text: t("common.ok"), onPress: () => router.back() }]
         );
       } else {
         Alert.alert(
-          "✅ Encontro registado!",
-          "Os outros membros podem agora deixar as suas notas.",
-          [{ text: "OK", onPress: () => router.back() }]
+          t("encounter.successTitle"),
+          t("encounter.successMessage"),
+          [{ text: t("common.ok"), onPress: () => router.back() }]
         );
       }
     } catch (err: any) {
-      Alert.alert("Erro", err?.message ?? "Não foi possível registar o encontro.");
+      Alert.alert(t("common.error"), err?.message ?? t("encounter.errorFallback"));
     } finally {
       setSaving(false);
     }
   };
-
   return (
-    <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-
+    <ScreenLayout title={t("encounter.title")} keyboard>
+      <ScrollView keyboardDismissMode="on-drag" contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Novo Encontro</Text>
           <View style={styles.gameChip}>
             <MaterialIcons name="sports-esports" size={14} color={COLORS.primary} />
             <Text style={styles.gameChipText}>{gameName}</Text>
           </View>
         </View>
-
         {/* ── Título ── */}
         <View style={styles.card}>
-          <SectionTitle icon="bookmark" label="Título (opcional)" />
+          <SectionTitle icon="bookmark" label={t("encounter.sessionTitle")} />
           <TextInput
             style={styles.input}
             value={sessionTitle}
             onChangeText={setSessionTitle}
-            placeholder="Ex: Cenário 3 — A Cripta, Semana 4..."
-            placeholderTextColor="#bbb"
-            maxLength={100}
+            placeholder={t("encounter.sessionTitlePlaceholder")}
+            placeholderTextColor={COLORS.textMuted}
+            maxLength={100} accessibilityLabel={t("encounter.sessionTitle")}
           />
         </View>
-
         {/* ── Quem jogou ── */}
         <View style={styles.card}>
-          <SectionTitle icon="people" label="Quem jogou hoje?" />
-          <Text style={styles.hint}>Seleciona os membros que participaram neste encontro.</Text>
+          <SectionTitle icon="people" label={t("encounter.players.title")} />
+          <Text style={styles.hint}>{t("encounter.players.hint")}</Text>
           <View style={styles.playersGrid}>
             {memberIds.map(memberId => {
               const isSelected = selectedPlayers.includes(memberId);
@@ -235,7 +207,7 @@ export default function CreateCampaignEncounterScreen() {
                   key={memberId}
                   style={[styles.playerChip, isSelected && styles.playerChipSelected]}
                   onPress={() => togglePlayer(memberId)}
-                  activeOpacity={isMe ? 1 : 0.8}
+                  activeOpacity={isMe ? 1 : 0.8} accessibilityRole="checkbox" accessibilityLabel={t("ui.selectPlayer", { name: getMemberName(memberId) })} accessibilityState={{ checked: isSelected }}
                 >
                   <View style={[styles.playerAvatar, isSelected && styles.playerAvatarSelected]}>
                     <Text style={[styles.playerAvatarText, isSelected && { color: "#fff" }]}>
@@ -251,34 +223,32 @@ export default function CreateCampaignEncounterScreen() {
             })}
           </View>
         </View>
-
         {/* ── Resultado geral (campo livre) ── */}
         <View style={styles.card}>
-          <SectionTitle icon="flag" label="O que aconteceu? (opcional)" />
+          <SectionTitle icon="flag" label={t("encounter.outcome")} />
           <TextInput
-            style={[styles.input, { height: 80, paddingTop: 10 }]}
+            style={[styles.input, { minHeight: 80, paddingTop: 10 }]}
             value={sessionOutcome}
             onChangeText={setSessionOutcome}
-            placeholder="Ex: Boss derrotado! Chegámos ao capítulo 5. Um tripulante morreu..."
-            placeholderTextColor="#bbb"
+            placeholder={t("encounter.outcomePlaceholder")}
+            placeholderTextColor={COLORS.textMuted}
             multiline
             numberOfLines={3}
             textAlignVertical="top"
-            maxLength={500}
+            maxLength={500} accessibilityLabel={t("encounter.outcome")}
           />
         </View>
-
         {/* ── Modo de jogo — COLAPSÁVEL E OPCIONAL ── */}
         <View style={styles.card}>
           {/* Header colapsável */}
           <TouchableOpacity
             style={styles.collapsibleHeader}
             onPress={() => setShowMode(v => !v)}
-            activeOpacity={0.8}
+            activeOpacity={0.8} accessibilityRole="button" accessibilityLabel={t("encounter.mode.title")} accessibilityState={{ expanded: showMode }}
           >
             <View style={styles.collapsibleLeft}>
               <MaterialIcons name="gamepad" size={16} color={COLORS.primary} />
-              <Text style={styles.sectionTitleText}>Modo de jogo</Text>
+              <Text style={styles.sectionTitleText}>{t("encounter.mode.title")}</Text>
               <View style={[styles.modePill, { backgroundColor: getModeColor() + "18" }]}>
                 <Text style={[styles.modePillText, { color: getModeColor() }]}>
                   {getModeLabel()}
@@ -287,18 +257,17 @@ export default function CreateCampaignEncounterScreen() {
             </View>
             <MaterialIcons
               name={showMode ? "expand-less" : "expand-more"}
-              size={22} color="#bbb"
+              size={22} color={COLORS.textMuted}
             />
           </TouchableOpacity>
-
           {showMode && (
             <View style={{ marginTop: 14 }}>
               {/* Botões de modo */}
               <View style={styles.modeRow}>
                 {([
-                  { key: "competitive", label: "Competitivo", icon: "emoji-events", color: COLORS.primary },
-                  { key: "cooperative", label: "Cooperativo", icon: "favorite",     color: COLORS.success },
-                  { key: "solo",        label: "Solo",        icon: "person",       color: COLORS.secondary },
+                  { key: "competitive", label: t("encounter.mode.competitive"), icon: "emoji-events", color: COLORS.primary },
+                  { key: "cooperative", label: t("encounter.mode.cooperative"), icon: "favorite",     color: COLORS.success },
+                  { key: "solo",        label: t("encounter.mode.solo"),        icon: "person",       color: COLORS.secondary },
                 ] as { key: GameMode; label: string; icon: string; color: string }[]).map(m => (
                   <TouchableOpacity
                     key={m.key}
@@ -313,29 +282,28 @@ export default function CreateCampaignEncounterScreen() {
                       setCoopWin(undefined);
                       setSoloResult("none");
                     }}
-                    activeOpacity={0.8}
+                    activeOpacity={0.8} accessibilityRole="radio" accessibilityLabel={m.label} accessibilityState={{ selected: gameMode === m.key }}
                   >
-                    <MaterialIcons name={m.icon as any} size={22} color={gameMode === m.key ? m.color : "#bbb"} />
+                    <MaterialIcons name={m.icon as any} size={22} color={gameMode === m.key ? m.color : COLORS.textMuted} />
                     <Text style={[styles.modeBtnText, gameMode === m.key && { color: m.color }]}>{m.label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
-
               {/* Resultado por modo */}
               {isSolo && (
                 <View style={{ marginTop: 14 }}>
-                  <Text style={styles.subLabel}>Resultado</Text>
+                  <Text style={styles.subLabel}>{t("encounter.result.title")}</Text>
                   <View style={styles.resultRow}>
                     {([
-                      { key: "player_win", label: "Ganhei",        emoji: "🏆", color: COLORS.success },
-                      { key: "game_win",   label: "O jogo ganhou", emoji: "💀", color: COLORS.error },
-                      { key: "none",       label: "Sem resultado",  emoji: "—",  color: "#888" },
+                      { key: "player_win", label: t("encounter.result.playerWon"),        emoji: "🏆", color: COLORS.success },
+                      { key: "game_win",   label: t("encounter.result.gameWon"), emoji: "💀", color: COLORS.error },
+                      { key: "none",       label: t("encounter.result.noResult"),  emoji: "—",  color: COLORS.textMuted },
                     ] as { key: SoloResult; label: string; emoji: string; color: string }[]).map(r => (
                       <TouchableOpacity
                         key={r.key}
                         style={[styles.resultBtn, soloResult === r.key && { borderColor: r.color, backgroundColor: r.color + "12" }]}
                         onPress={() => setSoloResult(r.key)}
-                        activeOpacity={0.8}
+                        activeOpacity={0.8} accessibilityRole="radio" accessibilityLabel={r.label} accessibilityState={{ selected: soloResult === r.key }}
                       >
                         <Text style={styles.resultEmoji}>{r.emoji}</Text>
                         <Text style={[styles.resultLabel, soloResult === r.key && { color: r.color, fontWeight: "700" }]}>{r.label}</Text>
@@ -344,42 +312,40 @@ export default function CreateCampaignEncounterScreen() {
                   </View>
                 </View>
               )}
-
               {isCoop && (
                 <View style={{ marginTop: 14 }}>
-                  <Text style={styles.subLabel}>Resultado da equipa</Text>
+                  <Text style={styles.subLabel}>{t("encounter.result.teamTitle")}</Text>
                   <View style={styles.resultRow}>
                     <TouchableOpacity
                       style={[styles.resultBtn, coopWin === true && { borderColor: COLORS.success, backgroundColor: COLORS.success + "12" }]}
-                      onPress={() => setCoopWin(v => v === true ? undefined : true)} activeOpacity={0.8}
+                      onPress={() => setCoopWin(v => v === true ? undefined : true)} activeOpacity={0.8} accessibilityRole="radio"
                     >
                       <Text style={styles.resultEmoji}>🏆</Text>
-                      <Text style={[styles.resultLabel, coopWin === true && { color: COLORS.success, fontWeight: "700" }]}>Ganhámos</Text>
+                      <Text style={[styles.resultLabel, coopWin === true && { color: COLORS.success, fontWeight: "700" }]}>{t("encounter.result.teamWon")}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.resultBtn, coopWin === false && { borderColor: COLORS.error, backgroundColor: COLORS.error + "12" }]}
-                      onPress={() => setCoopWin(v => v === false ? undefined : false)} activeOpacity={0.8}
+                      onPress={() => setCoopWin(v => v === false ? undefined : false)} activeOpacity={0.8} accessibilityRole="button"
                     >
                       <Text style={styles.resultEmoji}>💀</Text>
-                      <Text style={[styles.resultLabel, coopWin === false && { color: COLORS.error, fontWeight: "700" }]}>Perdemos</Text>
+                      <Text style={[styles.resultLabel, coopWin === false && { color: COLORS.error, fontWeight: "700" }]}>{t("encounter.result.teamLost")}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
               )}
-
               {isComp && selectedPlayers.length > 0 && (
                 <View style={{ marginTop: 14 }}>
-                  <Text style={styles.subLabel}>Vencedor</Text>
+                  <Text style={styles.subLabel}>{t("encounter.result.winner")}</Text>
                   {selectedPlayers.map(pid => (
                     <TouchableOpacity
                       key={pid}
                       style={[styles.winnerOption, winnerId === pid && styles.winnerOptionSelected]}
                       onPress={() => setWinnerId(prev => prev === pid ? undefined : pid)}
-                      activeOpacity={0.8}
+                      activeOpacity={0.8} accessibilityRole="radio" accessibilityLabel={getMemberName(pid)} accessibilityState={{ selected: winnerId === pid }}
                     >
                       <MaterialIcons
                         name={winnerId === pid ? "radio-button-checked" : "radio-button-unchecked"}
-                        size={20} color={winnerId === pid ? COLORS.primary : "#bbb"}
+                        size={20} color={winnerId === pid ? COLORS.primary : COLORS.textMuted}
                       />
                       <Text style={[styles.winnerOptionText, winnerId === pid && { color: COLORS.primary }]}>
                         {getMemberName(pid)}
@@ -392,33 +358,29 @@ export default function CreateCampaignEncounterScreen() {
             </View>
           )}
         </View>
-
         {/* ── Detalhes opcionais ── */}
         <View style={styles.card}>
-          <SectionTitle icon="info" label="Detalhes opcionais" />
-          <DetailField label="⏱ Duração (minutos)" placeholder="Ex: 120" value={duration} onChangeText={setDuration} keyboardType="numeric" />
-          <DetailField label="📍 Local" placeholder="Ex: Casa do João" value={location} onChangeText={setLocation} />
+          <SectionTitle icon="info" label={t("encounter.details.title")} />
+          <DetailField label={t("encounter.details.duration")} placeholder={t("encounter.details.durationPlaceholder")} value={duration} onChangeText={setDuration} keyboardType="numeric" />
+          <DetailField label={t("encounter.details.location")} placeholder={t("encounter.details.locationPlaceholder")} value={location} onChangeText={setLocation} />
         </View>
-
         {/* ── A minha avaliação ── */}
         <View style={styles.card}>
-          <SectionTitle icon="star" label="A tua avaliação deste encontro" />
-
-          <Text style={styles.subLabel}>Rating (0–10)</Text>
-          <StarRating value={personalRating} onChange={setPersonalRating} size={30} />
-
+          <SectionTitle icon="star" label={t("encounter.rating.title")} />
+          <Text style={styles.subLabel}>{t("encounter.rating.value")}</Text>
+          <StarRating appearance="refresh" value={personalRating} onChange={setPersonalRating} size={30} />
           <View style={{ marginTop: 14 }}>
             <DetailField
-              label="📖 Notas pessoais"
-              placeholder="O que aconteceu à tua personagem? Momentos épicos, decisões importantes..."
+              label={t("encounter.rating.notes")}
+              placeholder={t("encounter.rating.notesPlaceholder")}
               value={notes}
               onChangeText={setNotes}
               multiline
               numberOfLines={4}
             />
             <DetailField
-              label="🏷️ Tags (separadas por vírgula)"
-              placeholder="épico, reviravolta, morte, vitória..."
+              label={t("encounter.rating.tags")}
+              placeholder={t("encounter.rating.tagsPlaceholder")}
               value={tags}
               onChangeText={setTags}
             />
@@ -432,55 +394,35 @@ export default function CreateCampaignEncounterScreen() {
               </View>
             )}
           </View>
-
           <Text style={[styles.subLabel, { marginTop: 16 }]}>
-            Fotos (opcional) {pendingPhotos.length > 0 ? `— ${pendingPhotos.length}/${MAX_PHOTOS}` : ""}
+            {tm("photos.label")} {pendingPhotos.length > 0 ? `— ${pendingPhotos.length}/${MAX_PHOTOS}` : ""}
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {pendingPhotos.map((uri, pi) => (
               <View key={pi} style={styles.photoThumbWrap}>
                 <Image source={{ uri }} style={styles.photoThumb} />
-                <TouchableOpacity style={styles.photoRemoveBtn} onPress={() => handleRemovePendingPhoto(uri)}>
+                <TouchableOpacity style={styles.photoRemoveBtn} onPress={() => handleRemovePendingPhoto(uri)} accessibilityRole="button" accessibilityLabel={tm("photos.remove")}>
                   <MaterialIcons name="close" size={14} color="#fff" />
                 </TouchableOpacity>
               </View>
             ))}
             {pendingPhotos.length < MAX_PHOTOS && (
-              <TouchableOpacity style={styles.photoAddBtn} onPress={handlePickPendingPhoto} activeOpacity={0.8}>
+              <TouchableOpacity style={styles.photoAddBtn} onPress={handlePickPendingPhoto} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel={tm("photos.add")}>
                 <MaterialIcons name="add-a-photo" size={20} color={COLORS.primary} />
-                <Text style={styles.photoAddText}>Adicionar</Text>
+                <Text style={styles.photoAddText}>{tm("photos.add")}</Text>
               </TouchableOpacity>
             )}
           </ScrollView>
-          <Text style={styles.hint}>As fotos são enviadas depois de guardares o encontro.</Text>
+          <Text style={styles.hint}>{tm("photos.hint")}</Text>
         </View>
-
-        <View style={{ height: 100 }} />
+        <View style={{ height: 16 }} />
       </ScrollView>
-
       <View style={styles.stickyBar}>
-        <TouchableOpacity
-          style={[styles.saveBtn, (saving || uploadingPhotos) && { opacity: 0.6 }]}
-          onPress={handleSubmit}
-          disabled={saving || uploadingPhotos}
-          activeOpacity={0.85}
-        >
-          {saving || uploadingPhotos
-            ? <>
-                <ActivityIndicator color="#fff" />
-                {uploadingPhotos && <Text style={styles.saveBtnText}>  A enviar fotos...</Text>}
-              </>
-            : <>
-                <MaterialIcons name="check-circle" size={20} color="#fff" />
-                <Text style={styles.saveBtnText}>Registar Encontro</Text>
-              </>
-          }
-        </TouchableOpacity>
+        <PrimaryButton title={uploadingPhotos ? tm("photos.uploading") : t("encounter.submit")} onPress={handleSubmit} loading={saving || uploadingPhotos} />
       </View>
-    </View>
+    </ScreenLayout>
   );
 }
-
 function SectionTitle({ icon, label }: { icon: string; label: string }) {
   return (
     <View style={styles.sectionTitleRow}>
@@ -489,7 +431,6 @@ function SectionTitle({ icon, label }: { icon: string; label: string }) {
     </View>
   );
 }
-
 function DetailField({ label, placeholder, value, onChangeText, keyboardType, multiline, numberOfLines }: {
   label: string; placeholder: string; value: string; onChangeText: (v: string) => void;
   keyboardType?: any; multiline?: boolean; numberOfLines?: number;
@@ -498,123 +439,64 @@ function DetailField({ label, placeholder, value, onChangeText, keyboardType, mu
     <View style={styles.field}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <TextInput
-        style={[styles.input, multiline && { height: (numberOfLines ?? 3) * 26, paddingTop: 10 }]}
+        style={[styles.input, multiline && { minHeight: (numberOfLines ?? 3) * 26, paddingTop: 10 }]}
         value={value} onChangeText={onChangeText}
-        placeholder={placeholder} placeholderTextColor="#bbb"
+        accessibilityLabel={label} placeholder={placeholder} placeholderTextColor={COLORS.textMuted}
         keyboardType={keyboardType} multiline={multiline}
         numberOfLines={numberOfLines} textAlignVertical={multiline ? "top" : "center"}
       />
     </View>
   );
 }
-
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background },
   scroll: { padding: 16, paddingBottom: 20 },
-
   header: { marginBottom: 20 },
-  headerTitle: { fontSize: 24, fontWeight: "800", color: COLORS.onBackground, marginBottom: 8 },
   gameChip: {
     flexDirection: "row", alignItems: "center", gap: 6,
     backgroundColor: COLORS.primary + "10", borderRadius: 999,
     paddingHorizontal: 12, paddingVertical: 6, alignSelf: "flex-start",
   },
-  gameChipText: { fontSize: 13, fontWeight: "700", color: COLORS.primary },
-
-  card: {
-    backgroundColor: "#fff", borderRadius: 16, padding: 16, marginBottom: 12,
-    borderWidth: 1, borderColor: "#f0f0f0",
-    shadowColor: "#000", shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
-  },
-
+  gameChipText: { ...UI_STYLES.body, color: COLORS.primary, flexShrink: 1 },
+  card: { ...UI_STYLES.card, padding: 16, marginBottom: 16 },
   // Colapsável
-  collapsibleHeader: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-  },
-  collapsibleLeft: { flexDirection: "row", alignItems: "center", gap: 8, flex: 1 },
+  collapsibleHeader: { ...UI_STYLES.control, flexDirection: "row", alignItems: "center", gap: 8 },
+  collapsibleLeft: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8, flex: 1 },
   modePill: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
-  modePillText: { fontSize: 11, fontWeight: "700" },
-
+  modePillText: { ...UI_STYLES.caption, fontWeight: "700" },
   sectionTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 },
-  sectionTitleText: { fontSize: 15, fontWeight: "800", color: COLORS.onBackground },
-
-  hint: { fontSize: 12, color: COLORS.inactive, marginBottom: 12 },
-
-  input: {
-    borderWidth: 1, borderColor: "#e8e8e8", borderRadius: 12,
-    padding: 12, fontSize: 14, backgroundColor: "#fafafa", color: COLORS.onBackground,
-  },
-
+  sectionTitleText: { ...UI_STYLES.section, flexShrink: 1 },
+  hint: { ...UI_STYLES.caption, color: COLORS.textMuted, marginBottom: 12 },
+  input: { ...UI_STYLES.field },
   playersGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  playerChip: {
-    flexDirection: "row", alignItems: "center", gap: 8,
-    paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12,
-    borderWidth: 1.5, borderColor: "#e8e8e8", backgroundColor: "#fafafa",
-  },
+  playerChip: { ...UI_STYLES.control, maxWidth: "100%", flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card },
   playerChipSelected: { borderColor: COLORS.primary, backgroundColor: COLORS.primary + "08" },
   playerAvatar: {
     width: 28, height: 28, borderRadius: 14,
     backgroundColor: "#e8e8e8", alignItems: "center", justifyContent: "center",
   },
   playerAvatarSelected: { backgroundColor: COLORS.primary },
-  playerAvatarText: { fontSize: 12, fontWeight: "800", color: "#888" },
-  playerChipText: { fontSize: 13, fontWeight: "600", color: COLORS.onBackground },
-
-  modeRow: { flexDirection: "row", gap: 8 },
-  modeBtn: {
-    flex: 1, alignItems: "center", paddingVertical: 14, borderRadius: 12,
-    borderWidth: 1.5, borderColor: "#e8e8e8", backgroundColor: "#fafafa", gap: 6,
-  },
-  modeBtnText: { fontSize: 11, fontWeight: "700", color: "#bbb" },
-
-  subLabel: { fontSize: 13, fontWeight: "700", color: COLORS.onBackground, marginBottom: 8 },
-  resultRow: { flexDirection: "row", gap: 8 },
-  resultBtn: {
-    flex: 1, alignItems: "center", paddingVertical: 12, borderRadius: 12,
-    borderWidth: 1.5, borderColor: "#e8e8e8", backgroundColor: "#fafafa", gap: 4,
-  },
+  playerAvatarText: { ...UI_STYLES.caption, fontWeight: "800", color: COLORS.textMuted },
+  playerChipText: { ...UI_STYLES.body, color: COLORS.onBackground, flexShrink: 1 },
+  modeRow: { gap: 8 },
+  modeBtn: { ...UI_STYLES.control, padding: 12, flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: COLORS.card, borderWidth: 1, borderColor: COLORS.border },
+  modeBtnText: { ...UI_STYLES.body, color: COLORS.textMuted, fontWeight: "700" },
+  subLabel: { ...UI_STYLES.body, color: COLORS.onBackground, fontWeight: "700", marginBottom: 8 },
+  resultRow: { gap: 8 },
+  resultBtn: { ...UI_STYLES.control, padding: 12, flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: COLORS.card, borderWidth: 1, borderColor: COLORS.border },
   resultEmoji: { fontSize: 20 },
-  resultLabel: { fontSize: 11, fontWeight: "600", color: "#888", textAlign: "center" },
-
-  winnerOption: {
-    flexDirection: "row", alignItems: "center", gap: 10,
-    padding: 12, borderRadius: 12, borderWidth: 1, borderColor: "#e8e8e8",
-    marginBottom: 8, backgroundColor: "#fafafa",
-  },
+  resultLabel: { ...UI_STYLES.body, color: COLORS.textMuted, flexShrink: 1 },
+  winnerOption: { ...UI_STYLES.card, minHeight: 52, padding: 12, flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 8 },
   winnerOptionSelected: { borderColor: COLORS.primary, backgroundColor: COLORS.primary + "08" },
   winnerOptionText: { flex: 1, fontSize: 14, fontWeight: "600", color: COLORS.onBackground },
-
   field: { marginBottom: 12 },
-  fieldLabel: { fontSize: 13, fontWeight: "700", color: COLORS.onBackground, marginBottom: 6 },
-
+  fieldLabel: { ...UI_STYLES.body, color: COLORS.onBackground, fontWeight: "700", marginBottom: 8 },
   tagsPreview: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 8 },
   tagChip: { backgroundColor: COLORS.primary + "14", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
-  tagChipText: { fontSize: 12, color: COLORS.primary, fontWeight: "600" },
-
-  photoThumb: { width: 72, height: 72, borderRadius: 10, marginRight: 8, backgroundColor: "#eee" },
-  photoThumbWrap: { position: "relative", marginRight: 8 },
-  photoRemoveBtn: {
-    position: "absolute", top: -6, right: 2, width: 20, height: 20, borderRadius: 10,
-    backgroundColor: "rgba(0,0,0,0.6)", alignItems: "center", justifyContent: "center",
-  },
-  photoAddBtn: {
-    width: 72, height: 72, borderRadius: 10, borderWidth: 1.5, borderColor: COLORS.primary + "40",
-    borderStyle: "dashed", alignItems: "center", justifyContent: "center", backgroundColor: COLORS.primary + "08",
-  },
-  photoAddText: { fontSize: 10, color: COLORS.primary, fontWeight: "700", marginTop: 4 },
-
-  stickyBar: {
-    position: "absolute", left: 0, right: 0, bottom: 0,
-    paddingHorizontal: 16, paddingTop: 12,
-    paddingBottom: Platform.OS === "ios" ? 28 : 16,
-    backgroundColor: "rgba(255,255,255,0.97)",
-    borderTopWidth: 1, borderTopColor: "#f0f0f0",
-  },
-  saveBtn: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center",
-    gap: 8, paddingVertical: 14, borderRadius: 14,
-    backgroundColor: COLORS.primary,
-    shadowColor: COLORS.primary, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
-  },
-  saveBtnText: { color: "#fff", fontWeight: "800", fontSize: 15 },
+  tagChipText: { ...UI_STYLES.caption, color: COLORS.primary, fontWeight: "600" },
+  photoThumb: { width: 96, height: 96, borderRadius: 12, backgroundColor: COLORS.border },
+  photoThumbWrap: { position: "relative", marginRight: 12 },
+  photoRemoveBtn: { ...UI_STYLES.iconButton, position: "absolute", top: 0, right: 0, backgroundColor: "rgba(0,0,0,0.75)" },
+  photoAddBtn: { width: 96, height: 96, borderRadius: 12, borderWidth: 1, borderColor: COLORS.primary, backgroundColor: COLORS.primarySoft, alignItems: "center", justifyContent: "center" },
+  photoAddText: { ...UI_STYLES.caption, color: COLORS.primary, fontWeight: "700", marginTop: 4 },
+  stickyBar: { padding: 16, backgroundColor: COLORS.card, borderTopWidth: 1, borderTopColor: COLORS.border },
 });

@@ -8,79 +8,73 @@
  * - Registo de partidas (só quando Active) — usa disableScroll para evitar ScrollView aninhado
  * - Lista de partidas da sessão
  */
-
+import { SESSION_STATUS_COLORS } from "@/src/styles/statusColors";
+import { useTranslation } from "react-i18next";
+import ScreenLayout from "@/src/components/ui/ScreenLayout";
+import ScreenState from "@/src/components/ui/ScreenState";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState, useCallback } from "react";
-import {
-  View, Text, ActivityIndicator, RefreshControl,
-  StyleSheet, Alert, ScrollView, TouchableOpacity,
-} from "react-native";
+import { View, Text, ActivityIndicator, RefreshControl, StyleSheet, Alert, ScrollView, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
-
 import sessionService from "@/src/features/games/sessions/services/sessionService";
-import { GameSession, getStatusColor, getStatusLabel } from "@/src/features/games/sessions/types/GameSession";
-import { normalizeInviteStatus, sessionPlayerGuards } from "@/src/features/games/sessions/types/GameSessionPlayer";
+import { GameSession, getStatusColor } from "@/src/features/games/sessions/types/GameSession";
+import { normalizeInviteStatus } from "@/src/features/games/sessions/types/GameSessionPlayer";
 import RegisterMatchForm from "@/src/features/games/matches/components/RegisterMatchForm";
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { RootState } from "@/src/store/store";
-
 export default function GameSessionDetailScreen() {
+  const { t, i18n } = useTranslation("matches");
+  const locale = i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB";
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const currentUser = useSelector((state: RootState) => state.auth.user);
-
   const [session, setSession] = useState<GameSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
-
+  const [loadError, setLoadError] = useState(false);
   const fetchSession = useCallback(async (opts?: { silent?: boolean }) => {
     if (!id) return;
     try {
+      setLoadError(false);
       if (!opts?.silent) setLoading(true);
       const data = await sessionService.getById(id);
       setSession(data);
     } catch {
-      Alert.alert("Erro", "Não foi possível carregar os detalhes da sessão.");
+      setLoadError(true);
+      Alert.alert(t("sessions.error"), t("sessions.loadError"));
     } finally {
       if (!opts?.silent) setLoading(false);
       setRefreshing(false);
     }
   }, [id]);
-
   useEffect(() => { fetchSession(); }, [fetchSession]);
-
   /* ── Derived ── */
   const isOrganizer = session?.organizerId === currentUser?.id;
   const isActive    = session?.status === "Active";
   const isUpcoming  = session?.status === "Upcoming";
   const isClosed    = session?.status === "Closed";
   const isCancelled = session?.status === "Cancelled";
-
   const myLink = useMemo(() =>
     session?.players?.find((p) => p.userId === currentUser?.id),
     [session, currentUser?.id]
   );
-
   const myStatus  = myLink ? normalizeInviteStatus(myLink.status) : null;
   const isPending = myStatus === "Pending" && !isOrganizer;
-
   const scheduledLabel = session?.scheduledStartDate
-    ? new Date(session.scheduledStartDate).toLocaleString("pt-PT", {
+    ? new Date(session.scheduledStartDate).toLocaleString(locale, {
         weekday: "long", day: "numeric", month: "long",
         hour: "2-digit", minute: "2-digit",
       })
     : null;
-
   const deadlineLabel = session?.effectiveDeadline
-    ? new Date(session.effectiveDeadline).toLocaleString("pt-PT", {
+    ? new Date(session.effectiveDeadline).toLocaleString(locale, {
         day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
       })
     : null;
-
   const matches = useMemo(() => session?.matches ?? [], [session]);
-
   /* ── Actions ── */
   const handleRespondInvite = async (accept: boolean) => {
     if (!id) return;
@@ -89,34 +83,33 @@ export default function GameSessionDetailScreen() {
       await sessionService.respondInvite(id, accept);
       await fetchSession({ silent: true });
       Alert.alert(
-        accept ? "✅ Convite aceite!" : "❌ Convite recusado",
-        accept ? "Vais participar nesta sessão." : "O organizador será notificado."
+        accept ? t("sessions.inviteAccepted") : t("sessions.inviteDeclined"),
+        accept ? t("sessions.participating") : t("sessions.organizerNotified")
       );
     } catch (err: any) {
-      Alert.alert("Erro", err?.message ?? "Não foi possível responder ao convite.");
+      Alert.alert(t("sessions.error"), err?.message ?? t("sessions.respondError"));
     } finally {
       setActionLoading(false);
     }
   };
-
   const handleCancel = () => {
     Alert.alert(
-      "Cancelar sessão",
-      "Tens a certeza que queres cancelar esta sessão? Esta ação não pode ser desfeita.",
+      t("sessions.cancelTitle"),
+      t("sessions.cancelConfirm"),
       [
-        { text: "Não", style: "cancel" },
+        { text: t("sessions.no"), style: "cancel" },
         {
-          text: "Sim, cancelar", style: "destructive",
+          text: t("sessions.yesCancel"), style: "destructive",
           onPress: async () => {
             if (!id) return;
             setActionLoading(true);
             try {
               await sessionService.cancel(id);
-              Alert.alert("Sessão cancelada", "A sessão foi cancelada.", [
+              Alert.alert(t("sessions.cancelledTitle"), t("sessions.cancelled"), [
                 { text: "OK", onPress: () => router.back() },
               ]);
             } catch (err: any) {
-              Alert.alert("Erro", err?.message ?? "Não foi possível cancelar a sessão.");
+              Alert.alert(t("sessions.error"), err?.message ?? t("sessions.cancelError"));
             } finally {
               setActionLoading(false);
             }
@@ -125,15 +118,14 @@ export default function GameSessionDetailScreen() {
       ]
     );
   };
-
   const handleClose = () => {
     Alert.alert(
-      "Encerrar sessão",
-      "Tens a certeza que queres encerrar esta sessão?",
+      t("sessions.closeTitle"),
+      t("sessions.closeConfirm"),
       [
-        { text: "Não", style: "cancel" },
+        { text: t("sessions.no"), style: "cancel" },
         {
-          text: "Sim, encerrar", style: "destructive",
+          text: t("sessions.yesClose"), style: "destructive",
           onPress: async () => {
             if (!id) return;
             setActionLoading(true);
@@ -141,7 +133,7 @@ export default function GameSessionDetailScreen() {
               await sessionService.close(id);
               await fetchSession({ silent: true });
             } catch (err: any) {
-              Alert.alert("Erro", err?.message ?? "Não foi possível encerrar a sessão.");
+              Alert.alert(t("sessions.error"), err?.message ?? t("sessions.closeError"));
             } finally {
               setActionLoading(false);
             }
@@ -150,27 +142,13 @@ export default function GameSessionDetailScreen() {
       ]
     );
   };
-
-  /* ── Loading / Error ── */
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
-    );
-  }
-
-  if (!session) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.emptyText}>Sessão não encontrada.</Text>
-      </View>
-    );
-  }
-
+  if (loading) return <ScreenLayout title={t("sessions.details")}><ScreenState loading message={t("ui.loading")} /></ScreenLayout>;
+  if (!session || loadError) return <ScreenLayout title={t("sessions.details")}><ScreenState error={loadError} message={t(loadError ? "sessions.loadError" : "sessions.notFound")} onRetry={() => fetchSession()} retryLabel={t("ui.retry")} /></ScreenLayout>;
   /* ── Render ── */
   return (
+    <ScreenLayout title={t("sessions.details")} keyboard>
     <ScrollView
+        keyboardDismissMode="on-drag"
       style={styles.screen}
       contentContainerStyle={styles.scroll}
       nestedScrollEnabled
@@ -186,26 +164,24 @@ export default function GameSessionDetailScreen() {
       {/* ── Header card ── */}
       <View style={styles.card}>
         <View style={styles.titleRow}>
-          <Text style={styles.title} numberOfLines={2}>{session.name}</Text>
-          <View style={[styles.statusPill, { backgroundColor: getStatusColor(session.status) + "20" }]}>
-            <Text style={[styles.statusText, { color: getStatusColor(session.status) }]}>
-              {getStatusLabel(session.status)}
+          <Text style={styles.title}>{session.name}</Text>
+          <View style={[styles.statusPill, { backgroundColor: SESSION_STATUS_COLORS[session.status] + "20" }]}>
+            <Text style={[styles.statusText, { color: SESSION_STATUS_COLORS[session.status] }]}>
+              {t("sessions.status." + session.status)}
             </Text>
           </View>
         </View>
-
         {!!session.location && <InfoRow icon="place" text={session.location} />}
         {!!scheduledLabel && <InfoRow icon="schedule" text={scheduledLabel} />}
         {!!deadlineLabel && isUpcoming && (
-          <InfoRow icon="timer" text={`Prazo de resposta: ${deadlineLabel}`} color="#f39c12" />
+          <InfoRow icon="timer" text={t("sessions.replyBy", { date: deadlineLabel })} color={COLORS.secondary} />
         )}
-        <InfoRow icon="person" text={`Organizer: ${session.organizerUserName}`} />
-
+        <InfoRow icon="person" text={t("sessions.organizer", { name: session.organizerUserName })} />
         {/* Confirmações */}
         {!isCancelled && !isClosed && (
           <View style={styles.confirmBar}>
             <Text style={styles.confirmText}>
-              {session.acceptedGuestCount ?? 0} confirmado(s) de {(session.players?.length ?? 1) - 1} convidado(s)
+              {t("sessions.confirmed", { accepted: session.acceptedGuestCount ?? 0, total: (session.players?.length ?? 1) - 1 })}
             </Text>
             <View style={styles.confirmDots}>
               {session.players?.filter((p) => !p.isOrganizer).map((p) => (
@@ -222,36 +198,33 @@ export default function GameSessionDetailScreen() {
           </View>
         )}
       </View>
-
       {/* ── Responder convite ── */}
       {isPending && (
         <View style={styles.inviteCard}>
           <MaterialIcons name="mail" size={20} color={COLORS.primary} />
           <Text style={styles.inviteText}>
-            Foste convidado para esta sessão. Queres participar?
-          </Text>
+            {t("sessions.inviteQuestion")}</Text>
           <View style={styles.inviteActions}>
             <TouchableOpacity
               style={[styles.inviteBtn, styles.inviteBtnAccept]}
               onPress={() => handleRespondInvite(true)}
-              disabled={actionLoading}
+              disabled={actionLoading} accessibilityRole="button" accessibilityLabel={t("sessions.accept")}
             >
               {actionLoading
                 ? <ActivityIndicator color="#fff" size="small" />
-                : <Text style={styles.inviteBtnText}>✅ Aceitar</Text>
+                : <Text style={styles.inviteBtnText}>{t("sessions.accept")}</Text>
               }
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.inviteBtn, styles.inviteBtnDecline]}
               onPress={() => handleRespondInvite(false)}
-              disabled={actionLoading}
+              disabled={actionLoading} accessibilityRole="button" accessibilityLabel={t("sessions.decline")}
             >
-              <Text style={styles.inviteBtnText}>❌ Recusar</Text>
+              <Text style={styles.inviteBtnText}>{t("sessions.decline")}</Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
-
       {/* ── Ações do organizer ── */}
       {isOrganizer && (isUpcoming || isActive) && (
         <View style={styles.actionsRow}>
@@ -259,28 +232,27 @@ export default function GameSessionDetailScreen() {
             <TouchableOpacity
               style={[styles.actionBtn, styles.actionBtnClose]}
               onPress={handleClose}
-              disabled={actionLoading}
+              disabled={actionLoading} accessibilityRole="button" accessibilityLabel={t("sessions.closeTitle")}
             >
               <MaterialIcons name="lock" size={16} color="#fff" />
-              <Text style={styles.actionBtnText}>Encerrar sessão</Text>
+              <Text style={styles.actionBtnText}>{t("sessions.closeTitle")}</Text>
             </TouchableOpacity>
           )}
           {isUpcoming && (
             <TouchableOpacity
               style={[styles.actionBtn, styles.actionBtnCancel]}
               onPress={handleCancel}
-              disabled={actionLoading}
+              disabled={actionLoading} accessibilityRole="button" accessibilityLabel={t("sessions.cancelTitle")}
             >
               <MaterialIcons name="cancel" size={16} color="#fff" />
-              <Text style={styles.actionBtnText}>Cancelar sessão</Text>
+              <Text style={styles.actionBtnText}>{t("sessions.cancelTitle")}</Text>
             </TouchableOpacity>
           )}
         </View>
       )}
-
       {/* ── Participantes ── */}
       <View style={styles.card}>
-        <SectionTitle icon="people" label="Participantes" />
+        <SectionTitle icon="people" label={t("sessions.participants")} />
         {session.players?.map((p) => {
           const status = normalizeInviteStatus(p.status);
           return (
@@ -303,53 +275,48 @@ export default function GameSessionDetailScreen() {
               ]}>
                 <Text style={[
                   styles.playerStatusText,
-                  status === "Accepted" && { color: "#388E3C" },
+                  status === "Accepted" && { color: COLORS.success },
                   status === "Declined" && { color: COLORS.error },
-                  status === "Pending"  && { color: "#f39c12" },
+                  status === "Pending"  && { color: COLORS.secondary },
                 ]}>
-                  {status === "Accepted" ? "Confirmado"
-                    : status === "Declined" ? "Recusou"
-                    : "Pendente"}
+                  {status === "Accepted" ? t("sessions.accepted")
+                    : status === "Declined" ? t("sessions.declined")
+                    : t("sessions.pending")}
                 </Text>
               </View>
             </View>
           );
         })}
       </View>
-
       {/* ── Registar partida — disableScroll para evitar ScrollView aninhado ── */}
       {isActive && (
         <View style={styles.card}>
-          <SectionTitle icon="sports-esports" label="Registar partida" />
           <RegisterMatchForm
             sessionId={session.id}
             disableScroll={true}  // ✅ evita ScrollView dentro de ScrollView
           />
         </View>
       )}
-
       {/* ── Info quando Upcoming ── */}
       {isUpcoming && (
         <View style={styles.infoBox}>
           <MaterialIcons name="info-outline" size={16} color="#856404" />
           <Text style={styles.infoBoxText}>
-            Esta sessão ainda não começou. Só podes registar partidas quando estiver Ativa.
-          </Text>
+            {t("sessions.upcomingHint")}</Text>
         </View>
       )}
-
       {/* ── Partidas ── */}
       <View style={styles.card}>
-        <SectionTitle icon="emoji-events" label={`Partidas (${matches.length})`} />
+        <SectionTitle icon="emoji-events" label={t("sessions.matchesTitle", { count: matches.length })} />
         {matches.length === 0 ? (
-          <Text style={styles.emptyText}>Nenhuma partida registada.</Text>
+          <Text style={styles.emptyText}>{t("sessions.noMatches")}</Text>
         ) : (
           matches.map((m, index) => {
             const key = (m as any).id ?? `match-${index}`;
             return (
               <View key={key} style={styles.matchCard}>
-                <Text style={styles.matchGame}>{(m as any).gameName ?? "Jogo desconhecido"}</Text>
-                <Text style={styles.matchDetail}>🏆 {(m as any).winnerName ?? "Sem vencedor"}</Text>
+                <Text style={styles.matchGame}>{(m as any).gameName ?? t("sessions.unknownGame")}</Text>
+                <Text style={styles.matchDetail}>🏆 {(m as any).winnerName ?? t("sessions.noWinner")}</Text>
                 {!!(m as any).durationInMinutes && (
                   <Text style={styles.matchDetail}>⏱ {(m as any).durationInMinutes} min</Text>
                 )}
@@ -358,14 +325,12 @@ export default function GameSessionDetailScreen() {
           })
         )}
       </View>
-
       <View style={{ height: 40 }} />
     </ScrollView>
+    </ScreenLayout>
   );
 }
-
 /* ── Sub-components ── */
-
 function SectionTitle({ icon, label }: { icon: string; label: string }) {
   return (
     <View style={styles.sectionTitleRow}>
@@ -374,79 +339,61 @@ function SectionTitle({ icon, label }: { icon: string; label: string }) {
     </View>
   );
 }
-
 function InfoRow({ icon, text, color }: { icon: string; text: string; color?: string }) {
   return (
     <View style={styles.infoRow}>
-      <MaterialIcons name={icon as any} size={14} color={color ?? "#888"} />
+      <MaterialIcons name={icon as any} size={14} color={color ?? COLORS.textMuted} />
       <Text style={[styles.infoRowText, color ? { color } : {}]}>{text}</Text>
     </View>
   );
 }
-
 /* ── Styles ── */
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: COLORS.background },
   scroll: { padding: 16, paddingBottom: 40 },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-
-  card: {
-    backgroundColor: "#fff", borderRadius: 16, padding: 16, marginBottom: 12,
-    borderWidth: 1, borderColor: "#eee",
-    shadowColor: "#000", shadowOpacity: 0.04, shadowRadius: 6, elevation: 2,
-  },
-
-  titleRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 },
-  title: { fontSize: 20, fontWeight: "800", color: COLORS.primary, flex: 1, marginRight: 8 },
+  card: { ...UI_STYLES.card, padding: 16, marginBottom: 16 },
+  titleRow: { gap: 8, marginBottom: 12 },
+  title: { ...UI_STYLES.title, flexShrink: 1 },
   statusPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
-  statusText: { fontSize: 12, fontWeight: "700" },
-
+  statusText: { ...UI_STYLES.caption, fontWeight: "700" },
   infoRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 6 },
-  infoRowText: { fontSize: 13, color: "#666", flex: 1 },
-
+  infoRowText: { ...UI_STYLES.body, color: COLORS.textMuted, flex: 1 },
   confirmBar: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: "#f0f0f0" },
-  confirmText: { fontSize: 12, color: "#888", marginBottom: 6 },
-  confirmDots: { flexDirection: "row", gap: 4 },
+  confirmText: { ...UI_STYLES.caption, color: COLORS.textMuted, marginBottom: 8 },
+  confirmDots: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   confirmDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "#e0e0e0" },
-  confirmDotAccepted: { backgroundColor: "#388E3C" },
+  confirmDotAccepted: { backgroundColor: COLORS.success },
   confirmDotDeclined: { backgroundColor: COLORS.error },
-
   inviteCard: {
     backgroundColor: COLORS.primary + "0A", borderRadius: 16, padding: 16, marginBottom: 12,
     borderWidth: 1, borderColor: COLORS.primary + "30", alignItems: "center", gap: 10,
   },
   inviteText: { fontSize: 14, color: COLORS.onBackground, textAlign: "center", fontWeight: "600" },
-  inviteActions: { flexDirection: "row", gap: 10, width: "100%" },
-  inviteBtn: { flex: 1, paddingVertical: 12, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  inviteBtnAccept: { backgroundColor: COLORS.success },
-  inviteBtnDecline: { backgroundColor: COLORS.error },
+  inviteActions: { flexDirection: "row", flexWrap: "wrap", gap: 12, width: "100%" },
+  inviteBtn: { ...UI_STYLES.button, flex: 1, minWidth: 100 },
+  inviteBtnAccept: { ...UI_STYLES.button, flex: 1, minWidth: 100, backgroundColor: COLORS.success },
+  inviteBtnDecline: { ...UI_STYLES.button, flex: 1, minWidth: 100, backgroundColor: COLORS.error },
   inviteBtnText: { color: "#fff", fontWeight: "800", fontSize: 14 },
-
   actionsRow: { flexDirection: "row", gap: 10, marginBottom: 12 },
-  actionBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 12, borderRadius: 12 },
-  actionBtnClose: { backgroundColor: "#555" },
+  actionBtn: { ...UI_STYLES.button, flex: 1, minWidth: 110, flexDirection: "row", gap: 8 },
+  actionBtnClose: { backgroundColor: COLORS.textMuted },
   actionBtnCancel: { backgroundColor: COLORS.error },
   actionBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
-
   sectionTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 },
-  sectionTitleText: { fontSize: 15, fontWeight: "800", color: COLORS.onBackground },
-
+  sectionTitleText: { ...UI_STYLES.section, flexShrink: 1 },
   playerRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: "#f0f0f0" },
   playerAvatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: COLORS.primary + "1A", alignItems: "center", justifyContent: "center" },
   playerAvatarText: { fontSize: 15, fontWeight: "800", color: COLORS.primary },
-  playerName: { fontSize: 14, fontWeight: "600", color: COLORS.onBackground },
+  playerName: { ...UI_STYLES.body, color: COLORS.onBackground, fontWeight: "700" },
   playerStatusPill: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
   playerStatusAccepted: { backgroundColor: "#E8F5E9" },
   playerStatusDeclined: { backgroundColor: "#FFEBEE" },
   playerStatusPending: { backgroundColor: "#FFF8E1" },
-  playerStatusText: { fontSize: 11, fontWeight: "700" },
-
+  playerStatusText: { ...UI_STYLES.caption, fontWeight: "700" },
   infoBox: { flexDirection: "row", alignItems: "flex-start", gap: 8, backgroundColor: "#fff8e1", borderRadius: 12, padding: 12, marginBottom: 12, borderWidth: 1, borderColor: "#ffe082" },
-  infoBoxText: { flex: 1, fontSize: 13, color: "#856404", lineHeight: 18 },
-
+  infoBoxText: { ...UI_STYLES.body, color: "#856404", flex: 1 },
   matchCard: { backgroundColor: "#f9f9f9", borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#eee" },
-  matchGame: { fontSize: 15, fontWeight: "700", color: COLORS.onBackground },
-  matchDetail: { fontSize: 13, color: "#666", marginTop: 4 },
-
-  emptyText: { textAlign: "center", color: "#aaa", fontSize: 13, paddingVertical: 10 },
+  matchGame: { ...UI_STYLES.section },
+  matchDetail: { ...UI_STYLES.body, color: COLORS.textMuted, marginTop: 4 },
+  emptyText: { ...UI_STYLES.empty },
 });
