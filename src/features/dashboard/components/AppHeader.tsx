@@ -1,9 +1,28 @@
-import { View, Image, Text, StyleSheet } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useTranslation } from "react-i18next";
+
 import { COLORS } from "@/src/constants/colors";
 
-type Props = { username?: string };
+type Props = {
+  username?: string;
+};
 
-export default function AppHeader({ username = "Meepler" }: Props) {
+export default function AppHeader({
+  username,
+}: Props) {
+  const { t } = useTranslation(
+    "dashboard"
+  );
+
+  const displayName =
+    username?.trim() ||
+    t("player");
+
   return (
     <View style={styles.container}>
       <Image
@@ -11,9 +30,19 @@ export default function AppHeader({ username = "Meepler" }: Props) {
         style={styles.logo}
         resizeMode="contain"
       />
-      <View style={{ flex: 1 }}>
-        <Text style={styles.hi}>Hi, {username} 👋</Text>
-        <Text style={styles.sub}>Welcome back!</Text>
+
+      <View style={styles.textContainer}>
+        <Text style={styles.hi}>
+          {t("header.greeting", {
+            username: displayName,
+          })}
+        </Text>
+
+        <Text style={styles.sub}>
+          {t(
+            "header.welcomeBack"
+          )}
+        </Text>
       </View>
     </View>
   );
@@ -25,16 +54,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 12,
   },
+
   logo: {
     width: 150,
     height: 150,
     marginRight: 8,
   },
+
+  textContainer: {
+    flex: 1,
+  },
+
   hi: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: COLORS.primary,
   },
+
   sub: {
     fontSize: 12,
     color: COLORS.onBackground,

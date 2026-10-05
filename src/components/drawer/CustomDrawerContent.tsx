@@ -1,228 +1,377 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
   Platform,
+  ScrollView,
   StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { DrawerContentComponentProps } from "@react-navigation/drawer";
-import { useRouter, usePathname } from "expo-router";
 import {
-  Ionicons,
+  usePathname,
+  useRouter,
+} from "expo-router";
+import {
   MaterialCommunityIcons,
-  FontAwesome,
 } from "@expo/vector-icons";
-import * as SecureStore from "expo-secure-store";
+import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 import { COLORS } from "@/src/constants/colors";
 import { ROUTES } from "@/src/constants/routes";
-import { User } from "@/src/features/users/types/User";
+import { RootState } from "@/src/store/store";
+import { logout } from "@/src/features/auth/store/authSlice";
+import { usePendingJournal } from "@/src/features/games/matches/hooks/usePendingJournal";
 
-/** ----------------------------------------------------------------
- *  Custom drawer component
- *  ---------------------------------------------------------------- */
-const CustomDrawerContent: React.FC<DrawerContentComponentProps> = () => {
-  const router   = useRouter();
+/*
+ * O Drawer do Expo Router (SDK 56+) já não deve ser tipado através de
+ * @react-navigation/drawer.
+ *
+ * Este componente não utiliza diretamente state/navigation/descriptors
+ * recebidos pelo drawerContent, por isso aceitamos os props que o Drawer
+ * fornece sem criar uma dependência de tipos externa.
+ */
+type CustomDrawerContentProps =
+  Record<string, unknown>;
+
+const CustomDrawerContent: React.FC<
+  CustomDrawerContentProps
+> = () => {
+  const router = useRouter();
   const pathname = usePathname();
+  const dispatch = useDispatch();
 
-  const [user, setUser] = useState<User | null>(null);
+  const { t } = useTranslation("navigation");
 
-  /* ───────────────────────── Load stored user ───────────────────────── */
-  useEffect(() => {
-    (async () => {
-      const raw = await SecureStore.getItemAsync("current_user");
-      if (!raw) return;
-      try {
-        setUser(JSON.parse(raw));
-      } catch (err) {
-        console.warn("Failed to parse stored user:", err);
-        setUser(null);
-      }
-    })();
-  }, []);
+  // ✅ Mesma fonte de verdade que o resto da app (RegisterMatchScreen, etc.)
+  // — evita ficar dessincronizado do SecureStore depois de editar o perfil.
+  const user = useSelector(
+    (state: RootState) => state.auth.user
+  );
 
-  /* ───────────────────────── Session logout ───────────────────────── */
-  const handleLogout = async () => {
-    console.log("🔒 Logging out …");
-    await Promise.all([
-      SecureStore.deleteItemAsync("secure_token"),
-      SecureStore.deleteItemAsync("secure_refresh_token"),
-      SecureStore.deleteItemAsync("remember_me"),
-      SecureStore.deleteItemAsync("current_user"),
-    ]);
+  // ✅ Badge real de avaliações de partidas por fazer (substitui o "Inbox: 9" fixo)
+  const { count: pendingJournalCount } =
+    usePendingJournal();
+
+  const initials =
+    (user?.userName ?? "?")
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase())
+      .join("") || "?";
+
+  function handleLogout() {
+    // ✅ Usa a ação do slice — limpa Redux E SecureStore de uma vez,
+    // em vez de só apagar chaves do SecureStore e deixar o Redux "logado".
+    dispatch(logout());
     router.replace(ROUTES.SIGN_IN);
-  };
+  }
 
-  /* ══════════════════════════════════════════════════════════════════ */
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+    <SafeAreaView
+      style={styles.container}
+      edges={["top", "left", "right"]}
+    >
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={
+          styles.scrollContent
+        }
       >
-        {/* ─── Drawer Header ─── */}
-        <View style={styles.header}>
-          <Ionicons name="rocket-outline" size={28} color={COLORS.primary} />
-          <Text style={styles.greeting}>Welcome! 🚀</Text>
-        </View>
+        {/* ── Cabeçalho: identidade do jogador ── */}
+        <TouchableOpacity
+          style={styles.profileHeader}
+          onPress={() =>
+            router.push(ROUTES.PROFILE)
+          }
+          activeOpacity={0.85}
+        >
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {initials}
+            </Text>
+          </View>
 
-        {/* ─── Main Navigation ─── */}
+          <View style={{ flex: 1 }}>
+            <Text
+              style={styles.profileName}
+              numberOfLines={1}
+            >
+              {user?.userName ?? t("welcome")}
+            </Text>
+
+            {!!user?.email && (
+              <Text
+                style={styles.profileEmail}
+                numberOfLines={1}
+              >
+                {user.email}
+              </Text>
+            )}
+          </View>
+
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={20}
+            color={COLORS.textMuted}
+          />
+        </TouchableOpacity>
+
+        {/* ── Navegação principal ── */}
         <View style={styles.menuBox}>
           {renderMenuItem(
-            "Home",
-            "home-outline",
+            t("home"),
+            "view-dashboard-outline",
             pathname === ROUTES.HOME,
             () => router.push(ROUTES.HOME)
           )}
+
           {renderMenuItem(
-            "Game Search",
+            t("gameSearch"),
             "magnify",
             pathname === ROUTES.SEARCH_GAMES,
-            () => router.push(ROUTES.SEARCH_GAMES)
+            () =>
+              router.push(ROUTES.SEARCH_GAMES)
           )}
-          {renderMenuItem("Inbox", "email-outline", false, undefined, 9)}
-          {renderMenuItem("Calendar", "calendar-month-outline", false, undefined, 4)}
+
           {renderMenuItem(
-            "My Library",
+            t("library"),
             "bookshelf",
             pathname === ROUTES.LIBRARY,
             () => router.push(ROUTES.LIBRARY)
           )}
-          {renderMenuItem("Activity", "chart-box-outline", false, undefined, 2)}
+
           {renderMenuItem(
-            "Settings",
+            t("rankings", {
+              defaultValue: "Rankings",
+            }),
+            "trophy-outline",
+            pathname === ROUTES.RANKINGS,
+            () => router.push(ROUTES.RANKINGS)
+          )}
+
+          {renderMenuItem(
+            t("sessions", {
+              defaultValue: "Sessões",
+            }),
+            "calendar-star",
+            pathname === ROUTES.SESSIONS,
+            () => router.push(ROUTES.SESSIONS)
+          )}
+
+          {renderMenuItem(
+            t("campaigns", {
+              defaultValue: "Campanhas",
+            }),
+            "book-open-page-variant-outline",
+            pathname === ROUTES.CAMPAIGNS,
+            () =>
+              router.push(ROUTES.CAMPAIGNS)
+          )}
+
+          {renderMenuItem(
+            t("friends", {
+              defaultValue: "Amigos",
+            }),
+            "account-multiple-outline",
+            pathname === ROUTES.FRIENDS,
+            () => router.push(ROUTES.FRIENDS)
+          )}
+
+          {renderMenuItem(
+            t("pendingJournal", {
+              defaultValue:
+                "Avaliações Pendentes",
+            }),
+            "star-outline",
+            pathname ===
+              ROUTES.PENDING_JOURNAL,
+            () =>
+              router.push(
+                ROUTES.PENDING_JOURNAL
+              ),
+            pendingJournalCount > 0
+              ? pendingJournalCount
+              : undefined
+          )}
+        </View>
+
+        {/* ── Definições ── */}
+        <View style={styles.menuBox}>
+          {renderMenuItem(
+            t("settings"),
             "cog-outline",
             pathname === ROUTES.SETTINGS,
             () => router.push(ROUTES.SETTINGS)
           )}
         </View>
-
-        {/* ─── Example Projects section (static) ─── */}
-        <Text style={styles.sectionLabel}>Projects (static demo)</Text>
-        <View style={styles.projectsBox}>
-          {renderProjectItem("Personal", "#FF6B6B", "file-text")}
-          {renderProjectItem("Travel",   "#FFD93D", "suitcase")}
-          {renderProjectItem("Business", "#4D96FF", "briefcase")}
-        </View>
       </ScrollView>
 
-      {/* ─── Bottom profile + logout ─── */}
       <View style={styles.footer}>
-        {user && (
-          <TouchableOpacity
-            style={styles.profileCard}
-            onPress={() => router.push(ROUTES.PROFILE)}
-          >
-            {/* Add an avatar here if you have a URL */}
-            <View>
-              <Text style={styles.profileName}>{user.userName}</Text>
-              {!!user.email && (
-                <Text style={styles.profileEmail}>{user.email}</Text>
-              )}
-            </View>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          onPress={handleLogout}
+          style={styles.logoutBtn}
+          activeOpacity={0.85}
+        >
+          <MaterialCommunityIcons
+            name="logout"
+            size={20}
+            color="#FFFFFF"
+          />
 
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
-          <MaterialCommunityIcons name="logout" size={20} color="#fff" />
-          <Text style={styles.logoutTxt}>Logout</Text>
+          <Text style={styles.logoutTxt}>
+            {t("logout")}
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 };
 
-/* -------------------------------------------------------------------------- */
-/* Helper render functions                                                    */
-/* -------------------------------------------------------------------------- */
 function renderMenuItem(
   label: string,
-  icon: keyof typeof MaterialCommunityIcons.glyphMap,
+  icon:
+    keyof typeof MaterialCommunityIcons.glyphMap,
   isActive: boolean,
   onPress?: () => void,
   badge?: number
 ) {
   return (
     <TouchableOpacity
-      style={[styles.menuItem, isActive && styles.menuItemActive]}
+      style={[
+        styles.menuItem,
+        isActive &&
+          styles.menuItemActive,
+      ]}
       onPress={onPress}
+      disabled={!onPress}
+      activeOpacity={onPress ? 0.8 : 1}
     >
       <MaterialCommunityIcons
         name={icon}
         size={20}
-        color={isActive ? "#fff" : "#444"}
+        color={
+          isActive
+            ? "#FFFFFF"
+            : COLORS.onBackground
+        }
       />
-      <Text style={[styles.menuText, isActive && styles.menuTextActive]}>
+
+      <Text
+        style={[
+          styles.menuText,
+          isActive &&
+            styles.menuTextActive,
+        ]}
+      >
         {label}
       </Text>
+
       {badge ? (
-        <View style={styles.badge}>
-          <Text style={styles.badgeTxt}>{badge}</Text>
+        <View
+          style={[
+            styles.badge,
+            isActive &&
+              styles.badgeOnActive,
+          ]}
+        >
+          <Text style={styles.badgeTxt}>
+            {badge > 99 ? "99+" : badge}
+          </Text>
         </View>
       ) : null}
     </TouchableOpacity>
   );
 }
 
-function renderProjectItem(
-  label: string,
-  color: string,
-  icon: keyof typeof FontAwesome.glyphMap
-) {
-  return (
-    <View style={styles.projectItem}>
-      <View style={[styles.projectIcon, { backgroundColor: color }]}>
-        <FontAwesome name={icon} size={14} color="#fff" />
-      </View>
-      <Text style={styles.projectTxt}>{label}</Text>
-    </View>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* Styles                                                                     */
-/* -------------------------------------------------------------------------- */
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  scrollContent: { paddingBottom: 20 },
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.card,
+  },
 
-  header: {
+  scrollContent: {
+    paddingBottom: 20,
+  },
+
+  profileHeader: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 12,
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight ?? 24 : 24,
-    paddingBottom: 12,
+    paddingTop:
+      Platform.OS === "android"
+        ? StatusBar.currentHeight ?? 24
+        : 24,
+    paddingBottom: 20,
+    marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
-  greeting: {
-    marginLeft: 10,
+
+  avatar: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: COLORS.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  avatarText: {
+    color: "#FFFFFF",
+    fontSize: 17,
+    fontWeight: "800",
+  },
+
+  profileName: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     color: COLORS.onBackground,
   },
 
-  /* Menu ▸ items */
+  profileEmail: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    marginTop: 1,
+  },
+
   menuBox: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.card,
     marginHorizontal: 16,
+    marginBottom: 16,
     borderRadius: 12,
     padding: 10,
     ...shadow(2),
   },
+
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 8,
+    marginVertical: 4,
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 8,
   },
-  menuItemActive: { backgroundColor: COLORS.primary },
-  menuText: { marginLeft: 14, fontSize: 15, flex: 1, color: "#444" },
-  menuTextActive: { color: "#fff", fontWeight: "600" },
+
+  menuItemActive: {
+    backgroundColor: COLORS.primary,
+  },
+
+  menuText: {
+    marginLeft: 14,
+    fontSize: 15,
+    flex: 1,
+    color: COLORS.onBackground,
+  },
+
+  menuTextActive: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+  },
 
   badge: {
     backgroundColor: COLORS.primary,
@@ -232,65 +381,51 @@ const styles = StyleSheet.create({
     minWidth: 20,
     alignItems: "center",
   },
-  badgeTxt: { color: "#fff", fontSize: 12, fontWeight: "bold" },
 
-  /* Projects */
-  sectionLabel: {
-    marginTop: 24,
-    marginLeft: 18,
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#888",
+  badgeOnActive: {
+    backgroundColor: "#FFFFFF33",
   },
-  projectsBox: {
-    backgroundColor: "#fff",
-    margin: 16,
-    borderRadius: 12,
-    padding: 12,
-    ...shadow(2),
-  },
-  projectItem: { flexDirection: "row", alignItems: "center", marginVertical: 8 },
-  projectIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  projectTxt: { fontSize: 15, fontWeight: "500", color: COLORS.onBackground },
 
-  /* Footer */
+  badgeTxt: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+
   footer: {
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: "#eee",
-    backgroundColor: "#fff",
+    borderTopColor: COLORS.border,
+    backgroundColor: COLORS.card,
   },
-  profileCard: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
-  profileName: { fontSize: 15, fontWeight: "600" },
-  profileEmail: { fontSize: 12, color: "#888" },
 
   logoutBtn: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: COLORS.primary,
-    padding: 10,
-    borderRadius: 8,
+    padding: 12,
+    borderRadius: 10,
     justifyContent: "center",
   },
-  logoutTxt: { color: "#fff", marginLeft: 10, fontWeight: "600" },
+
+  logoutTxt: {
+    color: "#FFFFFF",
+    marginLeft: 10,
+    fontWeight: "600",
+  },
 });
 
-/* Tiny util for Android shadow */
 function shadow(elevation: number) {
   return Platform.OS === "android"
     ? { elevation }
     : {
-        shadowColor: "#000",
+        shadowColor: "#000000",
         shadowOpacity: 0.08,
         shadowRadius: 6,
-        shadowOffset: { width: 0, height: 3 },
+        shadowOffset: {
+          width: 0,
+          height: 3,
+        },
       };
 }
 

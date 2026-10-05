@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "meepleboard",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.meepleboard.app",
       "supportsTablet": true
@@ -66,7 +65,10 @@
         }
       ],
       "@react-native-community/datetimepicker",
-      "expo-localization"
+      "expo-localization",
+      "expo-image",
+      "expo-status-bar",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

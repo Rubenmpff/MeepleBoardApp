@@ -1,6 +1,6 @@
 // src/features/library/types/UserGameLibrary.ts
 
-import { Game } from "../../games/types/Game";
+import { Game } from "../../games/catalog/types/Game";
 import { GameLibraryStatus } from "./GameLibraryStatus";
 
 /**
@@ -43,4 +43,29 @@ export interface UserGameLibrary {
 
   /** Optional richer Game object for UI rendering */
   game?: Game;
+
+    minPlayers?: number;
+  maxPlayers?: number;
+  averageRating?: number;
+  isCooperative?: boolean;
+  supportsSoloMode?: boolean;
+  isExpansion?: boolean;
+}
+
+/** Um jogo que já jogaste (partidas reais), esteja ou não na biblioteca hoje. */
+export interface PlayedGame {
+  gameId: string;
+  gameName: string;
+  gameImageUrl?: string;
+  averageRating?: number;
+  minPlayers?: number;
+  maxPlayers?: number;
+  isExpansion?: boolean;
+  isCooperative?: boolean;
+  supportsSoloMode?: boolean;
+  timesPlayed: number;
+  lastPlayedAt?: string;
+  inLibrary: boolean;
+  status?: GameLibraryStatus;
+  pricePaid?: number;
 }

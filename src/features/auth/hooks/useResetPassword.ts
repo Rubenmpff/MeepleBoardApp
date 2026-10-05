@@ -1,110 +1,247 @@
-// src/features/auth/hooks/useResetPassword.ts
-
-import { useState, useEffect } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import {
+  useEffect,
+  useState,
+} from "react";
+import {
+  useLocalSearchParams,
+  useRouter,
+} from "expo-router";
+import { useTranslation } from "react-i18next";
 import Toast from "react-native-toast-message";
+
 import { authService } from "../services/authService";
+
+function getSingleParam(
+  value:
+    | string
+    | string[]
+    | undefined
+): string {
+  if (Array.isArray(value)) {
+    return value[0] ?? "";
+  }
+
+  return value ?? "";
+}
+
+function isValidPassword(
+  password: string
+) {
+  return /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(
+    password
+  );
+}
 
 export const useResetPassword = () => {
   const router = useRouter();
-  const { token, email } = useLocalSearchParams();
+  const { t } = useTranslation("auth");
 
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const params =
+    useLocalSearchParams<{
+      token?: string | string[];
+      email?: string | string[];
+    }>();
 
-  // ✅ Valid password: 8+ characters, 1 uppercase, 1 number, 1 symbol
-  const isValidPassword = (password: string) =>
-    /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password);
+  const token = getSingleParam(
+    params.token
+  );
+
+  const email = getSingleParam(
+    params.email
+  );
+
+  const [
+    newPassword,
+    setNewPassword,
+  ] = useState("");
+
+  const [
+    confirmPassword,
+    setConfirmPassword,
+  ] = useState("");
+
+  const [loading, setLoading] =
+    useState(false);
 
   useEffect(() => {
-    if (!token || !email) {
+    if (token && email) {
+      return;
+    }
+
+    Toast.show({
+      type: "error",
+      text1: t(
+        "resetPasswordValidation.invalidLinkTitle"
+      ),
+      text2: t(
+        "resetPasswordValidation.invalidLinkDescription"
+      ),
+    });
+
+    router.replace(
+      "/forgot-password"
+    );
+  }, [email, router, t, token]);
+
+  async function handleReset() {
+    const trimmedPassword =
+      newPassword.trim();
+
+    const trimmedConfirmation =
+      confirmPassword.trim();
+
+    if (
+      !trimmedPassword ||
+      !trimmedConfirmation
+    ) {
       Toast.show({
         type: "error",
-        text1: "Invalid or expired link",
-        text2: "Please request a new password reset.",
+        text1: t(
+          "resetPasswordValidation.missingFieldsTitle"
+        ),
+        text2: t(
+          "resetPasswordValidation.missingFieldsDescription"
+        ),
       });
-      router.replace("/forgot-password");
-    }
-  }, [token, email]);
 
-  const handleReset = async () => {
-    const trimmedPassword = newPassword.trim();
-    const trimmedConfirm = confirmPassword.trim();
-
-    if (!trimmedPassword || !trimmedConfirm) {
-      return Toast.show({
-        type: "error",
-        text1: "Missing fields",
-        text2: "Please fill in all required fields.",
-      });
+      return;
     }
 
-    if (trimmedPassword !== trimmedConfirm) {
-      return Toast.show({
+    if (
+      trimmedPassword !==
+      trimmedConfirmation
+    ) {
+      Toast.show({
         type: "error",
-        text1: "Password mismatch",
-        text2: "Passwords do not match.",
+        text1: t(
+          "resetPasswordValidation.passwordMismatchTitle"
+        ),
+        text2: t(
+          "resetPasswordValidation.passwordMismatchDescription"
+        ),
       });
+
+      return;
     }
 
-    if (!isValidPassword(trimmedPassword)) {
-      return Toast.show({
+    if (
+      !isValidPassword(
+        trimmedPassword
+      )
+    ) {
+      Toast.show({
         type: "error",
-        text1: "Weak password",
-        text2:
-          "Use at least 8 characters, one uppercase letter, one number, and one symbol.",
+        text1: t(
+          "resetPasswordValidation.weakPasswordTitle"
+        ),
+        text2: t(
+          "resetPasswordValidation.weakPasswordDescription"
+        ),
       });
+
+      return;
     }
 
     setLoading(true);
 
     try {
-      const result = await authService.resetPassword({
-        email: (email as string).trim().toLowerCase(),
-        token: (token as string).trim(),
-        password: trimmedPassword,
-        confirmPassword: trimmedConfirm,
-      });
+      const result =
+        await authService.resetPassword(
+          {
+            email: email
+              .trim()
+              .toLowerCase(),
+            token: decodeURIComponent(
+              token
+            )
+              .trim()
+              .replace(/\s/g, "+"),
+            password:
+              trimmedPassword,
+            confirmPassword:
+              trimmedConfirmation,
+          }
+        );
 
       if (result.success) {
         Toast.show({
           type: "success",
-          text1: "Password updated",
-          text2: "You can now log in.",
+          text1: t(
+            "resetPasswordValidation.successTitle"
+          ),
+          text2: t(
+            "resetPasswordValidation.successDescription"
+          ),
         });
+
         router.replace("/signin");
+
         return;
       }
 
-      if (
-        result.message?.toLowerCase().includes("reset link is no longer valid")
-      ) {
+      const normalizedMessage =
+        result.message?.toLowerCase() ??
+        "";
+
+      const linkExpired =
+        normalizedMessage.includes(
+          "reset link is no longer valid"
+        ) ||
+        normalizedMessage.includes(
+          "expired"
+        ) ||
+        normalizedMessage.includes(
+          "invalid token"
+        );
+
+      if (linkExpired) {
         Toast.show({
           type: "error",
-          text1: "Reset link expired",
-          text2: "Please request a new password reset.",
+          text1: t(
+            "resetPasswordValidation.expiredTitle"
+          ),
+          text2: t(
+            "resetPasswordValidation.expiredDescription"
+          ),
         });
-        router.replace("/forgot-password");
+
+        router.replace(
+          "/forgot-password"
+        );
+
         return;
       }
 
       Toast.show({
         type: "error",
-        text1: "Reset failed",
-        text2: result.message || "Something went wrong. Please try again.",
+        text1: t(
+          "resetPasswordValidation.failedTitle"
+        ),
+        text2:
+          result.message ||
+          t(
+            "resetPasswordValidation.failedDescription"
+          ),
       });
     } catch (error) {
-      console.error("❌ Reset error:", error);
+      console.error(
+        "Erro ao alterar a palavra-passe:",
+        error
+      );
+
       Toast.show({
         type: "error",
-        text1: "Unexpected error",
-        text2: "Please try again later.",
+        text1: t(
+          "resetPasswordValidation.unexpectedTitle"
+        ),
+        text2: t(
+          "resetPasswordValidation.unexpectedDescription"
+        ),
       });
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return {
     newPassword,

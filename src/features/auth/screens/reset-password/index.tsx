@@ -1,22 +1,30 @@
-import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { AntDesign, Feather } from "@expo/vector-icons";
-import { useState } from "react";
-import { useResetPassword } from "../../hooks/useResetPassword";
-import { COLORS } from "@/src/constants/colors";
+import {
+  AntDesign,
+  Feather,
+} from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 
+import { COLORS } from "@/src/constants/colors";
+import { ROUTES } from "@/src/constants/routes";
+
+import { useResetPassword } from "../../hooks/useResetPassword";
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
+  const { t } = useTranslation("auth");
+
   const {
     newPassword,
     confirmPassword,
@@ -26,92 +34,187 @@ export default function ResetPasswordScreen() {
     handleReset,
   } = useResetPassword();
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [
+    showPassword,
+    setShowPassword,
+  ] = useState(false);
+
+  const [
+    showConfirmPassword,
+    setShowConfirmPassword,
+  ] = useState(false);
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={
+        Platform.OS === "ios"
+          ? "padding"
+          : undefined
+      }
     >
-      {/* 🔙 Back */}
       <TouchableOpacity
-        onPress={() => router.replace("/signin")}
+        onPress={() =>
+          router.replace(
+            ROUTES.SIGN_IN
+          )
+        }
         style={styles.backButton}
         accessibilityRole="button"
-        accessibilityLabel="Back to Sign In"
+        accessibilityLabel={t(
+          "resetPassword.backAccessibility"
+        )}
       >
-        <AntDesign name="arrow-left" size={24} color={COLORS.onBackground} />
+        <AntDesign
+          name="arrow-left"
+          size={24}
+          color={COLORS.onBackground}
+        />
       </TouchableOpacity>
 
-      {/* 🧠 Title */}
-      <Text style={styles.title}>Reset Your Password</Text>
-      <Text style={styles.subtitle}>Enter a new secure password below.</Text>
+      <Text style={styles.title}>
+        {t("resetPassword.title")}
+      </Text>
 
-      {/* 🔐 New Password */}
-      <View style={styles.inputWrapper}>
+      <Text style={styles.subtitle}>
+        {t("resetPassword.subtitle")}
+      </Text>
+
+      <View
+        style={styles.inputWrapper}
+      >
         <TextInput
           style={styles.input}
-          placeholder="New Password"
-          placeholderTextColor={COLORS.onBackground}
-          secureTextEntry={!showPassword}
+          placeholder={t(
+            "resetPassword.newPassword"
+          )}
+          placeholderTextColor={
+            COLORS.textMuted
+          }
+          secureTextEntry={
+            !showPassword
+          }
           autoCapitalize="none"
           autoCorrect={false}
           textContentType="newPassword"
+          autoComplete="new-password"
           value={newPassword}
           onChangeText={setNewPassword}
-          accessibilityLabel="New password input"
+          accessibilityLabel={t(
+            "resetPassword.newPasswordAccessibility"
+          )}
         />
+
         <TouchableOpacity
-          onPress={() => setShowPassword(!showPassword)}
+          onPress={() =>
+            setShowPassword(
+              (current) => !current
+            )
+          }
           style={styles.eyeIcon}
-          accessibilityLabel="Toggle password visibility"
+          accessibilityRole="button"
+          accessibilityLabel={t(
+            showPassword
+              ? "resetPassword.hidePassword"
+              : "resetPassword.showPassword"
+          )}
         >
           <Feather
-            name={showPassword ? "eye-off" : "eye"}
+            name={
+              showPassword
+                ? "eye-off"
+                : "eye"
+            }
             size={20}
-            color={COLORS.onBackground}
+            color={
+              COLORS.onBackground
+            }
           />
         </TouchableOpacity>
       </View>
 
-      {/* 🔐 Confirm Password */}
-      <View style={styles.inputWrapper}>
+      <View
+        style={styles.inputWrapper}
+      >
         <TextInput
           style={styles.input}
-          placeholder="Confirm Password"
-          placeholderTextColor={COLORS.onBackground}
-          secureTextEntry={!showConfirmPassword}
+          placeholder={t(
+            "resetPassword.confirmPassword"
+          )}
+          placeholderTextColor={
+            COLORS.textMuted
+          }
+          secureTextEntry={
+            !showConfirmPassword
+          }
           autoCapitalize="none"
           autoCorrect={false}
-          textContentType="password"
+          textContentType="newPassword"
+          autoComplete="new-password"
           value={confirmPassword}
-          onChangeText={setConfirmPassword}
+          onChangeText={
+            setConfirmPassword
+          }
+          accessibilityLabel={t(
+            "resetPassword.confirmPasswordAccessibility"
+          )}
         />
+
         <TouchableOpacity
-          onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+          onPress={() =>
+            setShowConfirmPassword(
+              (current) => !current
+            )
+          }
           style={styles.eyeIcon}
+          accessibilityRole="button"
+          accessibilityLabel={t(
+            showConfirmPassword
+              ? "resetPassword.hideConfirmPassword"
+              : "resetPassword.showConfirmPassword"
+          )}
         >
           <Feather
-            name={showConfirmPassword ? "eye-off" : "eye"}
+            name={
+              showConfirmPassword
+                ? "eye-off"
+                : "eye"
+            }
             size={20}
-            color={COLORS.onBackground}
+            color={
+              COLORS.onBackground
+            }
           />
         </TouchableOpacity>
       </View>
 
-      {/* ✅ Submit */}
       <TouchableOpacity
-        style={[styles.resetButton, loading && { opacity: 0.6 }]}
+        style={[
+          styles.resetButton,
+          loading &&
+            styles.disabledButton,
+        ]}
         onPress={handleReset}
         disabled={loading}
         accessibilityRole="button"
-        accessibilityLabel="Submit new password"
+        accessibilityLabel={t(
+          "resetPassword.submitAccessibility"
+        )}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator
+            color="#FFFFFF"
+          />
         ) : (
-          <Text style={styles.resetButtonText}>Reset Password</Text>
+          <Text
+            style={
+              styles.resetButtonText
+            }
+          >
+            {t(
+              "resetPassword.button"
+            )}
+          </Text>
         )}
       </TouchableOpacity>
     </KeyboardAvoidingView>
@@ -121,54 +224,72 @@ export default function ResetPasswordScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor:
+      COLORS.background,
     padding: 20,
     justifyContent: "center",
   },
+
   backButton: {
     position: "absolute",
     top: 40,
     left: 20,
+    zIndex: 1,
   },
+
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: COLORS.onBackground,
     textAlign: "center",
     marginBottom: 10,
   },
+
   subtitle: {
     fontSize: 16,
+    lineHeight: 22,
     textAlign: "center",
     color: COLORS.onBackground,
     marginBottom: 30,
   },
+
   inputWrapper: {
     position: "relative",
     marginBottom: 15,
   },
+
   input: {
-    backgroundColor: COLORS.surface,
+    backgroundColor:
+      COLORS.surface,
     padding: 15,
-    paddingRight: 40,
+    paddingRight: 48,
     borderRadius: 8,
     color: COLORS.onBackground,
   },
+
   eyeIcon: {
     position: "absolute",
     right: 12,
-    top: 15,
+    top: 11,
+    padding: 4,
   },
+
   resetButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor:
+      COLORS.primary,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
     marginBottom: 10,
   },
+
+  disabledButton: {
+    opacity: 0.6,
+  },
+
   resetButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: "#FFFFFF",
+    fontWeight: "700",
     fontSize: 16,
   },
 });

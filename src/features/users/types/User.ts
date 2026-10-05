@@ -1,7 +1,14 @@
 // src/features/users/types/User.ts
 
+export enum LibraryPrivacy {
+  Private = 0,
+  FriendsOnly = 1,
+  Public = 2,
+}
+
 export interface User {
-  id: string;            // Unique identifier for the user
-  userName: string;      // Display name or username
-  email?: string;        // Optional email address
+  id: string;
+  userName: string;
+  email?: string;
+  libraryPrivacy?: LibraryPrivacy;
 }

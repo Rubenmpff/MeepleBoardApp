@@ -1,0 +1,70 @@
+{
+  "search": {
+    "placeholder": "🔍 Search for a board game…",
+    "searching": "🔍 Searching…",
+    "empty": "No games found for this search.",
+    "openDetailsErrorTitle": "Unable to open game",
+    "openDetailsErrorDescription": "The game details could not be opened.",
+    "importErrorTitle": "Unable to import game",
+    "importErrorDescription": "The game could not be imported."
+  },
+  "selector": {
+    "placeholder": "🔎 Search for a base game…",
+    "notFound": "🚫 This game is not yet available in MeepleBoard."
+  },
+  "expansions": {
+    "title": "Expansions used",
+    "empty": "No expansions were found for this game.",
+    "loadErrorTitle": "Couldn't load expansions",
+    "loadErrorDescription": "Check your connection and try again.",
+    "toggleAccessibility": "Toggle expansion {{name}}"
+  },
+  "listItem": {
+    "unknownGame": "Unknown game",
+    "viewDetailsAccessibility": "View details for {{name}}",
+    "manageAccessibility": "Manage {{name}} in your library",
+    "addAccessibility": "Add {{name}} to your library"
+  },
+  "rating": {
+    "none": "No rating",
+    "terrible": "😞 Terrible",
+    "veryWeak": "😟 Very weak",
+    "weak": "😕 Weak",
+    "belowExpected": "😐 Below expectations",
+    "ok": "🙂 OK",
+    "fair": "😊 Fair",
+    "good": "😄 Good",
+    "veryGood": "😁 Very good",
+    "excellent": "🤩 Excellent!",
+    "masterpiece": "💯 Masterpiece!",
+    "tapToRate": "Tap the stars to rate",
+    "setHalfAccessibility": "Set rating to {{value}} out of 10",
+    "setFullAccessibility": "Set rating to {{value}} out of 10"
+  },
+  "details": {
+    "notFound": "Game not found.",
+    "yourRating": "Yours",
+    "cooperative": "Co-op",
+    "solo": "Solo",
+    "tabs": {
+      "info": "Info",
+      "history": "History",
+      "campaigns": "Campaigns"
+    },
+    "descriptionTitle": "Description",
+    "descriptionEmpty": "No description is available.\nImport the game from BGG to see more details.",
+    "historyEmpty": "You haven't registered any matches for this game yet.",
+    "newCampaign": "New campaign",
+    "campaignsEmpty": "You don't have any campaigns for this game yet.\nCreate one to track your adventure!",
+    "campaignStatus": {
+      "active": "Active",
+      "completed": "Completed",
+      "abandoned": "Abandoned"
+    },
+    "members_one": "{{count}} member",
+    "members_other": "{{count}} members",
+    "matches_one": "{{count}} match",
+    "matches_other": "{{count}} matches",
+    "minutesShort": "{{count}} min"
+  }
+}

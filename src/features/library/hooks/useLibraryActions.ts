@@ -4,9 +4,10 @@ import { RootState } from "@/src/store/store";
 import {
   addGameToLibrary,
   removeGameFromLibrary,
+  updateGameInLibrary,
   fetchUserLibrary,
 } from "../store/librarySlice";
-import { Game } from "@/src/features/games/types/Game";
+import { Game } from "@/src/features/games/catalog/types/Game";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
 import { useUser } from "@/src/features/users/hooks/useUser";
 import api from "@/src/services/api";
@@ -27,7 +28,6 @@ export function useLibraryActions() {
 
       let gameIdToAdd = game.id;
 
-      // Importar se não existir localmente mas tem BGG ID
       if (!game.id && game.bggId) {
         const res = await api.post(`/game/import/${game.bggId}`);
         if (res?.data?.id) {
@@ -43,11 +43,14 @@ export function useLibraryActions() {
         addGameToLibrary({
           userId: user.id,
           gameId: gameIdToAdd,
+          bggId: game.bggId,
           gameName: game.name,
           status,
           pricePaid,
         }) as any
       ).unwrap();
+
+      dispatch(fetchUserLibrary(user.id) as any);
     },
     [dispatch, user?.id]
   );
@@ -59,6 +62,19 @@ export function useLibraryActions() {
       await dispatch(
         removeGameFromLibrary({ userId: user.id, gameId }) as any
       ).unwrap();
+
+      dispatch(fetchUserLibrary(user.id) as any);
+    },
+    [dispatch, user?.id]
+  );
+
+  /** Atualizar estado e/ou preço de um jogo já na biblioteca */
+  const updateGame = useCallback(
+    async (gameId: string, status: GameLibraryStatus, pricePaid?: number) => {
+      if (!user?.id) throw new Error("User not authenticated.");
+      await dispatch(
+        updateGameInLibrary({ userId: user.id, gameId, status, pricePaid }) as any
+      ).unwrap();
     },
     [dispatch, user?.id]
   );
@@ -69,5 +85,5 @@ export function useLibraryActions() {
     dispatch(fetchUserLibrary(user.id) as any);
   }, [dispatch, user?.id]);
 
-  return { addGame, removeGame, refetchLibrary, loading };
+  return { addGame, removeGame, updateGame, refetchLibrary, loading };
 }

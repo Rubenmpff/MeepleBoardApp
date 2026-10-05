@@ -1,0 +1,19 @@
+{
+  "title": "Settings",
+  "subtitle": "Configure your preferences.",
+  "language": {
+    "title": "Language",
+    "description": "Choose the language used in the application.",
+    "system": "Device language",
+    "portuguese": "Português",
+    "english": "English",
+    "changeError": "The language could not be changed."
+  },
+  "backToDashboard": "Back to Home",
+  "logout": {
+    "button": "Log out",
+    "title": "Log out",
+    "confirmation": "Are you sure you want to log out?",
+    "error": "It was not possible to log out."
+  }
+}

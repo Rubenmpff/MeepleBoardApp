@@ -1,87 +1,221 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getLocales } from "expo-localization";
+import * as Localization from "expo-localization";
 import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
+import {
+  initReactI18next,
+} from "react-i18next";
 
-import en from "./locales/en.json";
-import pt from "./locales/pt.json";
+import ptCommon from "./locales/pt/common.json";
+import ptNavigation from "./locales/pt/navigation.json";
+import ptSettings from "./locales/pt/settings.json";
+import ptDashboard from "./locales/pt/dashboard.json";
+import ptAuth from "./locales/pt/auth.json";
+import ptGames from "./locales/pt/games.json";
+import ptMatches from "./locales/pt/matches.json";
+import ptLibrary from "./locales/pt/library.json";
+import ptCampaigns from "./locales/pt/campaigns.json";
+import ptFriends from "./locales/pt/friends.json";
 
-export const LANGUAGE_STORAGE_KEY = "@meepleboard/language";
+import enCommon from "./locales/en/common.json";
+import enNavigation from "./locales/en/navigation.json";
+import enSettings from "./locales/en/settings.json";
+import enDashboard from "./locales/en/dashboard.json";
+import enAuth from "./locales/en/auth.json";
+import enGames from "./locales/en/games.json";
+import enMatches from "./locales/en/matches.json";
+import enLibrary from "./locales/en/library.json";
+import enCampaigns from "./locales/en/campaigns.json";
+import enFriends from "./locales/en/friends.json";
 
-export type AppLanguage = "pt" | "en" | "system";
+const LANGUAGE_STORAGE_KEY =
+  "@meepleboard:language";
+
+export type AppLanguage =
+  | "pt"
+  | "en"
+  | "system";
 
 const resources = {
   pt: {
-    translation: pt,
+    common: ptCommon,
+    navigation: ptNavigation,
+    settings: ptSettings,
+    dashboard: ptDashboard,
+    auth: ptAuth,
+    games: ptGames,
+    matches: ptMatches,
+    library: ptLibrary,
+    campaigns: ptCampaigns,
+    friends: ptFriends,
   },
+
   en: {
-    translation: en,
+    common: enCommon,
+    navigation: enNavigation,
+    settings: enSettings,
+    dashboard: enDashboard,
+    auth: enAuth,
+    games: enGames,
+    matches: enMatches,
+    library: enLibrary,
+    campaigns: enCampaigns,
+    friends: enFriends,
   },
-};
+} as const;
 
-function getDeviceLanguage(): "pt" | "en" {
-  const deviceLanguage = getLocales()[0]?.languageCode;
+function normalizeLanguage(
+  language?: string | null
+): "pt" | "en" {
+  const normalized =
+    language
+      ?.trim()
+      .toLowerCase()
+      .split("-")[0] ?? "";
 
-  return deviceLanguage === "pt" ? "pt" : "en";
+  return normalized === "pt"
+    ? "pt"
+    : "en";
 }
 
-export async function initializeLanguage(): Promise<void> {
-  try {
-    const savedLanguage =
-      await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
+export function getSystemLanguage():
+  | "pt"
+  | "en" {
+  const locales =
+    Localization.getLocales();
 
-    if (savedLanguage === "pt" || savedLanguage === "en") {
-      await i18n.changeLanguage(savedLanguage);
-      return;
+  const primaryLanguage =
+    locales[0]?.languageCode ??
+    locales[0]?.languageTag ??
+    "en";
+
+  return normalizeLanguage(
+    primaryLanguage
+  );
+}
+
+export async function getStoredLanguage():
+  Promise<AppLanguage> {
+  try {
+    const storedLanguage =
+      await AsyncStorage.getItem(
+        LANGUAGE_STORAGE_KEY
+      );
+
+    if (
+      storedLanguage === "pt" ||
+      storedLanguage === "en"
+    ) {
+      return storedLanguage;
     }
 
-    await i18n.changeLanguage(getDeviceLanguage());
+    return "system";
   } catch (error) {
-    console.error("Erro ao carregar o idioma:", error);
-    await i18n.changeLanguage(getDeviceLanguage());
+    console.error(
+      "❌ Failed to read language preference:",
+      error
+    );
+
+    return "system";
   }
+}
+
+export async function initializeLanguage():
+  Promise<"pt" | "en"> {
+  const storedLanguage =
+    await getStoredLanguage();
+
+  const resolvedLanguage =
+    storedLanguage === "system"
+      ? getSystemLanguage()
+      : storedLanguage;
+
+  if (
+    i18n.language !== resolvedLanguage
+  ) {
+    await i18n.changeLanguage(
+      resolvedLanguage
+    );
+  }
+
+  return resolvedLanguage;
 }
 
 export async function changeAppLanguage(
   language: AppLanguage
-): Promise<void> {
+): Promise<"pt" | "en"> {
   try {
     if (language === "system") {
-      await AsyncStorage.removeItem(LANGUAGE_STORAGE_KEY);
-      await i18n.changeLanguage(getDeviceLanguage());
-      return;
+      await AsyncStorage.removeItem(
+        LANGUAGE_STORAGE_KEY
+      );
+
+      const systemLanguage =
+        getSystemLanguage();
+
+      await i18n.changeLanguage(
+        systemLanguage
+      );
+
+      return systemLanguage;
     }
 
-    await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+    await AsyncStorage.setItem(
+      LANGUAGE_STORAGE_KEY,
+      language
+    );
+
     await i18n.changeLanguage(language);
+
+    return language;
   } catch (error) {
-    console.error("Erro ao alterar o idioma:", error);
-    throw error;
+    console.error(
+      "❌ Failed to change language:",
+      error
+    );
+
+    const fallbackLanguage =
+      getSystemLanguage();
+
+    await i18n.changeLanguage(
+      fallbackLanguage
+    );
+
+    return fallbackLanguage;
   }
 }
 
-export async function getSavedLanguage(): Promise<AppLanguage> {
-  const savedLanguage =
-    await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
+if (!i18n.isInitialized) {
+  i18n
+    .use(initReactI18next)
+    .init({
+      resources,
 
-  if (savedLanguage === "pt" || savedLanguage === "en") {
-    return savedLanguage;
-  }
+      lng: "pt",
+      fallbackLng: "en",
 
-  return "system";
+      defaultNS: "common",
+
+      supportedLngs: [
+        "pt",
+        "en",
+      ],
+
+      interpolation: {
+        escapeValue: false,
+      },
+
+      compatibilityJSON: "v4",
+
+      returnNull: false,
+
+      react: {
+        useSuspense: false,
+      },
+    });
 }
 
-i18n.use(initReactI18next).init({
-  resources,
-  lng: getDeviceLanguage(),
-  fallbackLng: "en",
-  supportedLngs: ["pt", "en"],
-  interpolation: {
-    escapeValue: false,
-  },
-  react: {
-    useSuspense: false,
-  },
-});
+export {
+  LANGUAGE_STORAGE_KEY,
+};
 
 export default i18n;

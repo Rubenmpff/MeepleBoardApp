@@ -1,0 +1,114 @@
+{
+  "steps": {
+    "game": "Game",
+    "mode": "Mode",
+    "players": "Players",
+    "details": "Details"
+  },
+  "header": {
+    "addMatch": "Add match",
+    "registerMatch": "Register match",
+    "sessionBadge": "SESSION",
+    "quickBadge": "QUICK",
+    "unofficialBadge": "⚠️ Unofficial"
+  },
+  "validation": {
+    "errorTitle": "Error",
+    "selectGame": "Select a game.",
+    "addPlayer": "Add at least one player.",
+    "positiveDuration": "The duration must be a positive number.",
+    "selectWinner": "Select the winner of the match."
+  },
+  "success": {
+    "title": "✅ Match registered!",
+    "session": "The match was added to the session.",
+    "quick": "The match was saved successfully.",
+    "ok": "OK"
+  },
+  "session": {
+    "notFoundTitle": "⚠️ Session not found",
+    "notFoundDescription": "Go back and try again.",
+    "upcomingTitle": "⏳ The session has not started yet",
+    "closedTitle": "🔒 Session closed",
+    "inactiveDescription": "Register matches when the session is active.",
+    "noAcceptedTitle": "👥 No accepted participants",
+    "noAcceptedDescription": "Wait for the invited players to accept before registering matches."
+  },
+  "game": {
+    "sectionTitle": "Choose the game",
+    "change": "Change",
+    "expansionsOptional": "Expansions used (optional)"
+  },
+  "modes": {
+    "sectionTitle": "Game mode",
+    "solo": "Solo",
+    "multiplayer": "Multiplayer",
+    "cooperative": "Cooperative",
+    "playersRange": "👥 {{min}}–{{max}} players",
+    "withExpansion": "📦 With expansion: {{name}}",
+    "soloUnlocked": " → Solo unlocked!",
+    "coopUnlocked": " → Co-op unlocked!",
+    "confirmed": "✅ Confirmed",
+    "expansionShort": "📦 Exp",
+    "force": "+ Force",
+    "unofficialWarning": "Unofficial mode — this match will not count towards rankings or ratings.\nReason: \"{{justification}}\"",
+    "result": "Result",
+    "teamResult": "Team result",
+    "playerWon": "I won",
+    "gameWon": "The game won",
+    "noResult": "No result",
+    "teamWon": "We won",
+    "teamLost": "We lost",
+    "modalTitle": "⚠️ Unconfirmed mode",
+    "modalBeforeMode": "We have no information confirming that this game supports ",
+    "modalAfterMode": ". You can force it, but this match ",
+    "modalRankingWarning": "will not count towards rankings or ratings.",
+    "reasonLabel": "Why are you using this mode? *",
+    "reasonPlaceholder": "E.g. fan-made variant, house rule, adaptation...",
+    "cancel": "Cancel",
+    "useAnyway": "Use anyway"
+  },
+  "players": {
+    "player": "Player",
+    "team": "Team",
+    "players": "Players",
+    "you": "You",
+    "finalScoreOptional": "Final score (optional)",
+    "resultLabel": "Result:"
+  },
+  "details": {
+    "optionalTitle": "Optional details",
+    "locationLabel": "📍 Location",
+    "locationPlaceholder": "E.g. John's house, UK Games Expo...",
+    "durationLabel": "⏱ Duration (minutes)",
+    "durationPlaceholder": "E.g. 90",
+    "commentsLabel": "📝 Comments",
+    "commentsPlaceholder": "E.g. Close match with a last-minute comeback!",
+    "journalTitle": "Match journal",
+    "ratingLabel": "Your rating (0–10)",
+    "notesLabel": "📖 Notes (epic moments, strategies...)",
+    "notesPlaceholder": "E.g. Incredible final round, the strategy worked!",
+    "tagsLabel": "🏷️ Tags (comma-separated)",
+    "tagsPlaceholder": "E.g. epic, comeback, difficult"
+  },
+  "summary": {
+    "title": "📋 Match summary",
+    "game": "Game",
+    "mode": "Mode",
+    "result": "Result",
+    "teamResult": "Team result",
+    "winner": "Winner",
+    "notDefined": "Not defined",
+    "players": "Players",
+    "expansions": "Expansions",
+    "location": "Location",
+    "duration": "Duration",
+    "rating": "Rating",
+    "minutes": "{{value}} min"
+  },
+  "navigation": {
+    "back": "Back",
+    "continue": "Continue",
+    "save": "Save match"
+  }
+}

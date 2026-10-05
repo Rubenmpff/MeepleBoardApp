@@ -3,130 +3,446 @@
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+
 import getEnvVars from "../constants/env";
 
 const { API_URL } = getEnvVars();
 
+// ======================================================
+// CHAVES DO SECURE STORE
+// ======================================================
+
+const ACCESS_TOKEN_KEY = "secure_token";
+const REFRESH_TOKEN_KEY = "secure_refresh_token";
+const REMEMBER_ME_KEY = "remember_me";
+const CURRENT_USER_KEY = "current_user";
+
+// ======================================================
+// SESSÃO TEMPORÁRIA
+// ======================================================
+//
+// Quando "Remember me" está desligado, o access token
+// fica apenas em memória.
+//
+// Assim:
+// - enquanto a app estiver aberta → sessão funciona;
+// - ao fechar completamente a app → precisa de login novamente.
+
+let temporaryAccessToken: string | null = null;
+
+// ======================================================
+// REFRESH CONTROL
+// ======================================================
+//
+// Evita vários refreshes simultâneos.
+//
+// Isto é especialmente importante porque o backend faz
+// rotação do Refresh Token:
+//
+// Refresh A → invalida token antigo → cria token novo
+//
+// Sem este controlo, dois pedidos simultâneos poderiam
+// tentar utilizar o mesmo Refresh Token antigo.
+
+let refreshPromise: Promise<string | null> | null = null;
+
+// ======================================================
+// TIPOS
+// ======================================================
+
 interface JwtPayload {
-  exp: number;
-  [key: string]: any;
+  exp?: number;
+  [key: string]: unknown;
 }
 
+interface RefreshTokenResponse {
+  success?: boolean;
+  token?: string;
+  refreshToken?: string;
+}
+
+// ======================================================
+// HELPERS
+// ======================================================
+
+function isTokenExpired(token: string): boolean {
+  try {
+    const decoded =
+      jwtDecode<JwtPayload>(token);
+
+    if (!decoded.exp) {
+      return true;
+    }
+
+    const now =
+      Math.floor(Date.now() / 1000);
+
+    /*
+     * Margem de segurança.
+     *
+     * Não utilizamos um token que está a poucos
+     * segundos de expirar.
+     */
+    const expirationSafetyWindow = 30;
+
+    return (
+      decoded.exp <=
+      now + expirationSafetyWindow
+    );
+  } catch {
+    return true;
+  }
+}
+
+// ======================================================
+// REFRESH INTERNO
+// ======================================================
+
+async function performRefresh(): Promise<string | null> {
+  const rememberMe =
+    await tokenService.isRememberMeEnabled();
+
+  if (!rememberMe) {
+    return null;
+  }
+
+  const refreshToken =
+    await SecureStore.getItemAsync(
+      REFRESH_TOKEN_KEY
+    );
+
+  if (!refreshToken) {
+    await tokenService.clearAll();
+    return null;
+  }
+
+  try {
+    /*
+     * IMPORTANTE:
+     *
+     * Usamos axios diretamente.
+     *
+     * Não usamos a instância "api" porque essa instância
+     * contém interceptors de autenticação e poderia
+     * provocar ciclos de refresh.
+     */
+
+    const response =
+      await axios.post<RefreshTokenResponse>(
+        `${API_URL}/auth/refresh-token`,
+        {
+          refreshToken,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+
+          timeout: 15000,
+        }
+      );
+
+    const newAccessToken =
+      response.data?.token;
+
+    const newRefreshToken =
+      response.data?.refreshToken;
+
+    /*
+     * O backend da MeepleBoard faz rotação de
+     * Refresh Tokens.
+     *
+     * Por isso esperamos SEMPRE:
+     *
+     * - novo access token
+     * - novo refresh token
+     */
+
+    if (
+      !newAccessToken ||
+      !newRefreshToken
+    ) {
+      await tokenService.clearAll();
+      return null;
+    }
+
+    await tokenService.storeTokens(
+      newAccessToken,
+      newRefreshToken,
+      true
+    );
+
+    return newAccessToken;
+  } catch (error) {
+    /*
+     * É importante distinguir:
+     *
+     * 1. Backend respondeu 400/401/403
+     *    → refresh token inválido/expirado
+     *    → terminar sessão.
+     *
+     * 2. Não houve resposta
+     *    → pode ser internet, timeout, Azure indisponível...
+     *    → NÃO apagar imediatamente a sessão.
+     *
+     * Assim podemos tentar novamente quando a ligação voltar.
+     */
+
+    if (axios.isAxiosError(error)) {
+      const status =
+        error.response?.status;
+
+      if (
+        status === 400 ||
+        status === 401 ||
+        status === 403
+      ) {
+        await tokenService.clearAll();
+      }
+
+      if (__DEV__) {
+        console.warn(
+          "Não foi possível renovar a sessão.",
+          {
+            status,
+            code: error.code,
+            message: error.message,
+          }
+        );
+      }
+
+      return null;
+    }
+
+    if (__DEV__) {
+      console.warn(
+        "Erro inesperado ao renovar a sessão."
+      );
+    }
+
+    return null;
+  }
+}
+
+// ======================================================
+// TOKEN SERVICE
+// ======================================================
+
 export const tokenService = {
-  /**
-   * 💾 Armazena os tokens e a flag rememberMe.
-   * - O accessToken é sempre guardado para manter a sessão ativa.
-   * - O refreshToken só é guardado se o rememberMe estiver ativo.
-   */
+  // ====================================================
+  // STORE TOKENS
+  // ====================================================
+
   storeTokens: async (
     accessToken: string,
     refreshToken: string,
     rememberMe: boolean
-  ) => {
-    console.log("💾 Guardando tokens | Remember me:", rememberMe);
-
-    // Guarda a flag de sessão persistente
-    await SecureStore.setItemAsync("remember_me", rememberMe ? "true" : "false");
-
-    // Guardamos SEMPRE o accessToken (para manter a sessão atual ativa)
-    await SecureStore.setItemAsync("secure_token", accessToken);
-
+  ): Promise<void> => {
     if (rememberMe) {
-      // Sessão persistente → também guardamos o refreshToken
-      await SecureStore.setItemAsync("secure_refresh_token", refreshToken);
-      console.log("🔐 Access + Refresh guardados (remember = true)");
-    } else {
-      // Sessão temporária → apenas accessToken fica guardado
-      await SecureStore.deleteItemAsync("secure_refresh_token");
-      console.log("🧪 Sessão temporária → só accessToken armazenado");
+      /*
+       * Sessão persistente.
+       *
+       * Access Token + Refresh Token ficam protegidos
+       * pelo SecureStore.
+       */
+
+      temporaryAccessToken = null;
+
+      await Promise.all([
+        SecureStore.setItemAsync(
+          ACCESS_TOKEN_KEY,
+          accessToken
+        ),
+
+        SecureStore.setItemAsync(
+          REFRESH_TOKEN_KEY,
+          refreshToken
+        ),
+
+        SecureStore.setItemAsync(
+          REMEMBER_ME_KEY,
+          "true"
+        ),
+      ]);
+
+      return;
     }
+
+    /*
+     * Sessão temporária.
+     *
+     * O access token existe apenas enquanto
+     * este processo da app estiver vivo.
+     */
+
+    temporaryAccessToken =
+      accessToken;
+
+    await Promise.all([
+      SecureStore.deleteItemAsync(
+        ACCESS_TOKEN_KEY
+      ),
+
+      SecureStore.deleteItemAsync(
+        REFRESH_TOKEN_KEY
+      ),
+
+      SecureStore.setItemAsync(
+        REMEMBER_ME_KEY,
+        "false"
+      ),
+    ]);
   },
 
-  /**
-   * ♻️ Tenta renovar o accessToken usando o refreshToken.
-   * Só tenta se rememberMe estiver ativo.
-   */
-  refreshAccessToken: async (): Promise<string | null> => {
-    try {
-      const remember = await SecureStore.getItemAsync("remember_me");
+  // ====================================================
+  // ACCESS TOKEN
+  // ====================================================
 
-      if (remember !== "true") {
-        console.log("🔒 Refresh bloqueado → remember_me está false");
+  getAccessToken:
+    async (): Promise<string | null> => {
+      /*
+       * Primeiro verificamos se existe uma
+       * sessão temporária em memória.
+       */
+
+      if (temporaryAccessToken) {
+        return temporaryAccessToken;
+      }
+
+      /*
+       * Caso contrário procuramos uma sessão
+       * persistente no SecureStore.
+       */
+
+      return SecureStore.getItemAsync(
+        ACCESS_TOKEN_KEY
+      );
+    },
+
+  // ====================================================
+  // REFRESH TOKEN
+  // ====================================================
+
+  getRefreshToken:
+    async (): Promise<string | null> => {
+      return SecureStore.getItemAsync(
+        REFRESH_TOKEN_KEY
+      );
+    },
+
+  // ====================================================
+  // REMEMBER ME
+  // ====================================================
+
+  isRememberMeEnabled:
+    async (): Promise<boolean> => {
+      const value =
+        await SecureStore.getItemAsync(
+          REMEMBER_ME_KEY
+        );
+
+      return value === "true";
+    },
+
+  // ====================================================
+  // REFRESH ACCESS TOKEN
+  // ====================================================
+
+  refreshAccessToken:
+    async (): Promise<string | null> => {
+      /*
+       * Se já existe um refresh em andamento,
+       * todos os pedidos aguardam pelo MESMO refresh.
+       */
+
+      if (refreshPromise) {
+        return refreshPromise;
+      }
+
+      refreshPromise =
+        performRefresh();
+
+      try {
+        return await refreshPromise;
+      } finally {
+        refreshPromise = null;
+      }
+    },
+
+  // ====================================================
+  // GET VALID TOKEN
+  // ====================================================
+
+  getValidToken:
+    async (): Promise<string | null> => {
+      const accessToken =
+        await tokenService.getAccessToken();
+
+      if (!accessToken) {
         return null;
       }
 
-      const refreshToken = await SecureStore.getItemAsync("secure_refresh_token");
-
-      if (!refreshToken) {
-        throw new Error("❌ Refresh token não encontrado.");
+      // Token ainda válido.
+      if (!isTokenExpired(accessToken)) {
+        return accessToken;
       }
 
-      console.log("♻️ Tentando refresh com refreshToken:", refreshToken);
+      // ==================================================
+      // TOKEN TEMPORÁRIO EXPIRADO
+      // ==================================================
 
-      const response = await axios.post(`${API_URL}/auth/refresh-token`, {
-        refreshToken,
-      });
+      const rememberMe =
+        await tokenService
+          .isRememberMeEnabled();
 
-      const { token, refreshToken: newRefresh } = response.data;
+      if (!rememberMe) {
+        /*
+         * Sem Remember me não existe refresh token.
+         *
+         * A sessão termina quando o access token expira.
+         */
 
-      if (!token || !newRefresh) {
-        throw new Error("❌ Resposta inválida ao tentar refrescar token.");
+        await tokenService.clearAll();
+
+        return null;
       }
 
-      // Armazena os novos tokens, mantendo remember ativo
-      await tokenService.storeTokens(token, newRefresh, true);
-      console.log("✅ Token refrescado com sucesso!");
-      return token;
-    } catch (error) {
-      console.warn("❌ Erro ao tentar refrescar token:", error);
-      await tokenService.clearAll();
-      return null;
-    }
-  },
+      // ==================================================
+      // TOKEN PERSISTENTE EXPIRADO
+      // ==================================================
+      //
+      // Remember me ativo:
+      // tentamos obter um novo par de tokens.
 
-  /**
-   * 🧹 Limpa todos os dados da sessão do utilizador.
-   */
-  clearAll: async () => {
-    console.log("🧹 Limpando dados de sessão...");
-    await Promise.all([
-      SecureStore.deleteItemAsync("secure_token"),
-      SecureStore.deleteItemAsync("secure_refresh_token"),
-      SecureStore.deleteItemAsync("remember_me"),
-      SecureStore.deleteItemAsync("current_user"),
-    ]);
-    console.log("✅ Todos os dados de sessão foram removidos");
-  },
+      return tokenService
+        .refreshAccessToken();
+    },
 
-  /**
-   * 🔍 Verifica se o token atual ainda é válido.
-   * Se estiver expirado, tenta refrescar.
-   */
-  getValidToken: async (): Promise<string | null> => {
-    const token = await SecureStore.getItemAsync("secure_token");
-    console.log("🔍 Verificando token guardado:", token);
+  // ====================================================
+  // CLEAR SESSION
+  // ====================================================
 
-    if (!token) {
-      console.warn("⚠️ Nenhum token encontrado");
-      return null;
-    }
+  clearAll:
+    async (): Promise<void> => {
+      temporaryAccessToken = null;
 
-    try {
-      const decoded = jwtDecode<JwtPayload>(token);
-      const now = Date.now() / 1000;
+      await Promise.all([
+        SecureStore.deleteItemAsync(
+          ACCESS_TOKEN_KEY
+        ),
 
-      console.log("📅 Token expira em:", decoded.exp, "| Agora:", now);
+        SecureStore.deleteItemAsync(
+          REFRESH_TOKEN_KEY
+        ),
 
-      if (decoded.exp && decoded.exp > now) {
-        console.log("✅ Token ainda válido");
-        return token;
-      }
+        SecureStore.deleteItemAsync(
+          REMEMBER_ME_KEY
+        ),
 
-      console.log("⚠️ Token expirado → tentando refresh...");
-      return await tokenService.refreshAccessToken();
-    } catch (err) {
-      console.warn("❌ Erro ao decodificar o token:", err);
-      return null;
-    }
-  },
+        SecureStore.deleteItemAsync(
+          CURRENT_USER_KEY
+        ),
+      ]);
+    },
 };

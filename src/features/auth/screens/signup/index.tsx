@@ -1,167 +1,398 @@
+import { useState } from "react";
 import {
-  View,
+  ActivityIndicator,
+  StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
-  Switch,
-  StyleSheet,
-  ActivityIndicator,
+  View,
 } from "react-native";
+import {
+  AntDesign,
+  Feather,
+  FontAwesome,
+} from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { AntDesign, FontAwesome, Feather } from "@expo/vector-icons";
-import { useState } from "react";
-import { useRegister } from "../../hooks/useRegister";
+import { useTranslation } from "react-i18next";
+
 import { COLORS } from "@/src/constants/colors";
+
+import { useRegister } from "../../hooks/useRegister";
 
 export default function SignUpScreen() {
   const router = useRouter();
+
+  const { t } =
+    useTranslation("auth");
+
   const {
-    username, setUsername,
-    email, setEmail,
-    password, setPassword,
-    confirmPassword, setConfirmPassword,
-    acceptTerms, setAcceptTerms,
+    username,
+    setUsername,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    confirmPassword,
+    setConfirmPassword,
+    acceptTerms,
+    setAcceptTerms,
     loading,
-    handleSignUp
+    handleSignUp,
   } = useRegister();
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [
+    showPassword,
+    setShowPassword,
+  ] = useState(false);
+
+  const [
+    showConfirmPassword,
+    setShowConfirmPassword,
+  ] = useState(false);
 
   return (
     <View style={styles.container}>
-      {/* 🔙 Back button */}
       <TouchableOpacity
-        onPress={() => router.back()}
+        onPress={() =>
+          router.back()
+        }
         style={styles.backButton}
         accessibilityRole="button"
-        accessibilityLabel="Go back"
+        accessibilityLabel={t(
+          "signUp.backAccessibility"
+        )}
       >
-        <AntDesign name="arrow-left" size={24} color={COLORS.onBackground} />
+        <AntDesign
+          name="arrow-left"
+          size={24}
+          color={
+            COLORS.onBackground
+          }
+        />
       </TouchableOpacity>
 
-      <Text style={styles.title}>Create your account</Text>
+      <Text style={styles.title}>
+        {t("signUp.title")}
+      </Text>
 
-      {/* Inputs */}
       <TextInput
         style={styles.input}
-        placeholder="Username"
-        placeholderTextColor={COLORS.onBackground}
+        placeholder={t(
+          "signUp.username"
+        )}
+        placeholderTextColor={
+          COLORS.textMuted
+        }
         value={username}
-        onChangeText={setUsername}
+        onChangeText={
+          setUsername
+        }
+        autoCapitalize="none"
+        autoCorrect={false}
+        textContentType="username"
+        autoComplete="username-new"
       />
+
       <TextInput
         style={styles.input}
-        placeholder="Email"
-        placeholderTextColor={COLORS.onBackground}
+        placeholder={t(
+          "signUp.email"
+        )}
+        placeholderTextColor={
+          COLORS.textMuted
+        }
         keyboardType="email-address"
         autoCapitalize="none"
+        autoCorrect={false}
         value={email}
         onChangeText={setEmail}
+        textContentType="emailAddress"
+        autoComplete="email"
       />
 
-      <View style={styles.inputWrapper}>
+      <View
+        style={
+          styles.inputWrapper
+        }
+      >
         <TextInput
           style={styles.input}
-          placeholder="Password"
-          placeholderTextColor={COLORS.onBackground}
-          secureTextEntry={!showPassword}
+          placeholder={t(
+            "signUp.password"
+          )}
+          placeholderTextColor={
+            COLORS.textMuted
+          }
+          secureTextEntry={
+            !showPassword
+          }
           value={password}
-          onChangeText={setPassword}
+          onChangeText={
+            setPassword
+          }
           autoCapitalize="none"
+          textContentType="newPassword"
+          autoComplete="new-password"
         />
+
         <TouchableOpacity
-          onPress={() => setShowPassword(!showPassword)}
+          onPress={() =>
+            setShowPassword(
+              (current) =>
+                !current
+            )
+          }
           style={styles.eyeIcon}
+          accessibilityRole="button"
+          accessibilityLabel={t(
+            showPassword
+              ? "signUp.hidePassword"
+              : "signUp.showPassword"
+          )}
         >
           <Feather
-            name={showPassword ? "eye-off" : "eye"}
+            name={
+              showPassword
+                ? "eye-off"
+                : "eye"
+            }
             size={20}
-            color={COLORS.onBackground}
+            color={
+              COLORS.onBackground
+            }
           />
         </TouchableOpacity>
       </View>
 
-      <View style={styles.inputWrapper}>
+      <View
+        style={
+          styles.inputWrapper
+        }
+      >
         <TextInput
           style={styles.input}
-          placeholder="Confirm Password"
-          placeholderTextColor={COLORS.onBackground}
-          secureTextEntry={!showConfirmPassword}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
+          placeholder={t(
+            "signUp.confirmPassword"
+          )}
+          placeholderTextColor={
+            COLORS.textMuted
+          }
+          secureTextEntry={
+            !showConfirmPassword
+          }
+          value={
+            confirmPassword
+          }
+          onChangeText={
+            setConfirmPassword
+          }
           autoCapitalize="none"
+          textContentType="newPassword"
+          autoComplete="new-password"
         />
+
         <TouchableOpacity
-          onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+          onPress={() =>
+            setShowConfirmPassword(
+              (current) =>
+                !current
+            )
+          }
           style={styles.eyeIcon}
+          accessibilityRole="button"
+          accessibilityLabel={t(
+            showConfirmPassword
+              ? "signUp.hideConfirmPassword"
+              : "signUp.showConfirmPassword"
+          )}
         >
           <Feather
-            name={showConfirmPassword ? "eye-off" : "eye"}
+            name={
+              showConfirmPassword
+                ? "eye-off"
+                : "eye"
+            }
             size={20}
-            color={COLORS.onBackground}
+            color={
+              COLORS.onBackground
+            }
           />
         </TouchableOpacity>
       </View>
 
-      {/* Terms */}
-      <View style={styles.termsContainer}>
+      <View
+        style={
+          styles.termsContainer
+        }
+      >
         <Switch
           value={acceptTerms}
-          onValueChange={setAcceptTerms}
-          thumbColor={acceptTerms ? COLORS.primary : COLORS.surface}
-          trackColor={{ false: COLORS.surface, true: COLORS.primary }}
+          onValueChange={
+            setAcceptTerms
+          }
+          thumbColor={
+            acceptTerms
+              ? COLORS.primary
+              : COLORS.surface
+          }
+          trackColor={{
+            false:
+              COLORS.border,
+            true:
+              COLORS.primary,
+          }}
         />
-        <Text style={styles.termsText}>
-          I accept the{" "}
-          <Text style={styles.link}>Terms of Service</Text> and{" "}
-          <Text style={styles.link}>Privacy Policy</Text>.
+
+        <Text
+          style={styles.termsText}
+        >
+          <Text>
+            {t(
+              "signUp.acceptPrefix"
+            )}
+          </Text>
+
+          <Text style={styles.link}>
+            {t(
+              "signUp.terms"
+            )}
+          </Text>
+
+          <Text>
+            {t("signUp.and")}
+          </Text>
+
+          <Text style={styles.link}>
+            {t(
+              "signUp.privacy"
+            )}
+          </Text>
+
+          <Text>
+            {t("signUp.end")}
+          </Text>
         </Text>
       </View>
 
-      {/* Sign up button */}
       <TouchableOpacity
-        style={styles.signUpButton}
+        style={[
+          styles.signUpButton,
+          loading &&
+            styles.disabledButton,
+        ]}
         onPress={handleSignUp}
         disabled={loading}
         accessibilityRole="button"
-        accessibilityLabel="Create account"
+        accessibilityLabel={t(
+          "signUp.createAccessibility"
+        )}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator
+            color="#FFFFFF"
+          />
         ) : (
-          <Text style={styles.signUpText}>Sign Up</Text>
+          <Text
+            style={
+              styles.signUpText
+            }
+          >
+            {t(
+              "signUp.button"
+            )}
+          </Text>
         )}
       </TouchableOpacity>
 
-      {/* Navigation link */}
-      <TouchableOpacity onPress={() => router.push("/signin")}>
-        <Text style={styles.alreadyText}>
-          Already have an account?{" "}
-          <Text style={styles.loginLink}>Log in</Text>
+      <TouchableOpacity
+        onPress={() =>
+          router.push("/signin")
+        }
+        accessibilityRole="button"
+      >
+        <Text
+          style={
+            styles.alreadyText
+          }
+        >
+          {t(
+            "signUp.alreadyHaveAccount"
+          )}
+
+          <Text
+            style={
+              styles.loginLink
+            }
+          >
+            {t(
+              "signUp.login"
+            )}
+          </Text>
         </Text>
       </TouchableOpacity>
 
-      <Text style={styles.orText}>Or sign up with</Text>
+      <Text style={styles.orText}>
+        {t(
+          "signUp.orSignUpWith"
+        )}
+      </Text>
 
-      {/* Social login buttons */}
-      <View style={styles.socialContainer}>
+      <View
+        style={
+          styles.socialContainer
+        }
+      >
         <TouchableOpacity
-          style={styles.socialButton}
+          style={
+            styles.socialButton
+          }
           accessibilityRole="button"
-          accessibilityLabel="Sign up with Google"
+          accessibilityLabel={t(
+            "signUp.googleAccessibility"
+          )}
         >
-          <AntDesign name="google" size={20} color={COLORS.onBackground} />
-          <Text style={styles.socialText}>Google</Text>
+          <AntDesign
+            name="google"
+            size={20}
+            color={
+              COLORS.onBackground
+            }
+          />
+
+          <Text
+            style={
+              styles.socialText
+            }
+          >
+            Google
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.socialButton}
+          style={
+            styles.socialButton
+          }
           accessibilityRole="button"
-          accessibilityLabel="Sign up with Apple"
+          accessibilityLabel={t(
+            "signUp.appleAccessibility"
+          )}
         >
-          <FontAwesome name="apple" size={20} color={COLORS.onBackground} />
-          <Text style={styles.socialText}>Apple</Text>
+          <FontAwesome
+            name="apple"
+            size={20}
+            color={
+              COLORS.onBackground
+            }
+          />
+
+          <Text
+            style={
+              styles.socialText
+            }
+          >
+            Apple
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -171,96 +402,122 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor:
+      COLORS.background,
     padding: 20,
     justifyContent: "center",
   },
+
   backButton: {
     position: "absolute",
     top: 40,
     left: 20,
+    zIndex: 1,
   },
+
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: COLORS.onBackground,
     textAlign: "center",
     marginBottom: 20,
   },
+
   inputWrapper: {
     position: "relative",
     marginBottom: 10,
   },
+
   input: {
-    backgroundColor: COLORS.surface,
+    backgroundColor:
+      COLORS.surface,
     padding: 15,
-    paddingRight: 40,
+    paddingRight: 48,
     borderRadius: 8,
     color: COLORS.onBackground,
     marginBottom: 10,
   },
+
   eyeIcon: {
     position: "absolute",
     right: 12,
     top: 15,
+    padding: 4,
   },
+
   termsContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
     gap: 8,
   },
+
   termsText: {
     color: COLORS.onBackground,
     flex: 1,
     flexWrap: "wrap",
   },
+
   link: {
     color: COLORS.primary,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
+
   signUpButton: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor:
+      COLORS.secondary,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
     marginBottom: 10,
   },
+
+  disabledButton: {
+    opacity: 0.6,
+  },
+
   signUpText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: "#FFFFFF",
+    fontWeight: "700",
     fontSize: 16,
   },
+
   alreadyText: {
     textAlign: "center",
     color: COLORS.onBackground,
     marginBottom: 20,
   },
+
   loginLink: {
     color: COLORS.primary,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
+
   orText: {
     textAlign: "center",
     color: COLORS.onBackground,
     marginBottom: 10,
   },
+
   socialContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 16,
   },
+
   socialButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.surface,
+    backgroundColor:
+      COLORS.surface,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
   },
+
   socialText: {
     marginLeft: 10,
     color: COLORS.onBackground,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
 });

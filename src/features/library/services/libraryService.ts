@@ -22,7 +22,7 @@ const libraryService = {
     gameId: string,
     gameName: string,
     status: GameLibraryStatus,
-    pricePaid: number = 0
+    pricePaid?: number
   ): Promise<void> {
     if (!userId || !gameId || !gameName) throw new Error("Missing required parameters");
 
@@ -30,7 +30,7 @@ const libraryService = {
       gameId,
       gameName,
       status,
-      pricePaid: isNaN(pricePaid) ? 0 : pricePaid,
+      pricePaid: pricePaid == null || isNaN(pricePaid) ? undefined : pricePaid,
     });
   },
 
@@ -59,6 +59,14 @@ const libraryService = {
 
     const { data } = await api.get(`${BASE_PATH}/${userId}/games`);
     return data;
+  },
+
+  /** Jogos já jogados (partidas reais), estejam ou não na biblioteca hoje. */
+  async getPlayedGames(userId: string) {
+    if (!userId) throw new Error("Invalid userId");
+
+    const { data } = await api.get(`${BASE_PATH}/${userId}/played-games`);
+    return data ?? [];
   },
 };
 

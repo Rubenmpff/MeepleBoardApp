@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import libraryService from "../services/libraryService";
-import { UserGameLibrary } from "../types/UserGameLibrary";
+import { UserGameLibrary, PlayedGame } from "../types/UserGameLibrary";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
 import { v4 as uuidv4 } from "uuid";
 
@@ -11,6 +11,12 @@ type RawLibraryEntry = {
   bggId: number;
   gameName: string;
   gameImageUrl?: string;
+  averageRating?: number;
+  minPlayers?: number;
+  maxPlayers?: number;
+  isExpansion?: boolean;
+  isCooperative?: boolean;
+  supportsSoloMode?: boolean;
   status: number;
   addedAt: string;
   lastPlayedAt?: string;
@@ -38,6 +44,12 @@ function adapt(raw: RawLibraryEntry): UserGameLibrary {
       name: raw.gameName,
       imageUrl: raw.gameImageUrl,
       bggId: Number(raw.bggId),
+      averageRating: raw.averageRating,
+      minPlayers: raw.minPlayers,
+      maxPlayers: raw.maxPlayers,
+      isExpansion: raw.isExpansion,
+      isCooperative: raw.isCooperative,
+      supportsSoloMode: raw.supportsSoloMode,
     },
   };
 }
@@ -68,21 +80,21 @@ export const fetchUserLibrary = createAsyncThunk<UserGameLibrary[], string>(
 
 export const addGameToLibrary = createAsyncThunk<
   UserGameLibrary,
-  { userId: string; gameId: string; gameName: string; status: GameLibraryStatus; pricePaid?: number }
+  { userId: string; gameId: string; bggId?: number; gameName: string; status: GameLibraryStatus; pricePaid?: number }
 >(
   "library/addGameToLibrary",
-  async ({ userId, gameId, gameName, status, pricePaid = 0 }) => {
+  async ({ userId, gameId, bggId, gameName, status, pricePaid }) => {
     await libraryService.addGameToLibrary(userId, gameId, gameName, status, pricePaid);
 
     return {
       id: uuidv4(),
       gameId,
-      bggId: 0,
+      bggId: bggId ?? 0,
       gameName,
       status,
       addedAt: new Date().toISOString(),
       pricePaid,
-      game: { id: gameId, name: gameName, imageUrl: undefined, bggId: 0 },
+      game: { id: gameId, name: gameName, imageUrl: undefined, bggId: bggId ?? 0 },
     };
   }
 );
@@ -95,17 +107,52 @@ export const removeGameFromLibrary = createAsyncThunk<
   return gameId;
 });
 
+export const updateGameInLibrary = createAsyncThunk<
+  { gameId: string; status: GameLibraryStatus; pricePaid?: number },
+  { userId: string; gameId: string; status: GameLibraryStatus; pricePaid?: number }
+>("library/updateGameInLibrary", async ({ userId, gameId, status, pricePaid }) => {
+  await libraryService.updateGameInLibrary(userId, gameId, status, pricePaid);
+  return { gameId, status, pricePaid };
+});
+
+export const fetchPlayedGames = createAsyncThunk<PlayedGame[], string>(
+  "library/fetchPlayedGames",
+  async (userId) => {
+    const raw = await libraryService.getPlayedGames(userId);
+    return raw.map((r: any) => ({
+      gameId: String(r.gameId),
+      gameName: r.gameName,
+      gameImageUrl: r.gameImageUrl,
+      averageRating: r.averageRating,
+      minPlayers: r.minPlayers,
+      maxPlayers: r.maxPlayers,
+      isExpansion: r.isExpansion,
+      isCooperative: r.isCooperative,
+      supportsSoloMode: r.supportsSoloMode,
+      timesPlayed: r.timesPlayed,
+      lastPlayedAt: r.lastPlayedAt,
+      inLibrary: r.inLibrary,
+      status: r.status,
+      pricePaid: r.pricePaid,
+    }));
+  }
+);
+
 // --- Estado ---
 type LibraryState = {
   items: UserGameLibrary[];
   loading: boolean;
   error: string | null;
+  playedGames: PlayedGame[];
+  playedGamesLoading: boolean;
 };
 
 const initialState: LibraryState = {
   items: [],
   loading: false,
   error: null,
+  playedGames: [],
+  playedGamesLoading: false,
 };
 
 // --- Slice ---
@@ -142,6 +189,24 @@ const librarySlice = createSlice({
       })
       .addCase(removeGameFromLibrary.fulfilled, (state, action) => {
         state.items = state.items.filter((g) => g.gameId !== action.payload);
+      })
+      .addCase(updateGameInLibrary.fulfilled, (state, action) => {
+        const { gameId, status, pricePaid } = action.payload;
+        const entry = state.items.find((g) => g.gameId === gameId);
+        if (entry) {
+          entry.status = status;
+          if (pricePaid !== undefined) entry.pricePaid = pricePaid;
+        }
+      })
+      .addCase(fetchPlayedGames.pending, (state) => {
+        state.playedGamesLoading = true;
+      })
+      .addCase(fetchPlayedGames.fulfilled, (state, action) => {
+        state.playedGames = action.payload;
+        state.playedGamesLoading = false;
+      })
+      .addCase(fetchPlayedGames.rejected, (state) => {
+        state.playedGamesLoading = false;
       });
   },
 });

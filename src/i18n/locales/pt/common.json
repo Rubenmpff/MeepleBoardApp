@@ -1,0 +1,13 @@
+{
+  "cancel": "Cancelar",
+  "save": "Guardar",
+  "back": "Voltar",
+  "loading": "A carregar...",
+  "error": "Erro",
+  "success": "Sucesso",
+  "confirm": "Confirmar",
+  "delete": "Eliminar",
+  "edit": "Editar",
+  "retry": "Tentar novamente",
+  "unknownError": "Ocorreu um erro inesperado."
+}

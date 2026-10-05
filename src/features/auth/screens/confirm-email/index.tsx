@@ -1,77 +1,222 @@
-import { useEffect, useState } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  View,
-  Text,
+  useEffect,
+  useState,
+} from "react";
+import {
   ActivityIndicator,
-  TouchableOpacity,
-  StyleSheet,
   Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import { authService } from "../../services/authService";
+import {
+  useLocalSearchParams,
+  useRouter,
+} from "expo-router";
+import { useTranslation } from "react-i18next";
+
 import { COLORS } from "@/src/constants/colors";
-import { Route } from "expo-router/build/Route";
 import { ROUTES } from "@/src/constants/routes";
+
+import { authService } from "../../services/authService";
+
+function getSingleParam(
+  value:
+    | string
+    | string[]
+    | undefined
+): string {
+  if (Array.isArray(value)) {
+    return value[0] ?? "";
+  }
+
+  return value ?? "";
+}
 
 export default function ConfirmEmailScreen() {
   const router = useRouter();
-  const { token, email } = useLocalSearchParams<{ token?: string; email?: string }>();
+  const { t } = useTranslation("auth");
 
-  const [loading, setLoading] = useState(true);
-  const [success, setSuccess] = useState<boolean | null>(null);
-  const [message, setMessage] = useState("");
+  const params =
+    useLocalSearchParams<{
+      token?: string | string[];
+      email?: string | string[];
+    }>();
+
+  const token = getSingleParam(
+    params.token
+  );
+
+  const email = getSingleParam(
+    params.email
+  );
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [success, setSuccess] =
+    useState<boolean | null>(null);
+
+  const [message, setMessage] =
+    useState("");
 
   useEffect(() => {
-    if (!token || !email) {
-      setMessage("Invalid confirmation link.");
-      setSuccess(false);
-      setLoading(false);
-      return;
-    }
+    let isMounted = true;
 
-    const confirmEmail = async () => {
+    async function confirmEmail() {
+      if (!token || !email) {
+        if (isMounted) {
+          setMessage(
+            t(
+              "confirmEmail.invalidLink"
+            )
+          );
+
+          setSuccess(false);
+          setLoading(false);
+        }
+
+        return;
+      }
+
       try {
-        const cleanedToken = decodeURIComponent(token).trim().replace(/\s/g, "+");
-        const response = await authService.confirmEmail(cleanedToken, email);
+        const cleanedToken =
+          decodeURIComponent(token)
+            .trim()
+            .replace(/\s/g, "+");
+
+        const response =
+          await authService.confirmEmail(
+            cleanedToken,
+            email.trim().toLowerCase()
+          );
+
+        if (!isMounted) {
+          return;
+        }
 
         if (response.success) {
-          setMessage("Your email has been confirmed! You can now log in.");
+          setMessage(
+            t("confirmEmail.success")
+          );
+
           setSuccess(true);
-        } else {
-          setMessage(response.message || "Confirmation failed. The link may have expired.");
+
+          return;
+        }
+
+        setMessage(
+          response.message ||
+            t("confirmEmail.failed")
+        );
+
+        setSuccess(false);
+      } catch (error) {
+        console.error(
+          "Erro ao confirmar o email:",
+          error
+        );
+
+        if (isMounted) {
+          setMessage(
+            t(
+              "confirmEmail.unexpectedError"
+            )
+          );
+
           setSuccess(false);
         }
-      } catch (error) {
-        setMessage("Something went wrong during email confirmation.");
-        setSuccess(false);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
+    }
+
+    void confirmEmail();
+
+    return () => {
+      isMounted = false;
     };
+  }, [email, t, token]);
 
-    confirmEmail();
-  }, [token, email]);
+  const iconName:
+  | "check-circle"
+  | "close-circle" =
+  success
+    ? "check-circle"
+    : "close-circle";
 
-  const iconName = success ? "checkcircle" : "closecircle";
-  const iconColor = success ? COLORS.success : COLORS.error;
-  const buttonLabel = success ? "Log in now" : "Try again";
+  const iconColor = success
+    ? COLORS.success
+    : COLORS.error;
+
+  const buttonLabel = success
+    ? t("confirmEmail.loginButton")
+    : t(
+        "confirmEmail.tryAgainButton"
+      );
 
   return (
     <View style={styles.container}>
-      <Image source={require('@/assets/MeepleBoardLogo.png')} style={styles.logo} />
-      <Text style={styles.title}>Email Confirmation</Text>
+      <Image
+        source={require("@/assets/MeepleBoardLogo.png")}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+
+      <Text style={styles.title}>
+        {t("confirmEmail.title")}
+      </Text>
 
       {loading ? (
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator
+          size="large"
+          color={COLORS.primary}
+        />
       ) : (
         <>
-          <AntDesign Antname={iconName} size={60} color={iconColor} style={styles.icon} />
-          <Text style={[styles.message, success ? styles.successText : styles.errorText]}>
+          <AntDesign
+            name={iconName}
+            size={60}
+            color={iconColor}
+            style={styles.icon}
+          />
+
+          <Text
+            style={[
+              styles.message,
+              success
+                ? styles.successText
+                : styles.errorText,
+            ]}
+          >
             {message}
           </Text>
-          <TouchableOpacity style={styles.button} onPress={() => router.replace(ROUTES.SIGN_IN)}>
-            <Text style={styles.buttonText}>{buttonLabel}</Text>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() =>
+              router.replace(
+                success
+                  ? ROUTES.SIGN_IN
+                  : "/welcome"
+              )
+            }
+            accessibilityRole="button"
+            accessibilityLabel={t(
+              "confirmEmail.buttonAccessibility"
+            )}
+          >
+            <Text
+              style={
+                styles.buttonText
+              }
+            >
+              {buttonLabel}
+            </Text>
           </TouchableOpacity>
         </>
       )}
@@ -85,48 +230,58 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: COLORS.background,
+    backgroundColor:
+      COLORS.background,
   },
+
   logo: {
     width: 120,
     height: 120,
     marginBottom: 20,
-    resizeMode: "contain",
   },
+
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: COLORS.onBackground,
     textAlign: "center",
     marginBottom: 20,
   },
+
   icon: {
     marginBottom: 15,
   },
+
   message: {
     fontSize: 16,
+    lineHeight: 22,
     textAlign: "center",
     marginBottom: 20,
     paddingHorizontal: 15,
   },
+
   successText: {
     color: COLORS.success,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
+
   errorText: {
     color: COLORS.error,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
+
   button: {
-    backgroundColor: COLORS.primary,
+    backgroundColor:
+      COLORS.primary,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
     width: "80%",
   },
+
   buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: "#FFFFFF",
+    fontWeight: "700",
     fontSize: 16,
   },
 });

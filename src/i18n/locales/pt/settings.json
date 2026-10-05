@@ -1,0 +1,19 @@
+{
+  "title": "Definições",
+  "subtitle": "Configura as tuas preferências.",
+  "language": {
+    "title": "Idioma",
+    "description": "Escolhe o idioma utilizado na aplicação.",
+    "system": "Idioma do dispositivo",
+    "portuguese": "Português",
+    "english": "English",
+    "changeError": "Não foi possível alterar o idioma."
+  },
+  "backToDashboard": "Voltar ao início",
+  "logout": {
+    "button": "Terminar sessão",
+    "title": "Terminar sessão",
+    "confirmation": "Tens a certeza de que pretendes terminar a sessão?",
+    "error": "Não foi possível terminar a sessão."
+  }
+}

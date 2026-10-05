@@ -1,0 +1,67 @@
+{
+  "screen": {
+    "title": "🎲 A minha biblioteca",
+    "addGame": "Adicionar jogo",
+    "inCollection": "Na coleção",
+    "wishlist": "Lista de desejos",
+    "played": "Jogados",
+    "totalSpent": "💰 Total gasto:",
+    "empty": "Não foram encontrados jogos para este filtro.",
+    "retry": "Tentar novamente",
+    "invalidEntry": "Entrada de jogo inválida",
+    "removeTitle": "Remover jogo",
+    "removeConfirm": "Tens a certeza de que queres remover este jogo da tua biblioteca?",
+    "cancel": "Cancelar",
+    "remove": "Remover"
+  },
+  "filters": {
+    "all": "Todos",
+    "collection": "Coleção",
+    "wishlist": "Desejos",
+    "played": "Jogados"
+  },
+  "card": {
+    "notLoaded": "⚠️ Jogo não carregado",
+    "status": "Estado: {{status}}",
+    "year": "Ano: {{year}}",
+    "pricePaid": "Preço pago: {{price}} €",
+    "gifted": "Oferecido (0 €)",
+    "remove": "🗑 Remover",
+    "removeTitle": "Remover jogo",
+    "removeConfirm": "Queres remover \"{{name}}\" da tua biblioteca?"
+  },
+  "status": {
+    "owned": "Tenho",
+    "played": "Jogado",
+    "wishlist": "Lista de desejos",
+    "unknown": "Desconhecido"
+  },
+  "addModal": {
+    "title": "Adicionar \"{{name}}\"",
+    "addLibrary": "Adicionar à biblioteca",
+    "addWishlistSoon": "Adicionar à lista de desejos (em breve)",
+    "addPlayedSoon": "Adicionar aos jogos já jogados (em breve)",
+    "priceLabel": "Preço pago (€)",
+    "pricePlaceholder": "Ex.: 35,50",
+    "giftNote": "Introduz 0 caso tenha sido oferecido",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "backAccessibility": "Voltar"
+  },
+  "manageModal": {
+    "title": "Gerir entrada: \"{{name}}\"",
+    "invalid": "Este jogo não pode ser gerido porque não tem um ID válido.",
+    "remove": "Remover",
+    "close": "Fechar",
+    "confirmTitle": "Remover jogo",
+    "confirmMessage": "Tens a certeza de que queres remover \"{{name}}\" da tua biblioteca?",
+    "cancel": "Cancelar",
+    "success": "\"{{name}}\" foi removido da tua biblioteca",
+    "errorTitle": "Não foi possível remover o jogo",
+    "errorDescription": "Tenta novamente mais tarde."
+  },
+  "toast": {
+    "loadErrorTitle": "Erro",
+    "loadErrorDescription": "Não foi possível carregar a tua biblioteca de jogos."
+  }
+}

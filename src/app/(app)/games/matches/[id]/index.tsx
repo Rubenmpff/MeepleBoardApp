@@ -1,0 +1,1 @@
+export { default } from "@/src/features/games/matches/screens/MatchDetailScreen";

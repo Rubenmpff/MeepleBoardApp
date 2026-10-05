@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getLastMatch } from "@/src/features/games/services/matchService";
-import { LastMatch } from "../../games/types/MatchForm";
+import { getLastMatch } from "@/src/features/games/matches/services/matchService";
+import { LastMatch } from "../../games/matches/types/MatchForm";
 
 export const useLastMatch = () => {
   const [data, setData] = useState<LastMatch | null>(null);

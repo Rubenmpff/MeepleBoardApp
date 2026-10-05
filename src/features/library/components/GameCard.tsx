@@ -1,17 +1,44 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, Animated } from "react-native";
-import { Game } from "@/src/features/games/types/Game";
-import { GameLibraryStatus } from "@/src/features/library/types/GameLibraryStatus";
+import {
+  Animated,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useTranslation } from "react-i18next";
+import { MaterialIcons } from "@expo/vector-icons";
+
 import { COLORS } from "@/src/constants/colors";
+import { Game } from "@/src/features/games/catalog/types/Game";
+import { GameLibraryStatus } from "@/src/features/library/types/GameLibraryStatus";
 
 interface Props {
   game?: Game;
-  status: GameLibraryStatus;
+  status?: GameLibraryStatus;
   pricePaid?: number;
+  totalTimesPlayed?: number;
+  showStatusBadge?: boolean;
   onRemove?: () => void;
+  onManage?: () => void;
 }
 
-export function GameCard({ game, status, pricePaid, onRemove }: Props) {
+const STATUS_META: Record<number, { label: string; icon: string; color: string }> = {
+  [GameLibraryStatus.Owned]: { label: "Tenho o jogo", icon: "📦", color: COLORS.primary },
+  [GameLibraryStatus.Wishlist]: { label: "Quero jogar", icon: "❤️", color: COLORS.secondary ?? "#e91e63" },
+};
+
+export function GameCard({
+  game,
+  status,
+  pricePaid,
+  totalTimesPlayed = 0,
+  showStatusBadge = true,
+  onRemove,
+  onManage,
+}: Props) {
+  const { t, i18n } = useTranslation("library");
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -20,59 +47,82 @@ export function GameCard({ game, status, pricePaid, onRemove }: Props) {
       duration: 300,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [fadeAnim]);
+
+  const statusMeta = STATUS_META[status] ?? { label: t("status.unknown"), icon: "❔", color: COLORS.textMuted };
+  const hasPlayed = totalTimesPlayed > 0;
 
   if (!game) {
-    console.warn("⚠️ GameCard received undefined game:", { status });
     return (
       <View style={[styles.card, styles.errorCard]}>
-        <Text style={[styles.title, styles.errorText]}>⚠️ Game not loaded</Text>
-        <Text style={styles.status}>Status: {getStatusLabel(status)}</Text>
+        <Text style={[styles.title, styles.errorText]}>{t("card.notLoaded")}</Text>
       </View>
     );
   }
 
-  const handleRemove = () => {
-    Alert.alert(
-      "Remove Game",
-      `Do you want to remove "${game.name}" from your library?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: onRemove,
-        },
-      ]
-    );
-  };
-
-  const borderColor = pricePaid === 0 ? COLORS.success : pricePaid ? COLORS.secondary : "#ccc";
+  const locale = i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB";
 
   return (
-    <Animated.View style={[styles.card, { borderColor, opacity: fadeAnim }]}>
-      {game.imageUrl ? (
-        <Image source={{ uri: game.imageUrl }} style={styles.image} />
-      ) : (
-        <View style={[styles.image, styles.imagePlaceholder]}>
-          <Text style={styles.imagePlaceholderText}>🎲</Text>
-        </View>
-      )}
+    <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+      <TouchableOpacity
+        style={styles.cardTouchable}
+        onPress={onManage}
+        activeOpacity={onManage ? 0.85 : 1}
+      >
+        {game.imageUrl ? (
+          <Image source={{ uri: game.imageUrl }} style={styles.image} />
+        ) : (
+          <View style={[styles.image, styles.imagePlaceholder]}>
+            <Text style={styles.imagePlaceholderText}>🎲</Text>
+          </View>
+        )}
 
-      <View style={styles.info}>
-        <Text style={styles.title} numberOfLines={1}>
-          {game.name}
-        </Text>
-        {game.yearPublished && <Text style={styles.subtitle}>Year: {game.yearPublished}</Text>}
-        <Text style={styles.status}>Status: {getStatusLabel(status)}</Text>
-        {typeof pricePaid === "number" && (
-          <Text style={styles.price}>
-            {pricePaid > 0 ? `Price Paid: €${pricePaid.toFixed(2)}` : "Offered (0€)"}
-          </Text>
+        <View style={styles.info}>
+          <Text style={styles.title} numberOfLines={1}>{game.name}</Text>
+          {game.yearPublished && (
+            <Text style={styles.subtitle}>{game.yearPublished}</Text>
+          )}
+
+          <View style={styles.badgesRow}>
+            {showStatusBadge && status != null && (
+              <View style={[styles.badge, { backgroundColor: statusMeta.color + "16", borderColor: statusMeta.color + "40" }]}>
+                <Text style={styles.badgeEmoji}>{statusMeta.icon}</Text>
+                <Text style={[styles.badgeText, { color: statusMeta.color }]}>{statusMeta.label}</Text>
+              </View>
+            )}
+
+            {typeof pricePaid === "number" && (
+              <View style={[styles.badge, styles.priceBadge]}>
+                <Text style={styles.badgeEmoji}>{pricePaid > 0 ? "💰" : "🎁"}</Text>
+                <Text style={[styles.badgeText, { color: COLORS.success ?? "#2e7d32" }]}>
+                  {pricePaid > 0
+                    ? new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(pricePaid)
+                    : t("card.gifted")}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {hasPlayed && (
+            <View style={styles.playedRow}>
+              <MaterialIcons name="check-circle" size={14} color={COLORS.success ?? "#2e7d32"} />
+              <Text style={styles.playedText}>
+                Já jogaste {totalTimesPlayed}x
+              </Text>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+
+      <View style={styles.actionsCol}>
+        {onManage && (
+          <TouchableOpacity style={styles.iconBtn} onPress={onManage}>
+            <MaterialIcons name="edit" size={16} color={COLORS.primary} />
+          </TouchableOpacity>
         )}
         {onRemove && (
-          <TouchableOpacity onPress={handleRemove} style={styles.removeBtn}>
-            <Text style={styles.removeText}>🗑 Remove</Text>
+          <TouchableOpacity style={[styles.iconBtn, styles.iconBtnDanger]} onPress={onRemove}>
+            <MaterialIcons name="delete-outline" size={16} color={COLORS.error} />
           </TouchableOpacity>
         )}
       </View>
@@ -80,85 +130,62 @@ export function GameCard({ game, status, pricePaid, onRemove }: Props) {
   );
 }
 
-function getStatusLabel(status: GameLibraryStatus): string {
-  switch (status) {
-    case GameLibraryStatus.Owned:
-      return "Owned";
-    case GameLibraryStatus.Played:
-      return "Played";
-    case GameLibraryStatus.Wishlist:
-      return "Wishlist";
-    default:
-      return "Unknown";
-  }
-}
-
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
-    backgroundColor: "#fff",
-    padding: 14,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-    borderWidth: 2, // <--- para destacar borda
-  },
-  errorCard: {
-    backgroundColor: "#ffe6e6",
-  },
-  errorText: {
-    color: COLORS.error,
-  },
-  image: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
-    marginRight: 14,
+    alignItems: "flex-start",
     backgroundColor: COLORS.surface,
+    padding: 12,
+    borderRadius: 16,
+    marginBottom: 12,
+    shadowColor: "#000000",
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
-  imagePlaceholder: {
-    alignItems: "center",
-    justifyContent: "center",
+
+  cardTouchable: { flex: 1, flexDirection: "row" },
+
+  errorCard: { backgroundColor: "#FFE6E6" },
+  errorText: { color: COLORS.error },
+
+  image: {
+    width: 72,
+    height: 72,
+    borderRadius: 12,
+    marginRight: 12,
+    backgroundColor: COLORS.background,
   },
-  imagePlaceholderText: {
-    fontSize: 28,
-    color: "#bbb",
+
+  imagePlaceholder: { alignItems: "center", justifyContent: "center" },
+  imagePlaceholderText: { fontSize: 26, color: "#BBBBBB" },
+
+  info: { flex: 1, justifyContent: "center", gap: 4 },
+
+  title: { fontSize: 15, fontWeight: "700", color: COLORS.onBackground },
+  subtitle: { fontSize: 12, color: "#888" },
+
+  badgesRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 4 },
+  badge: {
+    flexDirection: "row", alignItems: "center", gap: 4,
+    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999,
+    borderWidth: 1,
   },
-  info: {
-    flex: 1,
-    justifyContent: "space-between",
+  priceBadge: { backgroundColor: (COLORS.success ?? "#2e7d32") + "14", borderColor: (COLORS.success ?? "#2e7d32") + "35" },
+  badgeEmoji: { fontSize: 11 },
+  badgeText: { fontSize: 11, fontWeight: "700" },
+
+  playedRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 4 },
+  playedText: { fontSize: 12, color: COLORS.success ?? "#2e7d32", fontWeight: "600" },
+
+  actionsCol: { gap: 6, marginLeft: 6 },
+  iconBtn: {
+    width: 30, height: 30, borderRadius: 15,
+    alignItems: "center", justifyContent: "center",
+    backgroundColor: COLORS.primary + "12",
   },
-  title: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: COLORS.onBackground,
-  },
-  subtitle: {
-    fontSize: 13,
-    color: "#666",
-    marginTop: 2,
-  },
-  status: {
-    fontSize: 13,
-    color: COLORS.primary,
-    marginTop: 2,
-  },
-  price: {
-    fontSize: 13,
-    color: COLORS.secondary,
-    marginTop: 2,
-    fontWeight: "600",
-  },
-  removeBtn: {
-    marginTop: 8,
-    alignSelf: "flex-start",
-  },
-  removeText: {
-    fontSize: 13,
-    color: COLORS.error,
-    fontWeight: "bold",
-  },
+  iconBtnDanger: { backgroundColor: COLORS.error + "12" },
 });

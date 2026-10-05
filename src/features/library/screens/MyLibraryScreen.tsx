@@ -1,229 +1,289 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  View,
-  Text,
   FlatList,
-  ActivityIndicator,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
   RefreshControl,
-  Animated
+  StyleSheet,
+  View,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import {
+  SafeAreaView,
+} from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
-import { GameCard } from "../components/GameCard";
 import { COLORS } from "@/src/constants/colors";
-import { GameLibraryStatus } from "@/src/features/library/types/GameLibraryStatus";
+
+import { CollectionHeader } from "../components/CollectionHeader";
+import { CollectionSearchBar } from "../components/CollectionSearchBar";
+import { CollectionTabs, CollectionTab } from "../components/CollectionTabs";
+import { CollectionToolbar } from "../components/CollectionToolbar";
+import { CollectionFiltersSheet } from "../components/CollectionFiltersSheet";
+import { CollectionSortSheet } from "../components/CollectionSortSheet";
+import { ActiveFilterChips } from "../components/ActiveFilterChips";
+import { CollectionGridCard } from "../components/CollectionGridCard";
+import { CollectionListItem } from "../components/CollectionListItem";
+import { CollectionEmptyState } from "../components/CollectionEmptyState";
+import { CollectionSkeleton } from "../components/CollectionSkeleton";
+import { CollectionGameActionsSheet } from "../components/CollectionGameActionsSheet";
+import { CollectionHighlight } from "../components/CollectionHighlight";
+import { CollectionFadeIn } from "../components/CollectionFadeIn";
+import ManageLibraryEntryModal from "../components/ManageLibraryEntryModal";
+
+import { useLibraryActions } from "../hooks/useLibraryActions";
 import { useUserLibrary } from "../hooks/useUserLibrary";
-import { useUser } from "@/src/features/users/hooks/useUser";
-import { useLibraryActions } from "@/src/features/library/hooks/useLibraryActions";
+import { usePlayedGames } from "../hooks/usePlayedGames";
+import { useViewModePreference } from "../hooks/useViewModePreference";
+import { GameLibraryStatus } from "../types/GameLibraryStatus";
+import { UserGameLibrary } from "../types/UserGameLibrary";
+import {
+  buildCollectionEntries, CollectionEntry, CollectionFilters, EMPTY_FILTERS,
+  countActiveFilters, applyFilters, sortEntries, sortOptionsForTab, SortOption,
+} from "../utils/collectionHelpers";
+import { ROUTES } from "@/src/constants/routes";
 
 export default function MyLibraryScreen() {
-  const insets = useSafeAreaInsets();
-  const { user } = useUser();
   const { library = [], loading, error, refetch } = useUserLibrary();
-  const { removeGame } = useLibraryActions();
+  const { playedGames, loading: playedLoading } = usePlayedGames();
+  const { removeGame, updateGame } = useLibraryActions();
+  const { viewMode, setViewMode } = useViewModePreference();
 
-  const [activeFilter, setActiveFilter] = useState<"ALL" | GameLibraryStatus>("ALL");
+  const [activeTab, setActiveTab] = useState<CollectionTab>("ALL");
+  const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [manageEntry, setManageEntry] = useState<UserGameLibrary | null>(null);
+  const [actionsEntry, setActionsEntry] = useState<CollectionEntry | null>(null);
 
-  const filteredLibrary = useMemo(
-    () =>
-      activeFilter === "ALL"
-        ? library
-        : library.filter((g) => g.status === activeFilter),
-    [library, activeFilter]
+  const [filters, setFilters] = useState<CollectionFilters>(EMPTY_FILTERS);
+  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [sortVisible, setSortVisible] = useState(false);
+
+  const availableSorts = useMemo(() => sortOptionsForTab(activeTab), [activeTab]);
+  const [sort, setSort] = useState<SortOption>(availableSorts[0]);
+
+  // Se mudares de separador e a ordenação atual já não fizer sentido lá, volta à 1ª opção válida
+  useEffect(() => {
+    if (!availableSorts.includes(sort)) setSort(availableSorts[0]);
+  }, [availableSorts, sort]);
+
+  const allEntries = useMemo(
+    () => buildCollectionEntries(library, playedGames),
+    [library, playedGames]
   );
 
-  const counters = useMemo(() => {
-    const owned = library.filter((g) => g.status === GameLibraryStatus.Owned);
+  const counts = useMemo(() => {
+    const owned = library.filter((e) => e.status === GameLibraryStatus.Owned);
     return {
+      total: allEntries.length,
       owned: owned.length,
-      wishlist: library.filter((g) => g.status === GameLibraryStatus.Wishlist).length,
-      played: library.filter((g) => g.status === GameLibraryStatus.Played).length,
-      totalSpent: owned.reduce((sum, g) => sum + (g.pricePaid ?? 0), 0),
+      wishlist: library.filter((e) => e.status === GameLibraryStatus.Wishlist).length,
+      played: playedGames.length,
+      totalSpent: owned.reduce((sum, e) => sum + (e.pricePaid ?? 0), 0),
     };
-  }, [library]);
+  }, [allEntries, library, playedGames]);
 
-  const handleRemoveGame = useCallback(
-    (gameId: string) => {
-      if (!user?.id) return console.warn("⚠️ handleRemoveGame: user.id is undefined.");
+  const tabFiltered = useMemo(() => {
+    if (activeTab === "ALL") return allEntries;
+    if (activeTab === "PLAYED") return allEntries.filter((e) => e.timesPlayed > 0);
+    return allEntries.filter((e) => e.status === activeTab);
+  }, [allEntries, activeTab]);
 
-      Alert.alert(
-        "Remover Jogo",
-        "Tens a certeza que queres remover este jogo da tua biblioteca?",
-        [
-          { text: "Cancelar", style: "cancel" },
-          {
-            text: "Remover",
-            style: "destructive",
-            onPress: async () => {
-              try {
-                await removeGame(gameId);
-              } catch (err) {
-                console.error("❌ Failed to remove game:", err);
-              }
-            },
-          },
-        ]
-      );
+  const searchFiltered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return tabFiltered;
+    return tabFiltered.filter((e) => e.gameName.toLowerCase().includes(query));
+  }, [tabFiltered, search]);
+
+  const filterCount = useMemo(() => countActiveFilters(filters), [filters]);
+
+  const visibleEntries = useMemo(() => {
+    const filtered = applyFilters(searchFiltered, filters);
+    return sortEntries(filtered, sort);
+  }, [searchFiltered, filters, sort]);
+
+  const handlePrimaryAction = useCallback(
+    async (entry: CollectionEntry) => {
+      if (entry.status === GameLibraryStatus.Wishlist) {
+        try {
+          await updateGame(entry.gameId, GameLibraryStatus.Owned, entry.pricePaid);
+          Toast.show({ type: "success", text1: `Agora tens ${entry.gameName} 🎉` });
+        } catch (err) {
+          console.error("Erro ao mover para a coleção:", err);
+          Toast.show({ type: "error", text1: "Não foi possível adicionar à coleção." });
+        }
+        return;
+      }
+
+      // ⚠️ Dependência: registar partida ainda não aceita um jogo
+      // pré-selecionado por parâmetro — navega para o ecrã genérico.
+      router.push(ROUTES.REGISTER_MATCH as any);
     },
-    [user?.id, removeGame]
+    [updateGame]
   );
 
-  const onRefresh = async () => {
+  const handleCardPress = useCallback((entry: CollectionEntry) => {
+    router.push({ pathname: ROUTES.GAME_DETAILS, params: { id: entry.gameId } });
+  }, []);
+
+  const openManageModal = useCallback(
+    (entry: CollectionEntry) => {
+      if (!entry.libraryEntryId) return;
+      const fullEntry = library.find((e) => e.id === entry.libraryEntryId);
+      if (fullEntry) setManageEntry(fullEntry);
+    },
+    [library]
+  );
+
+  const handleLongPress = useCallback(
+    (entry: CollectionEntry) => openManageModal(entry),
+    [openManageModal]
+  );
+
+  async function onRefresh() {
     setRefreshing(true);
-    await refetch();
-    setRefreshing(false);
-  };
-
-  const renderItem = ({ item, index }: any) => (
-    <AnimatedGameCard
-      index={index}
-      game={item.game}
-      status={item.status}
-      pricePaid={item.pricePaid}
-      onRemove={() => handleRemoveGame(item.gameId)}
-    />
-  );
-
-  if (loading && library.length === 0) {
-    return <ActivityIndicator style={styles.loader} color={COLORS.primary} />;
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
   }
 
-  if (error) {
-    return (
-      <View style={styles.centered}>
-        <Text style={styles.error}>{error}</Text>
-        <TouchableOpacity onPress={refetch} style={styles.retryBtn}>
-          <Text style={styles.retryText}>Try Again</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  const isLoading = (loading || playedLoading) && allEntries.length === 0;
+
+  const emptyVariant =
+    filterCount > 0 ? "filters" :
+    search.trim() ? "search" :
+    activeTab === GameLibraryStatus.Wishlist ? "wishlist" :
+    activeTab === "PLAYED" ? "played" : "collection";
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={styles.title}>🎲 My Library</Text>
-        <TouchableOpacity style={styles.addGameBtn} onPress={() => router.push("/games/search")}>
-          <Ionicons name="add-outline" size={18} color="#fff" />
-          <Text style={styles.addGameText}>Add Game</Text>
-        </TouchableOpacity>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right", "bottom"]}>
+      <View style={styles.content}>
+        <CollectionHeader
+          totalCount={counts.total}
+          ownedCount={counts.owned}
+          wishlistCount={counts.wishlist}
+          playedCount={counts.played}
+          totalSpent={counts.totalSpent}
+          activeFilter={activeTab}
+          onAddPress={() => router.push("/games/search")}
+        />
+
+        <CollectionSearchBar value={search} onChangeText={setSearch} />
+
+        <CollectionTabs active={activeTab} onChange={setActiveTab} />
+
+        <CollectionToolbar
+          viewMode={viewMode}
+          onChangeViewMode={setViewMode}
+          activeFilterCount={filterCount}
+          onFiltersPress={() => setFiltersVisible(true)}
+          sort={sort}
+          onSortPress={() => setSortVisible(true)}
+        />
+
+        <ActiveFilterChips
+          filters={filters}
+          onChange={setFilters}
+          onClearAll={() => setFilters(EMPTY_FILTERS)}
+        />
+
+        {activeTab === "ALL" && !search.trim() && filterCount === 0 && (
+          <CollectionHighlight
+            entries={allEntries}
+            onViewGame={handleCardPress}
+            onRegisterMatch={handlePrimaryAction}
+          />
+        )}
+
+        {isLoading ? (
+          <CollectionSkeleton viewMode={viewMode} />
+        ) : visibleEntries.length === 0 ? (
+          <CollectionEmptyState
+            variant={emptyVariant as any}
+            onActionPress={
+              filterCount > 0 ? () => setFilters(EMPTY_FILTERS) :
+              search.trim() ? () => setSearch("") :
+              () => router.push("/games/search")
+            }
+          />
+        ) : (
+          <FlatList
+            key={viewMode} // força novo layout ao trocar grelha/lista
+            data={visibleEntries}
+            keyExtractor={(item) => item.gameId}
+            numColumns={viewMode === "grid" ? 2 : 1}
+            columnWrapperStyle={viewMode === "grid" ? styles.gridColumnWrap : undefined}
+            renderItem={({ item, index }) =>
+              viewMode === "grid" ? (
+                <View style={styles.gridItemWrap}>
+                  <CollectionFadeIn index={index}>
+                    <CollectionGridCard
+                      entry={item}
+                      onPress={() => handleCardPress(item)}
+                      onLongPress={() => handleLongPress(item)}
+                      onPrimaryAction={() => handlePrimaryAction(item)}
+                      onMenuPress={() => setActionsEntry(item)}
+                    />
+                  </CollectionFadeIn>
+                </View>
+              ) : (
+                <CollectionFadeIn index={index}>
+                  <CollectionListItem
+                    entry={item}
+                    onPress={() => handleCardPress(item)}
+                    onLongPress={() => handleLongPress(item)}
+                    onPrimaryAction={() => handlePrimaryAction(item)}
+                    onMenuPress={() => setActionsEntry(item)}
+                  />
+                </CollectionFadeIn>
+              )
+            }
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+            }
+            contentContainerStyle={styles.listContent}
+          />
+        )}
       </View>
 
-      <View style={styles.summaryRow}>
-        <Stat label="In Collection" value={counters.owned} icon="albums-outline" />
-        <Stat label="Wishlist" value={counters.wishlist} icon="heart-outline" />
-        <Stat label="Played" value={counters.played} icon="game-controller-outline" />
-      </View>
-
-      <Text style={styles.totalSpent}>
-        💰 Total Spent: <Text style={styles.totalSpentValue}>€{counters.totalSpent.toFixed(2)}</Text>
-      </Text>
-
-      <FilterBar active={activeFilter} onChange={setActiveFilter} />
-
-      {filteredLibrary.length === 0 ? (
-        <Text style={styles.empty}>No games found for this filter.</Text>
-      ) : (
-        <FlatList
-          data={filteredLibrary}
-          keyExtractor={(item, index) => `${item.id}-${index}`}
-          renderItem={renderItem}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-          contentContainerStyle={{ paddingBottom: 24 }}
+      {manageEntry?.game && (
+        <ManageLibraryEntryModal
+          visible
+          onClose={() => setManageEntry(null)}
+          game={manageEntry.game}
+          entry={manageEntry}
         />
       )}
+
+      <CollectionGameActionsSheet
+        visible={!!actionsEntry}
+        entry={actionsEntry}
+        onClose={() => setActionsEntry(null)}
+        onEdit={(entry) => openManageModal(entry)}
+      />
+
+      <CollectionFiltersSheet
+        visible={filtersVisible}
+        filters={filters}
+        onApply={setFilters}
+        onClose={() => setFiltersVisible(false)}
+      />
+
+      <CollectionSortSheet
+        visible={sortVisible}
+        options={availableSorts}
+        active={sort}
+        onSelect={setSort}
+        onClose={() => setSortVisible(false)}
+      />
     </SafeAreaView>
   );
 }
 
-const AnimatedGameCard = ({ index, game, status, pricePaid, onRemove }: any) => {
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 250,
-      delay: index * 50,
-      useNativeDriver: true,
-    }).start();
-  }, []);
-  return (
-    <Animated.View style={{ opacity: fadeAnim }}>
-      {game ? (
-        <GameCard game={game} status={status} pricePaid={pricePaid} onRemove={onRemove} />
-      ) : (
-        <Text style={styles.error}>Invalid game entry</Text>
-      )}
-    </Animated.View>
-  );
-};
-
-const FilterBar = ({ active, onChange }: { active: "ALL" | GameLibraryStatus; onChange: (v: "ALL" | GameLibraryStatus) => void; }) => {
-  const items = [
-    { label: "All", value: "ALL" as const, icon: "grid-outline" },
-    { label: "Collection", value: GameLibraryStatus.Owned, icon: "albums-outline" },
-    { label: "Wishlist", value: GameLibraryStatus.Wishlist, icon: "heart-outline" },
-    { label: "Played", value: GameLibraryStatus.Played, icon: "game-controller-outline" },
-  ];
-
-  return (
-    <View style={styles.filterRow}>
-      {items.map((it, idx) => {
-        const isActive = active === it.value;
-        return (
-          <TouchableOpacity
-            key={`${it.value}-${idx}`}
-            style={[styles.filterBtn, isActive && styles.filterBtnActive]}
-            onPress={() => onChange(it.value)}
-          >
-            <Ionicons
-              name={it.icon as any}
-              size={16}
-              color={isActive ? "#fff" : COLORS.onBackground}
-            />
-            <Text style={[styles.filterText, isActive && styles.filterTextActive]}>{it.label}</Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-  );
-};
-
-const Stat = ({ label, value, icon }: { label: string; value: number; icon: string }) => (
-  <View style={styles.statBox}>
-    <Ionicons name={icon as any} size={18} color={COLORS.primary} />
-    <Text style={styles.statValue}>{value}</Text>
-    <Text style={styles.statLabel}>{label}</Text>
-  </View>
-);
-
-/* ---------- Styles ---------- */
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 16, backgroundColor: COLORS.background },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
-  title: { fontSize: 22, fontWeight: "bold", color: COLORS.primary },
-  addGameBtn: { flexDirection: "row", alignItems: "center", backgroundColor: COLORS.primary, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, gap: 4 },
-  addGameText: { color: "#fff", fontWeight: "600" },
-  loader: { marginTop: 40 },
-  centered: { flex: 1, justifyContent: "center", alignItems: "center" },
-  summaryRow: { flexDirection: "row", justifyContent: "space-around", marginBottom: 8, marginTop: 8 },
-  statBox: { alignItems: "center" },
-  statValue: { fontSize: 18, fontWeight: "bold", color: COLORS.primary },
-  statLabel: { fontSize: 12, color: COLORS.onBackground },
-  totalSpent: { fontSize: 16, fontWeight: "500", color: COLORS.onBackground, textAlign: "center", marginBottom: 12 },
-  totalSpentValue: { fontWeight: "bold", color: COLORS.secondary },
-  filterRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 12 },
-  filterBtn: { flex: 1, paddingVertical: 8, marginHorizontal: 4, borderRadius: 20, backgroundColor: COLORS.surface, alignItems: "center", flexDirection: "row", justifyContent: "center", gap: 6 },
-  filterBtnActive: { backgroundColor: COLORS.primary },
-  filterText: { fontSize: 13, color: COLORS.onBackground },
-  filterTextActive: { color: "#fff", fontWeight: "bold" },
-  empty: { textAlign: "center", marginTop: 40, fontSize: 16, color: "#888" },
-  error: { color: COLORS.error, fontSize: 16, textAlign: "center" },
-  retryBtn: { marginTop: 12, paddingHorizontal: 16, paddingVertical: 8, backgroundColor: COLORS.primary, borderRadius: 8 },
-  retryText: { color: "#fff", fontWeight: "bold" },
+  container: { flex: 1, backgroundColor: COLORS.background },
+  content: { flex: 1, paddingHorizontal: 16, paddingTop: 12 },
+  gridColumnWrap: { gap: 12 },
+  gridItemWrap: { flex: 1, marginBottom: 12 },
+  listContent: { paddingBottom: 24 },
 });

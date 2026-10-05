@@ -1,0 +1,21 @@
+{
+  "home": "Home",
+  "gameSearch": "Game Search",
+  "inbox": "Inbox",
+  "calendar": "Calendar",
+  "library": "My Library",
+  "activity": "Activity",
+  "settings": "Settings",
+  "profile": "Profile",
+  "friends": "Friends",
+  "games": "Games",
+  "sessions": "Sessions",
+  "campaigns": "Campaigns",
+  "matches": "Matches",
+  "welcome": "Welcome! 🚀",
+  "projectsDemo": "Projects (demo)",
+  "personal": "Personal",
+  "travel": "Travel",
+  "business": "Business",
+  "logout": "Log out"
+}

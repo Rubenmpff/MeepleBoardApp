@@ -1,0 +1,209 @@
+{
+  "common": {
+    "error": "Erro",
+    "ok": "OK",
+    "yes": "Sim",
+    "no": "Não",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "remove": "Remover",
+    "member": "Membro",
+    "you": "Tu",
+    "comingSoon": "Em breve"
+  },
+
+  "status": {
+    "active": "Ativa",
+    "completed": "Concluída",
+    "abandoned": "Abandonada"
+  },
+
+  "memberStatus": {
+    "pending": "Pendente",
+    "accepted": "Membro",
+    "declined": "Recusou",
+    "removed": "Removido",
+    "left": "Saiu"
+  },
+
+  "create": {
+    "title": "Nova Campanha",
+    "selectGame": "Escolhe o jogo *",
+    "details": "Detalhes da campanha",
+    "name": "Nome *",
+    "namePlaceholder": "Ex.: Gloomhaven — Grupo do Ruben",
+    "nameMinimum": "O nome deve ter pelo menos 2 caracteres.",
+    "notes": "Notas iniciais (opcional)",
+    "notesPlaceholder": "Estado do mundo, personagens, objetivos...",
+    "information": "Depois de criares a campanha, podes convidar membros, associar partidas e permitir que cada jogador escreva as suas notas e avaliações.",
+    "button": "Criar campanha",
+
+    "missingGameTitle": "Jogo em falta",
+    "missingGameMessage": "Escolhe primeiro o jogo desta campanha.",
+
+    "successTitle": "Campanha criada!",
+    "successMessage": "Podes convidar membros e associar partidas.",
+
+    "errorFallback": "Não foi possível criar a campanha."
+  },
+
+  "list": {
+    "title": "Campanhas",
+    "new": "Nova",
+    "none": "Nenhuma campanha ainda",
+    "activeCount_one": "{{count}} campanha ativa",
+    "activeCount_other": "{{count}} campanhas ativas",
+
+    "emptyTitle": "Sem campanhas ainda",
+    "emptyMessage": "Cria uma campanha para acompanhar\nas tuas aventuras de jogo!",
+    "createFirst": "Criar primeira campanha",
+
+    "sections": {
+      "active": "Ativas",
+      "completed": "Concluídas",
+      "abandoned": "Abandonadas"
+    },
+
+    "matches_one": "{{count}} partida",
+    "matches_other": "{{count}} partidas",
+
+    "loadError": "Não foi possível carregar as campanhas."
+  },
+
+  "detail": {
+    "notFound": "Campanha não encontrada.",
+    "loadError": "Não foi possível carregar a campanha.",
+
+    "invite": {
+      "title": "Foste convidado para esta campanha!",
+      "message": "Aceita para participar nas aventuras do grupo.",
+      "accept": "Aceitar",
+      "decline": "Recusar"
+    },
+
+    "actions": {
+      "complete": "Concluir",
+      "completeTitle": "Concluir campanha",
+      "completeConfirm": "Tens a certeza de que queres concluir esta campanha?",
+
+      "abandon": "Abandonar",
+      "abandonTitle": "Abandonar campanha",
+      "abandonConfirm": "Esta ação não pode ser desfeita."
+    },
+
+    "tabs": {
+      "sessions": "Sessões ({{count}})",
+      "members": "Membros ({{count}})",
+      "notes": "Notas"
+    },
+
+    "sessions": {
+      "newEncounter": "Novo encontro",
+      "emptyTitle": "Sem sessões ainda",
+      "emptyMessage": "Regista o primeiro encontro da campanha!",
+      "session": "Sessão {{number}}",
+      "encounter": "Encontro",
+
+      "ratings_one": "{{count}} avaliação",
+      "ratings_other": "{{count}} avaliações",
+
+      "evaluate": "Avaliar",
+      "editRating": "Editar avaliação",
+      "yourRating": "A tua avaliação",
+      "rating": "Avaliação",
+      "notes": "Notas",
+      "notesPlaceholder": "O que achaste desta sessão?",
+      "tags": "Tags",
+      "tagsPlaceholder": "épico, reviravolta, difícil...",
+      "saveRating": "Guardar avaliação",
+
+      "savedTitle": "Guardado!",
+      "savedMessage": "A tua perspetiva foi guardada.",
+      "saveError": "Não foi possível guardar a avaliação.",
+      "journalLoadError": "Não foi possível carregar o diário."
+    },
+
+    "members": {
+      "invite": "Convidar membro",
+      "inviteSoon": "O convite de membros ficará disponível em breve.",
+
+      "removeTitle": "Remover membro",
+      "removeConfirm": "Remover {{name}} da campanha?",
+
+      "leave": "Sair da campanha",
+      "leaveTitle": "Sair da campanha",
+      "leaveConfirm": "Tens a certeza de que queres sair desta campanha?"
+    },
+
+    "notes": {
+      "placeholder": "Estado do mundo, personagens, objetivos, segredos...",
+      "emptyTitle": "Sem notas ainda",
+      "emptyMessage": "Qualquer membro pode escrever aqui!",
+      "edit": "Editar notas",
+      "write": "Escrever notas"
+    }
+  },
+
+  "encounter": {
+    "title": "Novo encontro",
+
+    "validation": {
+      "missingData": "Faltam dados necessários para registar o encontro.",
+      "selectPlayer": "Seleciona pelo menos um jogador.",
+      "selectWinner": "Seleciona o vencedor.",
+      "invalidDuration": "A duração introduzida não é válida."
+    },
+
+    "sessionTitle": "Título (opcional)",
+    "sessionTitlePlaceholder": "Ex.: Cenário 3 — A Cripta, mês de janeiro...",
+
+    "players": {
+      "title": "Quem jogou hoje?",
+      "hint": "Seleciona os membros que participaram neste encontro.",
+      "member": "Membro"
+    },
+
+    "mode": {
+      "title": "Modo de jogo",
+      "competitive": "Competitivo",
+      "cooperative": "Cooperativo",
+      "solo": "Solo"
+    },
+
+    "result": {
+      "title": "Resultado",
+      "teamTitle": "Resultado da equipa",
+      "playerWon": "Ganhei",
+      "gameWon": "O jogo ganhou",
+      "noResult": "Sem resultado",
+      "teamWon": "Ganhámos",
+      "teamLost": "Perdemos",
+      "winner": "Vencedor"
+    },
+
+    "details": {
+      "title": "Detalhes opcionais",
+      "duration": "⏱ Duração (minutos)",
+      "durationPlaceholder": "Ex.: 120",
+      "location": "📍 Local",
+      "locationPlaceholder": "Ex.: Casa do João",
+      "score": "📝 Resumo de pontuação",
+      "scorePlaceholder": "Ex.: Ruben 45, Miguel 38..."
+    },
+
+    "rating": {
+      "title": "A tua avaliação deste encontro",
+      "value": "Avaliação (0–10)",
+      "notes": "📖 Notas",
+      "notesPlaceholder": "Momentos épicos, o que correu bem ou mal...",
+      "tags": "🏷️ Tags (separadas por vírgula)",
+      "tagsPlaceholder": "épico, reviravolta, difícil..."
+    },
+
+    "submit": "Registar encontro",
+
+    "successTitle": "Encontro registado!",
+    "successMessage": "Os outros membros serão notificados para avaliarem.",
+    "errorFallback": "Não foi possível registar o encontro."
+  }
+}

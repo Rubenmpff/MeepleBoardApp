@@ -1,51 +1,73 @@
-// src/features/library/hooks/useUserLibrary.ts
-import { useEffect, useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import Toast from "react-native-toast-message";
 
-
-import { useUser } from "@/src/features/users/hooks/useUser";
-import { UserGameLibrary } from "../types/UserGameLibrary";
 import { RootState } from "@/src/store/store";
-import { addLocalEntry, fetchUserLibrary, removeLocalEntry } from "../store/librarySlice";
+import { useUser } from "@/src/features/users/hooks/useUser";
+
+import {
+  addLocalEntry,
+  fetchUserLibrary,
+  removeLocalEntry,
+} from "../store/librarySlice";
+import { UserGameLibrary } from "../types/UserGameLibrary";
 
 export function useUserLibrary() {
+  const { t } = useTranslation("library");
   const dispatch = useDispatch();
   const { user } = useUser();
 
-  const library = useSelector((state: RootState) => state.library.items);
-  const loading = useSelector((state: RootState) => state.library.loading);
-  const error = useSelector((state: RootState) => state.library.error);
+  const library = useSelector(
+    (state: RootState) => state.library.items
+  );
 
-  const refetch = useCallback(() => {
+  const loading = useSelector(
+    (state: RootState) => state.library.loading
+  );
+
+  const error = useSelector(
+    (state: RootState) => state.library.error
+  );
+
+  const refetch = useCallback(async () => {
     if (!user?.id) {
-      console.warn("⚠️ [useUserLibrary] fetchLibrary → user.id is missing");
+      console.warn(
+        "[useUserLibrary] user.id em falta."
+      );
       return;
     }
-    dispatch(fetchUserLibrary(user.id) as any)
-      .unwrap()
-      .catch(() => {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Unable to load your game library.",
-        });
+
+    try {
+      await dispatch(
+        fetchUserLibrary(user.id) as any
+      ).unwrap();
+    } catch {
+      Toast.show({
+        type: "error",
+        text1: t("toast.loadErrorTitle"),
+        text2: t("toast.loadErrorDescription"),
       });
-  }, [user?.id, dispatch]);
+    }
+  }, [dispatch, t, user?.id]);
 
   const addEntry = useCallback(
-    (entry: UserGameLibrary) => dispatch(addLocalEntry(entry)),
+    (entry: UserGameLibrary) =>
+      dispatch(addLocalEntry(entry)),
     [dispatch]
   );
 
   const removeEntry = useCallback(
-    (gameId: string) => dispatch(removeLocalEntry(gameId)),
+    (gameId: string) =>
+      dispatch(removeLocalEntry(gameId)),
     [dispatch]
   );
 
   useEffect(() => {
-    if (user?.id) refetch();
-  }, [user?.id, refetch]);
+    if (user?.id) {
+      void refetch();
+    }
+  }, [refetch, user?.id]);
 
   return {
     library,

@@ -1,0 +1,26 @@
+{
+  "screen": {
+    "title": "Friends",
+    "subtitle": "People you can include in your matches",
+    "count_one": "{{count}} friend",
+    "count_other": "{{count}} friends",
+    "add": "Add friend",
+    "searchPlaceholder": "Search friends...",
+    "requests": "Friend requests",
+    "emptyTitle": "You don't have any friends yet",
+    "emptyDescription": "Add friends so you can include them in your matches.",
+    "noResults": "No results",
+    "noResultsDescription": "We couldn't find any friend with that name.",
+    "clearSearch": "Clear search",
+    "findFriends": "Find friends",
+    "retry": "Try again"
+  },
+  "sort": {
+    "all": "All",
+    "mostPlayed": "Most played",
+    "recent": "Recent"
+  },
+  "errors": {
+    "load": "Unable to load your friends."
+  }
+}

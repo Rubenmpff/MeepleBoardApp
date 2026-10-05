@@ -1,0 +1,59 @@
+{
+  "header": {
+    "greeting": "Hi, {{username}} 👋",
+    "welcomeBack": "Welcome back!"
+  },
+  "player": "Player",
+  "greetings": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening"
+  },
+  "stats": {
+    "activeSession_one": "{{count}} active session",
+    "activeSession_other": "{{count}} active sessions",
+    "pendingInvite_one": "{{count}} pending invitation",
+    "pendingInvite_other": "{{count}} pending invitations",
+    "upcomingSession_one": "{{count}} scheduled session",
+    "upcomingSession_other": "{{count}} scheduled sessions",
+    "pendingReview_one": "{{count}} pending review",
+    "pendingReview_other": "{{count}} pending reviews"
+  },
+  "lastMatch": {
+    "title": "Last match",
+    "playAgain": "Play\nagain",
+    "empty": "You haven't registered any matches yet.",
+    "registerFirst": "Register first match"
+  },
+  "pendingJournal": {
+    "title_one": "{{count}} match is waiting for your review",
+    "title_other": "{{count}} matches are waiting for your review",
+    "description": "The other players are waiting!"
+  },
+  "quickActions": {
+    "title": "Quick actions",
+    "registerMatch": {
+      "title": "Register match",
+      "description": "Register a quick match"
+    },
+    "sessions": {
+      "title": "Sessions",
+      "description": "Manage game sessions"
+    },
+    "library": {
+      "title": "Library",
+      "description": "Your game collection"
+    },
+    "campaigns": {
+      "title": "Campaigns",
+      "description": "Track your campaigns"
+    },
+    "lastMatch": {
+  "title": "Last match",
+  "playAgain": "Play\nagain",
+  "playAgainAccessibility": "Register another match",
+  "empty": "You haven't registered any matches yet.",
+  "registerFirst": "Register first match"
+}
+  }
+}

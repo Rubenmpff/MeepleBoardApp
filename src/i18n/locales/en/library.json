@@ -1,0 +1,67 @@
+{
+  "screen": {
+    "title": "🎲 My Library",
+    "addGame": "Add game",
+    "inCollection": "In collection",
+    "wishlist": "Wishlist",
+    "played": "Played",
+    "totalSpent": "💰 Total spent:",
+    "empty": "No games found for this filter.",
+    "retry": "Try again",
+    "invalidEntry": "Invalid game entry",
+    "removeTitle": "Remove game",
+    "removeConfirm": "Are you sure you want to remove this game from your library?",
+    "cancel": "Cancel",
+    "remove": "Remove"
+  },
+  "filters": {
+    "all": "All",
+    "collection": "Collection",
+    "wishlist": "Wishlist",
+    "played": "Played"
+  },
+  "card": {
+    "notLoaded": "⚠️ Game not loaded",
+    "status": "Status: {{status}}",
+    "year": "Year: {{year}}",
+    "pricePaid": "Price paid: €{{price}}",
+    "gifted": "Gifted (€0)",
+    "remove": "🗑 Remove",
+    "removeTitle": "Remove game",
+    "removeConfirm": "Do you want to remove \"{{name}}\" from your library?"
+  },
+  "status": {
+    "owned": "Owned",
+    "played": "Played",
+    "wishlist": "Wishlist",
+    "unknown": "Unknown"
+  },
+  "addModal": {
+    "title": "Add \"{{name}}\"",
+    "addLibrary": "Add to library",
+    "addWishlistSoon": "Add to wishlist (coming soon)",
+    "addPlayedSoon": "Add to played games (coming soon)",
+    "priceLabel": "Price paid (€)",
+    "pricePlaceholder": "E.g. 35.50",
+    "giftNote": "Enter 0 if it was a gift",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "backAccessibility": "Go back"
+  },
+  "manageModal": {
+    "title": "Manage entry: \"{{name}}\"",
+    "invalid": "This game cannot be managed because it has no valid ID.",
+    "remove": "Remove",
+    "close": "Close",
+    "confirmTitle": "Remove game",
+    "confirmMessage": "Are you sure you want to remove \"{{name}}\" from your library?",
+    "cancel": "Cancel",
+    "success": "\"{{name}}\" was removed from your library",
+    "errorTitle": "Unable to remove game",
+    "errorDescription": "Please try again later."
+  },
+  "toast": {
+    "loadErrorTitle": "Error",
+    "loadErrorDescription": "Unable to load your game library."
+  }
+}

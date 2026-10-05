@@ -1,0 +1,26 @@
+{
+  "screen": {
+    "title": "Amigos",
+    "subtitle": "Pessoas com quem podes registar partidas",
+    "count_one": "{{count}} amigo",
+    "count_other": "{{count}} amigos",
+    "add": "Adicionar amigo",
+    "searchPlaceholder": "Pesquisar amigos...",
+    "requests": "Pedidos de amizade",
+    "emptyTitle": "Ainda não tens amigos",
+    "emptyDescription": "Adiciona amigos para os poderes incluir nas tuas partidas.",
+    "noResults": "Sem resultados",
+    "noResultsDescription": "Não encontrámos nenhum amigo com esse nome.",
+    "clearSearch": "Limpar pesquisa",
+    "findFriends": "Procurar amigos",
+    "retry": "Tentar novamente"
+  },
+  "sort": {
+    "all": "Todos",
+    "mostPlayed": "Mais jogados",
+    "recent": "Recentes"
+  },
+  "errors": {
+    "load": "Não foi possível carregar os teus amigos."
+  }
+}

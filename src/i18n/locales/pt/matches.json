@@ -1,0 +1,114 @@
+{
+  "steps": {
+    "game": "Jogo",
+    "mode": "Modo",
+    "players": "Jogadores",
+    "details": "Detalhes"
+  },
+  "header": {
+    "addMatch": "Adicionar partida",
+    "registerMatch": "Registar partida",
+    "sessionBadge": "SESSÃO",
+    "quickBadge": "QUICK",
+    "unofficialBadge": "⚠️ Não oficial"
+  },
+  "validation": {
+    "errorTitle": "Erro",
+    "selectGame": "Seleciona um jogo.",
+    "addPlayer": "Adiciona pelo menos 1 jogador.",
+    "positiveDuration": "A duração tem de ser um número positivo.",
+    "selectWinner": "Seleciona o vencedor da partida."
+  },
+  "success": {
+    "title": "✅ Partida registada!",
+    "session": "Partida adicionada à sessão.",
+    "quick": "Partida guardada com sucesso.",
+    "ok": "OK"
+  },
+  "session": {
+    "notFoundTitle": "⚠️ Sessão não encontrada",
+    "notFoundDescription": "Volta atrás e tenta novamente.",
+    "upcomingTitle": "⏳ Sessão ainda não começou",
+    "closedTitle": "🔒 Sessão encerrada",
+    "inactiveDescription": "Regista partidas quando a sessão estiver ativa.",
+    "noAcceptedTitle": "👥 Sem participantes aceites",
+    "noAcceptedDescription": "Aguarda que os convidados aceitem para poderes registar partidas."
+  },
+  "game": {
+    "sectionTitle": "Escolhe o jogo",
+    "change": "Mudar",
+    "expansionsOptional": "Expansões utilizadas (opcional)"
+  },
+  "modes": {
+    "sectionTitle": "Modo de jogo",
+    "solo": "Solo",
+    "multiplayer": "Multiplayer",
+    "cooperative": "Cooperativo",
+    "playersRange": "👥 {{min}}–{{max}} jogadores",
+    "withExpansion": "📦 Com expansão: {{name}}",
+    "soloUnlocked": " → Solo desbloqueado!",
+    "coopUnlocked": " → Coop desbloqueado!",
+    "confirmed": "✅ Confirmado",
+    "expansionShort": "📦 Exp",
+    "force": "+ Forçar",
+    "unofficialWarning": "Modo não oficial — esta partida não vai contar para rankings ou ratings.\nJustificação: \"{{justification}}\"",
+    "result": "Resultado",
+    "teamResult": "Resultado da equipa",
+    "playerWon": "Ganhei",
+    "gameWon": "O jogo ganhou",
+    "noResult": "Sem resultado",
+    "teamWon": "Ganhámos",
+    "teamLost": "Perdemos",
+    "modalTitle": "⚠️ Modo não confirmado",
+    "modalBeforeMode": "Não temos informação de que este jogo suporte o modo ",
+    "modalAfterMode": ". Podes forçá-lo, mas esta partida ",
+    "modalRankingWarning": "não vai contar para rankings ou ratings.",
+    "reasonLabel": "Porque estás a usar este modo? *",
+    "reasonPlaceholder": "Ex.: variante criada por fãs, regra da casa, adaptação...",
+    "cancel": "Cancelar",
+    "useAnyway": "Usar mesmo assim"
+  },
+  "players": {
+    "player": "Jogador",
+    "team": "Equipa",
+    "players": "Jogadores",
+    "you": "Tu",
+    "finalScoreOptional": "Pontuação final (opcional)",
+    "resultLabel": "Resultado:"
+  },
+  "details": {
+    "optionalTitle": "Detalhes opcionais",
+    "locationLabel": "📍 Local",
+    "locationPlaceholder": "Ex.: Casa do João, LeiriaCon...",
+    "durationLabel": "⏱ Duração (minutos)",
+    "durationPlaceholder": "Ex.: 90",
+    "commentsLabel": "📝 Comentários",
+    "commentsPlaceholder": "Ex.: Partida renhida, reviravolta no fim!",
+    "journalTitle": "Diário de partida",
+    "ratingLabel": "A tua avaliação (0–10)",
+    "notesLabel": "📖 Notas (momentos épicos, estratégias...)",
+    "notesPlaceholder": "Ex.: Última ronda incrível, a estratégia funcionou!",
+    "tagsLabel": "🏷️ Tags (separadas por vírgula)",
+    "tagsPlaceholder": "Ex.: épico, reviravolta, difícil"
+  },
+  "summary": {
+    "title": "📋 Resumo da partida",
+    "game": "Jogo",
+    "mode": "Modo",
+    "result": "Resultado",
+    "teamResult": "Resultado da equipa",
+    "winner": "Vencedor",
+    "notDefined": "Não definido",
+    "players": "Jogadores",
+    "expansions": "Expansões",
+    "location": "Local",
+    "duration": "Duração",
+    "rating": "Avaliação",
+    "minutes": "{{value}} min"
+  },
+  "navigation": {
+    "back": "Voltar",
+    "continue": "Continuar",
+    "save": "Guardar partida"
+  }
+}

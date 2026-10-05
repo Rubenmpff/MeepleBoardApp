@@ -1,4 +1,4 @@
-import { MatchPlayerDto } from "@/src/features/games/types/MatchPlayer";
+import { MatchPlayerDto } from "@/src/features/games/matches/types/MatchPlayer";
 import { PlayerState } from "../types/PlayerState";
 
 /**

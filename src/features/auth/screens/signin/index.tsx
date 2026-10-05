@@ -1,28 +1,41 @@
-// ✅ SignInScreen.tsx
-import { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
 import {
-  View,
+  useEffect,
+  useState,
+} from "react";
+import {
+  ActivityIndicator,
+  BackHandler,
+  StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
-  Switch,
-  StyleSheet,
-  ActivityIndicator,
-  BackHandler,
+  View,
 } from "react-native";
+import {
+  AntDesign,
+  Feather,
+} from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
+
+import { COLORS } from "@/src/constants/colors";
 
 import { useSignIn } from "../../hooks/useSignIn";
-import { COLORS } from "@/src/constants/colors";
-import { AntDesign, Feather } from "@expo/vector-icons";
-
 
 export default function SignInScreen() {
   const router = useRouter();
+
+  const { t } =
+    useTranslation("auth");
+
   const {
-    email, setEmail,
-    password, setPassword,
-    rememberMe, setRememberMe,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    rememberMe,
+    setRememberMe,
     loading,
     errorMessage,
     handleLogin,
@@ -32,115 +45,276 @@ export default function SignInScreen() {
     resendCooldown,
   } = useSignIn();
 
-  const [showPassword, setShowPassword] = useState(false);
+  const [
+    showPassword,
+    setShowPassword,
+  ] = useState(false);
 
   useEffect(() => {
-  const handleBack = () => {
-    router.replace("/welcome");
-    return true;
-  };
+    function handleBack() {
+      router.replace(
+        "/welcome"
+      );
 
-  const subscription = BackHandler.addEventListener("hardwareBackPress", handleBack);
+      return true;
+    }
 
-  return () => {
-    subscription.remove(); // ✅ forma correta nas versões atuais
-  };
-}, []);
+    const subscription =
+      BackHandler.addEventListener(
+        "hardwareBackPress",
+        handleBack
+      );
 
+    return () => {
+      subscription.remove();
+    };
+  }, [router]);
 
-  const renderResendBlock = () => (
-    <View style={styles.resendBlock}>
-      <TouchableOpacity
-        onPress={handleResendConfirmation}
-        disabled={resendLoading || resendCooldown > 0}
-        accessibilityRole="button"
-        accessibilityLabel="Resend Confirmation Email"
+  function renderResendBlock() {
+    let message = t(
+      "signIn.resend.action"
+    );
+
+    if (resendLoading) {
+      message = t(
+        "signIn.resend.sending"
+      );
+    } else if (
+      resendCooldown > 0
+    ) {
+      message = t(
+        "signIn.resend.wait",
+        {
+          seconds:
+            resendCooldown,
+        }
+      );
+    }
+
+    return (
+      <View
+        style={
+          styles.resendBlock
+        }
       >
-        <Text style={styles.resendText}>
-          {resendLoading
-            ? "⏳ Sending confirmation email..."
-            : resendCooldown > 0
-            ? `⏳ Wait ${resendCooldown}s before resending`
-            : "Didn't get the email? Tap to resend."}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
+        <TouchableOpacity
+          onPress={
+            handleResendConfirmation
+          }
+          disabled={
+            resendLoading ||
+            resendCooldown > 0
+          }
+          accessibilityRole="button"
+          accessibilityLabel={t(
+            "signIn.resend.accessibility"
+          )}
+        >
+          <Text
+            style={
+              styles.resendText
+            }
+          >
+            {message}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        onPress={() => router.replace("/welcome")}
+        onPress={() =>
+          router.replace(
+            "/welcome"
+          )
+        }
         style={styles.backButton}
         accessibilityRole="button"
-        accessibilityLabel="Back to Welcome"
+        accessibilityLabel={t(
+          "signIn.backAccessibility"
+        )}
       >
-        <AntDesign name="arrow-left" size={24} color={COLORS.onBackground} />
+        <AntDesign
+          name="arrow-left"
+          size={24}
+          color={
+            COLORS.onBackground
+          }
+        />
       </TouchableOpacity>
 
-      <Text style={styles.title}>Enter the world of{"\n"}board games!</Text>
+      <Text style={styles.title}>
+        {t("signIn.title")}
+      </Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Email"
-        placeholderTextColor={COLORS.onBackground}
+        placeholder={t(
+          "signIn.email"
+        )}
+        placeholderTextColor={
+          COLORS.textMuted
+        }
         keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
         autoCorrect={false}
+        textContentType="emailAddress"
+        autoComplete="email"
       />
 
-      <View style={styles.inputWrapper}>
+      <View
+        style={
+          styles.inputWrapper
+        }
+      >
         <TextInput
           style={styles.input}
-          placeholder="Password"
-          placeholderTextColor={COLORS.onBackground}
-          secureTextEntry={!showPassword}
+          placeholder={t(
+            "signIn.password"
+          )}
+          placeholderTextColor={
+            COLORS.textMuted
+          }
+          secureTextEntry={
+            !showPassword
+          }
           value={password}
-          onChangeText={setPassword}
+          onChangeText={
+            setPassword
+          }
           autoCapitalize="none"
+          textContentType="password"
+          autoComplete="password"
         />
+
         <TouchableOpacity
-          onPress={() => setShowPassword(!showPassword)}
+          onPress={() =>
+            setShowPassword(
+              (current) =>
+                !current
+            )
+          }
           style={styles.eyeIcon}
+          accessibilityRole="button"
+          accessibilityLabel={t(
+            showPassword
+              ? "signIn.hidePassword"
+              : "signIn.showPassword"
+          )}
         >
           <Feather
-            name={showPassword ? "eye-off" : "eye"}
+            name={
+              showPassword
+                ? "eye-off"
+                : "eye"
+            }
             size={20}
-            color={COLORS.onBackground}
+            color={
+              COLORS.onBackground
+            }
           />
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity onPress={() => router.push("/forgot-password")}> 
-        <Text style={styles.forgotPassword}>Forgot your password?</Text>
+      <TouchableOpacity
+        onPress={() =>
+          router.push(
+            "/forgot-password"
+          )
+        }
+        accessibilityRole="button"
+      >
+        <Text
+          style={
+            styles.forgotPassword
+          }
+        >
+          {t(
+            "signIn.forgotPassword"
+          )}
+        </Text>
       </TouchableOpacity>
 
-      <View style={styles.rememberContainer}>
-        <Text style={styles.rememberText}>Keep me signed in</Text>
+      <View
+        style={
+          styles.rememberContainer
+        }
+      >
+        <Text
+          style={
+            styles.rememberText
+          }
+        >
+          {t(
+            "signIn.rememberMe"
+          )}
+        </Text>
+
         <Switch
           value={rememberMe}
-          onValueChange={setRememberMe}
-          thumbColor={rememberMe ? COLORS.primary : COLORS.surface}
-          trackColor={{ false: COLORS.surface, true: COLORS.primary }}
+          onValueChange={
+            setRememberMe
+          }
+          thumbColor={
+            rememberMe
+              ? COLORS.primary
+              : COLORS.surface
+          }
+          trackColor={{
+            false:
+              COLORS.border,
+            true:
+              COLORS.primary,
+          }}
         />
       </View>
 
-      {!!errorMessage && typeof errorMessage === "string" && (<Text style={styles.errorText}>{errorMessage}</Text>)}
-      {showResend && renderResendBlock()}
+      {!!errorMessage &&
+        typeof errorMessage ===
+          "string" && (
+          <Text
+            style={
+              styles.errorText
+            }
+          >
+            {errorMessage}
+          </Text>
+        )}
+
+      {showResend &&
+        renderResendBlock()}
 
       <TouchableOpacity
-        style={[styles.loginButton, loading && { opacity: 0.6 }]}
+        style={[
+          styles.loginButton,
+          loading &&
+            styles.disabledButton,
+        ]}
         onPress={handleLogin}
         disabled={loading}
         accessibilityRole="button"
-        accessibilityLabel="Sign In"
+        accessibilityLabel={t(
+          "signIn.button"
+        )}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator
+            color="#FFFFFF"
+          />
         ) : (
-          <Text style={styles.loginText}>Sign in</Text>
+          <Text
+            style={
+              styles.loginText
+            }
+          >
+            {t(
+              "signIn.button"
+            )}
+          </Text>
         )}
       </TouchableOpacity>
     </View>
@@ -150,77 +324,100 @@ export default function SignInScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor:
+      COLORS.background,
     padding: 20,
     justifyContent: "center",
   },
+
   backButton: {
     position: "absolute",
     top: 40,
     left: 20,
+    zIndex: 1,
   },
+
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: COLORS.onBackground,
     textAlign: "center",
     marginBottom: 20,
   },
+
   inputWrapper: {
     position: "relative",
     marginBottom: 10,
   },
+
   input: {
-    backgroundColor: COLORS.surface,
+    backgroundColor:
+      COLORS.surface,
     padding: 15,
-    paddingRight: 40,
+    paddingRight: 48,
     borderRadius: 8,
     color: COLORS.onBackground,
     marginBottom: 10,
   },
+
   eyeIcon: {
     position: "absolute",
     right: 12,
     top: 15,
+    padding: 4,
   },
+
   forgotPassword: {
     color: COLORS.primary,
     textAlign: "right",
     marginBottom: 15,
   },
+
   rememberContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent:
+      "space-between",
     marginBottom: 20,
   },
+
   rememberText: {
     color: COLORS.onBackground,
   },
+
   errorText: {
     color: COLORS.error,
     textAlign: "center",
     marginBottom: 10,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
+
   resendBlock: {
     marginBottom: 10,
   },
+
   resendText: {
     color: COLORS.primary,
     textAlign: "center",
     fontWeight: "500",
   },
+
   loginButton: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor:
+      COLORS.secondary,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
     marginBottom: 10,
   },
+
+  disabledButton: {
+    opacity: 0.6,
+  },
+
   loginText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: "#FFFFFF",
+    fontWeight: "700",
     fontSize: 16,
   },
 });

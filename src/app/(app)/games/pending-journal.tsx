@@ -1,1 +1,1 @@
-export { default } from "@/src/features/games/screens/PendingJournalScreen";
+export { default } from "@/src/features/games/matches/screens/PendingJournalScreen";

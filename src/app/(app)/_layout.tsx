@@ -1,65 +1,253 @@
-// app/(app)/_layout.tsx
-
-import 'react-native-get-random-values';
+import "react-native-gesture-handler";
+import "react-native-get-random-values";
 
 import { useEffect, useRef } from "react";
-import { Drawer } from "expo-router/drawer";
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
-import * as Notifications from "expo-notifications";
-import CustomDrawerContent from "@/src/components/drawer/CustomDrawerContent";
-import {
-  initPushNotifications,
-  getRouteFromNotification,
-  NotificationData,
-} from "@/src/services/notificationService";
+import { Drawer } from "expo-router/drawer";
 
-export default function DrawerLayout() {
+import CustomDrawerContent from "@/src/components/drawer/CustomDrawerContent";
+import { COLORS } from "@/src/constants/colors";
+
+type RemovableSubscription = {
+  remove: () => void;
+};
+
+export default function AppLayout() {
   const router = useRouter();
-  const notificationListener = useRef<Notifications.EventSubscription | null>(null);
-  const responseListener = useRef<Notifications.EventSubscription | null>(null);
+
+  const notificationListener =
+    useRef<RemovableSubscription | null>(null);
+
+  const responseListener =
+    useRef<RemovableSubscription | null>(null);
 
   useEffect(() => {
-    // ── Inicializa notificações push ─────────────────────────────────────
-    initPushNotifications();
+    let isMounted = true;
 
-    // ── Notificação recebida com a app aberta ────────────────────────────
-    notificationListener.current = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        console.log("📩 Notificação recebida:", notification);
-      }
-    );
+    const isExpoGo =
+      Constants.appOwnership === "expo";
 
-    // ── Utilizador carregou na notificação ───────────────────────────────
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        const data = response.notification.request.content.data as NotificationData;
-        const route = getRouteFromNotification(data);
+    if (isExpoGo) {
+      console.log(
+        "ℹ️ Expo Go detetado: notificações push remotas desativadas neste ambiente."
+      );
 
-        if (route) {
-          console.log("🔗 Navegar para:", route);
-          router.push(route as any);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    const setupNotifications = async () => {
+      try {
+        const Notifications =
+          await import("expo-notifications");
+
+        const notificationService =
+          await import(
+            "@/src/services/notificationService"
+          );
+
+        if (!isMounted) {
+          return;
         }
+
+        await notificationService.initPushNotifications();
+
+        if (!isMounted) {
+          return;
+        }
+
+        notificationListener.current =
+          Notifications.addNotificationReceivedListener(
+            (notification) => {
+              console.log(
+                "Notificação recebida:",
+                notification
+              );
+            }
+          );
+
+        responseListener.current =
+          Notifications.addNotificationResponseReceivedListener(
+            (response) => {
+              const data =
+                response.notification.request.content.data as
+                  typeof response.notification.request.content.data;
+
+              const route =
+                notificationService.getRouteFromNotification(
+                  data as any
+                );
+
+              if (route) {
+                router.push(route as never);
+              }
+            }
+          );
+      } catch (error) {
+        console.error(
+          "Erro ao inicializar notificações:",
+          error
+        );
       }
-    );
+    };
+
+    void setupNotifications();
 
     return () => {
+      isMounted = false;
+
       notificationListener.current?.remove();
       responseListener.current?.remove();
+
+      notificationListener.current = null;
+      responseListener.current = null;
     };
-  }, []);
+  }, [router]);
 
   return (
     <Drawer
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      backBehavior="history"
+      drawerContent={(props) => (
+        <CustomDrawerContent {...props} />
+      )}
       screenOptions={{
-        headerShown: true,
-        drawerActiveTintColor: "#6200EE",
-        drawerLabelStyle: { marginLeft: -20, fontSize: 15 },
+        headerShown: false,
+
+        /*
+         * O Drawer é o menu secundário / "Mais".
+         *
+         * A app inteira já está dentro de um GestureHandlerRootView
+         * no src/app/_layout.tsx, por isso não criamos outro aqui.
+         *
+         * Reservamos apenas uma pequena zona na margem esquerda para
+         * o Drawer. Assim:
+         *
+         * - swipe iniciado na margem esquerda -> Drawer
+         * - swipe no resto do ecrã -> mudança entre Tabs
+         *
+         * 40 px dá uma área confortável sem roubar demasiado espaço
+         * ao pager das Tabs.
+         */
+        swipeEnabled: true,
+        swipeEdgeWidth: 40,
+        swipeMinDistance: 10,
+
+        drawerPosition: "left",
+        drawerType: "front",
+        overlayColor: "rgba(0,0,0,0.22)",
+        drawerActiveTintColor: COLORS.primary,
       }}
     >
       <Drawer.Screen
-        name="dashboard/index"
-        options={{ drawerLabel: "Home" }}
+        name="(tabs)"
+        options={{
+          headerShown: false,
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+
+      <Drawer.Screen
+        name="friends/index"
+        options={{
+          headerShown: false,
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+
+      <Drawer.Screen
+        name="friends/requests"
+        options={{
+          headerShown: false,
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+
+      <Drawer.Screen
+        name="friends/search"
+        options={{
+          headerShown: false,
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+
+      <Drawer.Screen
+        name="friends/[id]/index"
+        options={{
+          headerShown: false,
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+
+      <Drawer.Screen
+        name="friends/[id]/games/[gameId]/index"
+        options={{
+          headerShown: false,
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+
+      <Drawer.Screen
+        name="games/details/[id]"
+        options={{
+          headerShown: false,
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+
+      <Drawer.Screen
+        name="games/library/index"
+        options={{
+          headerShown: false,
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+
+      <Drawer.Screen
+        name="games/search/index"
+        options={{
+          headerShown: false,
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+
+      <Drawer.Screen
+        name="games/rankings/index"
+        options={{
+          headerShown: false,
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+
+      <Drawer.Screen
+        name="games/matches/[id]/index"
+        options={{
+          headerShown: false,
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
       />
     </Drawer>
   );

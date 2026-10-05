@@ -1,0 +1,13 @@
+{
+  "cancel": "Cancel",
+  "save": "Save",
+  "back": "Back",
+  "loading": "Loading...",
+  "error": "Error",
+  "success": "Success",
+  "confirm": "Confirm",
+  "delete": "Delete",
+  "edit": "Edit",
+  "retry": "Try again",
+  "unknownError": "An unexpected error occurred."
+}

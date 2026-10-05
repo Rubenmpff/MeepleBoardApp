@@ -1,0 +1,70 @@
+{
+  "search": {
+    "placeholder": "🔍 Pesquisar um jogo de tabuleiro…",
+    "searching": "🔍 A procurar…",
+    "empty": "Não foram encontrados jogos para esta pesquisa.",
+    "openDetailsErrorTitle": "Não foi possível abrir o jogo",
+    "openDetailsErrorDescription": "Não foi possível abrir os detalhes do jogo.",
+    "importErrorTitle": "Não foi possível importar o jogo",
+    "importErrorDescription": "Não foi possível importar o jogo."
+  },
+  "selector": {
+    "placeholder": "🔎 Pesquisar um jogo base…",
+    "notFound": "🚫 Este jogo ainda não está disponível na MeepleBoard."
+  },
+  "expansions": {
+    "title": "Expansões utilizadas",
+    "empty": "Não foram encontradas expansões para este jogo.",
+    "loadErrorTitle": "Não foi possível carregar as expansões",
+    "loadErrorDescription": "Verifica a ligação e tenta novamente.",
+    "toggleAccessibility": "Alternar seleção da expansão {{name}}"
+  },
+  "listItem": {
+    "unknownGame": "Jogo desconhecido",
+    "viewDetailsAccessibility": "Ver detalhes de {{name}}",
+    "manageAccessibility": "Gerir {{name}} na tua biblioteca",
+    "addAccessibility": "Adicionar {{name}} à tua biblioteca"
+  },
+  "rating": {
+    "none": "Sem avaliação",
+    "terrible": "😞 Terrível",
+    "veryWeak": "😟 Muito fraco",
+    "weak": "😕 Fraco",
+    "belowExpected": "😐 Abaixo do esperado",
+    "ok": "🙂 Ok",
+    "fair": "😊 Razoável",
+    "good": "😄 Bom",
+    "veryGood": "😁 Muito bom",
+    "excellent": "🤩 Excelente!",
+    "masterpiece": "💯 Obra-prima!",
+    "tapToRate": "Toca nas estrelas para avaliar",
+    "setHalfAccessibility": "Definir avaliação como {{value}} em 10",
+    "setFullAccessibility": "Definir avaliação como {{value}} em 10"
+  },
+  "details": {
+    "notFound": "Jogo não encontrado.",
+    "yourRating": "Tua",
+    "cooperative": "Coop",
+    "solo": "Solo",
+    "tabs": {
+      "info": "Info",
+      "history": "Histórico",
+      "campaigns": "Campanhas"
+    },
+    "descriptionTitle": "Descrição",
+    "descriptionEmpty": "Sem descrição disponível.\nImporta o jogo do BGG para veres mais detalhes.",
+    "historyEmpty": "Ainda não registaste nenhuma partida deste jogo.",
+    "newCampaign": "Nova campanha",
+    "campaignsEmpty": "Ainda não tens campanhas deste jogo.\nCria uma para acompanhares a tua aventura!",
+    "campaignStatus": {
+      "active": "Ativa",
+      "completed": "Concluída",
+      "abandoned": "Abandonada"
+    },
+    "members_one": "{{count}} membro",
+    "members_other": "{{count}} membros",
+    "matches_one": "{{count}} partida",
+    "matches_other": "{{count}} partidas",
+    "minutesShort": "{{count}} min"
+  }
+}

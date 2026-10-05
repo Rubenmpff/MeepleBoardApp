@@ -1,0 +1,59 @@
+{
+  "header": {
+    "greeting": "Olá, {{username}} 👋",
+    "welcomeBack": "Bem-vindo de volta!"
+  },
+  "player": "Jogador",
+  "greetings": {
+    "morning": "Bom dia",
+    "afternoon": "Boa tarde",
+    "evening": "Boa noite"
+  },
+  "stats": {
+    "activeSession_one": "{{count}} sessão ativa",
+    "activeSession_other": "{{count}} sessões ativas",
+    "pendingInvite_one": "{{count}} convite pendente",
+    "pendingInvite_other": "{{count}} convites pendentes",
+    "upcomingSession_one": "{{count}} sessão agendada",
+    "upcomingSession_other": "{{count}} sessões agendadas",
+    "pendingReview_one": "{{count}} avaliação pendente",
+    "pendingReview_other": "{{count}} avaliações pendentes"
+  },
+  "lastMatch": {
+    "title": "Última partida",
+    "playAgain": "Jogar\nde novo",
+    "empty": "Ainda não tens partidas registadas.",
+    "registerFirst": "Registar primeira partida"
+  },
+  "pendingJournal": {
+    "title_one": "{{count}} partida à espera da tua avaliação",
+    "title_other": "{{count}} partidas à espera da tua avaliação",
+    "description": "Os outros jogadores estão à espera!"
+  },
+  "quickActions": {
+    "title": "Ações rápidas",
+    "registerMatch": {
+      "title": "Registar partida",
+      "description": "Regista uma partida rápida"
+    },
+    "sessions": {
+      "title": "Sessões",
+      "description": "Gerir sessões de jogo"
+    },
+    "library": {
+      "title": "Biblioteca",
+      "description": "A tua coleção de jogos"
+    },
+    "campaigns": {
+      "title": "Campanhas",
+      "description": "Acompanhar campanhas"
+    },
+    "lastMatch": {
+  "title": "Última partida",
+  "playAgain": "Jogar\nde novo",
+  "playAgainAccessibility": "Registar outra partida",
+  "empty": "Ainda não tens partidas registadas.",
+  "registerFirst": "Registar primeira partida"
+}
+  }
+}
