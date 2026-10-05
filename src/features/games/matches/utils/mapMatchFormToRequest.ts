@@ -2,6 +2,7 @@
 
 import { MatchFormData, GameMode } from "../types/MatchForm";
 import { MatchPlayerDto } from "../types/MatchPlayer";
+import { validatePlayerScore } from "../../../users/utils/playerMappers";
 
 export interface CreateMatchRequest {
   gameId: string;
@@ -22,6 +23,7 @@ export interface CreateMatchRequest {
 
   /** Apenas IDs, sem duplicados */
   playerIds: string[];
+  playerScores?: { userId: string; score: number }[];
 
   gameMode?: GameMode;
   expansions?: { bggId: number; name: string }[];
@@ -79,6 +81,13 @@ function inferWinnerId(form: MatchFormData): string | undefined {
 export function mapMatchFormToRequest(form: MatchFormData): CreateMatchRequest {
   const playerIds = extractPlayerIds(form.players);
   const winnerId = inferWinnerId(form);
+  const playerScores = form.players.flatMap((player) => {
+    if (player.score == null) return [];
+    validatePlayerScore(player.score);
+    const userId = normalizeId(player.userId);
+    if (!userId) throw new Error("O participante da pontuação é inválido.");
+    return [{ userId, score: player.score }];
+  });
 
   const finalPlayerIds =
     winnerId && !playerIds.includes(winnerId)
@@ -101,6 +110,7 @@ export function mapMatchFormToRequest(form: MatchFormData): CreateMatchRequest {
     scoreSummary: form.scoreSummary?.trim() || undefined,
 
     playerIds: finalPlayerIds,
+    playerScores: playerScores.length ? playerScores : undefined,
 
     gameMode: form.gameMode,
     expansions: form.expansions,

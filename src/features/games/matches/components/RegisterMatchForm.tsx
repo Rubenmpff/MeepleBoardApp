@@ -249,6 +249,13 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       winnerId = winner?.id;
     }
 
+    let players: MatchFormData["players"];
+    try {
+      players = toMatchPlayerDto(playerState);
+    } catch (error) {
+      return Alert.alert(t("validation.errorTitle"), (error as Error).message);
+    }
+
     const payload: MatchFormData = {
       gameId: selectedGame.id,
       gameName: selectedGame.name,
@@ -257,7 +264,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       durationInMinutes: dur,
       scoreSummary: comments.trim() || undefined,
       isSoloGame: isSolo,
-      players: toMatchPlayerDto(playerState),
+      players,
       winnerId,
       expansions: selectedExpansions.map((e) => ({ bggId: e.bggId!, name: e.name })),
       sessionId: sessionId || undefined,
