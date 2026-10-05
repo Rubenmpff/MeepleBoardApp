@@ -1,27 +1,15 @@
 import { View, StyleSheet, ViewProps } from "react-native";
-import { COLORS } from "@/src/constants/colors";
+import { DASHBOARD_THEME as theme } from "../styles/dashboardTheme";
 
 export default function SectionCard({ style, children, ...rest }: ViewProps) {
-  return (
-    <View
-      style={[styles.card, style]}
-      accessibilityRole="summary"
-      {...rest}
-    >
-      {children}
-    </View>
-  );
+  return <View style={[styles.card, style]} {...rest}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.surface, // melhor que "#fff" se usares tema
-    borderRadius: 14,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 3,
-    marginVertical: 8,
+    backgroundColor: theme.colors.card, borderRadius: theme.radius.card, padding: theme.space.lg,
+    borderWidth: 1, borderColor: theme.colors.border,
+    shadowColor: theme.colors.text, shadowOpacity: 0.035, shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 }, elevation: 1,
   },
 });

@@ -21,14 +21,18 @@
   },
   "lastMatch": {
     "title": "Last match",
-    "playAgain": "Play\nagain",
+    "playAgain": "Register another match",
     "empty": "You haven't registered any matches yet.",
-    "registerFirst": "Register first match"
+    "registerFirst": "Register first match",
+    "playAgainAccessibility": "Register another match",
+    "loading": "Loading your last match…",
+    "loadError": "Your last match could not be loaded.",
+    "retry": "Try again"
   },
   "pendingJournal": {
     "title_one": "{{count}} match is waiting for your review",
     "title_other": "{{count}} matches are waiting for your review",
-    "description": "The other players are waiting!"
+    "description": "Share your review of the match."
   },
   "quickActions": {
     "title": "Quick actions",
@@ -49,11 +53,15 @@
       "description": "Track your campaigns"
     },
     "lastMatch": {
-  "title": "Last match",
-  "playAgain": "Play\nagain",
-  "playAgainAccessibility": "Register another match",
-  "empty": "You haven't registered any matches yet.",
-  "registerFirst": "Register first match"
-}
+      "title": "Last match",
+      "playAgain": "Play\nagain",
+      "playAgainAccessibility": "Register another match",
+      "empty": "You haven't registered any matches yet.",
+      "registerFirst": "Register first match"
+    }
+  },
+  "pending": {
+    "title": "Needs your attention",
+    "invitesDescription": "View your game session invitations."
   }
 }

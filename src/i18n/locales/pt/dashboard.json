@@ -21,14 +21,18 @@
   },
   "lastMatch": {
     "title": "Última partida",
-    "playAgain": "Jogar\nde novo",
+    "playAgain": "Registar outra partida",
     "empty": "Ainda não tens partidas registadas.",
-    "registerFirst": "Registar primeira partida"
+    "registerFirst": "Registar primeira partida",
+    "playAgainAccessibility": "Registar outra partida",
+    "loading": "A carregar a última partida…",
+    "loadError": "Não foi possível carregar a última partida.",
+    "retry": "Tentar novamente"
   },
   "pendingJournal": {
     "title_one": "{{count}} partida à espera da tua avaliação",
     "title_other": "{{count}} partidas à espera da tua avaliação",
-    "description": "Os outros jogadores estão à espera!"
+    "description": "Partilha a tua avaliação da partida."
   },
   "quickActions": {
     "title": "Ações rápidas",
@@ -49,11 +53,15 @@
       "description": "Acompanhar campanhas"
     },
     "lastMatch": {
-  "title": "Última partida",
-  "playAgain": "Jogar\nde novo",
-  "playAgainAccessibility": "Registar outra partida",
-  "empty": "Ainda não tens partidas registadas.",
-  "registerFirst": "Registar primeira partida"
-}
+      "title": "Última partida",
+      "playAgain": "Jogar\nde novo",
+      "playAgainAccessibility": "Registar outra partida",
+      "empty": "Ainda não tens partidas registadas.",
+      "registerFirst": "Registar primeira partida"
+    }
+  },
+  "pending": {
+    "title": "Por tratar",
+    "invitesDescription": "Consulta os convites para sessões de jogo."
   }
 }
