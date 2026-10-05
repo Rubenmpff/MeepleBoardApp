@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
 
   imageWrap: { aspectRatio: 1, backgroundColor: COLORS.surface, justifyContent: "flex-end" },
   image: { width: "100%", height: "100%" },
-  imagePlaceholder: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
+  imagePlaceholder: { ...StyleSheet.absoluteFill, alignItems: "center", justifyContent: "center" },
 
   imageOverlayRow: { flexDirection: "row", alignItems: "center", padding: 8 },
   statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },

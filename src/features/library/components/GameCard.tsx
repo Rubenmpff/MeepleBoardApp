@@ -49,7 +49,7 @@ export function GameCard({
     }).start();
   }, [fadeAnim]);
 
-  const statusMeta = STATUS_META[status] ?? { label: t("status.unknown"), icon: "❔", color: COLORS.textMuted };
+  const statusMeta = (status == null ? undefined : STATUS_META[status]) ?? { label: t("status.unknown"), icon: "❔", color: COLORS.textMuted };
   const hasPlayed = totalTimesPlayed > 0;
 
   if (!game) {

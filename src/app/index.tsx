@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { View, ActivityIndicator } from "react-native";
 import { COLORS } from "../constants/colors";
+import { ROUTES } from "../constants/routes";
 import { tokenService } from "../services/tokenService";
 
 export default function IndexPage() {
@@ -19,7 +20,7 @@ export default function IndexPage() {
 
         if (validToken) {
           // ✅ entra no grupo (app) onde está o Drawer
-          router.replace("/(app)/dashboard");
+          router.replace(ROUTES.HOME);
         } else {
           // ✅ sem token → limpa e volta ao welcome
           await tokenService.clearAll();
