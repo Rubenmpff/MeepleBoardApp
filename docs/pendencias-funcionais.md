@@ -1,5 +1,13 @@
 # Pendências funcionais do MeepleBoard
 
+## Decisão pendente — cancelar versus eliminar sessões
+
+O utilizador pretende rever a distinção entre **cancelar** e **eliminar**, considerando conservar a sessão com estado **Cancelada** no histórico. Atualmente `GameSessionService.CancelSessionAsync` chama `GameSessionRepository.DeleteAsync`; `GameSessionController.Cancel` devolve 204 e o detalhe deixa de existir. No frontend, `GameSessionDetailScreen.handleCancel` usa essa operação e regressa à lista. Impacto: perde-se o histórico da sessão e dos respetivos convites. Antes de implementar, decidir retenção e visibilidade no histórico, permissões para eliminar, efeitos nos convites/partidas associadas e coerência com o cancelamento automático. **Decisão registada; nenhuma alteração de comportamento nesta etapa.** Validar futuramente com HTTP/SQL isolado, incluindo sessões com partidas e acesso dos participantes.
+
+## Confirmação no iPhone — criação com amigo obrigatório
+
+O utilizador confirmou: sem amigo selecionado, a criação é bloqueada e os campos permanecem; ao selecionar Teste-participante, cria e reabre conservando dados e convite pendente. A sessão deste teste tem nome guardado **Sessão iphone 03**, ID `ae0f3ec5-0197-43d8-9c7d-2e7576a2ab31`; resposta da API descartável indica `2026-10-07T16:30:00Z` (17:30 em Lisboa) e o convite do participante Pending. Próximo checkpoint: entrar como `participante@meepleboard.test`, abrir essa sessão em Convites, aceitar e reabrir; depois confirmar a aceitação como autor. Não alterar data nem cancelar a sessão para testar aceitação. Uma sessão futura mantém-se Upcoming mesmo após aceitação; o registo só fica disponível quando chega a hora e existe convidado aceite.
+
 ## Atualização — amigo obrigatório na criação de sessões
 
 Ver [sessoes-convite-obrigatorio.md](sessoes-convite-obrigatorio.md). Criação exige pelo menos um amigo distinto do organizador, com convite Pending suficiente; backend valida toda a lista antes de escrever. Frontend conserva campos na rejeição e oferece acesso a Amigos quando não há amigos. Acrescentado o acesso à operação de convite já existente no detalhe Upcoming do organizador, com estado de recusa de todos explícito. Confirmados HTTP/SQL descartáveis e preservação das sessões anteriores; regra nova ainda aguarda o iPhone. Cancelamento manual existente elimina a sessão sem histórico (204 e depois 404): comportamento preservado, eventual mudança exige decisão separada. Os jobs automáticos ficam desativados no ambiente de testes. A validação anterior do seletor/UTC e da Sessão iPhone 02 foi confirmada pelo utilizador no dispositivo.
