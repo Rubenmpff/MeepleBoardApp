@@ -107,7 +107,7 @@
     "minutes": "{{value}} min"
   },
   "navigation": {
-    "back": "Voltar",
+    "back": "Anterior",
     "continue": "Continuar",
     "save": "Guardar partida"
   },

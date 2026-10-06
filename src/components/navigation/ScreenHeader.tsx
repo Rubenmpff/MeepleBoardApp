@@ -7,7 +7,6 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import {
-  useNavigation,
   useRouter,
 } from "expo-router";
 
@@ -16,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import { APP_THEME } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 
-type HeaderMode = "back" | "menu";
+type HeaderMode = "back" | "root" | "cancel";
 
 type Props = {
   title: string;
@@ -43,7 +42,7 @@ export default function ScreenHeader({
 }: Props) {
   const { t } = useTranslation("navigation");
   const router = useRouter();
-  const navigation = useNavigation();
+
 
   function handleLeftPress() {
     if (onLeftPress) {
@@ -51,54 +50,29 @@ export default function ScreenHeader({
       return;
     }
 
-    if (mode === "back") {
-      router.back();
-      return;
-    }
-
-    const drawerNavigation =
-      navigation as unknown as {
-        openDrawer?: () => void;
-        getParent?: () => {
-          openDrawer?: () => void;
-        } | undefined;
-      };
-
-    if (drawerNavigation.openDrawer) {
-      drawerNavigation.openDrawer();
-      return;
-    }
-
-    drawerNavigation
-      .getParent?.()
-      ?.openDrawer?.();
+    if (router.canGoBack()) router.back();
+    else router.replace("/dashboard");
   }
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={[styles.leftButton, appearance === "refresh" && refreshed.button]}
+      {mode !== "root" && <TouchableOpacity
+        style={[styles.leftButton, appearance === "refresh" && refreshed.button, mode === "cancel" && styles.cancelButton]}
         onPress={handleLeftPress}
         activeOpacity={0.82}
         accessibilityRole="button"
         accessibilityLabel={
-          leftAccessibilityLabel ?? (mode === "back"
-            ? t("back")
-            : t("openMenu"))
+          leftAccessibilityLabel ?? t(mode === "cancel" ? "cancel" : "back")
         }
       >
-        <Ionicons
-          name={
-            mode === "back"
-              ? "chevron-back"
-              : "menu"
-          }
+        {mode === "cancel" ? <Text style={styles.cancelLabel}>{t("cancel")}</Text> : <Ionicons
+          name="chevron-back"
           size={22}
           color={COLORS.onBackground}
-        />
-      </TouchableOpacity>
+        />}
+      </TouchableOpacity>}
 
-      <View style={styles.textBlock}>
+      <View style={[styles.textBlock, mode === "root" && { paddingLeft: 0 }]}>
         <Text
           style={[styles.title, appearance === "refresh" && UI_STYLES.title]}
           numberOfLines={appearance === "refresh" ? undefined : 1}
@@ -143,6 +117,8 @@ const refreshed = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
+  cancelButton: { width: "auto", minWidth: 44, maxWidth: "40%", height: "auto", minHeight: 44, paddingHorizontal: 10, paddingVertical: 10 },
+  cancelLabel: { ...UI_STYLES.body, color: COLORS.primary, fontWeight: "700", textAlign: "center" },
   container: {
     minHeight: 64,
     flexDirection: "row",

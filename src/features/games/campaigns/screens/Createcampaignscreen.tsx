@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 /**
  * CreateCampaignScreen.tsx
  *
@@ -40,6 +41,7 @@ export default function CreateCampaignScreen() {
   const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const navigationGuard = useUnsavedChanges(!!name || !!notes || (selectedGame?.id ?? "") !== paramGameId, saving, "/(app)/games/campaigns");
   const gameId = selectedGame?.id ?? "";
   const gameName = selectedGame?.name ?? "";
   useFocusEffect(
@@ -89,6 +91,7 @@ export default function CreateCampaignScreen() {
         gameId,
         notes: trimmedNotes || undefined,
       });
+      navigationGuard.allowExit();
       Alert.alert(
         t("create.successTitle"),
         t("create.successMessage"),
@@ -128,7 +131,7 @@ export default function CreateCampaignScreen() {
     }
   };
   return (
-    <ScreenLayout title={t("create.title")} keyboard>
+    <ScreenLayout title={t("create.title")} keyboard mode="cancel" onCancel={navigationGuard.cancel}>
       <ScrollView
         keyboardDismissMode="on-drag"
         contentContainerStyle={styles.scroll}

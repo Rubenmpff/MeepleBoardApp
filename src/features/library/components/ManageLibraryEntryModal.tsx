@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 import DialogSurface from "@/src/components/ui/DialogSurface";
 import React, { useCallback, useMemo, useState } from "react";
 import {
@@ -63,6 +64,9 @@ export default function ManageLibraryEntryModal({ visible, onClose, game, entry:
   const [priceText, setPriceText] = useState(entry?.pricePaid != null ? String(entry.pricePaid) : "");
   const [saving, setSaving] = useState(false);
 
+  const navigationGuard = useUnsavedChanges(visible && (status !== (entry?.status ?? GameLibraryStatus.Owned) || priceText !== (entry?.pricePaid != null ? String(entry.pricePaid) : "")), visible && saving);
+  const requestClose = () => navigationGuard.discard(onClose);
+
   // Sincroniza os campos sempre que o modal abre com uma entrada diferente
   React.useEffect(() => {
     if (visible && entry) {
@@ -123,7 +127,7 @@ export default function ManageLibraryEntryModal({ visible, onClose, game, entry:
   }, [game, isValidGame, onClose, removeGame, t]);
 
   return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
+    <Modal visible={visible} animationType="fade" transparent onRequestClose={requestClose}>
       <DialogSurface>
         <Text style={styles.title}>
           {isValidGame ? game.name : t("manageModal.invalid")}
@@ -190,7 +194,7 @@ export default function ManageLibraryEntryModal({ visible, onClose, game, entry:
             </Pressable>
           )}
 
-          <Pressable style={[styles.button, styles.close]} onPress={onClose} accessibilityRole="button" accessibilityLabel={t("manageModal.close")}>
+          <Pressable style={[styles.button, styles.close]} onPress={requestClose} accessibilityRole="button" accessibilityLabel={t("manageModal.close")}>
             <Text style={styles.buttonText}>{t("manageModal.close")}</Text>
           </Pressable>
         </View>

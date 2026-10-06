@@ -1,1 +1,6 @@
-export { default } from "@/src/features/library/screens/MyLibraryScreen";
+import { Redirect, useLocalSearchParams } from "expo-router";
+import { ROUTES } from "@/src/constants/routes";
+export default function LegacyRoute() {
+  const params = useLocalSearchParams();
+  return <Redirect href={{ pathname: ROUTES.LIBRARY, params }} />;
+}

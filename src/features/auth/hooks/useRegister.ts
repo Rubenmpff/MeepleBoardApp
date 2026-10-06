@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 // src/features/auth/hooks/useRegister.ts
 
 import { useState } from "react";
@@ -46,6 +47,8 @@ export const useRegister = () => {
 
   const [loading, setLoading] =
     useState(false);
+
+  const navigationGuard = useUnsavedChanges(!!username || !!email || !!password || !!confirmPassword || acceptTerms, loading, "/welcome");
 
   async function handleSignUp() {
     const normalizedUsername =
@@ -152,6 +155,7 @@ export const useRegister = () => {
           ),
         });
 
+        navigationGuard.allowExit();
         router.replace("/signin");
 
         return;
@@ -189,6 +193,7 @@ export const useRegister = () => {
   }
 
   return {
+    cancel: navigationGuard.cancel,
     username,
     setUsername,
 

@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -20,6 +21,8 @@ export const useForgotPassword = () => {
 
   const [loading, setLoading] =
     useState(false);
+
+  const navigationGuard = useUnsavedChanges(!!email, loading, "/signin");
 
   async function handleSubmit() {
     const normalizedEmail =
@@ -74,6 +77,7 @@ export const useForgotPassword = () => {
           ),
         });
 
+        navigationGuard.allowExit();
         router.replace("/signin");
 
         return;
@@ -133,6 +137,7 @@ export const useForgotPassword = () => {
   }
 
   return {
+    cancel: navigationGuard.cancel,
     email,
     setEmail,
     loading,

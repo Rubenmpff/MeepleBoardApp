@@ -15,6 +15,7 @@ export default function ForgotPasswordScreen() {
   const { t } = useTranslation("auth");
 
   const {
+    cancel,
     email,
     setEmail,
     loading,
@@ -22,8 +23,7 @@ export default function ForgotPasswordScreen() {
   } = useForgotPassword();
 
   return (
-    <AuthLayout title={t("forgotPassword.title")} onBack={() =>
-      router.replace(ROUTES.SIGN_IN)} backAccessibilityLabel={t(
+    <AuthLayout title={t("forgotPassword.title")} onBack={cancel} backAccessibilityLabel={t(
         "forgotPassword.backAccessibility"
       )}>
 

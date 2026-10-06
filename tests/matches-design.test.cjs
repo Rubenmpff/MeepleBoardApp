@@ -130,6 +130,9 @@ test('journal zero remains saveable and existing half-rating rounding is unchang
     assert.deepEqual(view.calls.find(c => c[0] === 'upsertJournalEntry')[2], { personalRating: Math.round(rating), notes: 'Notes', tags: 'tag' });
   }
   const unrated = await renderNative(journal, 'default', {}, { states: { 0: match, 2: false } });
+  await unrated.press('Cancelar');
+  assert.deepEqual(unrated.routes, ['back']);
+  assert.equal(unrated.guards[0].enabled, false);
   assert.equal(unrated.controls.find(c => c.accessibilityLabel === 'Guardar avaliação').disabled, true);
 });
 

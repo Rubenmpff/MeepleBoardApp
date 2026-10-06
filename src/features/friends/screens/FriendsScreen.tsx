@@ -34,7 +34,7 @@ export default function FriendsScreen() {
   }, [friends, query, sort]);
 
   async function refresh() { setRefreshing(true); try { await refetch(true); } finally { setRefreshing(false); } }
-  if (loading && friends.length === 0) return <SafeAreaView style={styles.screen}><ScreenHeader appearance="refresh" mode="menu" leftAccessibilityLabel={t("card.menu")} title={t("screen.title")} /><ScreenState loading message={t("card.loading")} /></SafeAreaView>;
+  if (loading && friends.length === 0) return <SafeAreaView style={styles.screen}><ScreenHeader appearance="refresh" mode="root" leftAccessibilityLabel={t("card.menu")} title={t("screen.title")} /><ScreenState loading message={t("card.loading")} /></SafeAreaView>;
 
   return (
     <SafeAreaView style={styles.screen} edges={["left", "right", "top", "bottom"]}>
@@ -44,7 +44,7 @@ export default function FriendsScreen() {
         contentContainerStyle={[styles.listContent, visibleFriends.length === 0 && styles.grow]}
         ListHeaderComponent={<>
           <ScreenHeader appearance="refresh"
-            mode="menu" leftAccessibilityLabel={t("card.menu")}
+            mode="root" leftAccessibilityLabel={t("card.menu")}
             title={t("screen.title")}
             subtitle={t("screen.count", { count: friends.length })}
             rightIcon="person-add-outline"

@@ -32,5 +32,19 @@
   "startup": {
     "loading": "A preparar o MeepleBoard…",
     "redirecting": "A verificar a sessão…"
+  },
+  "cancel": "Cancelar",
+  "more": {
+    "play": "Jogar em conjunto",
+    "reviews": "Partidas",
+    "account": "Conta"
+  },
+  "leave": {
+    "title": "Descartar alterações?",
+    "message": "Existem alterações por guardar. Se saíres, serão perdidas.",
+    "stay": "Continuar a editar",
+    "discard": "Descartar e sair",
+    "busyTitle": "Operação em curso",
+    "busyMessage": "Aguarda que a operação termine antes de sair."
   }
 }

@@ -19,6 +19,7 @@ export default function SignInScreen() {
     useTranslation("auth");
 
   const {
+    cancel,
     email,
     setEmail,
     password,
@@ -41,9 +42,7 @@ export default function SignInScreen() {
 
   useEffect(() => {
     function handleBack() {
-      router.replace(
-        "/welcome"
-      );
+      cancel();
 
       return true;
     }
@@ -57,7 +56,7 @@ export default function SignInScreen() {
     return () => {
       subscription.remove();
     };
-  }, [router]);
+  }, [cancel]);
 
   function renderResendBlock() {
     let message = t(
@@ -86,10 +85,7 @@ export default function SignInScreen() {
   }
 
   return (
-    <AuthLayout title={t("signIn.title")} onBack={() =>
-      router.replace(
-        "/welcome"
-      )} backAccessibilityLabel={t(
+    <AuthLayout title={t("signIn.title")} onBack={cancel} backAccessibilityLabel={t(
         "signIn.backAccessibility"
       )}>
 

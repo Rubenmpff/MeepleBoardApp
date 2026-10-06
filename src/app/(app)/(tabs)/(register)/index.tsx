@@ -1,1 +1,6 @@
-export { default } from "@/src/features/games/matches/screens/RegisterMatchScreen";
+import { Redirect, useLocalSearchParams } from "expo-router";
+import { ROUTES } from "@/src/constants/routes";
+export default function LegacyRoute() {
+  const params = useLocalSearchParams();
+  return <Redirect href={{ pathname: ROUTES.REGISTER_MATCH, params }} />;
+}

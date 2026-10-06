@@ -1,6 +1,5 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import ScreenHeader from "@/src/components/navigation/ScreenHeader";
 import React from "react";
 import { StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
@@ -17,7 +16,6 @@ export default function RegisterMatchScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader title={t("header.registerMatch")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} />
       <RegisterMatchForm
         currentUser={
           user

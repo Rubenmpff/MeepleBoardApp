@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 /**
  * CampaignDetailScreen.tsx
  * src/features/games/screens/CampaignDetailScreen.tsx
@@ -64,6 +65,9 @@ export default function CampaignDetailScreen() {
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesDraft, setNotesDraft] = useState("");
   const [loadError, setLoadError] = useState(false);
+  const currentEntry = expandedMatch ? journalEntries[expandedMatch]?.find(entry => entry.userId === currentUser?.id) : undefined;
+  const entryDirty = !!expandedMatch && !!journalEntries[expandedMatch] && JSON.stringify([entryDraft.personalRating, entryDraft.notes, entryDraft.tags]) !== JSON.stringify([currentEntry?.personalRating ?? undefined, currentEntry?.notes ?? "", currentEntry?.tags ?? ""]);
+  const navigationGuard = useUnsavedChanges((editingNotes && notesDraft !== (campaign?.notes ?? "")) || entryDirty, savingEntry || actionLoading, "/(app)/games/campaigns");
   const fetchCampaign = useCallback(async (silent = false) => {
     if (!id) return;
     try {
@@ -320,7 +324,7 @@ export default function CampaignDetailScreen() {
                         const myEntry = entries.find(e => e.userId === currentUser?.id);
                         return (
                           <View key={cm.id} style={styles.matchCard}>
-                            <TouchableOpacity style={styles.matchCardHeader} onPress={() => toggleMatch(cm.matchId)} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel={cm.sessionTitle || cm.gameName || t("detail.sessions.encounter")} accessibilityState={{ expanded: isExp }}>
+                            <TouchableOpacity style={styles.matchCardHeader} onPress={() => entryDirty ? navigationGuard.discard(() => { void toggleMatch(cm.matchId); }) : void toggleMatch(cm.matchId)} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel={cm.sessionTitle || cm.gameName || t("detail.sessions.encounter")} accessibilityState={{ expanded: isExp }}>
                               <View style={{ flex: 1 }}>
                                 <Text style={styles.matchTitle}>{cm.sessionTitle || cm.gameName || t("detail.sessions.encounter")}</Text>
                                 <View style={styles.matchMetaRow}>
@@ -476,7 +480,7 @@ export default function CampaignDetailScreen() {
                 />
                 <View style={styles.notesActions}>
                   <TouchableOpacity style={styles.notesCancelBtn}
-                    onPress={() => { setEditingNotes(false); setNotesDraft(campaign.notes ?? ""); }} accessibilityRole="button">
+                    onPress={() => navigationGuard.discard(() => { setEditingNotes(false); setNotesDraft(campaign.notes ?? ""); })} accessibilityRole="button">
                     <Text style={styles.notesCancelText}>{t("common.cancel")}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={[styles.notesSaveBtn, actionLoading && { opacity: 0.5 }]}

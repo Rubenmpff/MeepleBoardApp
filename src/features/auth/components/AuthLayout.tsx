@@ -20,7 +20,7 @@ export default function AuthLayout({ title, children, onBack, backAccessibilityL
         <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={styles.content}>
           {onBack && (
             <View style={styles.header}>
-              <ScreenHeader appearance="refresh" title={title} onLeftPress={onBack} leftAccessibilityLabel={backAccessibilityLabel} />
+              <ScreenHeader mode="cancel" appearance="refresh" title={title} onLeftPress={onBack} />
             </View>
           )}
           <SectionCard style={styles.card}>

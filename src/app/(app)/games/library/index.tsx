@@ -1,4 +1,6 @@
-// app/games/library/index.tsx
-import MyLibraryScreen from "@/src/features/library/screens/MyLibraryScreen";
-
-export default MyLibraryScreen;
+import { Redirect, useLocalSearchParams } from "expo-router";
+import { ROUTES } from "@/src/constants/routes";
+export default function LegacyRoute() {
+  const params = useLocalSearchParams();
+  return <Redirect href={{ pathname: ROUTES.LIBRARY, params }} />;
+}

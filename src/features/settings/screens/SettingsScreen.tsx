@@ -308,7 +308,6 @@ export default function SettingsScreen() {
           </View>
         </SectionCard>
 
-        <PrimaryButton variant="secondary" title={t("backToDashboard")} onPress={() => router.push(ROUTES.HOME)} />
 
         <TouchableOpacity
           accessibilityRole="button" accessibilityLabel={t("logout.button")} onPress={handleLogout}

@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 /**
  * CreateCampaignEncounterScreen.tsx
  * src/features/games/screens/CreateCampaignEncounterScreen.tsx
@@ -56,6 +57,7 @@ export default function CreateCampaignEncounterScreen() {
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const MAX_PHOTOS = 5;
   const [saving, setSaving] = useState(false);
+  const navigationGuard = useUnsavedChanges(!!sessionTitle || !!sessionOutcome || !!duration || !!location || personalRating !== undefined || !!notes || !!tags || pendingPhotos.length > 0 || gameMode !== null || soloResult !== "none" || winnerId !== undefined || coopWin !== undefined || selectedPlayers.join(",") !== (currentUser?.id ?? ""), saving || uploadingPhotos, campaignId ? `/games/campaigns/${campaignId}` : "/(app)/games/campaigns");
   const isSolo = gameMode === "solo";
   const isCoop = gameMode === "cooperative";
   const isComp = gameMode === "competitive";
@@ -154,6 +156,7 @@ export default function CreateCampaignEncounterScreen() {
             photoWarning = "\n\n" + tm("photos.partialFailure", { failed, total: pendingPhotos.length });
           }
         }
+        navigationGuard.allowExit();
         Alert.alert(
           t("encounter.successTitle"),
           t("encounter.successMessage") + photoWarning,
@@ -173,7 +176,7 @@ export default function CreateCampaignEncounterScreen() {
     }
   };
   return (
-    <ScreenLayout title={t("encounter.title")} keyboard>
+    <ScreenLayout title={t("encounter.title")} keyboard mode="cancel" onCancel={navigationGuard.cancel}>
       <ScrollView keyboardDismissMode="on-drag" contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         {/* Header */}
         <View style={styles.header}>

@@ -81,9 +81,9 @@ export default function RankingsScreen() {
     >
       <View style={styles.headerWrap}>
         <ScreenHeader
-          mode="menu"
+          mode="back"
           appearance="refresh"
-          leftAccessibilityLabel={tn("openMenu")}
+          leftAccessibilityLabel={tn("back")}
           title={t("rankings.title", { defaultValue: "Rankings de Jogos" })}
           subtitle={
             tab === "minha"

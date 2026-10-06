@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 import {
   useEffect,
   useState,
@@ -62,6 +63,8 @@ export const useResetPassword = () => {
 
   const [loading, setLoading] =
     useState(false);
+
+  const navigationGuard = useUnsavedChanges(!!newPassword || !!confirmPassword, loading, "/forgot-password");
 
   useEffect(() => {
     if (token && email) {
@@ -174,6 +177,7 @@ export const useResetPassword = () => {
           ),
         });
 
+        navigationGuard.allowExit();
         router.replace("/signin");
 
         return;
@@ -244,6 +248,7 @@ export const useResetPassword = () => {
   }
 
   return {
+    cancel: navigationGuard.cancel,
     newPassword,
     confirmPassword,
     setNewPassword,

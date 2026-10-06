@@ -7,7 +7,7 @@ export const ROUTES = {
 
   REGISTER_MATCH: "/games/register-match",
 
-  LIBRARY: "/games/library",
+  LIBRARY: "/(app)/(tabs)/(library)/library",
 
   PENDING_JOURNAL: "/games/pending-journal",
 
@@ -29,7 +29,7 @@ export const ROUTES = {
   CAMPAIGN_CREATE: "/(app)/games/campaigns/create",
 
   // ── Amigos
-  FRIENDS: "/friends",
+  FRIENDS: "/(app)/(tabs)/(friends)/people",
 
   FRIEND_REQUESTS: "/friends/requests",
 
@@ -38,6 +38,8 @@ export const ROUTES = {
   USER_PROFILE: "/friends/[id]",
 
   FRIEND_GAME_HISTORY: "/friends/[id]/games/[gameId]",
+
+  MORE: "/(app)/(tabs)/(more)/more",
 
   SETTINGS: "/settings",
 

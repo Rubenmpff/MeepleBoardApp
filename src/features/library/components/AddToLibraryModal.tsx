@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 import DialogSurface from "@/src/components/ui/DialogSurface";
 import React, { useState } from "react";
 import {
@@ -33,6 +34,9 @@ export default function AddToLibraryModal({
   const [step, setStep] = useState<"options" | "price">("options");
   const [price, setPrice] = useState("");
 
+  const navigationGuard = useUnsavedChanges(visible && !!price);
+  const requestClose = () => navigationGuard.discard(handleClose);
+
   function handleConfirm() {
     const normalized = price.replace(",", ".");
     const numericPrice = Number.parseFloat(normalized) || 0;
@@ -56,7 +60,7 @@ export default function AddToLibraryModal({
       visible={visible}
       animationType="slide"
       transparent
-      onRequestClose={handleClose}
+      onRequestClose={requestClose}
     >
       <DialogSurface>
         {step === "price" && (
@@ -95,7 +99,7 @@ export default function AddToLibraryModal({
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.cancelBtn} onPress={handleClose} accessibilityRole="button" accessibilityLabel={t("addModal.cancel")}>
+            <TouchableOpacity style={styles.cancelBtn} onPress={requestClose} accessibilityRole="button" accessibilityLabel={t("addModal.cancel")}>
               <Text style={styles.cancelText}>
                 {t("addModal.cancel")}
               </Text>

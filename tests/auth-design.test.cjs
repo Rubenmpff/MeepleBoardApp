@@ -57,8 +57,8 @@ test('Sign-in retains failure classification, back navigation, recovery and pass
   const r = await render('signin', { states: signInStates, services: { login: { success: false, message: 'Email not confirmed' } } });
   await r.press('Entrar'); assert.ok(r.updates.some(x => x[0] === 5 && x[1] === true));
   await r.press('Mostrar palavra-passe'); assert.deepEqual(r.updates.at(-1), [10, true]);
-  await r.press('Esqueceste-te da palavra-passe?'); await r.press('Voltar ao ecrã inicial');
-  assert.deepEqual(r.routes, ['/forgot-password', ['replace', '/welcome']]);
+  await r.press('Esqueceste-te da palavra-passe?'); await r.press('Cancelar');
+  assert.deepEqual(r.routes, ['/forgot-password', 'back']);
   const shown = await render('signin', { states: { ...signInStates, 10: true } });
   assert.equal(shown.inputs[1].secureTextEntry, false);
 });
@@ -85,11 +85,11 @@ test('Existing resend attempt limit remains a local guard', async () => {
   assert.ok(!r.calls.some(x => x[0] === 'resendConfirmationEmail'));
   assert.equal(r.calls.find(x => x[0] === 'toast')[1].text1, 'Limite diário atingido');
 });
-test('Sign-in hardware back retains welcome replacement and listener cleanup', async () => {
+test('Sign-in hardware back retains contextual return and listener cleanup', async () => {
   const r = await render('signin', { captureEffects: true });
   const cleanup = await flushEffects(r);
   assert.equal(r.calls.find(x => x[0] === 'backHandler')[2](), true);
-  assert.deepEqual(r.routes, [['replace', '/welcome']]); cleanup();
+  assert.deepEqual(r.routes, ['back']); cleanup();
   assert.ok(r.calls.some(x => x[0] === 'removeBackHandler'));
 });
 test('Registration keeps its existing payload, consent and sign-in destination', async () => {
@@ -112,7 +112,7 @@ test('Registration retains both visibility toggles, consent editing and back act
   await r.press('Mostrar palavra-passe'); await r.press('Mostrar confirmação da palavra-passe');
   assert.deepEqual(r.updates.slice(-2), [[6, true], [7, true]]);
   r.switches[0].onValueChange(true); assert.deepEqual(r.updates.at(-1), [4, true]);
-  await r.press('Voltar'); assert.deepEqual(r.routes, ['back']);
+  await r.press('Cancelar'); assert.deepEqual(r.routes, ['back']);
 });
 test('Recovery retains email validation, normalization, failure message and success navigation', async () => {
   for (const value of ['', 'invalid']) {

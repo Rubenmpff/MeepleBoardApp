@@ -1,282 +1,52 @@
-import React, {
-  useEffect,
-  useState,
-} from "react";
-import {
-  Keyboard,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import {
-  withLayoutContext,
-} from "expo-router";
-import {
-  createMaterialTopTabNavigator,
-} from "expo-router/js-top-tabs";
+import { Tabs, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+import { useTranslation } from "react-i18next";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
-import { useTranslation } from "react-i18next";
+import { ROUTES } from "@/src/constants/routes";
 
-const { Navigator } =
-  createMaterialTopTabNavigator();
-
-const SwipeTabs =
-  withLayoutContext(Navigator);
-
-type MainTabName =
-  | "(home)"
-  | "(register)"
-  | "(library)"
-  | "(friends)";
-
-const TAB_META: Record<
-  MainTabName,
-  {
-    label: string;
-    icon: keyof typeof MaterialIcons.glyphMap;
-  }
-> = {
-  "(home)": {
-    label: "tabs.home",
-    icon: "home-filled",
-  },
-  "(register)": {
-    label: "tabs.register",
-    icon: "add",
-  },
-  "(library)": {
-    label: "tabs.library",
-    icon: "casino",
-  },
-  "(friends)": {
-    label: "tabs.friends",
-    icon: "people-alt",
-  },
-};
+const items = [
+  { name: "(home)", label: "home", icon: "home-filled" },
+  { name: "(library)", label: "library", icon: "casino" },
+  { name: null, label: "register", icon: "add" },
+  { name: "(friends)", label: "friends", icon: "people-alt" },
+  { name: "(more)", label: "more", icon: "more-horiz" },
+] as const;
 
 export default function MainTabsLayout() {
-  const [isKeyboardVisible, setIsKeyboardVisible] =
-    useState(false);
-
-  useEffect(() => {
-    const showEvent =
-      Platform.OS === "ios"
-        ? "keyboardWillShow"
-        : "keyboardDidShow";
-
-    const hideEvent =
-      Platform.OS === "ios"
-        ? "keyboardWillHide"
-        : "keyboardDidHide";
-
-    const showSubscription =
-      Keyboard.addListener(
-        showEvent,
-        () => {
-          setIsKeyboardVisible(true);
-        }
-      );
-
-    const hideSubscription =
-      Keyboard.addListener(
-        hideEvent,
-        () => {
-          setIsKeyboardVisible(false);
-        }
-      );
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
-
   return (
-    <SwipeTabs
-      initialRouteName="(home)"
-      tabBarPosition="bottom"
-      screenOptions={{
-        headerShown: false,
-
-        /*
-         * Enquanto o teclado está aberto, bloqueamos o swipe
-         * horizontal entre tabs.
-         *
-         * Isto evita mudanças acidentais de página enquanto o
-         * utilizador está a escrever num TextInput.
-         *
-         * Os botões da barra inferior continuam funcionais.
-         */
-        swipeEnabled: !isKeyboardVisible,
-
-        animationEnabled: true,
-        lazy: true,
-      }}
-      tabBar={(props: any) => (
-        <MainBottomBar {...props} />
-      )}
-    >
-      <SwipeTabs.Screen
-        name="(home)"
-      />
-
-      <SwipeTabs.Screen
-        name="(register)"
-      />
-
-      <SwipeTabs.Screen
-        name="(library)"
-      />
-
-      <SwipeTabs.Screen
-        name="(friends)"
-      />
-    </SwipeTabs>
+    <Tabs initialRouteName="(home)" screenOptions={{ headerShown: false }} tabBar={props => <MainBottomBar {...props} />}>
+      <Tabs.Screen name="(home)" />
+      <Tabs.Screen name="(library)" />
+      <Tabs.Screen name="(friends)" />
+      <Tabs.Screen name="(more)" />
+      <Tabs.Screen name="(register)" options={{ href: null }} />
+    </Tabs>
   );
 }
 
-function MainBottomBar({
-  state,
-  navigation,
-}: any) {
+type TabBarProps = Parameters<NonNullable<React.ComponentProps<typeof Tabs>["tabBar"]>>[0];
+function MainBottomBar({ state, navigation }: TabBarProps) {
   const { t } = useTranslation("navigation");
-  const insets =
-    useSafeAreaInsets();
-
-  function openDrawer() {
-    let current: any =
-      navigation;
-
-    while (current) {
-      if (
-        typeof current.openDrawer ===
-        "function"
-      ) {
-        current.openDrawer();
-        return;
-      }
-
-      current =
-        current.getParent?.();
-    }
-
-    console.warn(
-      "Não foi possível encontrar o Drawer pai."
-    );
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  function open(name: string | null) {
+    if (!name) { router.push(ROUTES.REGISTER_MATCH); return; }
+    const route = state.routes.find(item => item.name === name);
+    if (!route) return;
+    const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
+    if (!event.defaultPrevented) navigation.navigate(name);
   }
-
-  function goToTab(
-    routeName: MainTabName
-  ) {
-    const route =
-      state.routes.find(
-        (item: any) =>
-          item.name === routeName
-      );
-
-    if (!route) {
-      return;
-    }
-
-    const event =
-      navigation.emit({
-        type: "tabPress",
-        target: route.key,
-        canPreventDefault: true,
-      });
-
-    if (
-      event.defaultPrevented
-    ) {
-      return;
-    }
-
-    navigation.navigate(
-      routeName
-    );
-  }
-
-  return (
-    <View
-      style={[
-        styles.safeArea,
-        {
-          paddingBottom:
-            Math.max(
-              insets.bottom,
-              8
-            ),
-        },
-      ]}
-    >
-      <View
-        style={
-          styles.container
-        }
-      >
-        <BottomItem
-          label={t("tabs.more")}
-          icon="menu"
-          active={false}
-          onPress={
-            openDrawer
-          }
-        />
-
-        {(
-          [
-            "(home)",
-            "(register)",
-            "(library)",
-            "(friends)",
-          ] as MainTabName[]
-        ).map((name) => {
-          const routeIndex =
-            state.routes.findIndex(
-              (route: any) =>
-                route.name ===
-                name
-            );
-
-          const active =
-            routeIndex >= 0 &&
-            state.index ===
-              routeIndex;
-
-          const meta =
-            TAB_META[name];
-
-          return (
-            <BottomItem
-              key={name}
-              label={
-                t(meta.label)
-              }
-              icon={
-                meta.icon
-              }
-              active={
-                active
-              }
-              emphasized={
-                name ===
-                "(register)"
-              }
-              onPress={() =>
-                goToTab(name)
-              }
-            />
-          );
-        })}
-      </View>
+  return <View style={[styles.safeArea, { paddingBottom: Math.max(insets.bottom, 8), paddingLeft: insets.left + 8, paddingRight: insets.right + 8 }]}>
+    <View style={styles.container}>
+      {items.map(item => <BottomItem key={item.label} label={t("tabs." + item.label)} icon={item.icon}
+        active={item.name !== null && state.routes[state.index]?.name === item.name}
+        emphasized={item.name === null} onPress={() => open(item.name)} />)}
     </View>
-  );
+  </View>;
 }
 
 function BottomItem({

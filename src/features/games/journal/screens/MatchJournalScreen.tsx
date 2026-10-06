@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,7 +9,7 @@ import ScreenState from "@/src/components/ui/ScreenState";
  * src/features/games/screens/MatchJournalScreen.tsx
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView, Platform, View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, TextInput, TouchableOpacity, Image,
 } from "react-native";
@@ -47,6 +48,8 @@ export default function MatchJournalScreen() {
   const MAX_PHOTOS = 5;
 
   const [loadError, setLoadError] = useState(false);
+  const savedDraft = useRef(JSON.stringify([undefined, "", ""]));
+  const navigationGuard = useUnsavedChanges(!loading && JSON.stringify([personalRating, notes, tags]) !== savedDraft.current, saving || uploadingPhoto, "/games/pending-journal");
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -60,6 +63,7 @@ export default function MatchJournalScreen() {
       setMatch(matchData);
       setEntries(entriesData);
       const mine = entriesData.find(e => e.userId === currentUser?.id);
+      savedDraft.current = JSON.stringify([mine?.personalRating ?? undefined, mine?.notes ?? "", mine?.tags ?? ""]);
       if (mine) {
         setPersonalRating(mine.personalRating ?? undefined);
         setNotes(mine.notes ?? "");
@@ -90,6 +94,7 @@ export default function MatchJournalScreen() {
       };
       console.log("📝 JOURNAL UPSERT PAYLOAD =>", id, JSON.stringify(payload));
       await matchService.upsertJournalEntry(id, payload);
+      savedDraft.current = JSON.stringify([personalRating, notes, tags]);
       Alert.alert(t("journal.savedTitle"), t("journal.saved"),
         [{ text: "OK", onPress: load }]);
     } catch (err: any) {
@@ -148,15 +153,15 @@ export default function MatchJournalScreen() {
     ]);
   };
 
-  if (loading) return <SafeAreaView style={styles.screen}><ScreenHeader title={t("ui.journalTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} /><ScreenState loading message={t("ui.loading")} /></SafeAreaView>;
-  if (!match || loadError) return <SafeAreaView style={styles.screen}><ScreenHeader title={t("ui.journalTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} /><ScreenState error={loadError} message={t(loadError ? "ui.loadError" : "ui.notFound")} onRetry={load} retryLabel={t("ui.retry")} /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={styles.screen}><ScreenHeader mode="cancel" title={t("ui.journalTitle")} appearance="refresh" onLeftPress={navigationGuard.cancel} /><ScreenState loading message={t("ui.loading")} /></SafeAreaView>;
+  if (!match || loadError) return <SafeAreaView style={styles.screen}><ScreenHeader mode="cancel" title={t("ui.journalTitle")} appearance="refresh" onLeftPress={navigationGuard.cancel} /><ScreenState error={loadError} message={t(loadError ? "ui.loadError" : "ui.notFound")} onRetry={load} retryLabel={t("ui.retry")} /></SafeAreaView>;
 
   const submittedCount = entries.filter(e => e.personalRating != null).length;
   const totalPlayers = match.players?.length ?? 0;
 
   return (
     <SafeAreaView style={styles.screen}>
-    <ScreenHeader title={t("ui.journalTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} />
+    <ScreenHeader mode="cancel" title={t("ui.journalTitle")} appearance="refresh" onLeftPress={navigationGuard.cancel} />
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
     <ScrollView keyboardDismissMode="on-drag" style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 

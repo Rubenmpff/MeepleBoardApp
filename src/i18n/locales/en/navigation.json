@@ -32,5 +32,19 @@
   "startup": {
     "loading": "Preparing MeepleBoard…",
     "redirecting": "Checking your session…"
+  },
+  "cancel": "Cancel",
+  "more": {
+    "play": "Play together",
+    "reviews": "Matches",
+    "account": "Account"
+  },
+  "leave": {
+    "title": "Discard changes?",
+    "message": "You have unsaved changes. Leaving will discard them.",
+    "stay": "Keep editing",
+    "discard": "Discard and leave",
+    "busyTitle": "Operation in progress",
+    "busyMessage": "Wait for the operation to finish before leaving."
   }
 }

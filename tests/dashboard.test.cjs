@@ -75,7 +75,7 @@ test('Home preserves registration and shortcut destinations in Portuguese and En
     assert.equal((rendered.html.match(/Player with a long name/g) || []).length, 1);
     assert.ok(rendered.html.includes(t.lastMatch.empty.replace(/'/g, "&#x27;")), rendered.html);
     for (const label of [t.quickActions.registerMatch.title, t.lastMatch.registerFirst, t.quickActions.sessions.title, t.quickActions.library.title, t.quickActions.campaigns.title]) rendered.press(label);
-    assert.deepEqual(rendered.routes, ['/games/register-match', '/games/register-match', '/games/sessions', '/games/library', '/(app)/games/campaigns']);
+    assert.deepEqual(rendered.routes, ['/games/register-match', '/games/register-match', '/games/sessions', '/(app)/(tabs)/(library)/library', '/(app)/games/campaigns']);
     assert.ok(!rendered.html.includes(t.pending.title));
   }
 });

@@ -15,7 +15,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
   ]))]));
   const i18n = i18next.createInstance();
   await i18n.init({ lng: options.language || 'pt', resources, interpolation: { escapeValue: false } });
-  const controls = [], lists = [], routes = [], calls = [], inputs = [], updates = [], datePickers = [], effects = [], nativeViews = [], switches = [], images = [], cache = new Map();
+  const controls = [], lists = [], routes = [], calls = [], inputs = [], updates = [], datePickers = [], effects = [], nativeViews = [], switches = [], images = [], guards = [], redirects = [], cache = new Map();
   let stateIndex = 0;
   const host = ({ children }) => React.createElement('div', null, children);
   const button = p => { controls.push(p); return React.createElement('button', null, p.children); };
@@ -42,7 +42,9 @@ async function renderNative(source, exportName, props = {}, options = {}) {
         element(p.ListFooterComponent));
     },
   };
-  const router = { push: r => routes.push(r), replace: r => routes.push(['replace', r]), back: () => routes.push('back') };
+  const router = { push: r => routes.push(r), navigate: r => routes.push(r), replace: r => routes.push(['replace', r]), canGoBack: () => options.canGoBack !== false, back: () => routes.push('back') };
+  const Tabs = p => { calls.push(['tabs', p]); return React.createElement(host, null, p.tabBar(options.tabProps), p.children); };
+  Tabs.Screen = () => null;
   const mocks = {
     'i18next': { __esModule: true, default: i18n },
     '@/src/i18n': {
@@ -57,13 +59,14 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     'react-native-safe-area-context': { SafeAreaView: p => { nativeViews.push(['safeArea', p]); return React.createElement(host, p); }, useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) },
     '@expo/vector-icons': { MaterialIcons: () => null, MaterialCommunityIcons: () => null, Ionicons: () => null, AntDesign: () => null, Feather: () => null },
     'expo-image': { Image: () => null },
-    'expo-router': { router, useRouter: () => router, usePathname: () => options.pathname || '/dashboard', useNavigation: () => ({ openDrawer: () => routes.push('menu') }), useLocalSearchParams: () => options.params || ({ id: 'game-id' }), useFocusEffect() {},
+    'expo-router': { router, Tabs, Redirect: p => { redirects.push(p.href); return null; }, useRouter: () => router, usePathname: () => options.pathname || '/dashboard', useNavigation: () => ({ dispatch: action => calls.push(['navigationDispatch', action]), openDrawer: () => routes.push('menu') }), useLocalSearchParams: () => options.params || ({ id: 'game-id' }), useFocusEffect() {},
       withLayoutContext: () => {
         const Tabs = p => { calls.push(['tabs', p]); return React.createElement(host, null, p.tabBar(options.tabProps), p.children); };
         Tabs.Screen = () => null;
         return Tabs;
       },
     },
+    'expo-router/react-navigation': { usePreventRemove: (enabled, callback) => guards.push({ enabled, callback }) },
     'expo-router/js-top-tabs': { createMaterialTopTabNavigator: () => ({ Navigator: host }) },
     'react-i18next': { useTranslation: ns => ({ t: (key, opts) => i18n.t(key, { ns, ...opts }), i18n }) },
     'react-redux': { useSelector: fn => fn({ auth: { user: options.user || { id: 'me' } }, library: { items: options.library || [] } }), useDispatch: () => action => calls.push(['dispatch', action]) },
@@ -143,7 +146,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
   }
   const component = load(path.join(root, source))[exportName];
   const html = renderToStaticMarkup(React.createElement(component, props));
-  return { html, controls, lists, routes, calls, inputs, updates, datePickers, effects, nativeViews, switches, images, i18n, load: file => load(path.join(root, file)),
+  return { html, controls, lists, routes, calls, inputs, updates, datePickers, effects, nativeViews, switches, images, guards, redirects, i18n, load: file => load(path.join(root, file)),
     async press(label) {
       const p = controls.find(c => c.accessibilityLabel === label) || controls.find(c =>
         renderToStaticMarkup(React.createElement(React.Fragment, null, c.children)).replace(/<[^>]+>/g, '') === label);

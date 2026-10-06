@@ -18,6 +18,7 @@ export default function SignUpScreen() {
     useTranslation("auth");
 
   const {
+    cancel,
     username,
     setUsername,
     email,
@@ -43,8 +44,7 @@ export default function SignUpScreen() {
   ] = useState(false);
 
   return (
-    <AuthLayout title={t("signUp.title")} onBack={() =>
-      router.back()} backAccessibilityLabel={t(
+    <AuthLayout title={t("signUp.title")} onBack={cancel} backAccessibilityLabel={t(
         "signUp.backAccessibility"
       )}>
 

@@ -16,6 +16,7 @@ export default function ResetPasswordScreen() {
   const { t } = useTranslation("auth");
 
   const {
+    cancel,
     newPassword,
     confirmPassword,
     setNewPassword,
@@ -35,10 +36,7 @@ export default function ResetPasswordScreen() {
   ] = useState(false);
 
   return (
-    <AuthLayout title={t("resetPassword.title")} onBack={() =>
-      router.replace(
-        ROUTES.SIGN_IN
-      )} backAccessibilityLabel={t(
+    <AuthLayout title={t("resetPassword.title")} onBack={cancel} backAccessibilityLabel={t(
         "resetPassword.backAccessibility"
       )}>
 

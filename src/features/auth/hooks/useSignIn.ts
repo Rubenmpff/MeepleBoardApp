@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 // src/features/auth/hooks/useSignIn.ts
 
 import { useEffect, useRef, useState } from "react";
@@ -26,6 +27,8 @@ export const useSignIn = () => {
   const [resendLoading, setResendLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendAttempts, setResendAttempts] = useState(0);
+
+  const navigationGuard = useUnsavedChanges(!!email || !!password || rememberMe, loading || resendLoading, "/welcome");
 
   const cooldownIntervalRef =
     useRef<ReturnType<typeof setInterval> | null>(null);
@@ -140,6 +143,7 @@ export const useSignIn = () => {
         return;
       }
 
+      navigationGuard.allowExit();
       router.replace("/dashboard");
     } catch (error) {
       console.error(
@@ -287,6 +291,7 @@ export const useSignIn = () => {
   }
 
   return {
+    cancel: navigationGuard.cancel,
     email,
     setEmail,
 

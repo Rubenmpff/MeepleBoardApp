@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 /**
  * CreateSessionScreen.tsx
  *
@@ -56,6 +57,7 @@ export default function CreateSessionScreen() {
   const [sessionDate, setSessionDate] = useState<Date>(defaultSessionDate);
   const [deadlineDate, setDeadlineDate] = useState<Date>(defaultDeadline);
   const [useDeadline, setUseDeadline] = useState(false);
+  const navigationGuard = useUnsavedChanges(!!name || !!location || selectedIds.length > 0 || sessionDate.getTime() !== defaultSessionDate.getTime() || deadlineDate.getTime() !== defaultDeadline.getTime() || useDeadline, saving, "/games/sessions");
   // DatePicker state
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
   const showPicker = (target: PickerTarget) => setPickerTarget(target);
@@ -111,6 +113,7 @@ export default function CreateSessionScreen() {
         playerIds: selectedIds,
       });
       if (created) {
+        navigationGuard.allowExit();
         Alert.alert(
           t("sessions.created"),
           selectedIds.length > 0
@@ -128,7 +131,7 @@ export default function CreateSessionScreen() {
   const currentPickerValue = pickerTarget?.startsWith("session") ? sessionDate : deadlineDate;
   /* ── Render ── */
   return (
-    <ScreenLayout title={t("sessions.createTitle")} keyboard>
+    <ScreenLayout title={t("sessions.createTitle")} keyboard mode="cancel" onCancel={navigationGuard.cancel}>
       <ScrollView keyboardDismissMode="on-drag" contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         {/* Header */}
         <View style={styles.header}>

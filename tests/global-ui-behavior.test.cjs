@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { renderNative } = require('./helpers/renderNative.cjs');
 const rankings = 'src/features/games/catalog/screens/RankingsScreen.tsx';
-const drawer = 'src/components/drawer/CustomDrawerContent.tsx';
+const more = 'src/features/navigation/screens/MoreScreen.tsx';
 const tabs = 'src/app/(app)/(tabs)/_layout.tsx';
 const game = { id: 'ranked-game', name: 'Ranked fixture', meepleBoardScore: 80, averageRating: 7.2, personalAverageRating: 0 };
 const flush = () => new Promise(resolve => setImmediate(resolve));
@@ -37,9 +37,8 @@ test('Rankings failure records the page and retry clears the visible error', asy
   assert.ok(ui.updates.some(([index, value]) => index === 4 && value === false));
 });
 
-test('Drawer marks campaigns as selected without changing its navigation destination', async () => {
-  const ui = await renderNative(drawer, 'default', {}, { pathname: '/games/campaigns', isolateAuth: true });
-  assert.equal(ui.controls.find(c => c.accessibilityLabel === 'Campanhas').accessibilityState.selected, true);
+test('More opens the existing campaigns destination', async () => {
+  const ui = await renderNative(more, 'default', {}, { isolateAuth: true });
   await ui.press('Campanhas'); assert.deepEqual(ui.routes, ['/(app)/games/campaigns']);
 });
 
@@ -58,17 +57,16 @@ for (const language of ['pt', 'en']) {
     assert.deepEqual(more.calls, [['getRankings', 1, 20, 'meepleboard']]);
     assert.match(more.html, /Ranked fixture/);
   });
-  test(`Drawer keeps real identity, pending count, destinations and logout (${language})`, async () => {
-    const ui = await renderNative(drawer, 'default', {}, { language, isolateAuth: true, pendingJournalCount: 4,
-      user: { id: 'fixture-user', userName: 'Fixture Player', email: 'fixture@example.invalid' } });
-    assert.match(ui.html, /Fixture Player/); assert.match(ui.html, />4</);
-    const keys = ['profile', 'home', 'gameSearch', 'library', 'rankings', 'sessions', 'campaigns', 'friends', 'pendingJournal', 'settings'];
+  test(`More keeps pending count, destinations and logout (${language})`, async () => {
+    const ui = await renderNative(more, 'default', {}, { language, isolateAuth: true, pendingJournalCount: 4 });
+    assert.match(ui.html, />4</);
+    const keys = ['sessions', 'campaigns', 'pendingJournal', 'rankings', 'profile', 'settings'];
     for (const key of keys) await ui.press(ui.i18n.t(key, { ns: 'navigation' }));
-    assert.deepEqual(ui.routes, ['/profile', '/dashboard', '/games/search', '/games/library', '/games/rankings', '/games/sessions', '/(app)/games/campaigns', '/friends', '/games/pending-journal', '/settings']);
+    assert.deepEqual(ui.routes, ['/games/sessions', '/(app)/games/campaigns', '/games/pending-journal', '/games/rankings', '/profile', '/settings']);
     await ui.press(ui.i18n.t('logout', { ns: 'navigation' }));
     assert.deepEqual(ui.calls, [['dispatch', { type: 'auth/logout' }]]);
     assert.deepEqual(ui.routes.at(-1), ['replace', '/(auth)/signin']);
-    assert.ok(ui.nativeViews.find(([kind, p]) => kind === 'safeArea' && p.edges.includes('bottom')));
+    assert.equal(ui.controls.some(c => c.accessibilityLabel === ui.i18n.t('back', { ns: 'navigation' })), false);
   });
   test(`Startup reuses logo and translates both loading stages (${language})`, async () => {
     for (const redirecting of [false, true]) {
@@ -78,30 +76,28 @@ for (const language of ['pt', 'en']) {
       assert.ok(ui.nativeViews.some(([kind]) => kind === 'safeArea'));
     }
   });
-  test(`Tabs keep routes, selected state, drawer and preventable tab events (${language})`, async () => {
-    const names = ['(home)', '(register)', '(library)', '(friends)'], events = [], destinations = [];
-    const navigation = { emit: e => { events.push(e); return { defaultPrevented: e.target === '(friends)-key' }; }, navigate: n => destinations.push(n), getParent: () => ({ openDrawer: () => destinations.push('drawer') }) };
-    const ui = await renderNative(tabs, 'default', {}, { language, tabProps: { state: { index: 2, routes: names.map(name => ({ name, key: name + '-key' })) }, navigation } });
+  test(`Tabs use four destinations and a registration action in the approved order (${language})`, async () => {
+    const names = ['(home)', '(library)', '(friends)', '(more)'], events = [], destinations = [];
+    const navigation = { emit: e => { events.push(e); return { defaultPrevented: e.target === '(friends)-key' }; }, navigate: n => destinations.push(n) };
+    const ui = await renderNative(tabs, 'default', {}, { language, tabProps: { state: { index: 1, routes: names.map(name => ({ name, key: name + '-key' })) }, navigation } });
     const config = ui.calls.find(c => c[0] === 'tabs')[1];
-    assert.equal(config.initialRouteName, '(home)'); assert.equal(config.tabBarPosition, 'bottom'); assert.equal(config.screenOptions.swipeEnabled, true);
-    for (const key of ['more', 'home', 'register', 'library', 'friends']) await ui.press(ui.i18n.t('tabs.' + key, { ns: 'navigation' }));
-    assert.deepEqual(destinations, ['drawer', '(home)', '(register)', '(library)']);
+    assert.equal(config.initialRouteName, '(home)');
+    const labels = ['home', 'library', 'register', 'friends', 'more'].map(key => ui.i18n.t('tabs.' + key, { ns: 'navigation' }));
+    assert.deepEqual(ui.controls.map(c => c.accessibilityLabel), labels);
+    for (const label of labels) await ui.press(label);
+    assert.deepEqual(destinations, ['(home)', '(library)', '(more)']);
+    assert.deepEqual(ui.routes, ['/games/register-match']);
     assert.equal(events.length, 4); assert.ok(events.every(e => e.type === 'tabPress' && e.canPreventDefault));
     const selected = ui.controls.filter(c => c.accessibilityState?.selected);
-    assert.equal(selected.length, 1); assert.equal(selected[0].accessibilityLabel, ui.i18n.t('tabs.library', { ns: 'navigation' }));
+    assert.equal(selected.length, 1); assert.equal(selected[0].accessibilityLabel, labels[1]);
   });
 }
 
-test('Keyboard still disables swipe and listeners are removed', async () => {
-  const ui = await renderNative(tabs, 'default', {}, { states: [true], captureEffects: true,
-    tabProps: { state: { index: 0, routes: [] }, navigation: {} } });
-  assert.equal(ui.calls.find(c => c[0] === 'tabs')[1].screenOptions.swipeEnabled, false);
-  const cleanup = ui.effects[0]();
-  const listeners = ui.calls.filter(c => c[0] === 'keyboardListener');
-  assert.deepEqual(listeners.map(c => c[1]), ['keyboardWillShow', 'keyboardWillHide']);
-  listeners[0][2](); listeners[1][2](); cleanup();
-  assert.deepEqual(ui.updates, [[0, true], [0, false]]);
-  assert.equal(ui.calls.filter(c => c[0] === 'removeKeyboardListener').length, 2);
+test('Global navigation uses bottom tabs without a swipe pager or keyboard gesture listeners', async () => {
+  const ui = await renderNative(tabs, 'default', {}, { captureEffects: true, tabProps: { state: { index: 0, routes: [] }, navigation: {} } });
+  assert.equal(ui.effects.length, 0);
+  assert.equal(ui.calls.some(c => c[0] === 'keyboardListener'), false);
+  assert.equal(ui.calls.find(c => c[0] === 'tabs')[1].screenOptions.headerShown, false);
 });
 
 for (const token of [null, 'isolated-token-fixture']) test(`Redirect keeps existing ${token ? 'authenticated' : 'anonymous'} flow`, async () => {

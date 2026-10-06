@@ -107,7 +107,7 @@
     "minutes": "{{value}} min"
   },
   "navigation": {
-    "back": "Back",
+    "back": "Previous",
     "continue": "Continue",
     "save": "Save match"
   },

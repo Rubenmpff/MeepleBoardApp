@@ -1173,7 +1173,7 @@ export default function GameSearchScreen() {
 
   const listHeader = (<View>
     <ScreenHeader
-      mode="menu" appearance="refresh" leftAccessibilityLabel={t("ui.menu")}
+      mode="back" appearance="refresh" leftAccessibilityLabel={t("ui.back")}
       title={t("ui.searchTitle")}
     />
 

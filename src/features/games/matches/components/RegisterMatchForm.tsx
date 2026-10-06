@@ -1,3 +1,5 @@
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
+import ScreenHeader from "@/src/components/navigation/ScreenHeader";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import DialogSurface from "@/src/components/ui/DialogSurface";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -99,6 +101,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const MAX_PHOTOS = 5;
+  const navigationGuard = useUnsavedChanges(!!selectedGame || !!location || !!duration || !!comments || personalRating !== undefined || !!notes || !!tags || pendingPhotos.length > 0, loading || uploadingPhotos);
 
   const [unofficialMode, setUnofficialMode] = useState<GameMode | null>(null);
   const [unofficialJustification, setUnofficialJustification] = useState("");
@@ -231,6 +234,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   };
 
   const clearAll = () => {
+    navigationGuard.markUnsaved();
     setSelectedGame(null); setSelectedExpansions([]); setPlayerState([]);
     setLocation(""); setDuration(""); setComments("");
     setPersonalRating(undefined); setNotes(""); setTags(""); setPendingPhotos([]);
@@ -302,6 +306,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
         }
       }
 
+      navigationGuard.allowExit();
       Alert.alert(
         t("success.title"),
         (isSessionMatch ? t("success.session") : t("success.quick")) + photoWarning,
@@ -366,8 +371,10 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
   const content = (
     <View style={{ backgroundColor: COLORS.background }}>
+      {!disableScroll && <ScreenHeader mode="cancel" appearance="refresh" title={t("header.registerMatch")} onLeftPress={navigationGuard.cancel} />}
       {/* Header */}
       <View style={styles.header}>
+        {disableScroll && <PrimaryButton title={i18n.t("navigation:cancel")} variant="secondary" onPress={() => navigationGuard.discard(clearAll)} />}
         {disableScroll && <Text style={styles.title}>
           {isSessionMatch ? t("header.addMatch") : t("header.registerMatch")}
         </Text>}
