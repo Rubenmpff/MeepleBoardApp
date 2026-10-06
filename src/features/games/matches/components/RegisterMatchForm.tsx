@@ -41,11 +41,12 @@ type Props = {
   sessionId?: string;
   currentUser?: { id: string; userName: string };
   disableScroll?: boolean;
+  onRegistered?: () => void;
 };
 
 type Step = 0 | 1 | 2 | 3;
 
-export default function RegisterMatchForm({ sessionId, currentUser, disableScroll = false }: Props) {
+export default function RegisterMatchForm({ sessionId, currentUser, disableScroll = false, onRegistered }: Props) {
   const { t, i18n } = useTranslation("matches");
   const scrollRef = useRef<ScrollView>(null);
   const isSessionMatch = !!sessionId;
@@ -307,6 +308,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       }
 
       navigationGuard.allowExit();
+      onRegistered?.();
       Alert.alert(
         t("success.title"),
         (isSessionMatch ? t("success.session") : t("success.quick")) + photoWarning,

@@ -293,6 +293,8 @@ export default function GameSessionDetailScreen() {
         <View style={styles.card}>
           <RegisterMatchForm
             sessionId={session.id}
+            currentUser={currentUser ?? undefined}
+            onRegistered={() => { void fetchSession({ silent: true }); }}
             disableScroll={true}  // ✅ evita ScrollView dentro de ScrollView
           />
         </View>

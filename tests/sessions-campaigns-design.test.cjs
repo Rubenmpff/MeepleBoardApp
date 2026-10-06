@@ -65,6 +65,12 @@ test('session creation keeps minimum name and chronological validation', async (
   }
 });
 
+test('session creation exposes the hook failure instead of silently retaining the form', async () => {
+  const view = await render(create, { createSessionError: 'Não foi possível guardar a sessão.' });
+  assert.ok(view.html.includes('Não foi possível guardar a sessão.'));
+  assert.ok(!view.routes.length);
+});
+
 test('friend invitation and native date/time controls retain selection and merging', async () => {
   const view = await render(create, { states: { 4: future, 7: 'session_time' }, friends: [{ id: 'other', userName: 'Other player' }], language: 'en' });
   await view.press('Select Other player for invitation');
@@ -98,12 +104,13 @@ test('organiser cancel/close actions require confirmation and remain status-spec
 });
 
 test('active sessions preserve the inline registration boundary; closed sessions hide it', async () => {
-  const active = await render(detail, { states: { 0: { ...session, status: 'Active' }, 1: false }, stubRegisterForm: true });
+  const active = await render(detail, { states: { 0: { ...session, status: 'Active' }, 1: false }, params: { id: session.id }, stubRegisterForm: true });
   const props = active.calls.find(c => c[0] === 'registerForm')[1];
   assert.equal(props.sessionId, session.id);
   assert.equal(props.disableScroll, true);
-  // S01 remains open: preserving this boundary is not a functional fix.
-  assert.equal(props.currentUser, undefined);
+  assert.equal(props.currentUser.id, 'me');
+  await props.onRegistered();
+  assert.ok(active.calls.some(c => c[0] === 'getById' && c[1] === session.id));
   const closed = await render(detail, { states: { 0: { ...session, status: 'Closed' }, 1: false }, stubRegisterForm: true });
   assert.equal(closed.calls.some(c => c[0] === 'registerForm'), false);
 });

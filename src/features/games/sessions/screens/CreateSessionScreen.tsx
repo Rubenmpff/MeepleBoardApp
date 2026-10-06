@@ -36,7 +36,7 @@ export default function CreateSessionScreen() {
   const { t, i18n } = useTranslation("matches");
   const locale = i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB";
   const router = useRouter();
-  const { createSession } = useGameSessions();
+  const { createSession, error: createError } = useGameSessions();
   const { friends, loading: friendsLoading } = useFriends();
   // Form state
   const [name, setName] = useState("");
@@ -133,6 +133,7 @@ export default function CreateSessionScreen() {
   return (
     <ScreenLayout title={t("sessions.createTitle")} keyboard mode="cancel" onCancel={navigationGuard.cancel}>
       <ScrollView keyboardDismissMode="on-drag" contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        {createError && <Text accessibilityRole="alert" style={{ color: COLORS.error }}>{createError}</Text>}
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerSub}>{t("sessions.createIntro")}</Text>

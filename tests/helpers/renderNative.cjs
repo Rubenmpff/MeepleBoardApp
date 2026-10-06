@@ -95,7 +95,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     useGameSearch: () => ({ searchGame: async () => null, loading: false }),
     useRegisterMatch: () => ({ loading: !!options.saving, error: options.error,
       submitMatch: async payload => { calls.push(['submitMatch', payload]); return options.createdMatch || null; } }),
-    useGameSessions: () => ({ createSession: async payload => { calls.push(['createSession', payload]); return options.createdSession || null; } }),
+    useGameSessions: () => ({ error: options.createSessionError, createSession: async payload => { calls.push(['createSession', payload]); return options.createdSession || null; } }),
   };
   function load(filename) {
     if (cache.has(filename)) return cache.get(filename).exports;

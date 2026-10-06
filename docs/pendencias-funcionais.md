@@ -1,5 +1,9 @@
 # Pendências funcionais do MeepleBoard
 
+## Atualização — escrita de sessões e erros após guardar
+
+Ver [estabilizacao-escrita-sessoes.md](estabilizacao-escrita-sessoes.md). UPD01 e JRN01 estão corrigidas e verificadas com HTTP/SQL real; S01/S02/S03 foram corrigidas no frontend, com testes e validação visual pendente. Corrigida a aceitação/recusa de convites que não persistia (tracking de `GameSessionPlayerRepository`) e o 500 ao negar registo (`MatchController.Forbid` usado com mensagem). Autorizações preservadas. Os registos anteriores descrevem o estado histórico; não significam que estes problemas continuem abertos. Campanhas e restantes modos/resultados ainda aguardam a etapa específica; S04 permanece aberta.
+
 ## Atualização — pesquisa no ambiente descartável
 
 Ver [pesquisa-validacao-iphone.md](pesquisa-validacao-iphone.md). Corrigidos os tokens em falta dos três jogos fictícios do catálogo e a ocultação de falhas ao carregar jogos jogados na Biblioteca. Carregamento, ausência de resultados e falha de comunicação têm verificação PT/EN. O BGG permanece simulado; jogos reais ausentes devolvem listas vazias legítimas. SQL confirmou os tokens e uma entrada fictícia «Meeple Teste Solo» com preço 0 para o autor. UPD01/JRN01 permanecem abertas, sem avanço para criação/registo antes da confirmação no iPhone.
