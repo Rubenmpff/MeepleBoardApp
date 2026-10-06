@@ -1,26 +1,15 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-import {
-  ActivityIndicator,
-  BackHandler,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import {
-  AntDesign,
-  Feather,
-} from "@expo/vector-icons";
+import { useEffect, useState } from "react";
+import { BackHandler, Switch, Text, TouchableOpacity, View } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-
-import { COLORS } from "@/src/constants/colors";
-
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
+import AuthLayout from "../../components/AuthLayout";
+import AuthField from "../../components/AuthField";
+import AuthMessage from "../../components/AuthMessage";
+import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import { AUTH_STYLES as styles } from "../../styles/authStyles";
 import { useSignIn } from "../../hooks/useSignIn";
 
 export default function SignInScreen() {
@@ -92,65 +81,21 @@ export default function SignInScreen() {
     }
 
     return (
-      <View
-        style={
-          styles.resendBlock
-        }
-      >
-        <TouchableOpacity
-          onPress={
-            handleResendConfirmation
-          }
-          disabled={
-            resendLoading ||
-            resendCooldown > 0
-          }
-          accessibilityRole="button"
-          accessibilityLabel={t(
-            "signIn.resend.accessibility"
-          )}
-        >
-          <Text
-            style={
-              styles.resendText
-            }
-          >
-            {message}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <PrimaryButton variant="secondary" title={message} onPress={handleResendConfirmation} loading={resendLoading} disabled={resendLoading || resendCooldown > 0} accessibilityLabel={t("signIn.resend.accessibility")} />
     );
   }
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() =>
-          router.replace(
-            "/welcome"
-          )
-        }
-        style={styles.backButton}
-        accessibilityRole="button"
-        accessibilityLabel={t(
-          "signIn.backAccessibility"
-        )}
-      >
-        <AntDesign
-          name="arrow-left"
-          size={24}
-          color={
-            COLORS.onBackground
-          }
-        />
-      </TouchableOpacity>
+    <AuthLayout title={t("signIn.title")} onBack={() =>
+      router.replace(
+        "/welcome"
+      )} backAccessibilityLabel={t(
+        "signIn.backAccessibility"
+      )}>
 
-      <Text style={styles.title}>
-        {t("signIn.title")}
-      </Text>
-
-      <TextInput
-        style={styles.input}
+      <AuthField label={t(
+        "signIn.email"
+      )}
         placeholder={t(
           "signIn.email"
         )}
@@ -163,34 +108,27 @@ export default function SignInScreen() {
         autoCapitalize="none"
         autoCorrect={false}
         textContentType="emailAddress"
-        autoComplete="email"
-      />
+        autoComplete="email" />
 
-      <View
-        style={
-          styles.inputWrapper
+      <AuthField label={t(
+        "signIn.password"
+      )}
+        placeholder={t(
+          "signIn.password"
+        )}
+        placeholderTextColor={
+          COLORS.textMuted
         }
-      >
-        <TextInput
-          style={styles.input}
-          placeholder={t(
-            "signIn.password"
-          )}
-          placeholderTextColor={
-            COLORS.textMuted
-          }
-          secureTextEntry={
-            !showPassword
-          }
-          value={password}
-          onChangeText={
-            setPassword
-          }
-          autoCapitalize="none"
-          textContentType="password"
-          autoComplete="password"
-        />
-
+        secureTextEntry={
+          !showPassword
+        }
+        value={password}
+        onChangeText={
+          setPassword
+        }
+        autoCapitalize="none"
+        textContentType="password"
+        autoComplete="password">
         <TouchableOpacity
           onPress={() =>
             setShowPassword(
@@ -218,10 +156,10 @@ export default function SignInScreen() {
             }
           />
         </TouchableOpacity>
-      </View>
+      </AuthField>
 
       <TouchableOpacity
-        onPress={() =>
+        style={UI_STYLES.control} onPress={() =>
           router.push(
             "/forgot-password"
           )
@@ -254,16 +192,12 @@ export default function SignInScreen() {
           )}
         </Text>
 
-        <Switch
-          value={rememberMe}
+        <Switch hitSlop={8}
+          accessibilityLabel={t("signIn.rememberMe")} value={rememberMe}
           onValueChange={
             setRememberMe
           }
-          thumbColor={
-            rememberMe
-              ? COLORS.primary
-              : COLORS.surface
-          }
+          thumbColor={COLORS.onPrimary}
           trackColor={{
             false:
               COLORS.border,
@@ -275,149 +209,16 @@ export default function SignInScreen() {
 
       {!!errorMessage &&
         typeof errorMessage ===
-          "string" && (
-          <Text
-            style={
-              styles.errorText
-            }
-          >
-            {errorMessage}
-          </Text>
+        "string" && (
+          <AuthMessage>{errorMessage}</AuthMessage>
         )}
 
       {showResend &&
         renderResendBlock()}
 
-      <TouchableOpacity
-        style={[
-          styles.loginButton,
-          loading &&
-            styles.disabledButton,
-        ]}
-        onPress={handleLogin}
-        disabled={loading}
-        accessibilityRole="button"
-        accessibilityLabel={t(
-          "signIn.button"
-        )}
-      >
-        {loading ? (
-          <ActivityIndicator
-            color="#FFFFFF"
-          />
-        ) : (
-          <Text
-            style={
-              styles.loginText
-            }
-          >
-            {t(
-              "signIn.button"
-            )}
-          </Text>
-        )}
-      </TouchableOpacity>
-    </View>
+      <PrimaryButton title={t("signIn.button")} onPress={handleLogin} loading={loading} accessibilityLabel={t(
+        "signIn.button"
+      )} />
+    </AuthLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor:
-      COLORS.background,
-    padding: 20,
-    justifyContent: "center",
-  },
-
-  backButton: {
-    position: "absolute",
-    top: 40,
-    left: 20,
-    zIndex: 1,
-  },
-
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: COLORS.onBackground,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-
-  inputWrapper: {
-    position: "relative",
-    marginBottom: 10,
-  },
-
-  input: {
-    backgroundColor:
-      COLORS.surface,
-    padding: 15,
-    paddingRight: 48,
-    borderRadius: 8,
-    color: COLORS.onBackground,
-    marginBottom: 10,
-  },
-
-  eyeIcon: {
-    position: "absolute",
-    right: 12,
-    top: 15,
-    padding: 4,
-  },
-
-  forgotPassword: {
-    color: COLORS.primary,
-    textAlign: "right",
-    marginBottom: 15,
-  },
-
-  rememberContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent:
-      "space-between",
-    marginBottom: 20,
-  },
-
-  rememberText: {
-    color: COLORS.onBackground,
-  },
-
-  errorText: {
-    color: COLORS.error,
-    textAlign: "center",
-    marginBottom: 10,
-    fontWeight: "700",
-  },
-
-  resendBlock: {
-    marginBottom: 10,
-  },
-
-  resendText: {
-    color: COLORS.primary,
-    textAlign: "center",
-    fontWeight: "500",
-  },
-
-  loginButton: {
-    backgroundColor:
-      COLORS.secondary,
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 10,
-  },
-
-  disabledButton: {
-    opacity: 0.6,
-  },
-
-  loginText: {
-    color: "#FFFFFF",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-});

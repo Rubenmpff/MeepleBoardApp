@@ -10,18 +10,23 @@ const i18next = require('i18next');
 const root = path.resolve(__dirname, '../..');
 
 async function renderNative(source, exportName, props = {}, options = {}) {
-  const resources = Object.fromEntries(['pt', 'en'].map(lang => [lang, Object.fromEntries(['games', 'library', 'common', 'matches', 'campaigns', 'friends', 'settings'].map(ns => [ns,
+  const resources = Object.fromEntries(['pt', 'en'].map(lang => [lang, Object.fromEntries(['games', 'library', 'common', 'matches', 'campaigns', 'friends', 'settings', 'auth'].map(ns => [ns,
     JSON.parse(fs.readFileSync(path.join(root, `src/i18n/locales/${lang}/${ns}.json`), 'utf8')),
   ]))]));
   const i18n = i18next.createInstance();
   await i18n.init({ lng: options.language || 'pt', resources, interpolation: { escapeValue: false } });
-  const controls = [], lists = [], routes = [], calls = [], inputs = [], updates = [], datePickers = [], cache = new Map();
+  const controls = [], lists = [], routes = [], calls = [], inputs = [], updates = [], datePickers = [], effects = [], nativeViews = [], switches = [], images = [], cache = new Map();
   let stateIndex = 0;
   const host = ({ children }) => React.createElement('div', null, children);
   const button = p => { controls.push(p); return React.createElement('button', null, p.children); };
   const native = {
-    View: host, Text: ({ children }) => React.createElement('span', null, children), ScrollView: host,
-    KeyboardAvoidingView: host, Platform: { OS: 'ios' }, Image: () => null, ActivityIndicator: () => null,
+    View: host, Text: ({ children }) => React.createElement('span', null, children),
+    ScrollView: p => { nativeViews.push(['scroll', p]); return React.createElement(host, p); },
+    KeyboardAvoidingView: p => { nativeViews.push(['keyboard', p]); return React.createElement(host, p); },
+    Platform: { OS: options.platform || 'ios' }, Image: p => { images.push(p); return null; }, ActivityIndicator: () => null,
+    Switch: p => { switches.push(p); return null; },
+    Linking: { openURL: async url => calls.push(['openURL', url]) },
+    BackHandler: { addEventListener: (name, callback) => { calls.push(['backHandler', name, callback]); return { remove: () => calls.push(['removeBackHandler']) }; } },
     Modal: p => p.visible ? React.createElement(host, p) : null,
     TextInput: p => { inputs.push(p); return null; }, TouchableOpacity: button, Pressable: button,
     RefreshControl: () => null, Alert: { alert: (...args) => calls.push(['alert', ...args]) },
@@ -50,7 +55,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     },
     'react-native': native,
     'react-native-safe-area-context': { SafeAreaView: host, useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) },
-    '@expo/vector-icons': { MaterialIcons: () => null, Ionicons: () => null },
+    '@expo/vector-icons': { MaterialIcons: () => null, Ionicons: () => null, AntDesign: () => null, Feather: () => null },
     'expo-image': { Image: () => null },
     'expo-router': { router, useRouter: () => router, useNavigation: () => ({ openDrawer: () => routes.push('menu') }), useLocalSearchParams: () => options.params || ({ id: 'game-id' }), useFocusEffect() {} },
     'react-i18next': { useTranslation: ns => ({ t: (key, opts) => i18n.t(key, { ns, ...opts }), i18n }) },
@@ -85,7 +90,10 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     const module = new Module(filename);
     cache.set(filename, module); module.filename = filename; module.paths = Module._nodeModulePaths(path.dirname(filename));
     module.require = id => {
-      if (id === 'react' && filename === path.join(root, source)) return { ...React, useState: initial => {
+      if (id.endsWith('.png')) return 1;
+      if (id === 'react' && [source, ...(options.stateModules || [])].some(file => filename === path.join(root, file))) return { ...React,
+        useEffect: options.captureEffects ? (callback => { effects.push(callback); }) : React.useEffect,
+        useState: initial => {
         const index = stateIndex++;
         const [value] = React.useState(options.states && Object.hasOwn(options.states, index) ? options.states[index] : initial);
         return [value, next => updates.push([index, typeof next === 'function' ? next(value) : next])];
@@ -126,7 +134,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
   }
   const component = load(path.join(root, source))[exportName];
   const html = renderToStaticMarkup(React.createElement(component, props));
-  return { html, controls, lists, routes, calls, inputs, updates, datePickers, i18n, load: file => load(path.join(root, file)),
+  return { html, controls, lists, routes, calls, inputs, updates, datePickers, effects, nativeViews, switches, images, i18n, load: file => load(path.join(root, file)),
     async press(label) {
       const p = controls.find(c => c.accessibilityLabel === label) || controls.find(c =>
         renderToStaticMarkup(React.createElement(React.Fragment, null, c.children)).replace(/<[^>]+>/g, '') === label);

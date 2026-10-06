@@ -5,14 +5,15 @@ import { APP_THEME as theme } from "@/src/styles/appTheme";
 type Props = {
   title: string; description?: string; icon?: ReactNode; onPress: () => void;
   variant?: "primary" | "secondary"; loading?: boolean; disabled?: boolean;
+  accessibilityLabel?: string;
 };
 
-export default function PrimaryButton({ title, description, icon, onPress, variant = "primary", loading, disabled }: Props) {
+export default function PrimaryButton({ title, description, icon, onPress, variant = "primary", loading, disabled, accessibilityLabel }: Props) {
   const secondary = variant === "secondary";
   return (
     <Pressable
       style={({ pressed }) => [styles.base, secondary && styles.secondary, (pressed || loading) && styles.pressed, disabled && styles.disabled]}
-      onPress={onPress} disabled={!!loading || !!disabled} accessibilityRole="button" accessibilityLabel={title}
+      onPress={onPress} disabled={!!loading || !!disabled} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? title}
       accessibilityHint={description} accessibilityState={{ disabled: !!loading || !!disabled, busy: !!loading }}
     >
       {loading ? <ActivityIndicator color={secondary ? theme.colors.primary : theme.colors.onPrimary} /> : (

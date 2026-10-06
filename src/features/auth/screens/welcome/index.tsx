@@ -1,121 +1,39 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image, Linking } from "react-native";
+import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
-import { COLORS } from "@/src/constants/colors";
+import { useTranslation } from "react-i18next";
+import AuthLayout from "../../components/AuthLayout";
+import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import { UI_STYLES } from "@/src/styles/uiStyles";
+import { APP_THEME } from "@/src/styles/appTheme";
+
+const DOCUMENTS = [
+  { key: "terms", url: "https://meepleboard.com/terms" },
+  { key: "privacy", url: "https://meepleboard.com/privacy" },
+  { key: "guidelines", url: "https://meepleboard.com/guidelines" },
+] as const;
 
 export default function Welcome() {
   const router = useRouter();
-
+  const { t } = useTranslation("auth");
   return (
-    <View style={styles.container}>
-      {/* Logo */}
-      <Image source={require('@/assets/MeepleBoardLogo.png')} style={styles.logo} />
-
-      {/* Título e descrição */}
-      <Text style={styles.title}>Welcome to the{"\n"}MeepleBoard community</Text>
-      <Text style={styles.subtitle}>
-        Discover new board games, keep track of your collection, and join the conversation
-        with other board game enthusiasts.
-      </Text>
-
-      {/* Botões */}
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push("/signin")}
-        activeOpacity={0.8}
-      >
-        <Text style={styles.buttonText}>Log in</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.button, styles.signUpButton]}
-        onPress={() => router.push("/signup")}
-        activeOpacity={0.8}
-      >
-        <Text style={styles.buttonText}>Sign up</Text>
-      </TouchableOpacity>
-
-      {/* Termos e políticas */}
-      <Text style={styles.termsText}>
-        <Text>By signing up, you agree to our </Text>
-        <Text
-          style={styles.link}
-          onPress={() => Linking.openURL("https://meepleboard.com/terms")}
-        >
-          Terms of Service
-        </Text>
-        <Text>{', '}</Text>
-        <Text
-          style={styles.link}
-          onPress={() => Linking.openURL("https://meepleboard.com/privacy")}
-        >
-          Privacy Policy
-        </Text>
-        <Text>{', and '}</Text>
-        <Text
-          style={styles.link}
-          onPress={() => Linking.openURL("https://meepleboard.com/guidelines")}
-        >
-          Community Guidelines
-        </Text>
-        <Text>{'.'}</Text>
-      </Text>
-    </View>
+    <AuthLayout title={t("welcome.title")}>
+      <Text style={styles.subtitle}>{t("welcome.subtitle")}</Text>
+      <PrimaryButton title={t("welcome.login")} onPress={() => router.push("/signin")} />
+      <PrimaryButton variant="secondary" title={t("welcome.signUp")} onPress={() => router.push("/signup")} />
+      <View style={styles.documents}>
+        <Text style={UI_STYLES.muted}>{t("welcome.termsIntro")}</Text>
+        {DOCUMENTS.map(document => (
+          <TouchableOpacity key={document.key} style={UI_STYLES.control} accessibilityRole="link" accessibilityLabel={t("welcome." + document.key)} onPress={() => Linking.openURL(document.url)}>
+            <Text style={styles.link}>{t("welcome." + document.key)}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </AuthLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  logo: {
-    width: 350,
-    height: 220,
-    resizeMode: "contain",
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: COLORS.onBackground,
-    marginBottom: 15,
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: "center",
-    color: COLORS.onBackground,
-    marginBottom: 50,
-  },
-  button: {
-    width: "90%",
-    backgroundColor: COLORS.primary,
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginVertical: 8,
-  },
-  signUpButton: {
-    backgroundColor: COLORS.secondary,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  termsText: {
-    fontSize: 12,
-    textAlign: "center",
-    color: COLORS.onBackground,
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  link: {
-    color: COLORS.primary,
-    fontWeight: "bold",
-    textDecorationLine: "underline",
-  },
+  subtitle: { ...UI_STYLES.body, color: APP_THEME.colors.muted, textAlign: "center" },
+  documents: { borderTopWidth: 1, borderTopColor: APP_THEME.colors.border, paddingTop: APP_THEME.space.lg, gap: APP_THEME.space.xs },
+  link: { ...UI_STYLES.body, color: APP_THEME.colors.primary, fontWeight: "600" },
 });
