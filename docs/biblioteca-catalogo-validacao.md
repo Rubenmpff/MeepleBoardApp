@@ -1,5 +1,14 @@
 # Biblioteca, catálogo e validação isolada
 
+## Atualização — ambiente descartável (6 de outubro de 2026)
+
+Ver [ambiente-teste-iphone.md](ambiente-teste-iphone.md). As afirmações anteriores sobre ausência de migrações/SQL descrevem etapas anteriores: nesta etapa foram aplicadas 23 migrações exclusivamente à base descartável. A base habitual permanece intocada. SC01 está resolvida no modelo, snapshot e esquema de testes; falta verificar/deployar no ambiente habitual. PR02 (fotografias públicas antigas) continua aberta. Preços da Biblioteca e permissões foram agora verificados com SQL real.
+
+**UPD01 — atualização de partida:** MatchRepository.UpdateAsync, MatchService.UpdateAsync, MatchController: guarda e devolve 404 devido a duplo SaveChanges. Impacto: erro enganador e repetições; validar uma única gravação, recarga e permissões após correção.
+
+**JRN01 — edição do diário:** CampaignService.UpsertJournalEntryAsync, GameRepository.UpdateAsync, CampaignRepository: grava e depois devolve 500 por conflito de tracking durante recálculo de avaliações. Impacto: resultado parcial/agregados possivelmente desatualizados; validar tracking, atomicidade, recarga e preservação de contribuições alheias. Ambos confirmados com SQL real, **não corrigidos nem considerados aprovados pelos testes**.
+
+
 ## Compatibilidade com o esquema atual
 
 O backend em `fix/match-journal-authorization`, preservado nesta branch, mapeia `Matches.CreatorId`. Uma propriedade nullable continua a exigir a coluna no SQL. Sem ela, leituras que materializam partidas e gravações novas falham com coluna inexistente. O processo/Swagger podem arrancar; isso não demonstra funcionamento dos percursos da aplicação. Jobs de partidas também podem falhar.

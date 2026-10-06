@@ -1,5 +1,14 @@
 # Pendências funcionais do MeepleBoard
 
+## Atualização — ambiente descartável (6 de outubro de 2026)
+
+Ver [ambiente-teste-iphone.md](ambiente-teste-iphone.md). As afirmações anteriores sobre ausência de migrações/SQL descrevem etapas anteriores: nesta etapa foram aplicadas 23 migrações exclusivamente à base descartável. A base habitual permanece intocada. SC01 está resolvida no modelo, snapshot e esquema de testes; falta verificar/deployar no ambiente habitual. PR02 (fotografias públicas antigas) continua aberta. Preços da Biblioteca e permissões foram agora verificados com SQL real.
+
+**UPD01 — atualização de partida:** MatchRepository.UpdateAsync, MatchService.UpdateAsync, MatchController: guarda e devolve 404 devido a duplo SaveChanges. Impacto: erro enganador e repetições; validar uma única gravação, recarga e permissões após correção.
+
+**JRN01 — edição do diário:** CampaignService.UpsertJournalEntryAsync, GameRepository.UpdateAsync, CampaignRepository: grava e depois devolve 500 por conflito de tracking durante recálculo de avaliações. Impacto: resultado parcial/agregados possivelmente desatualizados; validar tracking, atomicidade, recarga e preservação de contribuições alheias. Ambos confirmados com SQL real, **não corrigidos nem considerados aprovados pelos testes**.
+
+
 ## Atualização — Biblioteca e catálogo
 
 Ver [biblioteca-catalogo-validacao.md](biblioteca-catalogo-validacao.md). Recuperado o acesso global ao catálogo; corrigidos preço vazio/zero/vírgula, limpeza e atualização do estado local. A leitura posterior foi validada com HTTP isolado e reabertura dos formulários; persistência numa instância SQL real e validação iPhone continuam pendentes. O backend de produção não foi alterado nesta etapa.
