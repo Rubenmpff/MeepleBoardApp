@@ -20,6 +20,7 @@ export interface CreateMatchRequest {
   durationInMinutes?: number;
   location?: string;
   scoreSummary?: string;
+  scoresEnabled?: boolean;
 
   /** Apenas IDs, sem duplicados */
   playerIds: string[];
@@ -81,8 +82,11 @@ function inferWinnerId(form: MatchFormData): string | undefined {
 export function mapMatchFormToRequest(form: MatchFormData): CreateMatchRequest {
   const playerIds = extractPlayerIds(form.players);
   const winnerId = inferWinnerId(form);
-  const playerScores = form.players.flatMap((player) => {
-    if (player.score == null) return [];
+  const playerScores = form.scoresEnabled === false ? [] : form.players.flatMap((player) => {
+    if (player.score == null) {
+      if (form.scoresEnabled) throw new Error("Indica a pontuação de todos os jogadores.");
+      return [];
+    }
     validatePlayerScore(player.score);
     const userId = normalizeId(player.userId);
     if (!userId) throw new Error("O participante da pontuação é inválido.");
@@ -109,6 +113,7 @@ export function mapMatchFormToRequest(form: MatchFormData): CreateMatchRequest {
     location: form.location?.trim() || undefined,
     scoreSummary: form.scoreSummary?.trim() || undefined,
 
+    scoresEnabled: form.scoresEnabled,
     playerIds: finalPlayerIds,
     playerScores: playerScores.length ? playerScores : undefined,
 

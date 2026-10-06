@@ -13,17 +13,18 @@ export function toMatchPlayerDto(players: PlayerState[]): MatchPlayerDto[] {
   }));
 }
 
-// Matches the existing backend int? Score rules; blank means no score.
+// Signed SQL/.NET int32. Blank remains absent, never zero.
 export function parsePlayerScore(value?: string): number | undefined {
   const text = value?.trim();
   if (!text) return undefined;
+  if (!/^[+-]?\d+$/.test(text)) throw new Error("A pontuação deve ser um número inteiro entre -2147483648 e 2147483647.");
   const score = Number(text);
   validatePlayerScore(score);
   return score;
 }
 
 export function validatePlayerScore(score: number): void {
-  if (!Number.isInteger(score) || score < 0 || score > 2147483647) {
-    throw new Error("A pontuação deve ser um número inteiro entre 0 e 2147483647. O modelo atual não aceita pontuações negativas.");
+  if (!Number.isInteger(score) || score < -2147483648 || score > 2147483647) {
+    throw new Error("A pontuação deve ser um número inteiro entre -2147483648 e 2147483647.");
   }
 }

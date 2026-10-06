@@ -46,6 +46,7 @@ type Props = {
 
   /** Limita quantos resultados mostramos (UX + performance) */
   maxResults?: number;
+  selectionOnly?: boolean;
 };
 
 function normalizeText(v: string) {
@@ -89,6 +90,7 @@ export default function PlayerSelector({
   mode = "quick",
   lockCurrentUser,
   maxResults = 12,
+  selectionOnly = false,
 }: Props) {
   const { t } = useTranslation("matches");
   const [query, setQuery] = useState("");
@@ -184,7 +186,7 @@ export default function PlayerSelector({
       </Text>
 
       {/* Selected chips */}
-      {players.length > 0 && (
+      {!selectionOnly && players.length > 0 && (
         <View style={styles.chipsWrap}>
           {players.map((p) => (
             <View key={p.id} style={[styles.chip, p.isWinner && styles.chipWinner]}>
@@ -201,6 +203,19 @@ export default function PlayerSelector({
           ))}
         </View>
       )}
+
+      {selectionOnly && <View>
+        {players.map(p => <View key={p.id} style={styles.selectedRow}>
+          <View style={styles.avatar}><Text style={styles.avatarText}>{p.username?.slice(0, 1).toUpperCase() || "?"}</Text></View>
+          <View style={{ flex: 1, minWidth: 0 }}><Text style={styles.playerName}>{p.username}</Text>
+            {shouldLockMe && isMe(p.id) && <Text style={styles.emptyText}>{t("selector.participationRequired")}</Text>}
+          </View>
+          {shouldLockMe && isMe(p.id) ? <MaterialIcons name="lock-outline" size={20} color={COLORS.textMuted} /> :
+            <TouchableOpacity style={styles.clearBtn} accessibilityRole="button" accessibilityLabel={t("selector.removePlayer", { name: p.username })} onPress={() => removePlayer(p.id)}>
+              <MaterialIcons name="close" size={22} color={COLORS.textMuted} />
+            </TouchableOpacity>}
+        </View>)}
+      </View>}
 
       {/* Search bar */}
       <Text style={styles.section}>{t("selector.addPlayers")}</Text>
@@ -251,8 +266,8 @@ export default function PlayerSelector({
         </View>
       )}
 
-      {/* Details */}
-      {players.length > 0 && (
+      {/* Details for legacy callers; shared registration has its own Result step. */}
+      {!selectionOnly && players.length > 0 && (
         <>
           <Text style={styles.section}>{t("selector.details")}</Text>
 
@@ -301,7 +316,10 @@ export default function PlayerSelector({
 }
 
 const styles = StyleSheet.create({
-  container: { marginTop: 10 },
+  selectedRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  avatar: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", backgroundColor: COLORS.primarySoft },
+  avatarText: { color: COLORS.primary, fontWeight: "800", fontSize: 16 },
+  container: { marginTop: 0 },
   title: { ...UI_STYLES.section, marginBottom: 12 },
 
   chipsWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 10 },

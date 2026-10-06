@@ -26,6 +26,8 @@ export interface MatchFormData {
   durationInMinutes?: number;
   location?: string;
   scoreSummary?: string;
+  /** Explicit only for new registration; old read DTOs stay unchanged. */
+  scoresEnabled?: boolean;
   players: MatchPlayerDto[];
   gameMode?: GameMode;
   expansions?: { bggId: number; name: string }[];

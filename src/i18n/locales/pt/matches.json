@@ -3,7 +3,9 @@
     "game": "Jogo",
     "mode": "Modo",
     "players": "Jogadores",
-    "details": "Detalhes"
+    "details": "Detalhes",
+    "result": "Resultado",
+    "review": "Rever"
   },
   "header": {
     "addMatch": "Adicionar partida",
@@ -116,7 +118,8 @@
   "navigation": {
     "back": "Anterior",
     "continue": "Continuar",
-    "save": "Guardar partida"
+    "save": "Guardar partida",
+    "review": "Rever partida"
   },
   "ui": {
     "loading": "A carregar…",
@@ -153,7 +156,8 @@
     "winner": "🏆 Vencedor",
     "setWinner": "Marcar como vencedor",
     "winnerFor": "Marcar {{name}} como vencedor",
-    "soloHint": "Numa partida a solo, o vencedor é opcional."
+    "soloHint": "Numa partida a solo, o vencedor é opcional.",
+    "participationRequired": "Participas nesta partida; a tua presença é obrigatória."
   },
   "photos": {
     "label": "Fotografias (opcional)",
@@ -341,5 +345,24 @@
     "scoreUndefined": "Não definida",
     "durationMinutes": "{{count}} min",
     "organizerRole": "Organizador"
+  },
+  "form": {
+    "withScores": "Com pontuação",
+    "withoutScores": "Sem pontuação",
+    "scoreHelp": "Um inteiro por jogador, incluindo zero e negativos. Escolhe o vencedor separadamente.",
+    "scoreRequired": "Indica uma pontuação válida.",
+    "scoreInvalid": "Usa um inteiro entre -2147483648 e 2147483647.",
+    "scoreFor": "Pontuação de {{name}}",
+    "toggleSign": "Alterar sinal da pontuação de {{name}}",
+    "winnerHelp": "Seleciona o vencedor. A pontuação não decide por ti.",
+    "optionalDetails": "Data e detalhes opcionais",
+    "date": "Data da partida",
+    "time": "Hora da partida",
+    "done": "Concluir",
+    "edit": "Corrigir {{section}}",
+    "reviewHint": "Confirma os dados antes de guardar. Podes corrigir qualquer secção.",
+    "modeLimitations": "Solo e cooperativo mantêm as limitações atuais de gravação do resultado. Empates ainda não têm registo próprio.",
+    "newMatch": "Registar outra partida",
+    "dateInvalid": "Seleciona uma data e hora válidas."
   }
 }

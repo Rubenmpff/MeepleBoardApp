@@ -1,5 +1,9 @@
 # Pendências funcionais do MeepleBoard
 
+## Atualização — formulário partilhado e inteiros com sinal
+
+Ver [formulario-registo-partidas.md](formulario-registo-partidas.md). Implementadas as etapas Jogo → Jogadores → Resultado → Rever, com capa/nome/modo acessível, seleção compacta e utilizador atual obrigatório. Com pontuação exige um inteiro por jogador (zero/negativos incluídos); sem pontuação omite valores e conserva o rascunho. Vencedor manual, controlo ± no iPhone, data/detalhes antes da revisão e ações de correção. Mantidas privacidade, saída protegida, bloqueio de ressubmissão e repetição apenas de fotografias falhadas. Confirmado em testes isolados e HTTP/SQL marcado; validação visual/física no iPhone pendente. **RESULT01 continua a próxima etapa:** corrigir contrato de solo, cooperativo e empate, sem reinterpretar partidas antigas. Pontuações antigas incompletas permanecem legíveis sem preenchimento automático.
+
 ## Confirmação e capas das partidas — implementação
 
 **Validação funcional confirmada no iPhone:** o utilizador confirmou que guardar regressa ao detalhe com a partida nova e que, após sair e reabrir, jogo, vencedor e pontuações 17 e 0 continuam corretos junto aos respetivos nomes. Este percurso está concluído; a próxima etapa é apresentar a proposta visual, antes de implementar VIS-SESSION01/VIS-SESSION02. Esta confirmação não valida solo, cooperativo, empate nem as restantes pendências.

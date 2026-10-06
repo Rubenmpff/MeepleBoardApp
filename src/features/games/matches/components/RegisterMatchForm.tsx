@@ -24,6 +24,10 @@ import { StarRating } from "../../../../shared/components/StarRating";
 import { Game } from "../../catalog/types/Game";
 import { useRouter } from "expo-router";
 import MatchSummary from "./MatchSummary";
+import GameCover from "./GameCover";
+import MatchResultFields from "./MatchResultFields";
+import { hasCompleteScores } from "../utils/registrationScores";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { MatchDto, MatchFormData } from "../types/MatchForm";
 import { PlayerState } from "../../../users/types/PlayerState";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
@@ -33,7 +37,7 @@ import { GameSession } from "../../sessions/types/GameSession";
 import { sessionPlayerGuards } from "../../sessions/types/GameSessionPlayer";
 import { User } from "../../../users/types/User";
 import {
-  getAvailableModes, getDefaultMode, getModesDescription,
+  getAvailableModes, getDefaultMode,
   GameMode, AvailableModes,
 } from "../../catalog/types/GameSuggestion";
 
@@ -56,9 +60,9 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const steps = useMemo(
     () => [
       t("steps.game"),
-      t("steps.mode"),
       t("steps.players"),
-      t("steps.details"),
+      t("steps.result"),
+      t("steps.review"),
     ],
     [t]
   );
@@ -94,6 +98,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const [gameMode, setGameMode] = useState<GameMode>("multiplayer");
   const [soloResult, setSoloResult] = useState<SoloResult>("none");
   const [playerState, setPlayerState] = useState<PlayerState[]>([]);
+  const multiplayerDraft = useRef<PlayerState[]>([]);
   const [location, setLocation] = useState("");
   const [duration, setDuration] = useState("");
   const [comments, setComments] = useState("");
@@ -116,6 +121,12 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const [unofficialJustification, setUnofficialJustification] = useState("");
   const [showUnofficialModal, setShowUnofficialModal] = useState(false);
   const [pendingUnofficialMode, setPendingUnofficialMode] = useState<GameMode | null>(null);
+  const [scoresEnabled, setScoresEnabled] = useState(false);
+  const [matchDate, setMatchDate] = useState(() => new Date());
+  const [datePicker, setDatePicker] = useState<"date" | "time" | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [showResultErrors, setShowResultErrors] = useState(false);
+  const [teamResult, setTeamResult] = useState<"win" | "loss" | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -170,6 +181,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     setUnofficialMode(null);
     setUnofficialJustification("");
     setSoloResult("none");
+    setTeamResult(null);
   }, [selectedGame?.id, selectedExpansions]);
 
   const isSolo = gameMode === "solo";
@@ -178,13 +190,22 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
   useEffect(() => {
     if (isSolo && currentUser?.id) {
-      setPlayerState([{ id: currentUser.id, username: currentUser.userName, score: "", isWinner: false }]);
+      setPlayerState(prev => {
+        if (prev.length > 1) multiplayerDraft.current = prev;
+        return [{ id: currentUser.id, username: currentUser.userName, score: prev.find(p => p.id === currentUser.id)?.score ?? "", isWinner: false }];
+      });
+    } else if (multiplayerDraft.current.length) {
+      const draft = multiplayerDraft.current;
+      multiplayerDraft.current = [];
+      setPlayerState(prev => draft.map(p => ({ ...p, isWinner: false,
+        score: p.id === currentUser?.id ? prev.find(player => player.id === p.id)?.score ?? p.score : p.score })));
     }
-  }, [isSolo, currentUser]);
+  }, [isSolo, currentUser?.id, currentUser?.userName]);
 
   const handleModePress = (mode: GameMode) => {
     const info = availableModes[mode];
     if (info.available) {
+      if (mode !== gameMode) { setPlayerState(prev => prev.map(p => ({ ...p, isWinner: false }))); setTeamResult(null); }
       setGameMode(mode);
       setUnofficialMode(null);
       setUnofficialJustification("");
@@ -197,6 +218,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
   const handleConfirmUnofficial = () => {
     if (!pendingUnofficialMode || unofficialJustification.trim().length < 5) return;
+    if (pendingUnofficialMode !== gameMode) { setPlayerState(prev => prev.map(p => ({ ...p, isWinner: false }))); setTeamResult(null); }
     setGameMode(pendingUnofficialMode);
     setUnofficialMode(pendingUnofficialMode);
     setShowUnofficialModal(false);
@@ -211,12 +233,28 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
   const canGoNext = (): boolean => {
     if (step === 0) return !!selectedGame && !editingGame;
-    if (step === 1) return true;
-    if (step === 2) return playerState.length > 0;
+    if (step === 1 || step === 2) return playerState.length > 0;
     return true;
   };
 
-  const goNext = () => { if (step < 3 && canGoNext()) setStep((s) => (s + 1) as Step); };
+  const validateResult = (): boolean => {
+    setShowResultErrors(true);
+    if (!hasCompleteScores(playerState, scoresEnabled)) return false;
+    if (!isSolo && !isCooperative && !playerState.some(p => p.isWinner)) return false;
+    if (!Number.isFinite(matchDate.getTime()) || matchDate.getTime() > Date.now() + 60000) {
+      Alert.alert(t("validation.errorTitle"), t("form.dateInvalid")); return false;
+    }
+    const dur = duration.trim() ? Number(duration) : undefined;
+    if (dur !== undefined && (!/^\d+$/.test(duration.trim()) || !Number.isInteger(dur) || dur <= 0 || dur > 2147483647)) {
+      setShowDetails(true);
+      Alert.alert(t("validation.errorTitle"), t("validation.positiveDuration")); return false;
+    }
+    return true;
+  };
+  const goNext = () => {
+    if (step === 2 && !validateResult()) return;
+    if (step < 3 && canGoNext()) setStep((s) => (s + 1) as Step);
+  };
   const goPrev = () => { if (step > 0) setStep((s) => (s - 1) as Step); };
 
   const handlePickPendingPhoto = async () => {
@@ -244,11 +282,14 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
   const clearAll = () => {
     submittedMatch.current = null;
+    multiplayerDraft.current = [];
     navigationGuard.markUnsaved();
     setSelectedGame(null); setSelectedExpansions([]); setPlayerState([]);
     setLocation(""); setDuration(""); setComments("");
     setPersonalRating(undefined); setNotes(""); setTags(""); setPendingPhotos([]);
     setUnofficialMode(null); setUnofficialJustification("");
+    setSavedMatch(null); setFailedPhotos([]); setScoresEnabled(false); setMatchDate(new Date());
+    setShowDetails(false); setShowResultErrors(false); setDatePicker(null); setTeamResult(null);
     setEditingGame(true); setGameMode("multiplayer"); setSoloResult("none"); setStep(0);
   };
 
@@ -257,9 +298,13 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     if (!selectedGame) return Alert.alert(t("validation.errorTitle"), t("validation.selectGame"));
     if (playerState.length === 0) return Alert.alert(t("validation.errorTitle"), t("validation.addPlayer"));
 
+    if (currentUserForSelector && !playerState.some(p => p.id === currentUserForSelector.id))
+      return Alert.alert(t("validation.errorTitle"), t("selector.participationRequired"));
+    if (!validateResult()) {
+      setStep(2);
+      return;
+    }
     const dur = duration.trim() ? Number(duration) : undefined;
-    if (dur !== undefined && (Number.isNaN(dur) || dur <= 0))
-      return Alert.alert(t("validation.errorTitle"), t("validation.positiveDuration"));
 
     let winnerId: string | undefined;
     if (isSolo) {
@@ -268,14 +313,14 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       winnerId = undefined;
     } else {
       const winner = playerState.find((p) => p.isWinner);
-      if (playerState.length > 1 && !winner)
+      if (!winner)
         return Alert.alert(t("validation.errorTitle"), t("validation.selectWinner"));
       winnerId = winner?.id;
     }
 
     let players: MatchFormData["players"];
     try {
-      players = toMatchPlayerDto(playerState);
+      players = toMatchPlayerDto(scoresEnabled ? playerState : playerState.map(p => ({ ...p, score: "" })));
     } catch (error) {
       return Alert.alert(t("validation.errorTitle"), (error as Error).message);
     }
@@ -283,7 +328,8 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     const payload: MatchFormData = {
       gameId: selectedGame.id,
       gameName: selectedGame.name,
-      matchDate: new Date().toISOString(),
+      matchDate: matchDate.toISOString(),
+      scoresEnabled,
       location: location.trim() || undefined,
       durationInMinutes: dur,
       scoreSummary: comments.trim() || undefined,
@@ -303,7 +349,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       const created = await submitMatch(payload);
       if (!created) return;
       submittedMatch.current = created;
-      if (isSessionMatch) setSavedMatch(created);
+      setSavedMatch(created);
       const failed: string[] = [];
       setUploadingPhotos(true);
       try {
@@ -314,11 +360,6 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       } finally { setUploadingPhotos(false); }
       setFailedPhotos(failed);
       navigationGuard.allowExit();
-      if (!isSessionMatch) {
-        const warning = failed.length ? "\n\n" + t("photos.partialFailure", { failed: failed.length, total: pendingPhotos.length }) : "";
-        Alert.alert(t("success.title"), t("success.quick") + warning,
-          [{ text: t("success.ok"), onPress: () => { if (onRegistered) onRegistered(); else clearAll(); } }]);
-      }
     } finally { submitting.current = false; }
   };
 
@@ -345,7 +386,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
   if (savedMatch) return <View style={{ flex: 1, backgroundColor: COLORS.background }}>
     <ScreenHeader title={t("success.savedTitle")} appearance="refresh" subtitle={session?.name}
-      onLeftPress={returnToSession} />
+      onLeftPress={isSessionMatch ? returnToSession : navigationGuard.cancel} />
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={{ gap: 16 }}>
         <MatchSummary match={savedMatch} />
@@ -354,8 +395,8 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
           <Text style={styles.hint}>{t("success.photosFailed", { count: failedPhotos.length })}</Text>
           <PrimaryButton title={t("success.retryPhotos")} variant="secondary" onPress={retryPhotos} />
         </View>}
-        <PrimaryButton title={t("sessions.backToSession")} disabled={uploadingPhotos}
-          onPress={returnToSession} />
+        <PrimaryButton title={t(isSessionMatch ? "sessions.backToSession" : "form.newMatch")} disabled={uploadingPhotos}
+          onPress={isSessionMatch ? returnToSession : () => { if (onRegistered) onRegistered(); else clearAll(); }} />
         <PrimaryButton title={t("success.viewMatch")} variant="secondary" disabled={uploadingPhotos}
           onPress={() => router.push({ pathname: "/games/matches/[id]", params: { id: savedMatch.id, originSessionId: sessionId } })} />
       </View>
@@ -394,10 +435,6 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       </View>
     );
 
-  const soloAvailable = availableModes.solo.available;
-  const multiAvailable = availableModes.multiplayer.available;
-  const coopAvailable = availableModes.cooperative.available;
-
   const footer = (
     <View style={disableScroll ? styles.navRowInline : styles.stickyBar}>
       <View style={styles.navRow}>
@@ -406,7 +443,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
         </View>}
         <View style={{ flex: 2, minWidth: 140 }}>
           {step < 3 ? (
-            <PrimaryButton title={t("navigation.continue")} onPress={goNext} disabled={!canGoNext()} />
+            <PrimaryButton title={t(step === 2 ? "navigation.review" : "navigation.continue")} onPress={goNext} disabled={!canGoNext()} />
           ) : (
             <PrimaryButton title={uploadingPhotos ? t("photos.uploading") : t("navigation.save")}
               onPress={handleSubmit} loading={loading || uploadingPhotos} />
@@ -439,6 +476,15 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
         </View>
       </View>
 
+      {selectedGame && <View style={styles.gameRow}>
+        <GameCover uri={selectedGame.imageUrl} size={64} />
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={styles.gameName}>{selectedGame.name}</Text>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("form.edit", { section: t("summary.mode") })} onPress={() => setStep(0)} style={styles.modeLink}>
+            <Text style={styles.gameMeta}>{getModeLabel(gameMode)} · {t("game.change")}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>}
       <ProgressBar current={step} total={steps.length} labels={steps} />
 
       {/* ══ STEP 0: Jogo ══ */}
@@ -449,36 +495,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
             <GameSelector appearance="refresh" onSelect={(game) => { setSelectedGame(game); setSelectedExpansions([]); setEditingGame(false); }} />
           ) : (
             <View>
-              <View style={styles.gameRow}>
-                {selectedGame?.imageUrl ? (
-                  <Image source={{ uri: selectedGame.imageUrl }} style={styles.gameThumb} />
-                ) : (
-                  <View style={[styles.gameThumb, styles.gameThumbPlaceholder]}>
-                    <MaterialIcons name="sports-esports" size={28} color={COLORS.primary} />
-                  </View>
-                )}
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.gameName}>{selectedGame?.name}</Text>
-                  <Text style={styles.gameMeta}>
-                    {[
-                      selectedGame?.yearPublished,
-                      selectedGame?.averageRating ? `⭐ ${selectedGame.averageRating.toFixed(1)}` : null,
-                      selectedGame?.minPlayers != null && selectedGame?.maxPlayers != null
-                        ? `👥 ${selectedGame.minPlayers}–${selectedGame.maxPlayers}` : null,
-                    ].filter(Boolean).join(" · ")}
-                  </Text>
-                  {selectedGame && (
-                    <View style={styles.modeBadgesRow}>
-                      {soloAvailable && <View style={[styles.modeBadge, { backgroundColor: COLORS.success + "20" }]}><Text style={[styles.modeBadgeText, { color: COLORS.success }]}>{t("modes.solo")}</Text></View>}
-                      {multiAvailable && <View style={[styles.modeBadge, { backgroundColor: COLORS.primary + "20" }]}><Text style={[styles.modeBadgeText, { color: COLORS.primary }]}>{t("modes.multiplayer")}</Text></View>}
-                      {coopAvailable && <View style={[styles.modeBadge, { backgroundColor: COLORS.secondary + "20" }]}><Text style={[styles.modeBadgeText, { color: COLORS.secondary }]}>{t("modes.cooperative")}</Text></View>}
-                    </View>
-                  )}
-                </View>
-                <TouchableOpacity onPress={() => setEditingGame(true)} style={styles.changeBtn}>
-                  <Text style={styles.changeBtnText}>{t("game.change")}</Text>
-                </TouchableOpacity>
-              </View>
+              <PrimaryButton title={t("game.change")} variant="secondary" onPress={() => setEditingGame(true)} />
               {selectedGame && (
                 <View style={{ marginTop: 16 }}>
                   <Text style={styles.subLabel}>{t("game.expansionsOptional")}</Text>
@@ -490,30 +507,10 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
         </View>
       )}
 
-      {/* ══ STEP 1: Modo ══ */}
-      {step === 1 && (
+      {/* Modo acessível junto do jogo, sem etapa própria. */}
+      {step === 0 && selectedGame && !editingGame && (
         <View style={styles.card}>
           <SectionTitle icon="gamepad" label={t("modes.sectionTitle")} />
-          {selectedGame && (
-            <View style={styles.gameInfoBox}>
-              <Text style={styles.gameInfoName}>{selectedGame.name}</Text>
-              <Text style={styles.gameInfoMeta}>
-                {[
-                  selectedGame.minPlayers != null && selectedGame.maxPlayers != null
-                    ? t("modes.playersRange", { min: selectedGame.minPlayers, max: selectedGame.maxPlayers }) : null,
-                  getModesDescription(selectedGame, selectedExpansions[0] ?? null),
-                ].filter(Boolean).join("  ·  ")}
-              </Text>
-              {selectedExpansions.length > 0 && (
-                <Text style={styles.expansionNote}>
-                  {t("modes.withExpansion", { name: selectedExpansions[0]?.name })}
-                  {availableModes.solo.source === "expansion" ? t("modes.soloUnlocked") : ""}
-                  {availableModes.cooperative.source === "expansion" ? t("modes.coopUnlocked") : ""}
-                </Text>
-              )}
-            </View>
-          )}
-
           <View style={styles.modeRow}>
             {([
               { mode: "solo" as GameMode,        icon: "person",   label: t("modes.solo"),        color: COLORS.success   },
@@ -552,31 +549,6 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
               <Text style={styles.unofficialWarningText}>
                 {t("modes.unofficialWarning", { justification: unofficialJustification })}
               </Text>
-            </View>
-          )}
-
-          {isSolo && (
-            <View style={{ marginTop: 20 }}>
-              <Text style={styles.subLabel}>{t("modes.result")}</Text>
-              <View style={styles.resultRow}>
-                <ResultButton emoji="🏆" label={t("modes.playerWon")}        active={soloResult === "player_win"} activeColor={COLORS.success} onPress={() => setSoloResult("player_win")} />
-                <ResultButton emoji="💀" label={t("modes.gameWon")} active={soloResult === "game_win"}   activeColor={COLORS.error}   onPress={() => setSoloResult("game_win")} />
-                <ResultButton emoji="—"  label={t("modes.noResult")} active={soloResult === "none"}        activeColor={COLORS.textMuted}           onPress={() => setSoloResult("none")} />
-              </View>
-            </View>
-          )}
-
-          {isCooperative && (
-            <View style={{ marginTop: 20 }}>
-              <Text style={styles.subLabel}>{t("modes.teamResult")}</Text>
-              <View style={styles.resultRow}>
-                <ResultButton emoji="🏆" label={t("modes.teamWon")}
-                  active={playerState.length > 0 && playerState.every((p) => p.isWinner)} activeColor={COLORS.success}
-                  onPress={() => setPlayerState((prev) => prev.map((p) => ({ ...p, isWinner: true })))} />
-                <ResultButton emoji="💀" label={t("modes.teamLost")}
-                  active={playerState.length > 0 && playerState.every((p) => !p.isWinner)} activeColor={COLORS.error}
-                  onPress={() => setPlayerState((prev) => prev.map((p) => ({ ...p, isWinner: false })))} />
-              </View>
             </View>
           )}
 
@@ -622,106 +594,129 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
         </View>
       )}
 
-      {/* ══ STEP 2: Jogadores ══ */}
+      {/* ══ STEP 1: Jogadores ══ */}
+      {step === 1 && <View style={styles.card}>
+        {isSolo ? <View style={styles.soloPlayerRow}>
+          <Text style={styles.playerName}>{currentUser?.userName ?? t("players.you")}</Text>
+          <Text style={styles.hint}>{t("selector.participationRequired")}</Text>
+        </View> : !isSessionMatch && friendsLoading ? <ActivityIndicator color={COLORS.primary} /> :
+          <PlayerSelector title={t("steps.players")} users={availableUsers} players={playerState} onChange={setPlayerState}
+            currentUser={currentUserForSelector} lockCurrentUser selectionOnly
+            mode={isSessionMatch ? "session" : "quick"} maxResults={12} />}
+      </View>}
+
+      {/* ══ STEP 2: Resultado e detalhes antes da revisão ══ */}
       {step === 2 && (
-        <View style={styles.card}>
-          <SectionTitle icon="people" label={isSolo ? t("players.player") : isCooperative ? t("players.team") : t("players.players")} />
-          {isSolo ? (
-            <View>
-              <View style={styles.soloPlayerRow}>
-                <View style={styles.playerAvatar}>
-                  <Text style={styles.playerAvatarText}>{(currentUser?.userName ?? "?")[0].toUpperCase()}</Text>
+        <View>
+          <View style={styles.card}>
+            <SectionTitle icon="emoji-events" label={t("steps.result")} />
+            <MatchResultFields players={playerState} onChange={setPlayerState} scoresEnabled={scoresEnabled}
+              onScoresEnabled={setScoresEnabled} competitive={!isSolo && !isCooperative} showErrors={showResultErrors} />
+            {isSolo && (
+              <View style={{ marginTop: 20 }}>
+                <Text style={styles.subLabel}>{t("modes.result")}</Text>
+                <View style={styles.resultRow}>
+                  <ResultButton emoji="🏆" label={t("modes.playerWon")}        active={soloResult === "player_win"} activeColor={COLORS.success} onPress={() => setSoloResult("player_win")} />
+                  <ResultButton emoji="💀" label={t("modes.gameWon")} active={soloResult === "game_win"}   activeColor={COLORS.error}   onPress={() => setSoloResult("game_win")} />
+                  <ResultButton emoji="—"  label={t("modes.noResult")} active={soloResult === "none"}        activeColor={COLORS.textMuted}           onPress={() => setSoloResult("none")} />
                 </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.playerName}>{currentUser?.userName ?? t("players.you")}</Text>
-                  <Text style={styles.playerSub}>{t("players.finalScoreOptional")}</Text>
+              </View>
+            )}
+
+            {isCooperative && (
+              <View style={{ marginTop: 20 }}>
+                <Text style={styles.subLabel}>{t("modes.teamResult")}</Text>
+                <View style={styles.resultRow}>
+                  <ResultButton emoji="🏆" label={t("modes.teamWon")}
+                    active={teamResult === "win"} activeColor={COLORS.success}
+                    onPress={() => { setTeamResult("win"); setPlayerState((prev) => prev.map((p) => ({ ...p, isWinner: true }))); }} />
+                  <ResultButton emoji="💀" label={t("modes.teamLost")}
+                    active={teamResult === "loss"} activeColor={COLORS.error}
+                    onPress={() => { setTeamResult("loss"); setPlayerState((prev) => prev.map((p) => ({ ...p, isWinner: false }))); }} />
                 </View>
-                <TextInput
-                  style={styles.scoreInput}
-                  accessibilityLabel={t("players.finalScoreOptional")}
-                  value={playerState[0]?.score ?? ""}
-                  onChangeText={(v) => setPlayerState([{ id: currentUser!.id, username: currentUser!.userName, score: v, isWinner: false }])}
-                  keyboardType="numeric" placeholder="—" placeholderTextColor={COLORS.textMuted}
-                />
               </View>
-              <View style={styles.soloResultSummary}>
-                <Text style={styles.soloResultLabel}>{t("players.resultLabel")}</Text>
-                <Text style={styles.soloResultValue}>{getSoloResultLabel(soloResult)}</Text>
-              </View>
+            )}
+
+          </View>
+          <View style={styles.card}>
+            <SectionTitle icon="event" label={t("form.date")} />
+            <View style={styles.dateRow}>
+              <PrimaryButton title={matchDate.toLocaleDateString(locale)} variant="secondary" accessibilityLabel={t("form.date")} onPress={() => { Keyboard.dismiss(); setDatePicker("date"); }} />
+              <PrimaryButton title={matchDate.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })} variant="secondary" accessibilityLabel={t("form.time")} onPress={() => { Keyboard.dismiss(); setDatePicker("time"); }} />
             </View>
-          ) : !isSessionMatch && friendsLoading ? (
-            <ActivityIndicator size="large" color={COLORS.primary} />
-          ) : (
-            <PlayerSelector
-                title={t("steps.players")}
-              users={availableUsers} players={playerState} onChange={setPlayerState}
-              currentUser={currentUserForSelector} lockCurrentUser={!isSessionMatch}
-              mode={isSessionMatch ? "session" : "quick"} maxResults={12}
-            />
-          )}
+            {datePicker && <View>
+              <DateTimePicker value={matchDate} mode={datePicker} display={Platform.OS === "ios" ? "inline" : "default"}
+                maximumDate={datePicker === "date" ? new Date() : undefined}
+                onChange={(_event, date) => { if (date) setMatchDate(date); if (Platform.OS !== "ios") setDatePicker(null); }} />
+              {Platform.OS === "ios" && <PrimaryButton title={t("form.done")} variant="secondary" onPress={() => setDatePicker(null)} />}
+            </View>}
+            <PrimaryButton title={t("form.optionalDetails")} variant="secondary" onPress={() => setShowDetails(value => !value)} />
+          </View>
+          {showDetails && <View>
+            <View style={styles.card}>
+              <SectionTitle icon="info" label={t("details.optionalTitle")} />
+              <DetailField label={t("details.locationLabel")} placeholder={t("details.locationPlaceholder")} value={location} onChangeText={setLocation} />
+              <DetailField label={t("details.durationLabel")} placeholder={t("details.durationPlaceholder")} value={duration} onChangeText={setDuration} keyboardType="numeric" />
+              <DetailField label={t("details.commentsLabel")} placeholder={t("details.commentsPlaceholder")} value={comments} onChangeText={setComments} multiline numberOfLines={3} />
+            </View>
+
+            <View style={styles.card}>
+              <SectionTitle icon="auto-stories" label={t("details.journalTitle")} />
+              <Text style={styles.subLabel}>{t("details.ratingLabel")}</Text>
+              <StarRating appearance="refresh" value={personalRating} onChange={setPersonalRating} size={30} />
+              <View style={{ marginTop: 16 }}>
+                <DetailField
+                  label={t("details.notesLabel")}
+                  placeholder={t("details.notesPlaceholder")}
+                  value={notes} onChangeText={setNotes} multiline numberOfLines={4}
+                />
+                <DetailField
+                  label={t("details.tagsLabel")}
+                  placeholder={t("details.tagsPlaceholder")}
+                  value={tags} onChangeText={setTags}
+                />
+                {tags.trim() !== "" && (
+                  <View style={styles.tagsPreviewRow}>
+                    {tags.split(",").filter(t => t.trim()).map((tag, i) => (
+                      <View key={i} style={styles.tagChip}>
+                        <Text style={styles.tagChipText}>#{tag.trim()}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+
+              <Text style={[styles.subLabel, { marginTop: 16 }]}>
+                {t("photos.label")} {pendingPhotos.length > 0 ? `— ${pendingPhotos.length}/${MAX_PHOTOS}` : ""}
+              </Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {pendingPhotos.map((uri, pi) => (
+                  <View key={pi} style={styles.photoThumbWrap}>
+                    <Image source={{ uri }} style={styles.photoThumb} />
+                    <TouchableOpacity style={styles.photoRemoveBtn} accessibilityRole="button" accessibilityLabel={t("photos.remove")} onPress={() => handleRemovePendingPhoto(uri)}>
+                      <MaterialIcons name="close" size={14} color="#fff" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                {pendingPhotos.length < MAX_PHOTOS && (
+                  <TouchableOpacity style={styles.photoAddBtn} accessibilityRole="button" accessibilityLabel={t("photos.add")} onPress={handlePickPendingPhoto} activeOpacity={0.8}>
+                    <MaterialIcons name="add-a-photo" size={20} color={COLORS.primary} />
+                    <Text style={styles.photoAddText}>{t("photos.add")}</Text>
+                  </TouchableOpacity>
+                )}
+              </ScrollView>
+              <Text style={styles.hint}>
+                {t("photos.hint")}
+              </Text>
+            </View>
+
+            </View>}
         </View>
       )}
 
-      {/* ══ STEP 3: Detalhes ══ */}
-      {step === 3 && (
-        <View>
-          <View style={styles.card}>
-            <SectionTitle icon="info" label={t("details.optionalTitle")} />
-            <DetailField label={t("details.locationLabel")} placeholder={t("details.locationPlaceholder")} value={location} onChangeText={setLocation} />
-            <DetailField label={t("details.durationLabel")} placeholder={t("details.durationPlaceholder")} value={duration} onChangeText={setDuration} keyboardType="numeric" />
-            <DetailField label={t("details.commentsLabel")} placeholder={t("details.commentsPlaceholder")} value={comments} onChangeText={setComments} multiline numberOfLines={3} />
-          </View>
-
-          <View style={styles.card}>
-            <SectionTitle icon="auto-stories" label={t("details.journalTitle")} />
-            <Text style={styles.subLabel}>{t("details.ratingLabel")}</Text>
-            <StarRating appearance="refresh" value={personalRating} onChange={setPersonalRating} size={30} />
-            <View style={{ marginTop: 16 }}>
-              <DetailField
-                label={t("details.notesLabel")}
-                placeholder={t("details.notesPlaceholder")}
-                value={notes} onChangeText={setNotes} multiline numberOfLines={4}
-              />
-              <DetailField
-                label={t("details.tagsLabel")}
-                placeholder={t("details.tagsPlaceholder")}
-                value={tags} onChangeText={setTags}
-              />
-              {tags.trim() !== "" && (
-                <View style={styles.tagsPreviewRow}>
-                  {tags.split(",").filter(t => t.trim()).map((tag, i) => (
-                    <View key={i} style={styles.tagChip}>
-                      <Text style={styles.tagChipText}>#{tag.trim()}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            <Text style={[styles.subLabel, { marginTop: 16 }]}>
-              {t("photos.label")} {pendingPhotos.length > 0 ? `— ${pendingPhotos.length}/${MAX_PHOTOS}` : ""}
-            </Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {pendingPhotos.map((uri, pi) => (
-                <View key={pi} style={styles.photoThumbWrap}>
-                  <Image source={{ uri }} style={styles.photoThumb} />
-                  <TouchableOpacity style={styles.photoRemoveBtn} accessibilityRole="button" accessibilityLabel={t("photos.remove")} onPress={() => handleRemovePendingPhoto(uri)}>
-                    <MaterialIcons name="close" size={14} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-              ))}
-              {pendingPhotos.length < MAX_PHOTOS && (
-                <TouchableOpacity style={styles.photoAddBtn} accessibilityRole="button" accessibilityLabel={t("photos.add")} onPress={handlePickPendingPhoto} activeOpacity={0.8}>
-                  <MaterialIcons name="add-a-photo" size={20} color={COLORS.primary} />
-                  <Text style={styles.photoAddText}>{t("photos.add")}</Text>
-                </TouchableOpacity>
-              )}
-            </ScrollView>
-            <Text style={styles.hint}>
-              {t("photos.hint")}
-            </Text>
-          </View>
-
+      {/* ══ STEP 3: Rever ══ */}
+      {step === 3 && <View>
+          <Text style={styles.hint}>{t("form.reviewHint")}</Text>
           <View style={styles.summaryCard}>
             <Text style={styles.summaryTitle}>{t("summary.title")}</Text>
             <SummaryRow label={t("summary.game")} value={selectedGame?.name ?? "—"} />
@@ -731,20 +726,33 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
               <SummaryRow
                 label={isCooperative ? t("summary.teamResult") : t("summary.winner")}
                 value={isCooperative
-                  ? playerState.some((p) => p.isWinner) ? `🏆 ${t("modes.teamWon")}` : `💀 ${t("modes.teamLost")}`
+                  ? teamResult === "win" ? `🏆 ${t("modes.teamWon")}` : teamResult === "loss" ? `💀 ${t("modes.teamLost")}` : t("sessions.resultUndefined")
                   : playerState.find((p) => p.isWinner)?.username ?? t("summary.notDefined")}
               />
             )}
+            <PrimaryButton title={t("form.edit", { section: t("steps.game") })} variant="secondary" onPress={() => setStep(0)} />
             <SummaryRow label={t("summary.players")} value={`${playerState.length}`} />
+            {playerState.map(p => <SummaryRow key={p.id} label={p.username || t("sessions.playerNameUnavailable")}
+              value={scoresEnabled ? String(p.score?.trim() ?? "") : t("form.withoutScores")} />)}
+            <PrimaryButton title={t("form.edit", { section: t("steps.players") })} variant="secondary" onPress={() => setStep(1)} />
+            <SummaryRow label={t("steps.result")} value={t(scoresEnabled ? "form.withScores" : "form.withoutScores")} />
+            <PrimaryButton title={t("form.edit", { section: t("steps.result") })} variant="secondary" onPress={() => setStep(2)} />
+            <SummaryRow label={t("form.date")} value={matchDate.toLocaleString(locale)} />
             {selectedExpansions.length > 0 && <SummaryRow label={t("summary.expansions")} value={selectedExpansions.map((e) => e.name).join(", ")} />}
             {location.trim() !== "" && <SummaryRow label={t("summary.location")} value={location} />}
             {duration.trim() !== "" && <SummaryRow label={t("summary.duration")} value={t("summary.minutes", { value: duration })} />}
             {personalRating !== undefined && <SummaryRow label={t("summary.rating")} value={`${personalRating}/10`} />}
+            {comments.trim() && <SummaryRow label={t("details.commentsLabel")} value={comments.trim()} />}
+            {notes.trim() && <SummaryRow label={t("details.notesLabel")} value={notes.trim()} />}
+            {tags.trim() && <SummaryRow label={t("details.tagsLabel")} value={tags.trim()} />}
+            {isUnofficial && <SummaryRow label={t("modes.reasonLabel")} value={unofficialJustification} />}
+            {pendingPhotos.length > 0 && <SummaryRow label={t("photos.label")} value={String(pendingPhotos.length)} />}
+            <PrimaryButton title={t("form.edit", { section: t("steps.details") })} variant="secondary"
+              onPress={() => { setShowDetails(true); setStep(2); }} />
           </View>
 
           {!!error && <Text style={styles.errorText}>{error}</Text>}
-        </View>
-      )}
+        </View>}
 
       {disableScroll && footer}
     </View>
@@ -872,29 +880,20 @@ const styles = StyleSheet.create({
   progressLine: { width: 8, height: 2, backgroundColor: COLORS.border, marginTop: 15 },
   progressLineDone: { backgroundColor: COLORS.success },
 
-  card: { ...UI_STYLES.card, padding: 16, marginBottom: 16 },
+  card: { paddingVertical: 12, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   sectionTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 },
   sectionTitleText: { ...UI_STYLES.section },
 
-  gameRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-  gameThumb: { width: 60, height: 60, borderRadius: 10, backgroundColor: "#f0f0f0" },
-  gameThumbPlaceholder: { alignItems: "center", justifyContent: "center" },
+  gameRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 16 },
+  modeLink: { minHeight: 44, justifyContent: "center" },
+  dateRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 },
   gameName: { ...UI_STYLES.section },
   gameMeta: { ...UI_STYLES.caption, color: COLORS.textMuted, marginTop: 4 },
-  modeBadgesRow: { flexDirection: "row", gap: 4, marginTop: 6, flexWrap: "wrap" },
-  modeBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
-  modeBadgeText: { fontSize: 11, fontWeight: "700" },
-  changeBtn: { ...UI_STYLES.control, paddingHorizontal: 12, backgroundColor: COLORS.primarySoft },
-  changeBtnText: { fontSize: 13, fontWeight: "700", color: COLORS.primary },
   subLabel: { fontSize: 13, fontWeight: "700", color: COLORS.onBackground, marginBottom: 8 },
 
-  gameInfoBox: { backgroundColor: "#f4f7ff", borderRadius: 10, padding: 12, marginBottom: 14, borderWidth: 1, borderColor: COLORS.primary + "20" },
-  gameInfoName: { fontSize: 14, fontWeight: "800", color: COLORS.onBackground, marginBottom: 2 },
-  gameInfoMeta: { fontSize: 12, color: COLORS.textMuted },
-  expansionNote: { fontSize: 11, color: "#1E88E5", marginTop: 4, fontWeight: "600" },
 
-  modeRow: { gap: 8 },
-  modeBtn: { minHeight: 64, alignItems: "center", padding: 12, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, gap: 4 },
+  modeRow: { gap: 8, flexDirection: "row", flexWrap: "wrap" },
+  modeBtn: { flexGrow: 1, minWidth: 100, minHeight: 64, alignItems: "center", padding: 12, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, gap: 4 },
   modeBtnUnavailable: { backgroundColor: "#f5f5f5", borderColor: "#eee", borderStyle: "dashed" },
   modeBtnLabel: { ...UI_STYLES.body, fontWeight: "700", color: COLORS.textMuted, textAlign: "center" },
   sourceBadge: { paddingHorizontal: 5, paddingVertical: 2, borderRadius: 999, marginTop: 2 },
@@ -913,15 +912,8 @@ const styles = StyleSheet.create({
   resultEmoji: { fontSize: 22 },
   resultLabel: { ...UI_STYLES.body, color: COLORS.textMuted, flexShrink: 1 },
 
-  soloPlayerRow: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, backgroundColor: "#f9f9f9", borderRadius: 12, borderWidth: 1, borderColor: "#eee" },
-  playerAvatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.primary + "20", alignItems: "center", justifyContent: "center" },
-  playerAvatarText: { fontSize: 16, fontWeight: "800", color: COLORS.primary },
+  soloPlayerRow: { gap: 8, paddingVertical: 12 },
   playerName: { fontSize: 15, fontWeight: "700", color: COLORS.onBackground },
-  playerSub: { fontSize: 12, color: COLORS.textMuted, marginTop: 2 },
-  scoreInput: { ...UI_STYLES.field, width: 92, textAlign: "center", fontWeight: "700" },
-  soloResultSummary: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 12, padding: 12, backgroundColor: "#f0f4ff", borderRadius: 10, borderWidth: 1, borderColor: COLORS.primary + "30" },
-  soloResultLabel: { fontSize: 13, color: COLORS.textMuted, fontWeight: "600" },
-  soloResultValue: { fontSize: 14, fontWeight: "800", color: COLORS.onBackground },
 
   detailField: { marginBottom: 12 },
   detailLabel: { ...UI_STYLES.body, fontWeight: "700", marginBottom: 8 },
@@ -937,7 +929,7 @@ const styles = StyleSheet.create({
   photoAddBtn: { width: 96, height: 96, borderRadius: 12, borderWidth: 1, borderColor: COLORS.primary, alignItems: "center", justifyContent: "center", backgroundColor: COLORS.primarySoft },
   photoAddText: { ...UI_STYLES.caption, color: COLORS.primary, fontWeight: "700", marginTop: 4 },
 
-  summaryCard: { ...UI_STYLES.card, padding: 16, marginBottom: 16, backgroundColor: COLORS.primarySoft },
+  summaryCard: { paddingVertical: 12, marginBottom: 12, gap: 8 },
   summaryTitle: { ...UI_STYLES.section, marginBottom: 12 },
   summaryRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingVertical: 7, borderBottomWidth: 0.5, borderBottomColor: "#e0e8f4" },
   summaryLabel: { ...UI_STYLES.caption, color: COLORS.textMuted, flex: 1 },

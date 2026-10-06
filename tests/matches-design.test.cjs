@@ -8,17 +8,17 @@ const pending = 'src/features/games/matches/screens/PendingJournalScreen.tsx';
 const selector = 'src/features/users/components/PlayerSelector.tsx';
 const me = { id: 'me', userName: 'Test player' };
 const game = { id: 'game-id', name: 'Test-only game', minPlayers: 1, maxPlayers: 4 };
-const players = [{ id: 'me', username: 'Test player', score: '0', isWinner: true }, { id: 'other', username: 'Other player', score: '', isWinner: false }];
+const players = [{ id: 'me', username: 'Test player', score: '0', isWinner: true }, { id: 'other', username: 'Other player', score: '-17', isWinner: false }];
 const match = { id: 'match-id', gameId: game.id, gameName: game.name, matchDate: '2026-09-01', players: [{ userId: 'me', userName: me.userName, score: 0, isWinner: true }, { userId: 'other', userName: 'Other player' }], journalStatus: 'Open' };
-const formStates = { 2: 3, 3: game, 4: false, 8: players };
+const formStates = { 2: 3, 3: game, 4: false, 8: players, 23: true };
 const submit = async (states = {}, props = {}, options = {}) => renderNative(form, 'default', { currentUser: me, ...props }, { states: { ...formStates, ...states }, ...options });
 
-test('registration preserves zero and absent scores, winner, expansion and optional details', async () => {
+test('registration preserves zero and negative scores, manual winner, expansion and optional details', async () => {
   const view = await submit({ 5: [{ id: 'exp', bggId: 123, name: 'Test expansion' }], 9: ' Table ', 10: '45', 11: ' Summary ', 12: 7.5, 13: ' Notes ', 14: ' tag ' });
   await view.press('Guardar partida');
   const payload = view.calls.find(c => c[0] === 'submitMatch')[1];
   assert.equal(payload.players[0].score, 0);
-  assert.equal(payload.players[1].score, undefined);
+  assert.equal(payload.players[1].score, -17);
   assert.equal(payload.winnerId, 'me');
   assert.deepEqual(payload.expansions, [{ bggId: 123, name: 'Test expansion' }]);
   assert.equal(payload.durationInMinutes, 45);
@@ -26,15 +26,15 @@ test('registration preserves zero and absent scores, winner, expansion and optio
   assert.equal(payload.personalRating, 7.5);
   assert.equal(payload.notes, 'Notes');
   const mapper = view.load('src/features/games/matches/utils/mapMatchFormToRequest.ts').mapMatchFormToRequest;
-  assert.deepEqual(mapper(payload).playerScores, [{ userId: 'me', score: 0 }]);
+  assert.deepEqual(mapper(payload).playerScores, [{ userId: 'me', score: 0 }, { userId: 'other', score: -17 }]);
 });
 
-test('invalid score is reported before submitting; existing negative-score limitation remains', async () => {
-  for (const score of ['abc', '1.2', '-1']) {
+test('invalid or missing integer score prevents submission and returns to Result', async () => {
+  for (const score of ['abc', '1.2', '', '-2147483649']) {
     const view = await submit({ 8: [{ ...players[0], score }] });
     await view.press('Guardar partida');
     assert.equal(view.calls.some(c => c[0] === 'submitMatch'), false);
-    assert.equal(view.calls.some(c => c[0] === 'alert'), true);
+    assert.deepEqual(view.updates.find(([i]) => i === 2), [2, 2]);
   }
 });
 
@@ -58,10 +58,10 @@ test('inline session form retains session id and accepted participants', async (
 test('step continuation retains game and player requirements', async () => {
   const initial = await renderNative(form, 'default', { currentUser: me });
   assert.equal(initial.controls.find(c => c.accessibilityLabel === 'Continuar').disabled, true);
-  const noPlayers = await submit({ 2: 2, 8: [] });
+  const noPlayers = await submit({ 2: 1, 8: [] });
   assert.equal(noPlayers.controls.find(c => c.accessibilityLabel === 'Continuar').disabled, true);
   const selected = await submit({ 2: 2 });
-  await selected.press('Continuar');
+  await selected.press('Rever partida');
   assert.deepEqual(selected.updates.find(c => c[0] === 2), [2, 3]);
 });
 

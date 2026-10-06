@@ -3,7 +3,9 @@
     "game": "Game",
     "mode": "Mode",
     "players": "Players",
-    "details": "Details"
+    "details": "Details",
+    "result": "Result",
+    "review": "Review"
   },
   "header": {
     "addMatch": "Add match",
@@ -116,7 +118,8 @@
   "navigation": {
     "back": "Previous",
     "continue": "Continue",
-    "save": "Save match"
+    "save": "Save match",
+    "review": "Review match"
   },
   "ui": {
     "loading": "Loading…",
@@ -153,7 +156,8 @@
     "winner": "🏆 Winner",
     "setWinner": "Set as winner",
     "winnerFor": "Set {{name}} as winner",
-    "soloHint": "For a solo match, the winner is optional."
+    "soloHint": "For a solo match, the winner is optional.",
+    "participationRequired": "You take part in this match; your participation is required."
   },
   "photos": {
     "label": "Photos (optional)",
@@ -341,5 +345,24 @@
     "scoreUndefined": "Not defined",
     "durationMinutes": "{{count}} min",
     "organizerRole": "Organizer"
+  },
+  "form": {
+    "withScores": "With scores",
+    "withoutScores": "Without scores",
+    "scoreHelp": "One integer per player, including zero and negatives. Choose the winner separately.",
+    "scoreRequired": "Enter a valid score.",
+    "scoreInvalid": "Use an integer between -2147483648 and 2147483647.",
+    "scoreFor": "Score for {{name}}",
+    "toggleSign": "Change score sign for {{name}}",
+    "winnerHelp": "Choose the winner. Scores do not decide for you.",
+    "optionalDetails": "Date and optional details",
+    "date": "Match date",
+    "time": "Match time",
+    "done": "Done",
+    "edit": "Edit {{section}}",
+    "reviewHint": "Check the details before saving. You can edit any section.",
+    "modeLimitations": "Solo and cooperative retain current result-saving limitations. Ties do not yet have their own result.",
+    "newMatch": "Register another match",
+    "dateInvalid": "Select a valid date and time."
   }
 }

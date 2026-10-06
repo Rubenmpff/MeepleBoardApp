@@ -43,13 +43,15 @@ test('missing score differs from invalid input; existing int? rules are retained
   assert.equal(parsePlayerScore(''), undefined);
   assert.equal(parsePlayerScore(' 0 '), 0);
   assert.equal(parsePlayerScore('2147483647'), 2147483647);
-  for (const value of ['abc', 'NaN', 'Infinity', '1.5', '-1', '2147483648']) {
+  assert.equal(parsePlayerScore('-2147483648'), -2147483648);
+  assert.equal(parsePlayerScore('-17'), -17);
+  for (const value of ['abc', 'NaN', 'Infinity', '1.5', '-2147483649', '2147483648', '0x10', '1e2', '-' ]) {
     assert.throws(() => parsePlayerScore(value), /pontuação/);
   }
 });
 
 test('mapping rejects invalid numeric scores before JSON can turn NaN into null', () => {
-  for (const score of [NaN, Infinity, 1.5, -1, 2147483648]) {
+  for (const score of [NaN, Infinity, 1.5, -2147483649, 2147483648]) {
     assert.throws(() => mapMatchFormToRequest(form([{ userId: 'a', score, isWinner: true }])), /pontuação/);
   }
 });
