@@ -1,5 +1,7 @@
 # Passagem do MeepleBoard para macOS
 
+**Continuação no Mac:** o utilizador escolheu e validou SQL Server local em Docker por emulação. A adaptação antes descrita como pendente foi implementada; ver [resultado, proteções e comandos macOS](../../MeepleBoardApi/docs/testes-macos-docker.md). O restante guia conserva o contexto da passagem original e a alternativa de host x86-64. A base habitual permanece intacta. O utilizador confirmou health no Safari, Expo 8082, login, Início e Sessões sem erros 401 no iPhone. Próximo percurso: registo de partidas numa sessão ativa, um passo de cada vez.
+
 Verificação: 6 de outubro de 2026. O utilizador confirmou **Apple Silicon M2**. Este guia não modifica nem substitui o ambiente Windows ativo. A solução recomendada é API/Expo nativos no Mac e SQL Server num **host Linux x86-64 dedicado a testes**, ligado por rede privada. O frontend e os testes isolados podem ser preparados entretanto; o arranque da API com SQL no Mac está bloqueado pela ligação LocalDB fixa no anfitrião atual.
 
 ## Repositórios e estado enviado
