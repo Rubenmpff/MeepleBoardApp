@@ -22,7 +22,9 @@ import PlayerSelector from "../../../users/components/PlayerSelector";
 import { StarRating } from "../../../../shared/components/StarRating";
 
 import { Game } from "../../catalog/types/Game";
-import { MatchFormData } from "../types/MatchForm";
+import { useRouter } from "expo-router";
+import MatchSummary from "./MatchSummary";
+import { MatchDto, MatchFormData } from "../types/MatchForm";
 import { PlayerState } from "../../../users/types/PlayerState";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
@@ -102,7 +104,13 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const MAX_PHOTOS = 5;
-  const navigationGuard = useUnsavedChanges(!!selectedGame || !!location || !!duration || !!comments || personalRating !== undefined || !!notes || !!tags || pendingPhotos.length > 0, loading || uploadingPhotos, sessionId ? `/games/sessions/${sessionId}` : undefined);
+  const router = useRouter();
+  const [savedMatch, setSavedMatch] = useState<MatchDto | null>(null);
+  const [failedPhotos, setFailedPhotos] = useState<string[]>([]);
+  const submittedMatch = useRef<MatchDto | null>(savedMatch);
+  const submitting = useRef(false);
+  const photoBusy = useRef(false);
+  const navigationGuard = useUnsavedChanges(!savedMatch && (!!selectedGame || !!location || !!duration || !!comments || personalRating !== undefined || !!notes || !!tags || pendingPhotos.length > 0), loading || uploadingPhotos, sessionId ? `/games/sessions/${sessionId}` : undefined);
 
   const [unofficialMode, setUnofficialMode] = useState<GameMode | null>(null);
   const [unofficialJustification, setUnofficialJustification] = useState("");
@@ -235,6 +243,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   };
 
   const clearAll = () => {
+    submittedMatch.current = null;
     navigationGuard.markUnsaved();
     setSelectedGame(null); setSelectedExpansions([]); setPlayerState([]);
     setLocation(""); setDuration(""); setComments("");
@@ -244,6 +253,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   };
 
   const handleSubmit = async () => {
+    if (submittedMatch.current || submitting.current) return;
     if (!selectedGame) return Alert.alert(t("validation.errorTitle"), t("validation.selectGame"));
     if (playerState.length === 0) return Alert.alert(t("validation.errorTitle"), t("validation.addPlayer"));
 
@@ -288,33 +298,69 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       unofficialModeJustification: isUnofficial ? unofficialJustification : undefined,
     };
 
-    const created = await submitMatch(payload);
-    if (created) {
-      let photoWarning = "";
-      if (pendingPhotos.length > 0) {
-        setUploadingPhotos(true);
-        let failed = 0;
+    submitting.current = true;
+    try {
+      const created = await submitMatch(payload);
+      if (!created) return;
+      submittedMatch.current = created;
+      if (isSessionMatch) setSavedMatch(created);
+      const failed: string[] = [];
+      setUploadingPhotos(true);
+      try {
         for (const uri of pendingPhotos) {
-          try {
-            await matchService.uploadJournalPhoto(created.id, uri);
-          } catch {
-            failed++;
-          }
+          try { await matchService.uploadJournalPhoto(created.id, uri); }
+          catch { failed.push(uri); }
         }
-        setUploadingPhotos(false);
-        if (failed > 0) {
-          photoWarning = "\n\n" + t("photos.partialFailure", { failed, total: pendingPhotos.length });
-        }
-      }
-
+      } finally { setUploadingPhotos(false); }
+      setFailedPhotos(failed);
       navigationGuard.allowExit();
-      Alert.alert(
-        t("success.title"),
-        (isSessionMatch ? t("success.session") : t("success.quick")) + photoWarning,
-        [{ text: t("success.ok"), onPress: () => { if (onRegistered) onRegistered(); else clearAll(); } }]
-      );
-    }
+      if (!isSessionMatch) {
+        const warning = failed.length ? "\n\n" + t("photos.partialFailure", { failed: failed.length, total: pendingPhotos.length }) : "";
+        Alert.alert(t("success.title"), t("success.quick") + warning,
+          [{ text: t("success.ok"), onPress: () => { if (onRegistered) onRegistered(); else clearAll(); } }]);
+      }
+    } finally { submitting.current = false; }
   };
+
+  const retryPhotos = async () => {
+    if (!submittedMatch.current || photoBusy.current || uploadingPhotos) return;
+    photoBusy.current = true;
+    navigationGuard.markUnsaved();
+    setUploadingPhotos(true);
+    const remaining: string[] = [];
+    try {
+      for (const uri of failedPhotos) {
+        try { await matchService.uploadJournalPhoto(submittedMatch.current.id, uri); }
+        catch { remaining.push(uri); }
+      }
+      setFailedPhotos(remaining);
+    } finally { photoBusy.current = false; setUploadingPhotos(false); navigationGuard.allowExit(); }
+  };
+
+  const returnToSession = () => {
+    if (uploadingPhotos || photoBusy.current) return;
+    if (onRegistered) onRegistered();
+    else if (sessionId) router.dismissTo({ pathname: "/games/sessions/[id]", params: { id: sessionId } });
+  };
+
+  if (savedMatch) return <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+    <ScreenHeader title={t("success.savedTitle")} appearance="refresh" subtitle={session?.name}
+      onLeftPress={returnToSession} />
+    <ScrollView contentContainerStyle={styles.scrollContent}>
+      <View style={{ gap: 16 }}>
+        <MatchSummary match={savedMatch} />
+        {uploadingPhotos && <Text style={styles.hint}>{t("photos.uploading")}</Text>}
+        {!uploadingPhotos && failedPhotos.length > 0 && <View style={{ gap: 8 }}>
+          <Text style={styles.hint}>{t("success.photosFailed", { count: failedPhotos.length })}</Text>
+          <PrimaryButton title={t("success.retryPhotos")} variant="secondary" onPress={retryPhotos} />
+        </View>}
+        <PrimaryButton title={t("sessions.backToSession")} disabled={uploadingPhotos}
+          onPress={returnToSession} />
+        <PrimaryButton title={t("success.viewMatch")} variant="secondary" disabled={uploadingPhotos}
+          onPress={() => router.push({ pathname: "/games/matches/[id]", params: { id: savedMatch.id, originSessionId: sessionId } })} />
+      </View>
+    </ScrollView>
+  </View>;
 
   if (isSessionMatch && sessionLoading)
     return <View style={styles.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>;

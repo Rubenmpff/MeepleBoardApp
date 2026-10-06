@@ -144,9 +144,9 @@ test('match rows associate named players with zero and absent scores, and distin
   ];
   const view = await render(detail, { states: { 0: { ...session, matches }, 1: false } });
   assert.match(view.html, /Vencedor: Test player/);
-  assert.match(view.html, /Test player<\/span><span>17/);
-  assert.match(view.html, /Other player<\/span><span>0/);
-  assert.match(view.html, /Other player<\/span><span>Não definida/);
+  assert.match(view.html, /Test player<\/span><\/div><span>17/);
+  assert.match(view.html, /Other player<\/span><\/div><span>0/);
+  assert.match(view.html, /Other player<\/span><\/div><span>Não definida/);
   assert.match(view.html, /Nome do vencedor indisponível/);
   assert.match(view.html, /Resultado não definido/);
   assert.doesNotMatch(view.html, /Sem vencedor/);

@@ -14,14 +14,14 @@ import ScreenLayout from "@/src/components/ui/ScreenLayout";
 import ScreenState from "@/src/components/ui/ScreenState";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useMemo, useState, useCallback } from "react";
-import { View, Text, RefreshControl, StyleSheet, Alert, ScrollView } from "react-native";
+import { View, Text, RefreshControl, StyleSheet, Alert, ScrollView, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import sessionService from "@/src/features/games/sessions/services/sessionService";
 import { GameSession } from "@/src/features/games/sessions/types/GameSession";
 import { normalizeInviteStatus } from "@/src/features/games/sessions/types/GameSessionPlayer";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
-import { matchResultKey } from "../utils/matchResultKey";
+import MatchSummary from "../../matches/components/MatchSummary";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import { RootState } from "@/src/store/store";
@@ -173,15 +173,11 @@ export default function GameSessionDetailScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t("sessions.matchesTitle", { count: matches.length })}</Text>
           {matches.length === 0 ? <Text style={styles.hint}>{t("sessions.noMatches")}</Text> : matches.map(m => (
-            <View key={m.id} style={styles.matchRow}>
-              <Text style={styles.matchGame}>{m.gameName?.trim() || t("sessions.gameNameUnavailable")}</Text>
-              <Text style={styles.body}>{t(matchResultKey(m), { name: m.winnerName })}</Text>
-              {m.players.map(player => <View key={player.userId} style={styles.scoreRow}>
-                <Text style={styles.scoreName}>{player.userName?.trim() || t("sessions.playerNameUnavailable")}</Text>
-                <Text style={styles.score}>{player.score == null ? t("sessions.scoreUndefined") : String(player.score)}</Text>
-              </View>)}
-              {m.durationInMinutes != null && <Text style={styles.hint}>{t("sessions.durationMinutes", { count: m.durationInMinutes })}</Text>}
-            </View>
+            <Pressable key={m.id} style={styles.matchRow} accessibilityRole="button" accessibilityLabel={t("success.viewMatch") + ": " + m.gameName}
+              onPress={() => router.push({ pathname: "/games/matches/[id]", params: { id: m.id, originSessionId: session.id } })}>
+              <MatchSummary match={m} compact />
+              <View style={styles.detailLink}><Text style={styles.hint}>{t("success.viewMatch")}</Text><MaterialIcons name="chevron-right" size={18} color={COLORS.textMuted} /></View>
+            </Pressable>
           ))}
         </View>
         <View style={styles.section}>
@@ -219,7 +215,8 @@ const styles = StyleSheet.create({
   section: { gap: 8 },
   sectionTitle: { ...UI_STYLES.section },
   actions: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  matchRow: { paddingVertical: 10, gap: 6, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  detailLink: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 4 },
+  matchRow: { minHeight: 44, paddingVertical: 10, gap: 6, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   matchGame: { ...UI_STYLES.section },
   scoreRow: { flexDirection: "row", alignItems: "baseline", gap: 12 },
   scoreName: { ...UI_STYLES.body, flex: 1 },

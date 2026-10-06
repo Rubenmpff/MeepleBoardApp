@@ -23,7 +23,12 @@
     "title": "✅ Partida registada!",
     "session": "Partida adicionada à sessão.",
     "quick": "Partida guardada com sucesso.",
-    "ok": "OK"
+    "ok": "OK",
+    "savedTitle": "Partida guardada",
+    "viewMatch": "Ver detalhes da partida",
+    "retryPhotos": "Repetir envio das fotografias",
+    "photosFailed_one": "A partida ficou guardada. Uma fotografia não foi enviada; podes repetir apenas o envio.",
+    "photosFailed_other": "A partida ficou guardada. {{count}} fotografias não foram enviadas; podes repetir apenas o envio."
   },
   "session": {
     "notFoundTitle": "⚠️ Sessão não encontrada",

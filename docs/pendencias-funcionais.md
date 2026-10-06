@@ -1,8 +1,20 @@
 # Pendências funcionais do MeepleBoard
 
+## Confirmação e capas das partidas — implementação
+
+**Validação funcional confirmada no iPhone:** o utilizador confirmou que guardar regressa ao detalhe com a partida nova e que, após sair e reabrir, jogo, vencedor e pontuações 17 e 0 continuam corretos junto aos respetivos nomes. Este percurso está concluído; a próxima etapa é apresentar a proposta visual, antes de implementar VIS-SESSION01/VIS-SESSION02. Esta confirmação não valida solo, cooperativo, empate nem as restantes pendências.
+
+**Implementação atual:** ver [confirmacao-partidas.md](confirmacao-partidas.md). Confirmação com dados reais, Voltar à sessão/Ver detalhes, linhas tocáveis com capas/data/duração, retorno ao contexto e bloqueio de ressubmissão após sucesso implementados. Repetir fotografias usa apenas o ID da partida guardada e os URIs falhados. Validado em DeviceTests; confirmação manual deste novo percurso no iPhone pendente.
+
+**VIS-SESSION01 — pedido original de confirmação após guardar:** o utilizador pretende uma confirmação visual com capa e nome do jogo, vencedor quando definido e pontuações associadas aos nomes dos jogadores, incluindo zero. Deve existir uma ação clara para voltar à mesma sessão. Usar os dados reais devolvidos pela API e adaptar a apresentação ao resultado efetivamente disponível: distinguir nome do vencedor indisponível de resultado não definido; não inferir empate, derrota, vitória solo ou resultado cooperativo de campos ausentes. Pontuação ausente não equivale a zero. Se a capa não estiver disponível, usar um estado visual neutro, sem inventar imagens ou dados. Preservar proteção de saída, tratamento de falha parcial de fotografias e recarga do detalhe após sucesso.
+
+**VIS-SESSION02 — capas na lista de partidas da sessão:** acrescentar capas aos cartões/linhas das partidas, usando a imagem real do jogo quando disponível, com fallback neutro. Manter legibilidade, pontuações por jogador, privacidade e áreas de toque; evitar voltar a aumentar cartões aninhados e espaços excessivos.
+
+**Ordem acordada:** terminar primeiro a validação funcional do registo, regresso ao detalhe e dados após reabrir. Depois apresentar uma proposta visual antes de implementar estas melhorias. A proposta foi apresentada e aprovada; a implementação está descrita acima. A validação manual do novo percurso visual ainda está pendente. As limitações RESULT01 continuam pendentes e não são resolvidas por esta apresentação.
+
 ## Atualização — detalhe compacto e registo em página própria
 
-Ver [detalhe-sessao-registo.md](detalhe-sessao-registo.md). Corrigido o carregamento dos nomes de jogos, vencedores e jogadores no detalhe da sessão, preservando filtros de privacidade. Pontuações aparecem junto aos nomes e zero é conservado. O registo passa a página própria, com sessão/participantes aceites, proteção do rascunho e retorno/recarga do detalhe. Encerrar mantém confirmação como ação secundária. Validado em DeviceTests; confirmação deste novo percurso no iPhone pendente.
+Ver [detalhe-sessao-registo.md](detalhe-sessao-registo.md). Corrigido o carregamento dos nomes de jogos, vencedores e jogadores no detalhe da sessão, preservando filtros de privacidade. Pontuações aparecem junto aos nomes e zero é conservado. O registo passa a página própria, com sessão/participantes aceites, proteção do rascunho e retorno/recarga do detalhe. Encerrar mantém confirmação como ação secundária. Validado em DeviceTests; o utilizador confirmou no iPhone o registo, regresso ao detalhe e conservação de jogo/vencedor/pontuações 17 e 0 após reabrir.
 
 **RESULT01 — contrato de resultados (continuação de M01/C03):** solo perde winnerId no mapper quando isSoloGame=true; cooperativo não envia modo/resultado de equipa explícito e o backend exige vencedor não solo; empate não tem representação explícita. Regras preservadas nesta etapa. Sem WinnerId mostrar Resultado não definido; com WinnerId e sem nome mostrar Nome do vencedor indisponível. Não inferir modos/resultados das pontuações nem do catálogo. Futuramente definir contrato e testar gravação/releitura apenas em SQL descartável, sem reinterpretar dados antigos automaticamente.
 

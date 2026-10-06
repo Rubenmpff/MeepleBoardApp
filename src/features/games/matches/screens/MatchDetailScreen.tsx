@@ -1,5 +1,7 @@
 import { useTranslation } from "react-i18next";
 import ScreenHeader from "@/src/components/navigation/ScreenHeader";
+import GameCover from "../components/GameCover";
+import { matchResultKey } from "../../sessions/utils/matchResultKey";
 import ScreenState from "@/src/components/ui/ScreenState";
 /**
  * MatchDetailScreen.tsx
@@ -28,8 +30,13 @@ import { RootState } from "@/src/store/store";
 
 export default function MatchDetailScreen() {
   const { t, i18n } = useTranslation("matches");
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, originSessionId } = useLocalSearchParams<{ id: string; originSessionId?: string }>();
   const router = useRouter();
+  const backToOrigin = () => {
+    if (router.canGoBack()) router.back();
+    else if (originSessionId) router.replace({ pathname: "/games/sessions/[id]", params: { id: originSessionId } });
+    else router.replace(ROUTES.HOME as never);
+  };
   const currentUser = useSelector((state: RootState) => state.auth.user);
 
   const [match, setMatch] = useState<MatchDto | null>(null);
@@ -55,12 +62,12 @@ export default function MatchDetailScreen() {
 
   useEffect(() => { void load(); }, [load]);
 
-  if (loading) return <SafeAreaView style={styles.screen}><ScreenHeader title={t("ui.detailsTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} /><ScreenState loading message={t("ui.loading")} /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={styles.screen}><ScreenHeader title={t("ui.detailsTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} onLeftPress={backToOrigin} /><ScreenState loading message={t("ui.loading")} /></SafeAreaView>;
 
   if (loadError || notFound || !match) {
     return (
       <SafeAreaView style={styles.screen}>
-        <ScreenHeader title={t("ui.detailsTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} />
+        <ScreenHeader title={t("ui.detailsTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} onLeftPress={backToOrigin} />
         <ScreenState error={loadError} message={t(loadError ? "ui.loadError" : "ui.notFound")} onRetry={load} retryLabel={t("ui.retry")} />
       </SafeAreaView>
     );
@@ -71,18 +78,13 @@ export default function MatchDetailScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={["left", "right", "bottom", "top"]}>
-      <ScreenHeader title={t("ui.detailsTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} />
+      <ScreenHeader title={t("ui.detailsTitle")} appearance="refresh" leftAccessibilityLabel={t("ui.back")} onLeftPress={backToOrigin} />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          {match.gameImageUrl ? (
-            <Image source={{ uri: match.gameImageUrl }} style={styles.cover} />
-          ) : (
-            <View style={[styles.cover, styles.coverPlaceholder]}>
-              <Ionicons name="dice-outline" size={32} color={COLORS.textMuted} />
-            </View>
-          )}
+          <GameCover uri={match.gameImageUrl} size={88} />
           <View style={styles.headerInfo}>
             <Text style={styles.gameName} >{match.gameName}</Text>
+            <Text style={styles.date}>{t(matchResultKey(match), { name: match.winnerName })}</Text>
             <Text style={styles.date}>{formatDate(match.matchDate, i18n.language)}</Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("ui.viewGame")} onPress={() => router.push({ pathname: ROUTES.GAME_DETAILS, params: { id: match.gameId } } as never)}>
               <Text style={styles.link}>{t("ui.viewGame")}</Text>

@@ -192,7 +192,7 @@ test('new screen and selector strings are translated in English', async () => {
 });
 
 
-test('session registration preserves draft on save failure and exits only after confirmed success', async () => {
+test('session registration preserves draft on save failure and stores successful response without exiting', async () => {
   const session = { id: 'session-id', name: 'Session context', status: 'Active', players: [{ userId: 'me', userName: me.userName, status: 'Accepted' }, { userId: 'other', userName: 'Other player', status: 'Declined' }] };
   let returned = 0;
   const failed = await submit({ 0: session }, { sessionId: session.id, onRegistered: () => returned++ });
@@ -203,9 +203,11 @@ test('session registration preserves draft on save failure and exits only after 
   const saved = await submit({ 0: session }, { sessionId: session.id, onRegistered: () => returned++ }, { createdMatch: { id: 'new-match' } });
   await saved.press('Guardar partida');
   assert.equal(returned, 0);
-  const alert = saved.calls.find(c => c[0] === 'alert');
-  alert[3][0].onPress();
-  assert.equal(returned, 1);
+  assert.equal(saved.calls.some(c => c[0] === 'alert'), false);
+  assert.deepEqual(saved.updates.find(([index]) => index === 17), [17, { id: 'new-match' }]);
+  await saved.press('Guardar partida');
+  assert.equal(saved.calls.filter(c => c[0] === 'submitMatch').length, 1);
+  assert.equal(returned, 0);
 });
 
 test('session draft cancel uses its session as fallback and keeps editing until discard is confirmed', async () => {

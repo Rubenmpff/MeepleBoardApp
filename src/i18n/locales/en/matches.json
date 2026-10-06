@@ -23,7 +23,12 @@
     "title": "✅ Match registered!",
     "session": "The match was added to the session.",
     "quick": "The match was saved successfully.",
-    "ok": "OK"
+    "ok": "OK",
+    "savedTitle": "Match saved",
+    "viewMatch": "View match details",
+    "retryPhotos": "Retry photo uploads",
+    "photosFailed_one": "The match was saved. One photo was not uploaded; you can retry only the upload.",
+    "photosFailed_other": "The match was saved. {{count}} photos were not uploaded; you can retry only the upload."
   },
   "session": {
     "notFoundTitle": "⚠️ Session not found",

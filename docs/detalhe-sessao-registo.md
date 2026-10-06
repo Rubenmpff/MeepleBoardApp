@@ -1,5 +1,7 @@
 # Detalhe compacto e registo de partidas em sessão
 
+**Etapa posterior:** a confirmação com capa/dados e ações de navegação substitui agora o alerta de sucesso no registo de sessão; ver [confirmacao-partidas.md](confirmacao-partidas.md). O relato abaixo documenta a etapa funcional anterior, confirmada pelo utilizador.
+
 Etapa de 6 de outubro de 2026, aprovada pelo utilizador após confirmação de login/Início/Sessões no iPhone, usando exclusivamente DeviceTests no Mac M2.
 
 O detalhe apresenta um resumo compacto, estado, data/local, organizador e contadores. Registar partida é a ação principal de participantes aceites numa sessão Active e abre `/games/sessions/register?sessionId=...`. Partidas e participantes usam linhas/separadores, sem formulário embutido ou cartões aninhados. Encerrar fica como ação secundária no fim, só para o organizador, mantendo confirmação e regras existentes. Convites e cancelamento Upcoming foram preservados.
@@ -31,6 +33,8 @@ Compilação backend, 58 testes HTTP de autorização + 1 auditoria offline e 20
 
 ## Confirmação no iPhone
 
+**Resultado confirmado pelo utilizador:** guardar regressou ao detalhe com a nova partida; após sair e reabrir, jogo, vencedor e pontuações 17 e 0 mantiveram-se corretos junto aos nomes. Este percurso funcional está concluído. A confirmação visual com capa e as capas na lista de partidas são uma etapa futura, a apresentar em proposta antes de implementar; modos solo/cooperativo/empate continuam pendentes.
+
 Após recarregar Expo 8082, voltar a fazer login: a API de testes foi reiniciada e os tokens são efémeros. Na sessão Ativa original:
 
 1. Registar partida → confirmar página própria e nome da sessão. Escolher Meeple Teste Competitivo.
@@ -38,4 +42,4 @@ Após recarregar Expo 8082, voltar a fazer login: a API de testes foi reiniciada
 3. Guardar uma vez, confirmar sucesso e observar regresso ao detalhe com a partida nova e pontuações associadas aos nomes.
 4. Voltar à lista e reabrir a mesma sessão; confirmar os mesmos dados. Encerrar não faz parte deste percurso.
 
-Executar um percurso de cada vez; validação manual pendente, não afirmada pelos testes automatizados.
+O roteiro acima foi confirmado pelo utilizador no dispositivo; os testes automatizados, por si só, não demonstravam essa confirmação manual.
