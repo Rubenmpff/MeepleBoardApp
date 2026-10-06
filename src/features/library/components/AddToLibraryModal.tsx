@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -16,12 +17,14 @@ import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import { Game } from "@/src/features/games/catalog/types/Game";
 import { GameSuggestion } from "@/src/features/games/catalog/types/GameSuggestion";
+import Toast from "react-native-toast-message";
+import { parsePurchasePrice } from "../utils/purchasePrice";
 
 type Props = {
   visible: boolean;
   onClose: () => void;
   game: Game | GameSuggestion;
-  onAddToLibrary: (pricePaid?: number) => void;
+  onAddToLibrary: (pricePaid?: number) => void | Promise<void>;
 };
 
 export default function AddToLibraryModal({
@@ -33,20 +36,33 @@ export default function AddToLibraryModal({
   const { t } = useTranslation("library");
   const [step, setStep] = useState<"options" | "price">("options");
   const [price, setPrice] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const navigationGuard = useUnsavedChanges(visible && !!price);
+  const navigationGuard = useUnsavedChanges(visible && !!price, saving);
   const requestClose = () => navigationGuard.discard(handleClose);
 
-  function handleConfirm() {
-    const normalized = price.replace(",", ".");
-    const numericPrice = Number.parseFloat(normalized) || 0;
-    onAddToLibrary(numericPrice);
-    handleClose();
+  async function save(value?: number) {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await onAddToLibrary(value);
+      handleClose();
+    } catch {
+      Toast.show({ type: "error", text1: t("ui.addError") });
+    } finally { setSaving(false); }
   }
 
-  function handleSkip() {
-    onAddToLibrary(undefined);
-    handleClose();
+  async function handleConfirm() {
+    let value: number | null;
+    try { value = parsePurchasePrice(price); } catch {
+      Toast.show({ type: "error", text1: t("ui.invalidPrice") });
+      return;
+    }
+    await save(value ?? undefined);
+  }
+
+  async function handleSkip() {
+    await save();
   }
 
   function handleClose() {
@@ -66,7 +82,7 @@ export default function AddToLibraryModal({
         {step === "price" && (
           <TouchableOpacity
             style={styles.backBtn}
-            onPress={() => setStep("options")}
+            onPress={() => setStep("options")} disabled={saving}
             accessibilityRole="button"
             accessibilityLabel={t("addModal.backAccessibility")}
           >
@@ -117,29 +133,31 @@ export default function AddToLibraryModal({
               value={price}
               onChangeText={setPrice}
               keyboardType="decimal-pad"
+              editable={!saving}
               placeholderTextColor={COLORS.textMuted}
             />
 
             <Text style={styles.note}>
-              {t("addModal.giftNote")}
+              {t("ui.priceHelp")}
             </Text>
 
             <TouchableOpacity
               style={styles.primaryBtn}
+              disabled={saving} accessibilityState={{ disabled: saving, busy: saving }}
               onPress={handleConfirm} accessibilityRole="button" accessibilityLabel={t("addModal.confirm")}
             >
-              <Text style={styles.primaryBtnText}>
+              {saving ? <ActivityIndicator color="#FFFFFF" accessibilityLabel={t("common:loading")} /> : <Text style={styles.primaryBtnText}>
                 {t("addModal.confirm")}
-              </Text>
+              </Text>}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} accessibilityRole="button" accessibilityLabel={t("addModal.skip")}>
+            <TouchableOpacity style={styles.skipBtn} disabled={saving} onPress={handleSkip} accessibilityRole="button" accessibilityLabel={t("addModal.skip")}>
               <Text style={styles.skipText}>
                 {t("addModal.skip", { defaultValue: "Skip" })}
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.cancelBtn} onPress={handleClose}>
+            <TouchableOpacity style={styles.cancelBtn} onPress={requestClose} accessibilityRole="button" accessibilityLabel={t("addModal.cancel")}>
               <Text style={styles.cancelText}>
                 {t("addModal.cancel")}
               </Text>

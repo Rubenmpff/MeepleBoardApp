@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
@@ -52,20 +51,12 @@ export function CollectionHeader({
           </Text>
         </View>
 
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={onAddPress}
-          activeOpacity={0.78}
-          accessibilityRole="button"
-          accessibilityLabel={uiT("ui.add")}
-        >
-          <MaterialIcons
-            name="add"
-            size={24}
-            color={COLORS.primary}
-          />
-        </TouchableOpacity>
       </View>
+
+      <TouchableOpacity style={styles.addAction} onPress={onAddPress} accessibilityRole="button" accessibilityLabel={uiT("ui.add")}>
+        <Text style={styles.addLabel}>{uiT("ui.add")}</Text>
+        <Text style={styles.addHint}>{uiT("ui.catalogHint")}</Text>
+      </TouchableOpacity>
 
       <View style={styles.summaryRow}>
         <SummaryItem
@@ -88,8 +79,7 @@ export function CollectionHeader({
         />
       </View>
 
-      {activeFilter === GameLibraryStatus.Owned &&
-        totalSpent > 0 && (
+      {activeFilter === GameLibraryStatus.Owned && (
           <View style={styles.spentRow}>
             <Text style={styles.spentLabel}>
               {uiT("ui.spent")}
@@ -149,7 +139,9 @@ const styles = StyleSheet.create({
 
   subtitle: { ...UI_STYLES.muted, marginTop: 2, fontWeight: "500" },
 
-  addButton: { ...UI_STYLES.iconButton, backgroundColor: COLORS.card, borderWidth: StyleSheet.hairlineWidth, borderColor: COLORS.border },
+  addAction: { ...UI_STYLES.button, backgroundColor: COLORS.primary, marginBottom: 12 },
+  addLabel: { ...UI_STYLES.body, color: "#FFFFFF", fontWeight: "700" },
+  addHint: { ...UI_STYLES.caption, color: "#FFFFFF", textAlign: "center" },
 
   summaryRow: {
     ...UI_STYLES.card,

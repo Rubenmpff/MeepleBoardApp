@@ -70,7 +70,7 @@ export function useLibraryActions() {
 
   /** Atualizar estado e/ou preço de um jogo já na biblioteca */
   const updateGame = useCallback(
-    async (gameId: string, status: GameLibraryStatus, pricePaid?: number) => {
+    async (gameId: string, status: GameLibraryStatus, pricePaid?: number | null) => {
       if (!user?.id) throw new Error("User not authenticated.");
       await dispatch(
         updateGameInLibrary({ userId: user.id, gameId, status, pricePaid }) as any

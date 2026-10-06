@@ -71,7 +71,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     'react-i18next': { useTranslation: ns => ({ t: (key, opts) => i18n.t(key, { ns, ...opts }), i18n }) },
     'react-redux': { useSelector: fn => fn({ auth: { user: options.user || { id: 'me' } }, library: { items: options.library || [] } }), useDispatch: () => action => calls.push(['dispatch', action]) },
     'react-native-toast-message': { __esModule: true, default: { show: p => calls.push(['toast', p]) } },
-    'expo-haptics': { impactAsync: async () => {}, ImpactFeedbackStyle: {} },
+    'expo-haptics': { impactAsync: async () => {}, ImpactFeedbackStyle: {}, notificationAsync: async () => {}, NotificationFeedbackType: { Success: 'success' } },
     'lottie-react-native': { __esModule: true, default: () => null },
     '@react-native-community/datetimepicker': { __esModule: true, default: p => { datePickers.push(p); return null; } },
     'expo-image-picker': {

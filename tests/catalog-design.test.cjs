@@ -149,7 +149,7 @@ test('Collection and catalogue sort sheets preserve option values and close afte
 });
 
 test('Library management keeps zero, blank and invalid price behaviour after changing the dialog', async () => {
-  for (const [priceText, expected] of [['0', 0], ['', undefined], ['-1', 'invalid'], ['invalid', 'invalid']]) {
+  for (const [priceText, expected] of [['0', 0], ['', null], ['-1', 'invalid'], ['invalid', 'invalid']]) {
     const entry = { ...library[0], status: 1 };
     const r = await renderNative('src/features/library/components/ManageLibraryEntryModal.tsx', 'default', { visible: true, game, entry, onClose() {} }, {
       language: 'en', library: [entry], states: { 1: priceText },

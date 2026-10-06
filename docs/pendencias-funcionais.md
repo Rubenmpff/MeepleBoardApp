@@ -1,5 +1,14 @@
 # Pendências funcionais do MeepleBoard
 
+## Atualização — Biblioteca e catálogo
+
+Ver [biblioteca-catalogo-validacao.md](biblioteca-catalogo-validacao.md). Recuperado o acesso global ao catálogo; corrigidos preço vazio/zero/vírgula, limpeza e atualização do estado local. A leitura posterior foi validada com HTTP isolado e reabertura dos formulários; persistência numa instância SQL real e validação iPhone continuam pendentes. O backend de produção não foi alterado nesta etapa.
+
+| ID | Ficheiros envolvidos | Impacto e validação necessária |
+| --- | --- | --- |
+| BL01 | `MyLibraryScreen.tsx`; backend `UserGameLibraryRepository.cs`, `UserGameLibraryService.cs` | Âmbitos anteriores diferentes: total da Biblioteca soma apenas Tenho, método de total do backend soma todos os estados com preço. Mantidos nesta correção. Confirmar a definição desejada antes de uniformizar totais entre áreas; comparar Tenho/Quero/Já joguei numa base descartável. |
+| SC01 / PR02 | Contexto/snapshot do catálogo; armazenamento de fotografias | Mantêm-se registadas abaixo e abertas: divergência do índice e URLs públicos antigos. Sem migrações, leitura/escrita da base atual ou alteração do armazenamento atual. Sem `CreatorId`, o backend atualizado não suporta os percursos completos da aplicação. |
+
 Revisão de código: 5 e 6 de outubro de 2026. Todas as pendências abaixo continuam **abertas**. Este documento distingue comportamentos confirmados no frontend de consequências que precisam de validação em execução. Não foram alterados o backend ou a base de dados.
 
 Os testes do redesign usam serviços simulados: verificam a preservação de pedidos, ações e navegação. **Não demonstram que estas pendências foram resolvidas**, nem validam permissões, notificações, persistência ou transações reais.

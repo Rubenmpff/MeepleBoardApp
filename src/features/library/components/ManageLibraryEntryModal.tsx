@@ -23,6 +23,7 @@ import { GameLibraryStatus } from "@/src/features/library/types/GameLibraryStatu
 import { UserGameLibrary } from "@/src/features/library/types/UserGameLibrary";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
+import { parsePurchasePrice } from "../utils/purchasePrice";
 
 type Props = {
   visible: boolean;
@@ -73,12 +74,12 @@ export default function ManageLibraryEntryModal({ visible, onClose, game, entry:
       setStatus(entry.status);
       setPriceText(entry.pricePaid != null ? String(entry.pricePaid) : "");
     }
-  }, [visible, entry?.id]);
+  }, [visible, entry?.id, entry?.status, entry?.pricePaid]);
 
   const handleSave = useCallback(async () => {
     if (!entry) return;
-    const parsedPrice = priceText.trim() === "" ? undefined : Number(priceText.replace(",", "."));
-    if (parsedPrice !== undefined && (isNaN(parsedPrice) || parsedPrice < 0)) {
+    let parsedPrice: number | null;
+    try { parsedPrice = parsePurchasePrice(priceText); } catch {
       Toast.show({ type: "error", text1: t("ui.invalidPrice") });
       return;
     }
@@ -97,7 +98,7 @@ export default function ManageLibraryEntryModal({ visible, onClose, game, entry:
   }, [entry, status, priceText, updateGame, onClose, t]);
 
   const handleRemove = useCallback(() => {
-    if (!isValidGame || !game.id) return;
+    if (!isValidGame || !entry?.gameId) return;
 
     Alert.alert(
       t("manageModal.confirmTitle"),
@@ -109,7 +110,7 @@ export default function ManageLibraryEntryModal({ visible, onClose, game, entry:
           style: "destructive",
           onPress: async () => {
             try {
-              await removeGame(game.id!);
+              await removeGame(entry.gameId);
               Toast.show({ type: "success", text1: t("manageModal.success", { name: game.name }) });
               onClose();
             } catch (error) {
@@ -124,7 +125,7 @@ export default function ManageLibraryEntryModal({ visible, onClose, game, entry:
         },
       ]
     );
-  }, [game, isValidGame, onClose, removeGame, t]);
+  }, [game, entry?.gameId, isValidGame, onClose, removeGame, t]);
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={requestClose}>
@@ -142,6 +143,7 @@ export default function ManageLibraryEntryModal({ visible, onClose, game, entry:
                 const active = status === opt.value;
                 return (
                   <Pressable
+                    disabled={saving}
                     key={opt.value} accessibilityRole="radio" accessibilityState={{ checked: active }} accessibilityLabel={t(`ui.${opt.label}`)}
                     style={[styles.statusPill, active && styles.statusPillActive]}
                     onPress={() => setStatus(opt.value)}
@@ -166,7 +168,9 @@ export default function ManageLibraryEntryModal({ visible, onClose, game, entry:
                   placeholder="0.00"
                   placeholderTextColor={COLORS.textMuted}
                   keyboardType="decimal-pad"
+                  editable={!saving}
                 />
+                <Text style={UI_STYLES.muted}>{t("ui.priceHelp")}</Text>
               </>
             )}
 
@@ -188,7 +192,7 @@ export default function ManageLibraryEntryModal({ visible, onClose, game, entry:
             <Pressable
               style={[styles.button, styles.remove]}
               onPress={handleRemove} accessibilityRole="button" accessibilityLabel={t("manageModal.remove")}
-              disabled={loading}
+              disabled={loading || saving}
             >
               <Text style={styles.buttonText}>{t("manageModal.remove")}</Text>
             </Pressable>

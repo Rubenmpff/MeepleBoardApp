@@ -38,7 +38,7 @@ function adapt(raw: RawLibraryEntry): UserGameLibrary {
     lastPlayedAt: raw.lastPlayedAt,
     totalTimesPlayed: raw.totalTimesPlayed,
     totalHoursPlayed: raw.totalHoursPlayed,
-    pricePaid: raw.pricePaid,
+    pricePaid: raw.pricePaid ?? undefined,
     game: {
       id: String(raw.gameId),
       name: raw.gameName,
@@ -108,8 +108,8 @@ export const removeGameFromLibrary = createAsyncThunk<
 });
 
 export const updateGameInLibrary = createAsyncThunk<
-  { gameId: string; status: GameLibraryStatus; pricePaid?: number },
-  { userId: string; gameId: string; status: GameLibraryStatus; pricePaid?: number }
+  { gameId: string; status: GameLibraryStatus; pricePaid?: number | null },
+  { userId: string; gameId: string; status: GameLibraryStatus; pricePaid?: number | null }
 >("library/updateGameInLibrary", async ({ userId, gameId, status, pricePaid }) => {
   await libraryService.updateGameInLibrary(userId, gameId, status, pricePaid);
   return { gameId, status, pricePaid };
@@ -189,14 +189,18 @@ const librarySlice = createSlice({
       })
       .addCase(removeGameFromLibrary.fulfilled, (state, action) => {
         state.items = state.items.filter((g) => g.gameId !== action.payload);
+        const played = state.playedGames.find(g => g.gameId === action.payload);
+        if (played) { played.inLibrary = false; played.status = undefined; played.pricePaid = undefined; }
       })
       .addCase(updateGameInLibrary.fulfilled, (state, action) => {
         const { gameId, status, pricePaid } = action.payload;
         const entry = state.items.find((g) => g.gameId === gameId);
         if (entry) {
           entry.status = status;
-          if (pricePaid !== undefined) entry.pricePaid = pricePaid;
+          entry.pricePaid = pricePaid ?? undefined;
         }
+        const played = state.playedGames.find(g => g.gameId === gameId);
+        if (played) { played.status = status; played.pricePaid = pricePaid ?? undefined; }
       })
       .addCase(fetchPlayedGames.pending, (state) => {
         state.playedGamesLoading = true;

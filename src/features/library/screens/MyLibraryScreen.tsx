@@ -173,7 +173,7 @@ export default function MyLibraryScreen() {
         playedCount={counts.played}
         totalSpent={counts.totalSpent}
         activeFilter={activeTab}
-        onAddPress={() => router.push("/games/search")}
+        onAddPress={() => router.push(ROUTES.SEARCH_GAMES)}
       />
 
       <CollectionSearchBar value={search} onChangeText={setSearch} />

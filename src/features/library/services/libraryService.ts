@@ -41,7 +41,7 @@ const libraryService = {
     userId: string,
     gameId: string,
     status: GameLibraryStatus,
-    pricePaid?: number
+    pricePaid?: number | null
   ): Promise<void> {
     if (!userId || !gameId) throw new Error("Invalid userId or gameId");
 

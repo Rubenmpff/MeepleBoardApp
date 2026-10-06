@@ -127,6 +127,8 @@
     "actionError": "This action could not be completed.",
     "status": "Status",
     "price": "Price paid (optional)",
+    "priceHelp": "Leave blank for an unknown price; €0 means free. Use up to two decimal places.",
+    "catalogHint": "Explore the catalogue and add to your collection",
     "save": "Save changes",
     "ownedOption": "I own this game",
     "wishlistOption": "I want to play",

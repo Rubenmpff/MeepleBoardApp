@@ -1089,10 +1089,7 @@ export default function GameSearchScreen() {
         await addGame(
           normalized,
           undefined,
-          pricePaid &&
-            pricePaid > 0
-            ? pricePaid
-            : undefined
+          pricePaid
         );
 
         Haptics
@@ -1106,7 +1103,7 @@ export default function GameSearchScreen() {
         Toast.show({
           type: "success",
           text1:
-            `${normalized.name} foi adicionado à tua coleção.`,
+            t("library:ui.added", { name: normalized.name }),
         });
       } catch (error) {
         logError(
@@ -1114,13 +1111,7 @@ export default function GameSearchScreen() {
           error
         );
 
-        Toast.show({
-          type: "error",
-          text1:
-            "Não foi possível adicionar o jogo.",
-        });
-      } finally {
-        closeAll();
+        throw error;
       }
     };
 

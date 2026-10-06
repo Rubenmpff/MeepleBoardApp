@@ -127,6 +127,8 @@
     "actionError": "Não foi possível concluir esta ação.",
     "status": "Estado",
     "price": "Quanto pagaste (opcional)",
+    "priceHelp": "Deixa vazio para preço desconhecido; 0 € significa gratuito. Usa até duas casas decimais.",
+    "catalogHint": "Explorar o catálogo e adicionar à coleção",
     "save": "Guardar alterações",
     "ownedOption": "Tenho o jogo",
     "wishlistOption": "Quero jogar",
