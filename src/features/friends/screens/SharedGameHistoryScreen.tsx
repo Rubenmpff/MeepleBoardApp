@@ -1,3 +1,7 @@
+import ScreenLayout from "@/src/components/ui/ScreenLayout";
+import ScreenState from "@/src/components/ui/ScreenState";
+import i18n from "i18next";
+import { useTranslation } from "react-i18next";
 /**
  * SharedGameHistoryScreen.tsx
  *
@@ -32,7 +36,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import ScreenHeader from "@/src/components/navigation/ScreenHeader";
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { ROUTES } from "@/src/constants/routes";
 
 import {
@@ -45,6 +50,7 @@ type ActiveTab =
   | "stats";
 
 export default function SharedGameHistoryScreen() {
+  const { t } = useTranslation("friends");
   const { id, gameId } =
     useLocalSearchParams<{
       id: string;
@@ -132,7 +138,7 @@ export default function SharedGameHistoryScreen() {
           );
         } catch {
           setError(
-            "Não foi possível carregar o histórico."
+            t("text.unableToLoadSharedHistory")
           );
         } finally {
           setLoading(
@@ -170,7 +176,7 @@ export default function SharedGameHistoryScreen() {
   const gameName =
     list[0]
       ?.gameName ??
-    "Histórico em conjunto";
+    t("text.sharedHistory");
 
   const gameImage =
     list.find(
@@ -183,102 +189,14 @@ export default function SharedGameHistoryScreen() {
     list[0]
       ?.matchDate
       ? formatShortDate(
-          list[0]
-            .matchDate
-        )
+        list[0]
+          .matchDate
+      )
       : "—";
 
-  if (loading) {
-    return (
-      <SafeAreaView
-        style={
-          styles.center
-        }
-        edges={[
-          "top",
-          "bottom",
-          "left",
-          "right",
-        ]}
-      >
-        <ActivityIndicator
-          size="large"
-          color={
-            COLORS.primary
-          }
-        />
+  if (loading) { return <ScreenLayout title={t("text.gameHistory")}><ScreenState loading message={t("text.loadingHistory")} /></ScreenLayout>; }
 
-        <Text
-          style={
-            styles.loadingText
-          }
-        >
-          A carregar
-          histórico...
-        </Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (error) {
-    return (
-      <SafeAreaView
-        style={
-          styles.center
-        }
-        edges={[
-          "top",
-          "bottom",
-          "left",
-          "right",
-        ]}
-      >
-        <Ionicons
-          name="alert-circle-outline"
-          size={42}
-          color={
-            COLORS.error
-          }
-        />
-
-        <Text
-          style={
-            styles.errorTitle
-          }
-        >
-          Ocorreu um erro
-        </Text>
-
-        <Text
-          style={
-            styles.errorText
-          }
-        >
-          {error}
-        </Text>
-
-        <TouchableOpacity
-          style={
-            styles.retryButton
-          }
-          onPress={() =>
-            void load()
-          }
-          activeOpacity={
-            0.85
-          }
-        >
-          <Text
-            style={
-              styles.retryText
-            }
-          >
-            Tentar novamente
-          </Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-    );
-  }
+  if (error) { return <ScreenLayout title={t("text.gameHistory")}><ScreenState error message={error} onRetry={() => load()} retryLabel={t("text.retry")} /></ScreenLayout>; }
 
   return (
     <SafeAreaView
@@ -295,7 +213,7 @@ export default function SharedGameHistoryScreen() {
       <FlatList
         data={
           activeTab ===
-          "matches"
+            "matches"
             ? list
             : []
         }
@@ -330,9 +248,9 @@ export default function SharedGameHistoryScreen() {
         }
         ListHeaderComponent={
           <View>
-            <ScreenHeader
-              mode="back"
-              title="Histórico do jogo"
+            <ScreenHeader appearance="refresh"
+              mode="back" leftAccessibilityLabel={t("card.back")}
+              title={t("text.gameHistory")}
             />
 
             <GameHeader
@@ -368,28 +286,28 @@ export default function SharedGameHistoryScreen() {
                 value={
                   list.length
                 }
-                label="partidas"
+                label={t("text.matchCountLabel")}
               />
 
               <SummaryMetric
                 value={duration(
                   stats.totalMinutes
                 )}
-                label="tempo total"
+                label={t("text.totalTime")}
               />
 
               <SummaryMetric
                 value={
                   lastPlayed
                 }
-                label="última"
+                label={t("text.lastPlayed")}
               />
             </View>
 
             {activeTab ===
-            "matches" ? (
+              "matches" ? (
               list.length >
-              0 ? (
+                0 ? (
                 <View
                   style={
                     styles.sectionHeader
@@ -400,22 +318,14 @@ export default function SharedGameHistoryScreen() {
                       styles.sectionTitle
                     }
                   >
-                    Partidas
-                  </Text>
+                    {t("text.matches")}</Text>
 
                   <Text
                     style={
                       styles.sectionCount
                     }
                   >
-                    {
-                      list.length
-                    }{" "}
-                    registo
-                    {list.length ===
-                    1
-                      ? ""
-                      : "s"}
+                    {t("counts.records", { count: list.length })}
                   </Text>
                 </View>
               ) : null
@@ -448,7 +358,7 @@ export default function SharedGameHistoryScreen() {
         )}
         ListEmptyComponent={
           activeTab ===
-          "matches" ? (
+            "matches" ? (
             <MatchesEmptyState />
           ) : null
         }
@@ -465,11 +375,12 @@ function GameHeader({
 }: {
   gameName: string;
   gameImage:
-    | string
-    | null;
+  | string
+  | null;
   matchesCount: number;
   totalMinutes: number;
 }) {
+  const { t } = useTranslation("friends");
   return (
     <View
       style={
@@ -515,17 +426,14 @@ function GameHeader({
             2
           }
         >
-          {gameName}
-        </Text>
+          {gameName}</Text>
 
         <Text
           style={
             styles.subtitle
           }
         >
-          Histórico em
-          conjunto
-        </Text>
+          {t("text.sharedHistory")}</Text>
 
         <View
           style={
@@ -534,12 +442,11 @@ function GameHeader({
         >
           <QuickMeta
             icon="dice-outline"
-            label={`${matchesCount} ${
-              matchesCount ===
-              1
-                ? "partida"
-                : "partidas"
-            }`}
+            label={`${matchesCount} ${matchesCount ===
+                1
+                ? t("text.match")
+                : t("text.matchCountLabel")
+              }`}
           />
 
           <QuickMeta
@@ -563,6 +470,7 @@ function GameTabs({
     tab: ActiveTab
   ) => void;
 }) {
+  const { t } = useTranslation("friends");
   return (
     <View
       style={
@@ -573,17 +481,17 @@ function GameTabs({
         style={[
           styles.segmentButton,
           activeTab ===
-            "matches" &&
-            styles.segmentButtonActive,
+          "matches" &&
+          styles.segmentButtonActive,
         ]}
-        onPress={() =>
+        accessibilityRole="tab" accessibilityState={{ selected: activeTab === "matches" }} onPress={() =>
           onChange(
             "matches"
           )
         }
         activeOpacity={
           activeTab ===
-          "matches"
+            "matches"
             ? 1
             : 0.85
         }
@@ -592,21 +500,22 @@ function GameTabs({
           style={[
             styles.segmentText,
             activeTab ===
-              "matches" &&
-              styles.segmentTextActive,
+            "matches" &&
+            styles.segmentTextActive,
           ]}
         >
-          Partidas
-        </Text>
+          {t("text.matches")}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[
           styles.segmentButton,
           activeTab ===
-            "stats" &&
-            styles.segmentButtonActive,
+          "stats" &&
+          styles.segmentButtonActive,
         ]}
+        accessibilityRole="tab"
+        accessibilityState={{ selected: activeTab === "stats" }}
         onPress={() =>
           onChange(
             "stats"
@@ -614,7 +523,7 @@ function GameTabs({
         }
         activeOpacity={
           activeTab ===
-          "stats"
+            "stats"
             ? 1
             : 0.85
         }
@@ -623,12 +532,11 @@ function GameTabs({
           style={[
             styles.segmentText,
             activeTab ===
-              "stats" &&
-              styles.segmentTextActive,
+            "stats" &&
+            styles.segmentTextActive,
           ]}
         >
-          Estatísticas
-        </Text>
+          {t("text.statistics")}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -674,7 +582,7 @@ function MatchCard({
           }
         >
           {new Intl.DateTimeFormat(
-            "pt-PT",
+            (i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB"),
             {
               month:
                 "short",
@@ -746,7 +654,7 @@ function MatchCard({
             !hasScore(
               item
             ) &&
-              styles.scoreTextMuted,
+            styles.scoreTextMuted,
           ]}
         >
           {formatScore(
@@ -828,6 +736,7 @@ function StatsContent({
 }: {
   stats: GameStats;
 }) {
+  const { t } = useTranslation("friends");
   if (
     stats.totalMatches ===
     0
@@ -857,20 +766,14 @@ function StatsContent({
             styles.emptyTitle
           }
         >
-          Ainda não há
-          estatísticas
-        </Text>
+          {t("text.noStatisticsYet")}</Text>
 
         <Text
           style={
             styles.emptyText
           }
         >
-          Quando jogarem
-          este jogo juntos,
-          as estatísticas
-          aparecem aqui.
-        </Text>
+          {t("text.statisticsWillAppearHereAfterYouPlayThisGameTogether")}</Text>
       </View>
     );
   }
@@ -883,153 +786,144 @@ function StatsContent({
     >
       {stats.competitiveMatches >
         0 && (
-        <StatsSection
-          title="Confrontos"
-        >
-          <View
-            style={
-              styles.scoreBoard
-            }
+          <StatsSection
+            title={t("text.headToHead")}
           >
             <View
               style={
-                styles.scoreSide
+                styles.scoreBoard
               }
             >
-              <Text
-                style={[
-                  styles.scoreValue,
-                  styles.scoreValuePrimary,
-                ]}
-              >
-                {
-                  stats.currentUserWins
-                }
-              </Text>
-
-              <Text
+              <View
                 style={
-                  styles.scoreLabel
+                  styles.scoreSide
                 }
               >
-                Tu
-              </Text>
-            </View>
+                <Text
+                  style={[
+                    styles.scoreValue,
+                    styles.scoreValuePrimary,
+                  ]}
+                >
+                  {
+                    stats.currentUserWins
+                  }
+                </Text>
 
-            <View
-              style={
-                styles.scoreCenter
-              }
-            >
-              <Text
-                style={
-                  styles.scoreDash
-                }
-              >
-                –
-              </Text>
-
-              {stats.draws >
-                0 && (
                 <Text
                   style={
-                    styles.drawText
+                    styles.scoreLabel
+                  }
+                >
+                  {t("text.you")}</Text>
+              </View>
+
+              <View
+                style={
+                  styles.scoreCenter
+                }
+              >
+                <Text
+                  style={
+                    styles.scoreDash
+                  }
+                >
+                  –
+                </Text>
+
+                {stats.draws >
+                  0 && (
+                    <Text
+                      style={
+                        styles.drawText
+                      }
+                    >
+                      {t("counts.draws", { count: stats.draws })}
+                    </Text>
+                  )}
+              </View>
+
+              <View
+                style={
+                  styles.scoreSide
+                }
+              >
+                <Text
+                  style={
+                    styles.scoreValue
                   }
                 >
                   {
-                    stats.draws
-                  }{" "}
-                  empate
-                  {stats.draws ===
-                  1
-                    ? ""
-                    : "s"}
+                    stats.friendWins
+                  }
                 </Text>
+
+                <Text
+                  style={
+                    styles.scoreLabel
+                  }
+                >
+                  {t("text.friend")}</Text>
+              </View>
+            </View>
+
+            {stats.competitiveWinRate !=
+              null && (
+                <MetricRow
+                  label={t("text.yourWinRate")}
+                  value={`${stats.competitiveWinRate}%`}
+                />
               )}
-            </View>
-
-            <View
-              style={
-                styles.scoreSide
-              }
-            >
-              <Text
-                style={
-                  styles.scoreValue
-                }
-              >
-                {
-                  stats.friendWins
-                }
-              </Text>
-
-              <Text
-                style={
-                  styles.scoreLabel
-                }
-              >
-                Amigo
-              </Text>
-            </View>
-          </View>
-
-          {stats.competitiveWinRate !=
-            null && (
-            <MetricRow
-              label="A tua taxa de vitória"
-              value={`${stats.competitiveWinRate}%`}
-            />
-          )}
-        </StatsSection>
-      )}
+          </StatsSection>
+        )}
 
       {stats.cooperativeMatches >
         0 && (
-        <StatsSection
-          title="Cooperativo"
-        >
-          <MetricRow
-            label="Vitórias em equipa"
-            value={
-              stats.teamWins
-            }
-          />
-
-          <MetricRow
-            label="Derrotas em equipa"
-            value={
-              stats.teamLosses
-            }
-          />
-
-          {stats.cooperativeSuccessRate !=
-            null && (
+          <StatsSection
+            title={t("text.cooperative")}
+          >
             <MetricRow
-              label="Taxa de sucesso"
-              value={`${stats.cooperativeSuccessRate}%`}
+              label={t("text.teamWins")}
+              value={
+                stats.teamWins
+              }
             />
-          )}
-        </StatsSection>
-      )}
+
+            <MetricRow
+              label={t("text.teamLosses")}
+              value={
+                stats.teamLosses
+              }
+            />
+
+            {stats.cooperativeSuccessRate !=
+              null && (
+                <MetricRow
+                  label={t("text.successRate")}
+                  value={`${stats.cooperativeSuccessRate}%`}
+                />
+              )}
+          </StatsSection>
+        )}
 
       <StatsSection
-        title="Tempo"
+        title={t("text.timeTitle")}
       >
         <MetricRow
-          label="Tempo total"
+          label={t("text.totalTimeTitle")}
           value={duration(
             stats.totalMinutes
           )}
         />
 
         <MetricRow
-          label="Duração média"
+          label={t("text.averageDuration")}
           value={
             stats.averageDuration !=
-            null
+              null
               ? duration(
-                  stats.averageDuration
-                )
+                stats.averageDuration
+              )
               : "—"
           }
         />
@@ -1038,27 +932,27 @@ function StatsContent({
       {(stats.currentUserBestScore !=
         null ||
         stats.friendBestScore !=
-          null) && (
-        <StatsSection
-          title="Pontuações"
-        >
-          <MetricRow
-            label="Tua melhor pontuação"
-            value={
-              stats.currentUserBestScore ??
-              "—"
-            }
-          />
+        null) && (
+          <StatsSection
+            title={t("text.scores")}
+          >
+            <MetricRow
+              label={t("text.yourBestScore")}
+              value={
+                stats.currentUserBestScore ??
+                "—"
+              }
+            />
 
-          <MetricRow
-            label="Melhor pontuação do amigo"
-            value={
-              stats.friendBestScore ??
-              "—"
-            }
-          />
-        </StatsSection>
-      )}
+            <MetricRow
+              label={t("text.friendsBestScore")}
+              value={
+                stats.friendBestScore ??
+                "—"
+              }
+            />
+          </StatsSection>
+        )}
     </View>
   );
 }
@@ -1069,7 +963,7 @@ function StatsSection({
 }: {
   title: string;
   children:
-    React.ReactNode;
+  React.ReactNode;
 }) {
   return (
     <View
@@ -1082,8 +976,7 @@ function StatsSection({
           styles.statsSectionTitle
         }
       >
-        {title}
-      </Text>
+        {title}</Text>
 
       <View
         style={
@@ -1102,8 +995,8 @@ function MetricRow({
 }: {
   label: string;
   value:
-    | string
-    | number;
+  | string
+  | number;
 }) {
   return (
     <View
@@ -1116,21 +1009,20 @@ function MetricRow({
           styles.metricLabel
         }
       >
-        {label}
-      </Text>
+        {label}</Text>
 
       <Text
         style={
           styles.metricValue
         }
       >
-        {value}
-      </Text>
+        {value}</Text>
     </View>
   );
 }
 
 function MatchesEmptyState() {
+  const { t } = useTranslation("friends");
   return (
     <View
       style={
@@ -1156,20 +1048,14 @@ function MatchesEmptyState() {
           styles.emptyTitle
         }
       >
-        Ainda não há
-        partidas deste jogo
-      </Text>
+        {t("text.noSharedMatchesForThisGameYet")}</Text>
 
       <Text
         style={
           styles.emptyText
         }
       >
-        Quando vocês
-        jogarem este jogo
-        juntos, o histórico
-        aparece aqui.
-      </Text>
+        {t("text.historyWillAppearHereAfterYouPlayThisGameTogether")}</Text>
     </View>
   );
 }
@@ -1179,7 +1065,7 @@ function QuickMeta({
   label,
 }: {
   icon:
-    keyof typeof Ionicons.glyphMap;
+  keyof typeof Ionicons.glyphMap;
   label: string;
 }) {
   return (
@@ -1201,8 +1087,7 @@ function QuickMeta({
           styles.quickMetaText
         }
       >
-        {label}
-      </Text>
+        {label}</Text>
     </View>
   );
 }
@@ -1212,8 +1097,8 @@ function SummaryMetric({
   label,
 }: {
   value:
-    | string
-    | number;
+  | string
+  | number;
   label: string;
 }) {
   return (
@@ -1227,16 +1112,14 @@ function SummaryMetric({
           styles.summaryMetricValue
         }
       >
-        {value}
-      </Text>
+        {value}</Text>
 
       <Text
         style={
           styles.summaryMetricLabel
         }
       >
-        {label}
-      </Text>
+        {label}</Text>
     </View>
   );
 }
@@ -1252,20 +1135,20 @@ type GameStats = {
   cooperativeMatches: number;
   totalMinutes: number;
   averageDuration:
-    | number
-    | null;
+  | number
+  | null;
   currentUserBestScore:
-    | number
-    | null;
+  | number
+  | null;
   friendBestScore:
-    | number
-    | null;
+  | number
+  | null;
   competitiveWinRate:
-    | number
-    | null;
+  | number
+  | null;
   cooperativeSuccessRate:
-    | number
-    | null;
+  | number
+  | null;
 };
 
 function calculateStats(
@@ -1336,20 +1219,20 @@ function calculateStats(
 
   const averageDuration =
     matchesWithDuration.length >
-    0
+      0
       ? Math.round(
-          matchesWithDuration.reduce(
-            (
-              sum,
-              match
-            ) =>
-              sum +
-              (match.durationInMinutes ??
-                0),
-            0
-          ) /
-            matchesWithDuration.length
-        )
+        matchesWithDuration.reduce(
+          (
+            sum,
+            match
+          ) =>
+            sum +
+            (match.durationInMinutes ??
+              0),
+          0
+        ) /
+        matchesWithDuration.length
+      )
       : null;
 
   const currentUserScores =
@@ -1380,38 +1263,38 @@ function calculateStats(
 
   const currentUserBestScore =
     currentUserScores.length >
-    0
+      0
       ? Math.max(
-          ...currentUserScores
-        )
+        ...currentUserScores
+      )
       : null;
 
   const friendBestScore =
     friendScores.length >
-    0
+      0
       ? Math.max(
-          ...friendScores
-        )
+        ...friendScores
+      )
       : null;
 
   const competitiveWinRate =
     competitiveMatches >
-    0
+      0
       ? Math.round(
-          (currentUserWins /
-            competitiveMatches) *
-            100
-        )
+        (currentUserWins /
+          competitiveMatches) *
+        100
+      )
       : null;
 
   const cooperativeSuccessRate =
     cooperativeMatches >
-    0
+      0
       ? Math.round(
-          (teamWins /
-            cooperativeMatches) *
-            100
-        )
+        (teamWins /
+          cooperativeMatches) *
+        100
+      )
       : null;
 
   return {
@@ -1449,11 +1332,10 @@ function duration(
     minutes % 60;
 
   return hours
-    ? `${hours}h${
-        remaining
-          ? ` ${remaining}m`
-          : ""
-      }`
+    ? `${hours}h${remaining
+      ? ` ${remaining}m`
+      : ""
+    }`
     : `${remaining}m`;
 }
 
@@ -1461,7 +1343,7 @@ function formatShortDate(
   value: string
 ) {
   return new Intl.DateTimeFormat(
-    "pt-PT",
+    (i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB"),
     {
       day: "numeric",
       month: "short",
@@ -1475,7 +1357,7 @@ function formatLongDate(
   value: string
 ) {
   return new Intl.DateTimeFormat(
-    "pt-PT",
+    (i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB"),
     {
       day: "numeric",
       month: "short",
@@ -1491,19 +1373,19 @@ function resultText(
 ) {
   switch (result) {
     case "teamWin":
-      return "Vitória em equipa";
+      return i18n.t("friends:text.teamWin");
 
     case "teamLoss":
-      return "Derrota em equipa";
+      return i18n.t("friends:text.teamLoss");
 
     case "currentUserWin":
-      return "Tu venceste";
+      return i18n.t("friends:text.youWon");
 
     case "otherUserWin":
-      return "O teu amigo venceu";
+      return i18n.t("friends:text.yourFriendWon");
 
     default:
-      return "Empate";
+      return i18n.t("friends:text.draw");
   }
 }
 
@@ -1512,9 +1394,9 @@ function hasScore(
 ) {
   return (
     item.currentUserScore !=
-      null ||
+    null ||
     item.otherUserScore !=
-      null
+    null
   );
 }
 
@@ -1522,16 +1404,14 @@ function formatScore(
   item: SharedMatchDetail
 ) {
   if (!hasScore(item)) {
-    return "Sem pontuação registada";
+    return i18n.t("friends:text.noScoreRecorded");
   }
 
-  return `${
-    item.currentUserScore ??
+  return `${item.currentUserScore ??
     "–"
-  } — ${
-    item.otherUserScore ??
+    } — ${item.otherUserScore ??
     "–"
-  }`;
+    }`;
 }
 
 const cardShadow = {
@@ -1568,12 +1448,14 @@ const styles =
     },
 
     loadingText: {
+      ...UI_STYLES.caption,
       color:
         COLORS.textMuted,
       fontSize: 13,
     },
 
     errorTitle: {
+      ...UI_STYLES.section,
       marginTop: 5,
       fontSize: 18,
       fontWeight:
@@ -1590,6 +1472,7 @@ const styles =
     },
 
     retryButton: {
+      ...UI_STYLES.control,
       marginTop: 8,
       backgroundColor:
         COLORS.primary,
@@ -1654,6 +1537,7 @@ const styles =
     },
 
     subtitle: {
+      ...UI_STYLES.caption,
       marginTop: 3,
       fontSize: 13,
       color:
@@ -1677,7 +1561,8 @@ const styles =
     },
 
     quickMetaText: {
-      fontSize: 11,
+      ...UI_STYLES.caption,
+      fontSize: 13,
       color:
         COLORS.textMuted,
       fontWeight:
@@ -1685,6 +1570,7 @@ const styles =
     },
 
     segmented: {
+flexWrap: "wrap",
       flexDirection:
         "row",
       backgroundColor:
@@ -1695,12 +1581,13 @@ const styles =
     },
 
     segmentButton: {
+      ...UI_STYLES.control,
       flex: 1,
       alignItems:
         "center",
       justifyContent:
         "center",
-      minHeight: 38,
+      minHeight: 44,
       borderRadius: 9,
     },
 
@@ -1711,6 +1598,7 @@ const styles =
     },
 
     segmentText: {
+      ...UI_STYLES.caption,
       fontSize: 13,
       fontWeight:
         "700",
@@ -1724,6 +1612,7 @@ const styles =
     },
 
     summaryStrip: {
+      ...UI_STYLES.card,
       flexDirection:
         "row",
       alignItems:
@@ -1732,7 +1621,7 @@ const styles =
       paddingVertical: 13,
       backgroundColor:
         COLORS.card,
-      borderRadius: 16,
+      borderRadius: 20,
       ...cardShadow,
     },
 
@@ -1743,6 +1632,7 @@ const styles =
     },
 
     summaryMetricValue: {
+      ...UI_STYLES.body,
       fontSize: 16,
       fontWeight:
         "800",
@@ -1751,8 +1641,9 @@ const styles =
     },
 
     summaryMetricLabel: {
+      ...UI_STYLES.caption,
       marginTop: 3,
-      fontSize: 10,
+      fontSize: 13,
       color:
         COLORS.textMuted,
     },
@@ -1769,6 +1660,7 @@ const styles =
     },
 
     sectionTitle: {
+      ...UI_STYLES.section,
       fontSize: 18,
       fontWeight:
         "800",
@@ -1777,19 +1669,21 @@ const styles =
     },
 
     sectionCount: {
-      fontSize: 12,
+      ...UI_STYLES.caption,
+      fontSize: 13,
       color:
         COLORS.textMuted,
     },
 
     matchCard: {
+      ...UI_STYLES.card,
       flexDirection:
         "row",
       alignItems:
         "center",
       backgroundColor:
         COLORS.card,
-      borderRadius: 17,
+      borderRadius: 20,
       padding: 13,
       marginTop: 10,
       ...cardShadow,
@@ -1817,8 +1711,9 @@ const styles =
     },
 
     dateMonth: {
+      ...UI_STYLES.caption,
       marginTop: 3,
-      fontSize: 10,
+      fontSize: 13,
       fontWeight:
         "800",
       color:
@@ -1842,6 +1737,7 @@ const styles =
     },
 
     matchTitle: {
+      ...UI_STYLES.caption,
       flex: 1,
       fontSize: 14,
       fontWeight:
@@ -1865,7 +1761,8 @@ const styles =
     },
 
     durationPillText: {
-      fontSize: 10,
+      ...UI_STYLES.caption,
+      fontSize: 13,
       color:
         COLORS.textMuted,
       fontWeight:
@@ -1873,6 +1770,7 @@ const styles =
     },
 
     scoreText: {
+      ...UI_STYLES.caption,
       marginTop: 4,
       fontSize: 13,
       fontWeight:
@@ -1882,7 +1780,8 @@ const styles =
     },
 
     scoreTextMuted: {
-      fontSize: 11,
+      ...UI_STYLES.caption,
+      fontSize: 13,
       fontWeight:
         "600",
       color:
@@ -1900,14 +1799,16 @@ const styles =
     },
 
     metaText: {
+      ...UI_STYLES.caption,
       maxWidth: 150,
-      fontSize: 10,
+      fontSize: 13,
       color:
         COLORS.textMuted,
     },
 
     metaDot: {
-      fontSize: 10,
+      ...UI_STYLES.caption,
+      fontSize: 13,
       color:
         COLORS.textMuted,
       marginHorizontal: 1,
@@ -1922,6 +1823,7 @@ const styles =
     },
 
     statsSectionTitle: {
+      ...UI_STYLES.body,
       fontSize: 17,
       fontWeight:
         "800",
@@ -1931,9 +1833,10 @@ const styles =
     },
 
     statsSectionCard: {
+      ...UI_STYLES.card,
       backgroundColor:
         COLORS.card,
-      borderRadius: 18,
+      borderRadius: 20,
       padding: 16,
       ...cardShadow,
     },
@@ -1962,6 +1865,7 @@ const styles =
     },
 
     scoreValue: {
+      ...UI_STYLES.section,
       fontSize: 34,
       fontWeight:
         "800",
@@ -1975,8 +1879,9 @@ const styles =
     },
 
     scoreLabel: {
+      ...UI_STYLES.caption,
       marginTop: 3,
-      fontSize: 12,
+      fontSize: 13,
       fontWeight:
         "700",
       color:
@@ -1984,6 +1889,7 @@ const styles =
     },
 
     scoreDash: {
+      ...UI_STYLES.section,
       fontSize: 22,
       fontWeight:
         "800",
@@ -1992,8 +1898,9 @@ const styles =
     },
 
     drawText: {
+      ...UI_STYLES.caption,
       marginTop: 5,
-      fontSize: 10,
+      fontSize: 13,
       color:
         COLORS.textMuted,
       textAlign:
@@ -2015,6 +1922,7 @@ const styles =
     },
 
     metricLabel: {
+      ...UI_STYLES.caption,
       flex: 1,
       color:
         COLORS.textMuted,
@@ -2022,6 +1930,7 @@ const styles =
     },
 
     metricValue: {
+      ...UI_STYLES.caption,
       marginLeft: 14,
       color:
         COLORS.onBackground,
@@ -2039,6 +1948,7 @@ const styles =
     },
 
     statsEmptyCard: {
+      ...UI_STYLES.card,
       marginTop: 20,
       alignItems:
         "center",
@@ -2047,7 +1957,7 @@ const styles =
         30,
       backgroundColor:
         COLORS.card,
-      borderRadius: 18,
+      borderRadius: 20,
       ...cardShadow,
     },
 
@@ -2065,6 +1975,7 @@ const styles =
     },
 
     emptyTitle: {
+      ...UI_STYLES.body,
       fontSize: 17,
       fontWeight:
         "800",

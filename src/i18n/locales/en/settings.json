@@ -15,5 +15,22 @@
     "title": "Log out",
     "confirmation": "Are you sure you want to log out?",
     "error": "It was not possible to log out."
+  },
+  "profile": {
+    "title": "Profile",
+    "preferences": "Your preferences",
+    "description": "Manage language and collection privacy in Settings.",
+    "settings": "Open settings"
+  },
+  "privacy": {
+    "title": "Collection privacy",
+    "description": "Choose who can see the games in your collection.",
+    "private": "Private",
+    "privateDescription": "Only you can see your collection.",
+    "friends": "Friends only",
+    "friendsDescription": "Only accepted friends can see your collection.",
+    "public": "Public",
+    "publicDescription": "Any user can see your collection.",
+    "changeError": "Unable to change collection privacy."
   }
 }

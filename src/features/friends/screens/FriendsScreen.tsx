@@ -1,15 +1,18 @@
+import i18n from "i18next";
 import React, { useMemo, useState } from "react";
 import { FlatList, Image, RefreshControl, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { ROUTES } from "@/src/constants/routes";
 import { useFriends } from "../hooks/useFriends";
 import { FriendLite } from "../services/friendshipService";
 import { avatarColors } from "../utils/avatarPalette";
 import OnlineDot from "../components/OnlineDot";
+import ScreenState from "@/src/components/ui/ScreenState";
 import ScreenHeader from "@/src/components/navigation/ScreenHeader";
 
 type SortMode = "all" | "mostPlayed" | "recent";
@@ -31,27 +34,28 @@ export default function FriendsScreen() {
   }, [friends, query, sort]);
 
   async function refresh() { setRefreshing(true); try { await refetch(true); } finally { setRefreshing(false); } }
-  if (loading && friends.length === 0) return <FriendsSkeleton />;
+  if (loading && friends.length === 0) return <SafeAreaView style={styles.screen}><ScreenHeader appearance="refresh" mode="menu" leftAccessibilityLabel={t("card.menu")} title={t("screen.title")} /><ScreenState loading message={t("card.loading")} /></SafeAreaView>;
 
   return (
-    <SafeAreaView style={styles.screen} edges={["left", "right", "top"]}>
-      <FlatList data={visibleFriends} keyExtractor={(item) => item.id}
+    <SafeAreaView style={styles.screen} edges={["left", "right", "top", "bottom"]}>
+      <FlatList keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" data={visibleFriends} keyExtractor={(item) => item.id}
         renderItem={({ item }) => <FriendCard friend={item} onPress={() => router.push({ pathname: ROUTES.USER_PROFILE, params: { id: item.id } } as never)} />}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={COLORS.primary} />}
         contentContainerStyle={[styles.listContent, visibleFriends.length === 0 && styles.grow]}
         ListHeaderComponent={<>
-          <ScreenHeader
-            mode="menu"
+          <ScreenHeader appearance="refresh"
+            mode="menu" leftAccessibilityLabel={t("card.menu")}
             title={t("screen.title")}
             subtitle={t("screen.count", { count: friends.length })}
             rightIcon="person-add-outline"
+            rightAccessibilityLabel={t("screen.add")}
             onRightPress={() => router.push(ROUTES.FRIEND_SEARCH as never)}
           />
 
           <View style={styles.searchBox}>
             <Ionicons name="search-outline" size={19} color={COLORS.textMuted} />
-            <TextInput value={query} onChangeText={setQuery} placeholder={t("screen.searchPlaceholder")} placeholderTextColor={COLORS.textMuted} style={styles.searchInput} autoCapitalize="none" />
-            {!!query && <TouchableOpacity onPress={() => setQuery("")}><Ionicons name="close-circle" size={18} color={COLORS.textMuted} /></TouchableOpacity>}
+            <TextInput value={query} onChangeText={setQuery} accessibilityLabel={t("screen.searchPlaceholder")} placeholder={t("screen.searchPlaceholder")} placeholderTextColor={COLORS.textMuted} style={styles.searchInput} autoCapitalize="none" />
+            {!!query && <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("card.clearSearch")} style={UI_STYLES.iconButton} onPress={() => setQuery("")}><Ionicons name="close-circle" size={18} color={COLORS.textMuted} /></TouchableOpacity>}
           </View>
 
           <TouchableOpacity style={styles.requestsRow} activeOpacity={0.85} onPress={() => router.push(ROUTES.FRIEND_REQUESTS as never)}>
@@ -62,13 +66,14 @@ export default function FriendsScreen() {
 
           <View style={styles.tabs}>
             {(["all", "mostPlayed", "recent"] as SortMode[]).map((value) => (
-              <TouchableOpacity key={value} onPress={() => setSort(value)} style={[styles.tab, sort === value && styles.activeTab]}>
-                <Text style={[styles.tabText, sort === value && styles.activeTabText]}>{t(`sort.${value}`)}</Text>
+              <TouchableOpacity key={value} accessibilityRole="tab" accessibilityState={{ selected: sort === value }} onPress={() => setSort(value)} style={[styles.tab, sort === value && styles.activeTab]}>
+                <Text style={[styles.tabText, sort === value && styles.activeTabText]}>{t(`sort.${value}`)}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          {!!error && <Text style={styles.inlineError}>{error}</Text>}
+          {!!error && <ScreenState error message={error} onRetry={() => refetch(true)} retryLabel={t("screen.retry")} />}
         </>}
         ListEmptyComponent={<View style={styles.emptyContainer}>
           <View style={styles.emptyIconWrap}><Ionicons name={query ? "search-outline" : "people-outline"} size={44} color={COLORS.primary} /></View>
@@ -84,9 +89,10 @@ export default function FriendsScreen() {
 }
 
 function FriendCard({ friend, onPress }: { friend: FriendLite; onPress: () => void }) {
+  const { t } = useTranslation("friends");
   const colors = avatarColors(friend.userName);
   return (
-    <TouchableOpacity style={styles.friendCard} onPress={onPress} activeOpacity={0.8}>
+    <TouchableOpacity accessibilityRole="button" accessibilityLabel={friend.userName} style={styles.friendCard} onPress={onPress} activeOpacity={0.8}>
       <View style={styles.avatarWrap}>
         {friend.profilePictureUrl ? (
           <Image source={{ uri: friend.profilePictureUrl }} style={styles.avatar} />
@@ -99,9 +105,10 @@ function FriendCard({ friend, onPress }: { friend: FriendLite; onPress: () => vo
       </View>
       <View style={styles.friendInfo}>
         <Text style={styles.friendName} numberOfLines={1}>{friend.userName}</Text>
-        <Text style={styles.meta}>{friend.sharedMatchesCount} partidas juntos</Text>
+        <Text style={styles.meta}>{t("card.sharedMatches", { count: friend.sharedMatchesCount })}
+        </Text>
         <Text style={styles.secondaryMeta} numberOfLines={1}>
-          {friend.lastPlayedAt ? `Última: ${relativeDate(friend.lastPlayedAt)}` : friend.mostPlayedGame ? `Mais jogado: ${friend.mostPlayedGame}` : "Ainda sem partidas juntos"}
+          {friend.lastPlayedAt ? t("card.lastPlayed", { date: relativeDate(friend.lastPlayedAt) }) : friend.mostPlayedGame ? t("card.mostPlayed", { game: friend.mostPlayedGame }) : t("card.noMatches")}
         </Text>
       </View>
       <Ionicons name="chevron-forward" size={19} color={COLORS.textMuted} />
@@ -109,23 +116,7 @@ function FriendCard({ friend, onPress }: { friend: FriendLite; onPress: () => vo
   );
 }
 
-function relativeDate(value: string) { const days = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 86_400_000)); return days === 0 ? "hoje" : days === 1 ? "ontem" : `há ${days} dias`; }
-function FriendsSkeleton() {
-  return (
-    <SafeAreaView style={styles.screen} edges={["left", "right", "top"]}>
-      <View style={styles.skeletonHeader} />
-      {[0, 1, 2, 3].map((i) => (
-        <View key={i} style={styles.skeletonCard}>
-          <View style={styles.skeletonAvatar} />
-          <View style={styles.skeletonLines}>
-            <View style={styles.skeletonLineWide} />
-            <View style={styles.skeletonLine} />
-          </View>
-        </View>
-      ))}
-    </SafeAreaView>
-  );
-}
+function relativeDate(value: string) { const days = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 86_400_000)); return days === 0 ? i18n.t("friends:card.today") : days === 1 ? i18n.t("friends:card.yesterday") : i18n.t("friends:card.daysAgo", { count: days }); }
 
 const cardShadow = {
   shadowColor: "#0B1220",
@@ -138,43 +129,58 @@ const cardShadow = {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: COLORS.background },
   grow: { flexGrow: 1 },
-  listContent: { paddingHorizontal: 18, paddingTop: 8, paddingBottom: 32 },
+  listContent: { paddingHorizontal: 16, paddingTop: 0, paddingBottom: 32 },
 
 
-  searchBox: { flexDirection: "row", alignItems: "center", backgroundColor: COLORS.card, borderRadius: 16, paddingHorizontal: 14, minHeight: 50, ...cardShadow },
-  searchInput: { flex: 1, marginLeft: 10, color: COLORS.onBackground, fontSize: 15 },
+  searchBox: { flexDirection: "row", alignItems: "center", backgroundColor: COLORS.card, borderWidth: 1, borderColor: COLORS.border, borderRadius: 12, paddingHorizontal: 12, minHeight: 52, ...cardShadow },
+  searchInput: {
+    ...UI_STYLES.body, flex: 1, marginLeft: 10, color: COLORS.onBackground, fontSize: 15
+  },
 
   requestsRow: { flexDirection: "row", alignItems: "center", marginTop: 14, padding: 13, borderRadius: 16, backgroundColor: `${COLORS.secondary}14` },
   requestsIcon: { width: 34, height: 34, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: `${COLORS.secondary}22` },
-  requestsText: { flex: 1, marginLeft: 11, fontWeight: "700", color: COLORS.onBackground, fontSize: 14 },
+  requestsText: {
+    ...UI_STYLES.caption, flex: 1, marginLeft: 11, fontWeight: "700", color: COLORS.onBackground, fontSize: 14
+  },
 
-  tabs: { flexDirection: "row", marginTop: 20, marginBottom: 4, backgroundColor: COLORS.surface, padding: 4, borderRadius: 13 },
-  tab: { flex: 1, alignItems: "center", paddingVertical: 9, borderRadius: 10 },
+  tabs: { flexWrap: "wrap", flexDirection: "row", marginTop: 20, marginBottom: 4, backgroundColor: COLORS.surface, padding: 4, borderRadius: 13 },
+  tab: {
+    ...UI_STYLES.control, flex: 1, alignItems: "center", paddingVertical: 9, borderRadius: 10
+  },
   activeTab: { backgroundColor: COLORS.card, ...cardShadow, shadowOpacity: 0.08 },
-  tabText: { color: COLORS.textMuted, fontSize: 13, fontWeight: "700" },
+  tabText: {
+    ...UI_STYLES.caption, color: COLORS.textMuted, fontSize: 13, fontWeight: "700"
+  },
   activeTabText: { color: COLORS.primary },
 
-  friendCard: { flexDirection: "row", alignItems: "center", backgroundColor: COLORS.card, borderRadius: 18, padding: 14, marginTop: 12, ...cardShadow },
+  friendCard: {
+    ...UI_STYLES.card, flexDirection: "row", alignItems: "center", backgroundColor: COLORS.card, borderRadius: 20, padding: 14, marginTop: 12, ...cardShadow
+  },
   avatarWrap: { marginRight: 13 },
   avatar: { width: 50, height: 50, borderRadius: 25, alignItems: "center", justifyContent: "center" },
-  avatarText: { fontSize: 18, fontWeight: "800" },
+  avatarText: {
+    ...UI_STYLES.section, fontSize: 18, fontWeight: "800"
+  },
   friendInfo: { flex: 1 },
-  friendName: { fontSize: 16, fontWeight: "800", color: COLORS.onBackground },
-  meta: { marginTop: 3, fontSize: 13, color: COLORS.onBackground },
-  secondaryMeta: { marginTop: 2, fontSize: 12, color: COLORS.textMuted },
+  friendName: {
+    ...UI_STYLES.body, fontSize: 16, fontWeight: "800", color: COLORS.onBackground
+  },
+  meta: {
+    ...UI_STYLES.caption, marginTop: 3, fontSize: 13, color: COLORS.onBackground
+  },
+  secondaryMeta: {
+    ...UI_STYLES.caption, marginTop: 2, fontSize: 13, color: COLORS.textMuted
+  },
   inlineError: { color: COLORS.error, marginTop: 14 },
 
   emptyContainer: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 28, paddingVertical: 48 },
   emptyIconWrap: { width: 88, height: 88, borderRadius: 44, alignItems: "center", justifyContent: "center", backgroundColor: `${COLORS.primary}12` },
-  emptyTitle: { marginTop: 18, fontSize: 19, fontWeight: "800", color: COLORS.onBackground, textAlign: "center" },
+  emptyTitle: {
+    ...UI_STYLES.section, marginTop: 18, fontSize: 19, fontWeight: "800", color: COLORS.onBackground, textAlign: "center"
+  },
   emptyDescription: { marginTop: 8, color: COLORS.textMuted, lineHeight: 20, textAlign: "center" },
-  primaryButton: { marginTop: 20, backgroundColor: COLORS.primary, paddingVertical: 12, paddingHorizontal: 22, borderRadius: 13 },
+  primaryButton: {
+    ...UI_STYLES.control, marginTop: 20, backgroundColor: COLORS.primary, paddingVertical: 12, paddingHorizontal: 22, borderRadius: 13
+  },
   primaryButtonText: { color: "#fff", fontWeight: "800" },
-
-  skeletonHeader: { height: 72, margin: 18, borderRadius: 18, backgroundColor: COLORS.surface },
-  skeletonCard: { flexDirection: "row", marginHorizontal: 18, marginBottom: 12, padding: 14, borderRadius: 18, backgroundColor: COLORS.card, ...cardShadow },
-  skeletonAvatar: { width: 50, height: 50, borderRadius: 25, backgroundColor: COLORS.surface },
-  skeletonLines: { flex: 1, marginLeft: 13, justifyContent: "center" },
-  skeletonLineWide: { height: 13, width: "60%", backgroundColor: COLORS.surface, borderRadius: 6 },
-  skeletonLine: { height: 11, width: "42%", marginTop: 9, backgroundColor: COLORS.surface, borderRadius: 6 },
 });

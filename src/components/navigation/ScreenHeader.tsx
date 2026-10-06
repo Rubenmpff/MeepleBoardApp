@@ -26,6 +26,7 @@ type Props = {
   onLeftPress?: () => void;
   appearance?: "default" | "refresh";
   leftAccessibilityLabel?: string;
+  rightAccessibilityLabel?: string;
 };
 
 export default function ScreenHeader({
@@ -37,6 +38,7 @@ export default function ScreenHeader({
   onLeftPress,
   appearance = "default",
   leftAccessibilityLabel,
+  rightAccessibilityLabel,
 }: Props) {
   const router = useRouter();
   const navigation = useNavigation();
@@ -117,6 +119,7 @@ export default function ScreenHeader({
         <TouchableOpacity
           style={[styles.rightButton, appearance === "refresh" && refreshed.button]}
           onPress={onRightPress}
+          accessibilityLabel={rightAccessibilityLabel}
           activeOpacity={0.82}
           accessibilityRole="button"
         >

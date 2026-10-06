@@ -13,7 +13,11 @@ import {
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
+import ScreenLayout from "@/src/components/ui/ScreenLayout";
+import SectionCard from "@/src/components/ui/SectionCard";
+import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import { ROUTES } from "@/src/constants/routes";
 import { authService } from "@/src/features/auth/services/authService";
 import {
@@ -27,15 +31,15 @@ import { LibraryPrivacy } from "@/src/features/users/types/User";
 type LanguageOption = {
   value: AppLanguage;
   translationKey:
-    | "language.system"
-    | "language.portuguese"
-    | "language.english";
+  | "language.system"
+  | "language.portuguese"
+  | "language.english";
 };
 
 const PRIVACY_OPTIONS: { value: LibraryPrivacy; label: string; description: string }[] = [
-  { value: LibraryPrivacy.Private, label: "Privada", description: "Só tu vês a tua coleção." },
-  { value: LibraryPrivacy.FriendsOnly, label: "Apenas amigos", description: "Só amigos aceites veem a tua coleção." },
-  { value: LibraryPrivacy.Public, label: "Pública", description: "Qualquer utilizador pode ver a tua coleção." },
+  { value: LibraryPrivacy.Private, label: "privacy.private", description: "privacy.privateDescription" },
+  { value: LibraryPrivacy.FriendsOnly, label: "privacy.friends", description: "privacy.friendsDescription" },
+  { value: LibraryPrivacy.Public, label: "privacy.public", description: "privacy.publicDescription" },
 ];
 
 const LANGUAGE_OPTIONS: LanguageOption[] = [
@@ -112,7 +116,7 @@ export default function SettingsScreen() {
     } catch (error) {
       console.error("Erro ao alterar a privacidade da coleção:", error);
       setLibraryPrivacy(previous ?? null);
-      Alert.alert(tCommon("error"), "Não foi possível alterar a privacidade da coleção.");
+      Alert.alert(tCommon("error"), t("privacy.changeError"));
     } finally {
       setIsChangingPrivacy(false);
     }
@@ -186,144 +190,138 @@ export default function SettingsScreen() {
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.container}
-    >
-      <Text style={styles.title}>
-        {t("title")}
-      </Text>
+    <ScreenLayout title={t("title")}>
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={styles.container}
+      >
 
-      <Text style={styles.subtitle}>
-        {t("subtitle")}
-      </Text>
-
-      <View style={styles.languageSection}>
-        <Text style={styles.sectionTitle}>
-          {t("language.title")}
+        <Text style={styles.subtitle}>
+          {t("subtitle")}
         </Text>
 
-        <Text style={styles.sectionDescription}>
-          {t("language.description")}
-        </Text>
+        <SectionCard style={styles.languageSection}>
+          <Text style={styles.sectionTitle}>
+            {t("language.title")}
+          </Text>
 
-        <View style={styles.languageOptions}>
-          {LANGUAGE_OPTIONS.map((option) => {
-            const isSelected =
-              selectedLanguage === option.value;
+          <Text style={styles.sectionDescription}>
+            {t("language.description")}
+          </Text>
 
-            return (
-              <TouchableOpacity
-                key={option.value}
-                activeOpacity={0.8}
-                disabled={isChangingLanguage}
-                onPress={() =>
-                  handleLanguageChange(option.value)
-                }
-                style={[
-                  styles.languageOption,
-                  isSelected &&
+          <View style={styles.languageOptions}>
+            {LANGUAGE_OPTIONS.map((option) => {
+              const isSelected =
+                selectedLanguage === option.value;
+
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  accessibilityLabel={t(option.translationKey)}
+                  activeOpacity={0.8}
+                  disabled={isChangingLanguage}
+                  onPress={() =>
+                    handleLanguageChange(option.value)
+                  }
+                  style={[
+                    styles.languageOption,
+                    isSelected &&
                     styles.languageOptionSelected,
-                  isChangingLanguage &&
+                    isChangingLanguage &&
                     styles.disabledOption,
-                ]}
-                accessibilityRole="radio"
-                accessibilityState={{
-                  selected: isSelected,
-                  disabled: isChangingLanguage,
-                }}
-              >
-                <Text
-                  style={[
-                    styles.languageOptionText,
-                    isSelected &&
+                  ]}
+                  accessibilityRole="radio"
+                  accessibilityState={{
+                    selected: isSelected,
+                    disabled: isChangingLanguage,
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.languageOptionText,
+                      isSelected &&
                       styles.languageOptionTextSelected,
-                  ]}
-                >
-                  {t(option.translationKey)}
-                </Text>
-
-                <View
-                  style={[
-                    styles.radioOuter,
-                    isSelected &&
-                      styles.radioOuterSelected,
-                  ]}
-                >
-                  {isSelected && (
-                    <View style={styles.radioInner} />
-                  )}
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </View>
-
-      <View style={styles.languageSection}>
-        <Text style={styles.sectionTitle}>
-          Privacidade da coleção
-        </Text>
-
-        <Text style={styles.sectionDescription}>
-          Quem pode ver os jogos que tens na tua coleção.
-        </Text>
-
-        <View style={styles.languageOptions}>
-          {PRIVACY_OPTIONS.map((option) => {
-            const isSelected = libraryPrivacy === option.value;
-
-            return (
-              <TouchableOpacity
-                key={option.value}
-                activeOpacity={0.8}
-                disabled={isChangingPrivacy}
-                onPress={() => handlePrivacyChange(option.value)}
-                style={[
-                  styles.languageOption,
-                  isSelected && styles.languageOptionSelected,
-                  isChangingPrivacy && styles.disabledOption,
-                ]}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: isSelected, disabled: isChangingPrivacy }}
-              >
-                <View style={styles.privacyOptionText}>
-                  <Text style={[styles.languageOptionText, isSelected && styles.languageOptionTextSelected]}>
-                    {option.label}
+                    ]}
+                  >
+                    {t(option.translationKey)}
                   </Text>
-                  <Text style={styles.privacyOptionDescription}>{option.description}</Text>
-                </View>
 
-                <View style={[styles.radioOuter, isSelected && styles.radioOuterSelected]}>
-                  {isSelected && <View style={styles.radioInner} />}
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </View>
+                  <View
+                    style={[
+                      styles.radioOuter,
+                      isSelected &&
+                      styles.radioOuterSelected,
+                    ]}
+                  >
+                    {isSelected && (
+                      <View style={styles.radioInner} />
+                    )}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </SectionCard>
 
-      <TouchableOpacity
-        onPress={() => router.push(ROUTES.HOME)}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>
-          {t("backToDashboard")}
-        </Text>
-      </TouchableOpacity>
+        <SectionCard style={styles.languageSection}>
+          <Text style={styles.sectionTitle}>
+            {t("privacy.title")}
+          </Text>
 
-      <TouchableOpacity
-        onPress={handleLogout}
-        style={[
-          styles.button,
-          styles.logoutButton,
-        ]}
-      >
-        <Text style={styles.buttonText}>
-          {t("logout.button")}
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
+          <Text style={styles.sectionDescription}>
+            {t("privacy.description")}
+          </Text>
+
+          <View style={styles.languageOptions}>
+            {PRIVACY_OPTIONS.map((option) => {
+              const isSelected = libraryPrivacy === option.value;
+
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  accessibilityLabel={t(option.label)} accessibilityHint={t(option.description)}
+                  activeOpacity={0.8}
+                  disabled={isChangingPrivacy}
+                  onPress={() => handlePrivacyChange(option.value)}
+                  style={[
+                    styles.languageOption,
+                    isSelected && styles.languageOptionSelected,
+                    isChangingPrivacy && styles.disabledOption,
+                  ]}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: isSelected, disabled: isChangingPrivacy }}
+                >
+                  <View style={styles.privacyOptionText}>
+                    <Text style={[styles.languageOptionText, isSelected && styles.languageOptionTextSelected]}>
+                      {t(option.label)}
+                    </Text>
+                    <Text style={styles.privacyOptionDescription}>{t(option.description)}
+                    </Text>
+                  </View>
+
+                  <View style={[styles.radioOuter, isSelected && styles.radioOuterSelected]}>
+                    {isSelected && <View style={styles.radioInner} />}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </SectionCard>
+
+        <PrimaryButton variant="secondary" title={t("backToDashboard")} onPress={() => router.push(ROUTES.HOME)} />
+
+        <TouchableOpacity
+          accessibilityRole="button" accessibilityLabel={t("logout.button")} onPress={handleLogout}
+          style={[
+            styles.button,
+            styles.logoutButton,
+          ]}
+        >
+          <Text style={styles.buttonText}>
+            {t("logout.button")}
+          </Text>
+        </TouchableOpacity>
+      </ScrollView></ScreenLayout>
   );
 }
 
@@ -333,13 +331,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
 
-  container: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 40,
-  },
+  container: { padding: 16, paddingBottom: 32, gap: 16 },
 
   title: {
     fontSize: 28,
@@ -348,29 +340,17 @@ const styles = StyleSheet.create({
   },
 
   subtitle: {
-    marginTop: 8,
-    fontSize: 16,
-    color: COLORS.textMuted,
-    textAlign: "center",
+    ...UI_STYLES.body, color: COLORS.textMuted
   },
 
-  languageSection: {
-    width: "100%",
-    maxWidth: 420,
-    marginTop: 32,
-  },
+  languageSection: { gap: 8 },
 
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: COLORS.onBackground,
+    ...UI_STYLES.section
   },
 
   sectionDescription: {
-    marginTop: 4,
-    marginBottom: 12,
-    fontSize: 14,
-    color: COLORS.textMuted,
+    ...UI_STYLES.body, color: COLORS.textMuted, marginBottom: 8
   },
 
   languageOptions: {
@@ -378,29 +358,17 @@ const styles = StyleSheet.create({
   },
 
   languageOption: {
-    minHeight: 54,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.card,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    ...UI_STYLES.field, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12
   },
 
-  languageOptionSelected: {
-    borderColor: COLORS.primary,
-    backgroundColor: `${COLORS.primary}12`,
-  },
+  languageOptionSelected: { borderColor: COLORS.primary, backgroundColor: COLORS.primarySoft },
 
   disabledOption: {
     opacity: 0.65,
   },
 
   languageOptionText: {
-    fontSize: 16,
-    color: COLORS.onBackground,
+    ...UI_STYLES.body, flexShrink: 1, color: COLORS.onBackground
   },
 
   privacyOptionText: {
@@ -409,9 +377,7 @@ const styles = StyleSheet.create({
   },
 
   privacyOptionDescription: {
-    marginTop: 3,
-    fontSize: 12,
-    color: COLORS.textMuted,
+    ...UI_STYLES.muted, marginTop: 4
   },
 
   languageOptionTextSelected: {
@@ -441,25 +407,12 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    width: "100%",
-    maxWidth: 420,
-    minHeight: 52,
-    marginTop: 20,
-    borderRadius: 10,
-    backgroundColor: COLORS.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 16,
+    ...UI_STYLES.button, width: "100%"
   },
 
-  logoutButton: {
-    marginTop: 12,
-    backgroundColor: COLORS.error,
-  },
+  logoutButton: { backgroundColor: COLORS.error },
 
   buttonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "700",
+    ...UI_STYLES.body, color: COLORS.onPrimary, fontWeight: "700"
   },
 });

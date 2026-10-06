@@ -1,10 +1,11 @@
+import { useTranslation } from "react-i18next";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { COLORS } from "@/src/constants/colors";
-import ScreenHeader from "@/src/components/navigation/ScreenHeader";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
+import ScreenLayout from "@/src/components/ui/ScreenLayout";
 import { ROUTES } from "@/src/constants/routes";
 import { invalidateFriendsCache } from "../hooks/useFriends";
 import { sendFriendRequest, searchUsers, UserSearchResult } from "../services/friendshipService";
@@ -12,6 +13,7 @@ import { avatarColors } from "../utils/avatarPalette";
 import OnlineDot from "../components/OnlineDot";
 
 export default function UserSearchScreen() {
+  const { t } = useTranslation("friends");
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<UserSearchResult[]>([]);
@@ -24,7 +26,7 @@ export default function UserSearchScreen() {
     const timer = setTimeout(async () => {
       setLoading(true);
       try { setResults(await searchUsers(normalized)); }
-      catch { Alert.alert("Não foi possível pesquisar", "Verifica a ligação e tenta novamente."); }
+      catch { Alert.alert(t("text.unableToSearch"), t("text.checkYourConnectionAndTryAgain")); }
       finally { setLoading(false); }
     }, 350);
     return () => clearTimeout(timer);
@@ -36,27 +38,21 @@ export default function UserSearchScreen() {
       await sendFriendRequest(user.id);
       setResults(current => current.map(item => item.id === user.id ? { ...item, relationshipStatus: "outgoingPending" } : item));
       invalidateFriendsCache();
-    } catch { Alert.alert("Pedido não enviado", "O pedido pode já existir. Atualiza a pesquisa e tenta novamente."); }
+    } catch { Alert.alert(t("text.requestNotSent"), t("text.theRequestMayAlreadyExistRefreshTheSearchAndTryAgain")); }
     finally { setBusyId(null); }
   }
 
   return (
-    <SafeAreaView style={styles.screen} edges={["left", "right", "bottom", "top"]}>
-      <View style={styles.headerWrap}>
-        <ScreenHeader
-          mode="back"
-          title="Procurar utilizadores"
-          subtitle="Encontra pessoas pelo nome ou username."
-        />
-      </View>
+    <ScreenLayout keyboard title={t("text.findPeople")}>
+      <Text style={styles.searchDescription}>{t("text.findPeopleByNameOrUsername")}</Text>
 
       <View style={styles.search}>
         <Ionicons name="search-outline" size={19} color={COLORS.textMuted} />
-        <TextInput autoFocus value={query} onChangeText={setQuery} placeholder="Nome ou username..." placeholderTextColor={COLORS.textMuted} style={styles.input} autoCapitalize="none" />
+        <TextInput accessibilityLabel={t("text.nameOrUsername")} autoFocus value={query} onChangeText={setQuery} placeholder={t("text.nameOrUsername")} placeholderTextColor={COLORS.textMuted} style={styles.input} autoCapitalize="none" />
         {loading && <ActivityIndicator size="small" color={COLORS.primary} />}
       </View>
 
-      <FlatList
+      <FlatList keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag"
         data={results}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
@@ -84,21 +80,22 @@ export default function UserSearchScreen() {
         ListEmptyComponent={
           <View style={styles.empty}>
             <View style={styles.emptyIconWrap}><Ionicons name={query.length < 2 ? "people-outline" : "search-outline"} size={40} color={COLORS.primary} /></View>
-            <Text style={styles.emptyText}>{query.length < 2 ? "Escreve pelo menos 2 caracteres." : loading ? "" : "Não encontrámos utilizadores com esse nome."}</Text>
+            <Text style={styles.emptyText}>{query.length < 2 ? t("text.enterAtLeast2Characters") : loading ? "" : t("text.noUsersFoundWithThatName")}</Text>
           </View>
         }
       />
-    </SafeAreaView>
+    </ScreenLayout>
   );
 }
 
 function RelationshipAction({ item, busy, onAdd, onRequests }: { item: UserSearchResult; busy: boolean; onAdd: () => void; onRequests: () => void }) {
+  const { t } = useTranslation("friends");
   if (busy) return <ActivityIndicator color={COLORS.primary} />;
-  if (item.relationshipStatus === "friends") return <Text style={styles.status}>✓ Amigos</Text>;
-  if (item.relationshipStatus === "outgoingPending") return <Text style={styles.status}>Pedido enviado</Text>;
-  if (item.relationshipStatus === "incomingPending") return <TouchableOpacity style={styles.outlineButton} onPress={onRequests}><Text style={styles.outlineText}>Responder</Text></TouchableOpacity>;
-  if (item.relationshipStatus === "blocked") return <Text style={styles.status}>Indisponível</Text>;
-  return <TouchableOpacity style={styles.addButton} onPress={onAdd}><Text style={styles.addText}>Adicionar</Text></TouchableOpacity>;
+  if (item.relationshipStatus === "friends") return <Text style={styles.status}>{t("text.friends")}</Text>;
+  if (item.relationshipStatus === "outgoingPending") return <Text style={styles.status}>{t("text.requestSent")}</Text>;
+  if (item.relationshipStatus === "incomingPending") return <TouchableOpacity style={styles.outlineButton} onPress={onRequests}><Text style={styles.outlineText}>{t("text.respond")}</Text></TouchableOpacity>;
+  if (item.relationshipStatus === "blocked") return <Text style={styles.status}>{t("text.unavailable")}</Text>;
+  return <TouchableOpacity style={styles.addButton} onPress={onAdd}><Text style={styles.addText}>{t("text.add")}</Text></TouchableOpacity>;
 }
 
 const cardShadow = {
@@ -111,26 +108,44 @@ const cardShadow = {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: COLORS.background },
-  headerWrap: { paddingHorizontal: 18, paddingTop: 8 },
+  searchDescription: {
+    ...UI_STYLES.body, color: COLORS.textMuted, paddingHorizontal: 16
+  },
 
-  search: { marginHorizontal: 18, marginTop: 14, flexDirection: "row", alignItems: "center", backgroundColor: COLORS.card, borderRadius: 16, paddingHorizontal: 14, ...cardShadow },
-  input: { flex: 1, minHeight: 50, marginLeft: 10, color: COLORS.onBackground },
-  list: { padding: 18, flexGrow: 1 },
+  search: { marginHorizontal: 16, marginTop: 14, flexDirection: "row", alignItems: "center", backgroundColor: COLORS.card, borderWidth: 1, borderColor: COLORS.border, borderRadius: 12, paddingHorizontal: 12, ...cardShadow },
+  input: {
+    ...UI_STYLES.body, flex: 1, minHeight: 52, marginLeft: 10, color: COLORS.onBackground
+  },
+  list: { padding: 16, flexGrow: 1 },
 
-  card: { flexDirection: "row", alignItems: "center", padding: 13, marginBottom: 10, backgroundColor: COLORS.card, borderRadius: 16, ...cardShadow },
-  identity: { flex: 1, flexDirection: "row", alignItems: "center" },
+  card: {
+    flexWrap: "wrap", gap: 12, ...UI_STYLES.card, flexDirection: "row", alignItems: "center", padding: 13, marginBottom: 10, backgroundColor: COLORS.card, borderRadius: 20, ...cardShadow
+  },
+  identity: { minWidth: "60%", minHeight: 44, flex: 1, flexDirection: "row", alignItems: "center" },
   avatarWrap: {},
   avatar: { width: 46, height: 46, borderRadius: 23, alignItems: "center", justifyContent: "center" },
   avatarText: { fontWeight: "800" },
   nameBlock: { marginLeft: 12, flex: 1 },
   name: { color: COLORS.onBackground, fontWeight: "800" },
-  username: { color: COLORS.textMuted, fontSize: 12, marginTop: 2 },
+  username: {
+    ...UI_STYLES.caption, color: COLORS.textMuted, fontSize: 13, marginTop: 2
+  },
 
-  addButton: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 10, backgroundColor: COLORS.primary },
-  addText: { color: "#fff", fontWeight: "800", fontSize: 12 },
-  outlineButton: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, backgroundColor: `${COLORS.primary}14` },
-  outlineText: { color: COLORS.primary, fontWeight: "800", fontSize: 12 },
-  status: { color: COLORS.textMuted, fontSize: 12, fontWeight: "700" },
+  addButton: {
+    ...UI_STYLES.control, paddingHorizontal: 14, paddingVertical: 9, borderRadius: 10, backgroundColor: COLORS.primary
+  },
+  addText: {
+    ...UI_STYLES.caption, color: "#fff", fontWeight: "800", fontSize: 13
+  },
+  outlineButton: {
+    ...UI_STYLES.control, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, backgroundColor: `${COLORS.primary}14`
+  },
+  outlineText: {
+    ...UI_STYLES.caption, color: COLORS.primary, fontWeight: "800", fontSize: 13
+  },
+  status: {
+    ...UI_STYLES.caption, color: COLORS.textMuted, fontSize: 13, fontWeight: "700"
+  },
 
   empty: { flex: 1, alignItems: "center", justifyContent: "center", padding: 32 },
   emptyIconWrap: { width: 80, height: 80, borderRadius: 40, alignItems: "center", justifyContent: "center", backgroundColor: `${COLORS.primary}12` },

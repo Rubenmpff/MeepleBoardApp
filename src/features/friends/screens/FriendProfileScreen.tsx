@@ -1,3 +1,5 @@
+import i18n from "i18next";
+import { useTranslation } from "react-i18next";
 /**
  * FriendProfileScreen.tsx
  *
@@ -28,12 +30,15 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { ROUTES } from "@/src/constants/routes";
 import { RootState } from "@/src/store/store";
+import ScreenLayout from "@/src/components/ui/ScreenLayout";
+import ScreenState from "@/src/components/ui/ScreenState";
 import ScreenHeader from "@/src/components/navigation/ScreenHeader";
 import { invalidateFriendsCache } from "../hooks/useFriends";
 import {
@@ -63,6 +68,7 @@ type CollectionFilter =
   | "common";
 
 export default function FriendProfileScreen() {
+  const { t } = useTranslation("friends");
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
 
@@ -82,8 +88,8 @@ export default function FriendProfileScreen() {
       setProfile(await getUserProfile(id));
     } catch {
       Alert.alert(
-        "Perfil indisponível",
-        "Não foi possível carregar este perfil."
+        t("text.profileUnavailable"),
+        t("text.unableToLoadThisProfile")
       );
     } finally {
       setLoading(false);
@@ -110,8 +116,8 @@ export default function FriendProfileScreen() {
       });
     } catch {
       Alert.alert(
-        "Pedido não enviado",
-        "O pedido pode já existir."
+        t("text.requestNotSent"),
+        t("text.theRequestMayAlreadyExist")
       );
     } finally {
       setBusy(false);
@@ -124,15 +130,15 @@ export default function FriendProfileScreen() {
     }
 
     Alert.alert(
-      "Remover amigo?",
-      `Remover ${profile.userName} dos amigos? As partidas e sessões continuam guardadas.`,
+      t("text.removeFriend"),
+      t("card.removeConfirmation", { name: profile.userName }),
       [
         {
-          text: "Cancelar",
+          text: t("text.cancel"),
           style: "cancel",
         },
         {
-          text: "Remover",
+          text: t("text.remove"),
           style: "destructive",
           onPress: async () => {
             setBusy(true);
@@ -143,8 +149,8 @@ export default function FriendProfileScreen() {
               router.back();
             } catch {
               Alert.alert(
-                "Não foi possível remover",
-                "Tenta novamente."
+                t("text.unableToRemoveFriend"),
+                t("text.tryAgain")
               );
               setBusy(false);
             }
@@ -154,33 +160,14 @@ export default function FriendProfileScreen() {
     );
   }
 
-  function openStats() {
-    Alert.alert(
-      "Estatísticas",
-      "A área geral de estatísticas entre amigos ainda está a ser preparada."
-    );
-  }
 
   if (loading) {
-    return <ProfileSkeleton />;
+    return <ScreenLayout title={t("text.profile")}><ScreenState loading message={t("card.loading")} /></ScreenLayout>;
   }
 
   if (!profile) {
     return (
-      <SafeAreaView style={styles.center}>
-        <Text style={styles.muted}>
-          Perfil não encontrado.
-        </Text>
-
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={load}
-        >
-          <Text style={styles.primaryText}>
-            Tentar novamente
-          </Text>
-        </TouchableOpacity>
-      </SafeAreaView>
+      <ScreenLayout title={t("text.profile")}><ScreenState error message={t("text.profileNotFound")} onRetry={load} retryLabel={t("text.tryAgain")} /></ScreenLayout>
     );
   }
 
@@ -192,13 +179,13 @@ export default function FriendProfileScreen() {
       style={styles.screen}
       edges={["left", "right", "bottom", "top"]}
     >
-      <ScrollView
+      <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag"
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader
-          mode="back"
-          title="Perfil"
+        <ScreenHeader appearance="refresh"
+          mode="back" leftAccessibilityLabel={t("card.back")}
+          title={t("text.profile")}
         />
 
         <ProfileHeader
@@ -217,17 +204,17 @@ export default function FriendProfileScreen() {
         {isFriend ? (
           <View style={styles.tabsBar}>
             <TabButton
-              label="Resumo"
+              label={t("text.overview")}
               active={tab === "summary"}
               onPress={() => setTab("summary")}
             />
             <TabButton
-              label="Partidas"
+              label={t("text.matches")}
               active={tab === "matches"}
               onPress={() => setTab("matches")}
             />
             <TabButton
-              label="Coleção"
+              label={t("text.collection")}
               active={tab === "collection"}
               onPress={() => setTab("collection")}
             />
@@ -237,7 +224,6 @@ export default function FriendProfileScreen() {
         {isFriend && tab === "summary" && (
           <SummaryTab
             profile={profile}
-            onOpenStats={openStats}
             onSeeAllMatches={() => setTab("matches")}
             onOpenGameHistory={(gameId) =>
               router.push({
@@ -338,6 +324,7 @@ function ProfileHeader({
   onRemove: () => void;
   onRequests: () => void;
 }) {
+  const { t } = useTranslation("friends");
   const palette = avatarColors(profile.userName);
 
   return (
@@ -387,15 +374,13 @@ function ProfileHeader({
               style={styles.name}
               numberOfLines={1}
             >
-              {profile.userName}
-            </Text>
+              {profile.userName}</Text>
 
             <Text
               style={styles.username}
               numberOfLines={1}
             >
-              @{profile.userName}
-            </Text>
+              @{profile.userName}</Text>
 
             {isFriend &&
               profile.friendsSince && (
@@ -404,7 +389,7 @@ function ProfileHeader({
                     styles.friendsSince
                   }
                 >
-                  Amigos desde{" "}
+                  {t("text.friendsSince")}{" "}
                   {formatMonth(
                     profile.friendsSince
                   )}
@@ -432,11 +417,11 @@ function ProfileHeader({
       <View style={styles.profileStatsRow}>
         <ProfileStat
           value={profile.totalMatches}
-          label="partidas"
+          label={t("text.matchCountLabel")}
         />
         <ProfileStat
           value={profile.totalGamesPlayed}
-          label="jogos"
+          label={t("text.games")}
         />
         <ProfileStat
           value={
@@ -444,7 +429,7 @@ function ProfileHeader({
               ? profile.totalGamesOwned
               : "—"
           }
-          label="coleção"
+          label={t("text.collectionCountLabel")}
         />
       </View>
     </View>
@@ -461,11 +446,9 @@ function ProfileStat({
   return (
     <View style={styles.profileStat}>
       <Text style={styles.profileStatValue}>
-        {value}
-      </Text>
+        {value}</Text>
       <Text style={styles.profileStatLabel}>
-        {label}
-      </Text>
+        {label}</Text>
     </View>
   );
 }
@@ -481,6 +464,7 @@ function NonFriendAction({
   onAdd: () => void;
   onRequests: () => void;
 }) {
+  const { t } = useTranslation("friends");
   if (busy) {
     return (
       <ActivityIndicator
@@ -497,8 +481,7 @@ function NonFriendAction({
     return (
       <View style={styles.disabledButton}>
         <Text style={styles.disabledText}>
-          Pedido enviado
-        </Text>
+          {t("text.requestSent")}</Text>
       </View>
     );
   }
@@ -513,8 +496,7 @@ function NonFriendAction({
         onPress={onRequests}
       >
         <Text style={styles.primaryText}>
-          Responder ao pedido
-        </Text>
+          {t("text.respondToRequest")}</Text>
       </TouchableOpacity>
     );
   }
@@ -525,8 +507,7 @@ function NonFriendAction({
     return (
       <View style={styles.disabledButton}>
         <Text style={styles.disabledText}>
-          Indisponível
-        </Text>
+          {t("text.unavailable")}</Text>
       </View>
     );
   }
@@ -537,8 +518,7 @@ function NonFriendAction({
       onPress={onAdd}
     >
       <Text style={styles.primaryText}>
-        Adicionar amigo
-      </Text>
+        {t("text.addFriend")}</Text>
     </TouchableOpacity>
   );
 }
@@ -558,18 +538,17 @@ function TabButton({
         styles.tabButton,
         active && styles.tabButtonActive,
       ]}
-      onPress={onPress}
+      accessibilityRole="tab" accessibilityState={{ selected: active }} onPress={onPress}
       activeOpacity={0.85}
     >
       <Text
         style={[
           styles.tabButtonText,
           active &&
-            styles.tabButtonTextActive,
+          styles.tabButtonTextActive,
         ]}
       >
-        {label}
-      </Text>
+        {label}</Text>
     </TouchableOpacity>
   );
 }
@@ -580,7 +559,6 @@ function TabButton({
 
 function SummaryTab({
   profile,
-  onOpenStats,
   onSeeAllMatches,
   onOpenGameHistory,
   onOpenMatch,
@@ -589,7 +567,6 @@ function SummaryTab({
   onOpenGame,
 }: {
   profile: UserProfile;
-  onOpenStats: () => void;
   onSeeAllMatches: () => void;
   onOpenGameHistory: (
     gameId: string
@@ -605,60 +582,41 @@ function SummaryTab({
     gameId: string
   ) => void;
 }) {
+  const { t } = useTranslation("friends");
   return (
     <View>
       <View style={styles.relationshipCard}>
         <View style={styles.relationshipHeader}>
           <View>
             <Text style={styles.sectionEyebrow}>
-              VOCÊS
-            </Text>
+              {t("text.together")}</Text>
             <Text
               style={
                 styles.relationshipTitle
               }
             >
-              O vosso histórico
-            </Text>
+              {t("text.yourSharedHistory")}</Text>
           </View>
-
-          <TouchableOpacity
-            style={styles.statsLink}
-            onPress={onOpenStats}
-          >
-            <Ionicons
-              name="stats-chart-outline"
-              size={15}
-              color={COLORS.primary}
-            />
-            <Text
-              style={
-                styles.statsLinkText
-              }
-            >
-              Estatísticas
-            </Text>
-          </TouchableOpacity>
         </View>
 
         <View style={styles.relationshipStats}>
           <CompactStat
             value={profile.sharedMatches}
-            label="partidas"
+            label={t("text.matchCountLabel")}
           />
           <CompactStat
             value={profile.sharedGames}
-            label="jogos"
+            label={t("text.games")}
           />
           <CompactStat
             value={duration(
               profile.sharedMinutes
             )}
-            label="tempo"
+            label={t("text.time")}
           />
           <CompactStat
             value={profile.sharedSessions}
-            label="sessões"
+            label={t("text.sessions")}
           />
         </View>
       </View>
@@ -672,246 +630,231 @@ function SummaryTab({
           />
 
           <Text style={styles.emptyTitle}>
-            Ainda não registaram partidas
-            juntos.
-          </Text>
+            {t("text.noSharedMatchesYet")}</Text>
 
           <Text style={styles.muted}>
-            Quando jogarem, o vosso
-            histórico aparecerá aqui.
-          </Text>
+            {t("text.yourSharedHistoryWillAppearHereAfterYouPlay")}</Text>
         </View>
       )}
 
       {profile.topSharedGames.length >
         0 && (
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              Jogos mais jogados juntos
-            </Text>
-          </View>
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>
+                {t("text.mostPlayedTogether")}</Text>
+            </View>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={
-              false
-            }
-            contentContainerStyle={
-              styles.sharedGamesRow
-            }
-          >
-            {profile.topSharedGames.map(
-              (game) => (
-                <SharedGameCard
-                  key={game.gameId}
-                  game={game}
-                  onPress={() =>
-                    onOpenGameHistory(
-                      game.gameId
-                    )
-                  }
-                />
-              )
-            )}
-          </ScrollView>
-        </View>
-      )}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={
+                false
+              }
+              contentContainerStyle={
+                styles.sharedGamesRow
+              }
+            >
+              {profile.topSharedGames.map(
+                (game) => (
+                  <SharedGameCard
+                    key={game.gameId}
+                    game={game}
+                    onPress={() =>
+                      onOpenGameHistory(
+                        game.gameId
+                      )
+                    }
+                  />
+                )
+              )}
+            </ScrollView>
+          </View>
+        )}
 
       {profile.recentSharedMatches.length >
         0 && (
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              Últimas partidas
-            </Text>
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>
+                {t("text.latestMatches")}</Text>
 
-            <TouchableOpacity
-              onPress={onSeeAllMatches}
-            >
-              <Text
-                style={
-                  styles.sectionSeeAll
-                }
+              <TouchableOpacity
+                style={UI_STYLES.control} onPress={onSeeAllMatches}
               >
-                Ver todas
-              </Text>
-            </TouchableOpacity>
-          </View>
+                <Text
+                  style={
+                    styles.sectionSeeAll
+                  }
+                >
+                  {t("text.seeAll")}</Text>
+              </TouchableOpacity>
+            </View>
 
-          <View style={styles.listCard}>
-            {profile.recentSharedMatches.map(
-              (match, index) => (
-                <TouchableOpacity
-                  key={match.matchId}
-                  style={[
-                    styles.compactMatchRow,
-                    index ===
+            <View style={styles.listCard}>
+              {profile.recentSharedMatches.map(
+                (match, index) => (
+                  <TouchableOpacity
+                    key={match.matchId}
+                    style={[
+                      styles.compactMatchRow,
+                      index ===
                       profile
                         .recentSharedMatches
                         .length -
-                        1 &&
+                      1 &&
                       styles.lastRow,
-                  ]}
-                  onPress={() =>
-                    onOpenMatch(
-                      match.matchId
-                    )
-                  }
-                  activeOpacity={0.8}
-                >
-                  <View
-                    style={
-                      styles.matchIcon
+                    ]}
+                    onPress={() =>
+                      onOpenMatch(
+                        match.matchId
+                      )
                     }
+                    activeOpacity={0.8}
                   >
+                    <View
+                      style={
+                        styles.matchIcon
+                      }
+                    >
+                      <Ionicons
+                        name="dice-outline"
+                        size={18}
+                        color={
+                          COLORS.primary
+                        }
+                      />
+                    </View>
+
+                    <View
+                      style={
+                        styles.compactMatchInfo
+                      }
+                    >
+                      <Text
+                        style={
+                          styles.compactMatchGame
+                        }
+                        numberOfLines={1}
+                      >
+                        {match.gameName}</Text>
+
+                      <Text
+                        style={
+                          styles.compactMatchMeta
+                        }
+                        numberOfLines={1}
+                      >
+                        {formatDate(
+                          match.matchDate
+                        )}
+                        {" · "}
+                        {resultText(
+                          match.result,
+                          profile.userName
+                        )}
+                      </Text>
+                    </View>
+
                     <Ionicons
-                      name="dice-outline"
-                      size={18}
+                      name="chevron-forward"
+                      size={17}
                       color={
-                        COLORS.primary
+                        COLORS.textMuted
                       }
                     />
-                  </View>
-
-                  <View
-                    style={
-                      styles.compactMatchInfo
-                    }
-                  >
-                    <Text
-                      style={
-                        styles.compactMatchGame
-                      }
-                      numberOfLines={1}
-                    >
-                      {match.gameName}
-                    </Text>
-
-                    <Text
-                      style={
-                        styles.compactMatchMeta
-                      }
-                      numberOfLines={1}
-                    >
-                      {formatDate(
-                        match.matchDate
-                      )}
-                      {" · "}
-                      {resultText(
-                        match.result,
-                        profile.userName
-                      )}
-                    </Text>
-                  </View>
-
-                  <Ionicons
-                    name="chevron-forward"
-                    size={17}
-                    color={
-                      COLORS.textMuted
-                    }
-                  />
-                </TouchableOpacity>
-              )
-            )}
+                  </TouchableOpacity>
+                )
+              )}
+            </View>
           </View>
-        </View>
-      )}
+        )}
 
       {profile.recentSharedSessions.length >
         0 && (
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              Sessões juntos
-            </Text>
-          </View>
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>
+                {t("text.sharedSessions")}</Text>
+            </View>
 
-          <View style={styles.listCard}>
-            {profile.recentSharedSessions.map(
-              (session, index) => (
-                <TouchableOpacity
-                  key={session.sessionId}
-                  style={[
-                    styles.compactMatchRow,
-                    index ===
+            <View style={styles.listCard}>
+              {profile.recentSharedSessions.map(
+                (session, index) => (
+                  <TouchableOpacity
+                    key={session.sessionId}
+                    style={[
+                      styles.compactMatchRow,
+                      index ===
                       profile
                         .recentSharedSessions
                         .length -
-                        1 &&
+                      1 &&
                       styles.lastRow,
-                  ]}
-                  onPress={() =>
-                    onOpenSession(
-                      session.sessionId
-                    )
-                  }
-                  activeOpacity={0.8}
-                >
-                  <View
-                    style={
-                      styles.matchIcon
+                    ]}
+                    onPress={() =>
+                      onOpenSession(
+                        session.sessionId
+                      )
                     }
+                    activeOpacity={0.8}
                   >
+                    <View
+                      style={
+                        styles.matchIcon
+                      }
+                    >
+                      <Ionicons
+                        name="calendar-outline"
+                        size={18}
+                        color={
+                          COLORS.primary
+                        }
+                      />
+                    </View>
+
+                    <View
+                      style={
+                        styles.compactMatchInfo
+                      }
+                    >
+                      <Text
+                        style={
+                          styles.compactMatchGame
+                        }
+                        numberOfLines={1}
+                      >
+                        {session.name}</Text>
+
+                      <Text
+                        style={
+                          styles.compactMatchMeta
+                        }
+                      >
+                        {formatDate(
+                          session.date
+                        )}
+                        {" · "}
+                        {t("counts.matches", { count: session.matchesCount })}
+                      </Text>
+                    </View>
+
                     <Ionicons
-                      name="calendar-outline"
-                      size={18}
+                      name="chevron-forward"
+                      size={17}
                       color={
-                        COLORS.primary
+                        COLORS.textMuted
                       }
                     />
-                  </View>
-
-                  <View
-                    style={
-                      styles.compactMatchInfo
-                    }
-                  >
-                    <Text
-                      style={
-                        styles.compactMatchGame
-                      }
-                      numberOfLines={1}
-                    >
-                      {session.name}
-                    </Text>
-
-                    <Text
-                      style={
-                        styles.compactMatchMeta
-                      }
-                    >
-                      {formatDate(
-                        session.date
-                      )}
-                      {" · "}
-                      {session.matchesCount}{" "}
-                      partida
-                      {session.matchesCount ===
-                      1
-                        ? ""
-                        : "s"}
-                    </Text>
-                  </View>
-
-                  <Ionicons
-                    name="chevron-forward"
-                    size={17}
-                    color={
-                      COLORS.textMuted
-                    }
-                  />
-                </TouchableOpacity>
-              )
-            )}
+                  </TouchableOpacity>
+                )
+              )}
+            </View>
           </View>
-        </View>
-      )}
+        )}
 
       {profile.canViewLibrary &&
         profile.commonOwnedGames.length >
-          0 && (
+        0 && (
           <View style={styles.section}>
             <View
               style={styles.sectionHeader}
@@ -919,10 +862,10 @@ function SummaryTab({
               <Text
                 style={styles.sectionTitle}
               >
-                Jogos que ambos têm
-              </Text>
+                {t("text.gamesYouBothOwn")}</Text>
 
               <TouchableOpacity
+                style={UI_STYLES.control}
                 onPress={
                   onSeeAllCollection
                 }
@@ -932,8 +875,7 @@ function SummaryTab({
                     styles.sectionSeeAll
                   }
                 >
-                  Ver coleção
-                </Text>
+                  {t("text.viewCollection")}</Text>
               </TouchableOpacity>
             </View>
 
@@ -992,8 +934,7 @@ function SummaryTab({
                       }
                       numberOfLines={2}
                     >
-                      {game.name}
-                    </Text>
+                      {game.name}</Text>
 
                     <View
                       style={
@@ -1012,8 +953,7 @@ function SummaryTab({
                           styles.commonBadgeText
                         }
                       >
-                        Ambos têm
-                      </Text>
+                        {t("text.bothOwn")}</Text>
                     </View>
                   </TouchableOpacity>
                 )
@@ -1038,14 +978,11 @@ function SummaryTab({
             <Text
               style={styles.privateTitle}
             >
-              Coleção privada
-            </Text>
+              {t("text.privateCollection")}</Text>
             <Text
               style={styles.privateText}
             >
-              {profile.userName} não
-              partilhou a coleção.
-            </Text>
+              {profile.userName} {t("text.hasNotSharedTheirCollection")}</Text>
           </View>
         </View>
       )}
@@ -1063,11 +1000,9 @@ function CompactStat({
   return (
     <View style={styles.compactStat}>
       <Text style={styles.compactStatValue}>
-        {value}
-      </Text>
+        {value}</Text>
       <Text style={styles.compactStatLabel}>
-        {label}
-      </Text>
+        {label}</Text>
     </View>
   );
 }
@@ -1079,6 +1014,7 @@ function SharedGameCard({
   game: SharedGame;
   onPress: () => void;
 }) {
+  const { t } = useTranslation("friends");
   return (
     <TouchableOpacity
       style={styles.sharedGameCard}
@@ -1111,15 +1047,10 @@ function SharedGameCard({
         style={styles.sharedGameName}
         numberOfLines={2}
       >
-        {game.name}
-      </Text>
+        {game.name}</Text>
 
       <Text style={styles.sharedGameMeta}>
-        {game.matchesCount}{" "}
-        partida
-        {game.matchesCount === 1
-          ? ""
-          : "s"}
+        {t("counts.matches", { count: game.matchesCount })}
       </Text>
     </TouchableOpacity>
   );
@@ -1140,6 +1071,7 @@ function MatchesTab({
     matchId: string
   ) => void;
 }) {
+  const { t } = useTranslation("friends");
   const [items, setItems] =
     useState<SharedMatchDetail[]>([]);
   const [totalCount, setTotalCount] =
@@ -1178,9 +1110,9 @@ function MatchesTab({
         setItems((current) =>
           append
             ? [
-                ...current,
-                ...result.items,
-              ]
+              ...current,
+              ...result.items,
+            ]
             : result.items
         );
 
@@ -1191,7 +1123,7 @@ function MatchesTab({
         setPage(result.page);
       } catch {
         setError(
-          "Não foi possível carregar as partidas."
+          t("text.unableToLoadMatches")
         );
       } finally {
         setLoading(false);
@@ -1210,11 +1142,7 @@ function MatchesTab({
 
   if (loading) {
     return (
-      <View style={styles.tabLoading}>
-        <ActivityIndicator
-          color={COLORS.primary}
-        />
-      </View>
+      <ScreenState loading message={t("card.loading")} />
     );
   }
 
@@ -1222,8 +1150,7 @@ function MatchesTab({
     return (
       <View style={styles.emptyCard}>
         <Text style={styles.muted}>
-          {error}
-        </Text>
+          {error}</Text>
 
         <TouchableOpacity
           style={styles.primaryButton}
@@ -1234,8 +1161,7 @@ function MatchesTab({
           <Text
             style={styles.primaryText}
           >
-            Tentar novamente
-          </Text>
+            {t("text.retry")}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -1251,14 +1177,10 @@ function MatchesTab({
         />
 
         <Text style={styles.emptyTitle}>
-          Ainda não registaram partidas
-          juntos.
-        </Text>
+          {t("text.noSharedMatchesYet")}</Text>
 
         <Text style={styles.muted}>
-          Quando jogarem, o vosso
-          histórico aparecerá aqui.
-        </Text>
+          {t("text.yourSharedHistoryWillAppearHereAfterYouPlay")}</Text>
       </View>
     );
   }
@@ -1268,11 +1190,9 @@ function MatchesTab({
       <View style={styles.tabHeadingRow}>
         <View>
           <Text style={styles.tabHeading}>
-            Partidas juntos
-          </Text>
+            {t("text.sharedMatches")}</Text>
           <Text style={styles.tabSubheading}>
-            {totalCount} registo
-            {totalCount === 1 ? "" : "s"}
+            {t("counts.records", { count: totalCount })}
           </Text>
         </View>
       </View>
@@ -1314,8 +1234,7 @@ function MatchesTab({
               style={styles.rowTitle}
               numberOfLines={1}
             >
-              {match.gameName}
-            </Text>
+              {match.gameName}</Text>
 
             <Text style={styles.rowMeta}>
               {formatDate(
@@ -1336,8 +1255,8 @@ function MatchesTab({
               {formatMatchScore(match)}
               {match.durationInMinutes
                 ? ` · ${duration(
-                    match.durationInMinutes
-                  )}`
+                  match.durationInMinutes
+                )}`
                 : ""}
             </Text>
           </View>
@@ -1366,8 +1285,7 @@ function MatchesTab({
             <Text
               style={styles.loadMoreText}
             >
-              Carregar mais
-            </Text>
+              {t("text.loadMore")}</Text>
           )}
         </TouchableOpacity>
       )}
@@ -1405,6 +1323,7 @@ function CollectionTab({
     gameId: string
   ) => void;
 }) {
+  const { t } = useTranslation("friends");
   const currentUser = useSelector(
     (state: RootState) =>
       state.auth.user
@@ -1457,10 +1376,10 @@ function CollectionTab({
 
             currentUser?.id
               ? (libraryService.getUserLibrary(
-                  currentUser.id
-                ) as Promise<
-                  UserGameLibrary[]
-                >)
+                currentUser.id
+              ) as Promise<
+                UserGameLibrary[]
+              >)
               : Promise.resolve([]),
           ]);
 
@@ -1567,11 +1486,7 @@ function CollectionTab({
 
   if (loading) {
     return (
-      <View style={styles.tabLoading}>
-        <ActivityIndicator
-          color={COLORS.primary}
-        />
-      </View>
+      <ScreenState loading message={t("card.loading")} />
     );
   }
 
@@ -1585,8 +1500,7 @@ function CollectionTab({
         />
 
         <Text style={styles.emptyTitle}>
-          A coleção de {friendName} é
-          privada.
+          {t("card.privateCollection", { name: friendName })}
         </Text>
       </View>
     );
@@ -1596,9 +1510,7 @@ function CollectionTab({
     return (
       <View style={styles.emptyCard}>
         <Text style={styles.muted}>
-          Não foi possível carregar a
-          coleção.
-        </Text>
+          {t("text.unableToLoadTheCollection")}</Text>
       </View>
     );
   }
@@ -1613,8 +1525,7 @@ function CollectionTab({
         />
 
         <Text style={styles.emptyTitle}>
-          {friendName} ainda não adicionou
-          jogos à coleção.
+          {t("card.emptyCollection", { name: friendName })}
         </Text>
       </View>
     );
@@ -1623,12 +1534,11 @@ function CollectionTab({
   return (
     <View style={styles.tabSection}>
       <Text style={styles.collectionTitle}>
-        Coleção de {friendName}
+        {t("card.collectionOf", { name: friendName })}
       </Text>
 
       <Text style={styles.collectionCount}>
-        {(items ?? []).length} jogos
-      </Text>
+        {(items ?? []).length} {t("text.games")}</Text>
 
       <View style={styles.searchBox}>
         <Ionicons
@@ -1640,7 +1550,7 @@ function CollectionTab({
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Pesquisar na coleção..."
+          accessibilityLabel={t("text.searchCollection")} placeholder={t("text.searchCollection")}
           placeholderTextColor={
             COLORS.textMuted
           }
@@ -1659,21 +1569,21 @@ function CollectionTab({
         }
       >
         <FilterChip
-          label="Todos"
+          label={t("text.all")}
           active={filter === "all"}
           onPress={() =>
             setFilter("all")
           }
         />
         <FilterChip
-          label="Tem"
+          label={t("text.owned")}
           active={filter === "owned"}
           onPress={() =>
             setFilter("owned")
           }
         />
         <FilterChip
-          label="Quer jogar"
+          label={t("text.wishlist")}
           active={
             filter === "wishlist"
           }
@@ -1682,7 +1592,7 @@ function CollectionTab({
           }
         />
         <FilterChip
-          label="Ambos têm"
+          label={t("text.bothOwn")}
           active={filter === "common"}
           onPress={() =>
             setFilter("common")
@@ -1697,8 +1607,7 @@ function CollectionTab({
             styles.filterEmpty,
           ]}
         >
-          Nenhum jogo com este filtro.
-        </Text>
+          {t("text.noGamesMatchThisFilter")}</Text>
       ) : (
         <View
           style={
@@ -1732,6 +1641,7 @@ function CollectionGridItem({
   bothOwn: boolean;
   onPress: () => void;
 }) {
+  const { t } = useTranslation("friends");
   return (
     <TouchableOpacity
       style={styles.collectionGridItem}
@@ -1782,19 +1692,18 @@ function CollectionGridItem({
         style={styles.collectionGameName}
         numberOfLines={2}
       >
-        {game.gameName}
-      </Text>
+        {game.gameName}</Text>
 
       <Text
         style={[
           styles.collectionGameStatus,
           bothOwn &&
-            styles.collectionGameStatusCommon,
+          styles.collectionGameStatusCommon,
         ]}
         numberOfLines={1}
       >
         {bothOwn
-          ? "Também tens"
+          ? t("text.youAlsoOwn")
           : statusLabel(game.status)}
       </Text>
     </TouchableOpacity>
@@ -1808,15 +1717,15 @@ function statusLabel(
     getStatusTranslationKey(status);
 
   if (key === "status.owned") {
-    return "Na coleção";
+    return i18n.t("friends:text.inCollection");
   }
 
   if (key === "status.played") {
-    return "Já jogou";
+    return i18n.t("friends:text.played");
   }
 
   if (key === "status.wishlist") {
-    return "Quer jogar";
+    return i18n.t("friends:text.wishlist");
   }
 
   return "—";
@@ -1844,11 +1753,10 @@ function FilterChip({
         style={[
           styles.chipText,
           active &&
-            styles.chipTextActive,
+          styles.chipTextActive,
         ]}
       >
-        {label}
-      </Text>
+        {label}</Text>
     </TouchableOpacity>
   );
 }
@@ -1864,17 +1772,16 @@ function duration(minutes: number) {
     minutes % 60;
 
   return hours
-    ? `${hours}h${
-        remaining
-          ? ` ${remaining}m`
-          : ""
-      }`
+    ? `${hours}h${remaining
+      ? ` ${remaining}m`
+      : ""
+    }`
     : `${remaining}m`;
 }
 
 function formatMonth(value: string) {
   return new Intl.DateTimeFormat(
-    "pt-PT",
+    (i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB"),
     {
       month: "long",
       year: "numeric",
@@ -1884,7 +1791,7 @@ function formatMonth(value: string) {
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat(
-    "pt-PT",
+    (i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB"),
     {
       day: "numeric",
       month: "short",
@@ -1897,55 +1804,18 @@ function resultText(
   name: string
 ) {
   return result === "teamWin"
-    ? "Vitória em equipa"
+    ? i18n.t("friends:text.teamWin")
     : result === "teamLoss"
-      ? "Derrota em equipa"
+      ? i18n.t("friends:text.teamLoss")
       : result ===
-          "currentUserWin"
-        ? "Tu venceste"
+        "currentUserWin"
+        ? i18n.t("friends:text.youWon")
         : result ===
-            "otherUserWin"
+          "otherUserWin"
           ? name
-            ? `${name} venceu`
-            : "O teu amigo venceu"
-          : "Empate";
-}
-
-function ProfileSkeleton() {
-  return (
-    <SafeAreaView
-      style={styles.screen}
-    >
-      <View
-        style={styles.skeletonProfile}
-      >
-        <View
-          style={styles.skeletonAvatar}
-        />
-        <View
-          style={styles.skeletonInfo}
-        >
-          <View
-            style={
-              styles.skeletonTitle
-            }
-          />
-          <View
-            style={
-              styles.skeletonSubtitle
-            }
-          />
-        </View>
-      </View>
-
-      {[0, 1, 2].map((i) => (
-        <View
-          key={i}
-          style={styles.skeletonCard}
-        />
-      ))}
-    </SafeAreaView>
-  );
+            ? i18n.t("friends:card.friendWon", { name })
+            : i18n.t("friends:text.yourFriendWon")
+          : i18n.t("friends:text.draw");
 }
 
 const cardShadow = {
@@ -2023,6 +1893,7 @@ const styles = StyleSheet.create({
   },
 
   largeAvatarText: {
+    ...UI_STYLES.section,
     fontSize: 24,
     fontWeight: "800",
   },
@@ -2033,20 +1904,23 @@ const styles = StyleSheet.create({
   },
 
   name: {
+    ...UI_STYLES.section,
     fontSize: 21,
     fontWeight: "800",
     color: COLORS.onBackground,
   },
 
   username: {
+    ...UI_STYLES.caption,
     color: COLORS.textMuted,
     marginTop: 2,
     fontSize: 13,
   },
 
   friendsSince: {
+    ...UI_STYLES.caption,
     color: COLORS.textMuted,
-    fontSize: 11,
+    fontSize: 13,
     marginTop: 5,
   },
 
@@ -2055,6 +1929,7 @@ const styles = StyleSheet.create({
   },
 
   primaryButton: {
+    ...UI_STYLES.button,
     marginTop: 16,
     backgroundColor:
       COLORS.primary,
@@ -2085,6 +1960,7 @@ const styles = StyleSheet.create({
   },
 
   profileStatsRow: {
+    gap: 12, flexWrap: "wrap",
     flexDirection: "row",
     alignItems: "center",
     marginTop: 16,
@@ -2096,23 +1972,27 @@ const styles = StyleSheet.create({
   },
 
   profileStat: {
+    minWidth: 72,
     flex: 1,
     alignItems: "center",
   },
 
   profileStatValue: {
+    ...UI_STYLES.body,
     fontSize: 16,
     fontWeight: "800",
     color: COLORS.onBackground,
   },
 
   profileStatLabel: {
+    ...UI_STYLES.caption,
     marginTop: 2,
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
 
   tabsBar: {
+flexWrap: "wrap",
     flexDirection: "row",
     marginTop: 14,
     marginBottom: 10,
@@ -2123,6 +2003,7 @@ const styles = StyleSheet.create({
   },
 
   tabButton: {
+    ...UI_STYLES.control,
     flex: 1,
     alignItems: "center",
     paddingVertical: 9,
@@ -2136,6 +2017,7 @@ const styles = StyleSheet.create({
   },
 
   tabButtonText: {
+    ...UI_STYLES.caption,
     color: COLORS.textMuted,
     fontWeight: "700",
     fontSize: 13,
@@ -2146,9 +2028,10 @@ const styles = StyleSheet.create({
   },
 
   relationshipCard: {
+    ...UI_STYLES.card,
     marginTop: 8,
     padding: 16,
-    borderRadius: 18,
+    borderRadius: 20,
     backgroundColor:
       COLORS.card,
     ...cardShadow,
@@ -2162,55 +2045,44 @@ const styles = StyleSheet.create({
   },
 
   sectionEyebrow: {
-    fontSize: 10,
+    ...UI_STYLES.caption,
+    fontSize: 13,
     fontWeight: "800",
     letterSpacing: 0.8,
     color: COLORS.textMuted,
   },
 
   relationshipTitle: {
+    ...UI_STYLES.section,
     marginTop: 2,
     fontSize: 18,
     fontWeight: "800",
     color: COLORS.onBackground,
   },
 
-  statsLink: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 999,
-    backgroundColor:
-      `${COLORS.primary}10`,
-  },
-
-  statsLinkText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: COLORS.primary,
-  },
-
   relationshipStats: {
+    gap: 12, flexWrap: "wrap",
     flexDirection: "row",
     marginTop: 18,
   },
 
   compactStat: {
+    minWidth: 72,
     flex: 1,
     alignItems: "center",
   },
 
   compactStatValue: {
+    ...UI_STYLES.body,
     fontSize: 17,
     fontWeight: "800",
     color: COLORS.onBackground,
   },
 
   compactStatLabel: {
+    ...UI_STYLES.caption,
     marginTop: 3,
-    fontSize: 10,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
 
@@ -2227,15 +2099,17 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
+    ...UI_STYLES.body,
     fontSize: 17,
     fontWeight: "800",
     color: COLORS.onBackground,
   },
 
   sectionSeeAll: {
+    ...UI_STYLES.control, ...UI_STYLES.caption,
     color: COLORS.primary,
     fontWeight: "700",
-    fontSize: 12,
+    fontSize: 13,
   },
 
   sharedGamesRow: {
@@ -2257,22 +2131,24 @@ const styles = StyleSheet.create({
 
   sharedGameName: {
     marginTop: 7,
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 13,
+    lineHeight: 19,
     fontWeight: "800",
     color: COLORS.onBackground,
   },
 
   sharedGameMeta: {
+    ...UI_STYLES.caption,
     marginTop: 2,
-    fontSize: 10,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
 
   listCard: {
+    ...UI_STYLES.card,
     backgroundColor:
       COLORS.card,
-    borderRadius: 17,
+    borderRadius: 20,
     paddingHorizontal: 12,
     ...cardShadow,
   },
@@ -2308,14 +2184,16 @@ const styles = StyleSheet.create({
   },
 
   compactMatchGame: {
+    ...UI_STYLES.caption,
     fontSize: 13,
     fontWeight: "800",
     color: COLORS.onBackground,
   },
 
   compactMatchMeta: {
+    ...UI_STYLES.caption,
     marginTop: 4,
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
 
@@ -2337,8 +2215,9 @@ const styles = StyleSheet.create({
   },
 
   commonGameName: {
+    ...UI_STYLES.caption,
     marginTop: 6,
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: "700",
     color: COLORS.onBackground,
   },
@@ -2351,15 +2230,17 @@ const styles = StyleSheet.create({
   },
 
   commonBadgeText: {
-    fontSize: 9,
+    ...UI_STYLES.caption,
+    fontSize: 13,
     fontWeight: "700",
     color: COLORS.primary,
   },
 
   privateCard: {
+    ...UI_STYLES.card,
     marginTop: 22,
     padding: 15,
-    borderRadius: 16,
+    borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor:
@@ -2379,22 +2260,25 @@ const styles = StyleSheet.create({
   },
 
   privateTitle: {
+    ...UI_STYLES.caption,
     fontSize: 13,
     fontWeight: "800",
     color: COLORS.onBackground,
   },
 
   privateText: {
+    ...UI_STYLES.caption,
     marginTop: 3,
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
 
   emptyCard: {
+    ...UI_STYLES.card,
     marginTop: 20,
     padding: 26,
     alignItems: "center",
-    borderRadius: 18,
+    borderRadius: 20,
     backgroundColor:
       COLORS.card,
     gap: 4,
@@ -2423,23 +2307,26 @@ const styles = StyleSheet.create({
   },
 
   tabHeading: {
+    ...UI_STYLES.section,
     fontSize: 19,
     fontWeight: "800",
     color: COLORS.onBackground,
   },
 
   tabSubheading: {
+    ...UI_STYLES.caption,
     marginTop: 2,
-    fontSize: 12,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
 
   matchCard: {
+    ...UI_STYLES.card,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor:
       COLORS.card,
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 12,
     marginBottom: 10,
     ...cardShadow,
@@ -2474,18 +2361,21 @@ const styles = StyleSheet.create({
   },
 
   rowMeta: {
+    ...UI_STYLES.caption,
     marginTop: 3,
-    fontSize: 12,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
 
   rowMetaSecondary: {
+    ...UI_STYLES.caption,
     marginTop: 2,
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
 
   loadMoreButton: {
+    ...UI_STYLES.control,
     marginTop: 6,
     marginBottom: 10,
     alignItems: "center",
@@ -2501,6 +2391,7 @@ const styles = StyleSheet.create({
   },
 
   collectionTitle: {
+    ...UI_STYLES.section,
     fontSize: 20,
     fontWeight: "800",
     color: COLORS.onBackground,
@@ -2508,12 +2399,14 @@ const styles = StyleSheet.create({
   },
 
   collectionCount: {
+    ...UI_STYLES.caption,
     marginTop: 2,
     color: COLORS.textMuted,
-    fontSize: 12,
+    fontSize: 13,
   },
 
   searchBox: {
+    borderWidth: 1, borderColor: COLORS.border,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor:
@@ -2521,11 +2414,12 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 13,
     marginTop: 14,
-    minHeight: 48,
+    minHeight: 52,
     ...cardShadow,
   },
 
   searchInput: {
+    ...UI_STYLES.caption,
     flex: 1,
     marginLeft: 9,
     color: COLORS.onBackground,
@@ -2540,6 +2434,7 @@ const styles = StyleSheet.create({
   },
 
   chip: {
+    ...UI_STYLES.control,
     paddingHorizontal: 13,
     paddingVertical: 8,
     borderRadius: 999,
@@ -2553,7 +2448,8 @@ const styles = StyleSheet.create({
   },
 
   chipText: {
-    fontSize: 12,
+    ...UI_STYLES.caption,
+    fontSize: 13,
     fontWeight: "700",
     color: COLORS.textMuted,
   },
@@ -2607,15 +2503,16 @@ const styles = StyleSheet.create({
 
   collectionGameName: {
     marginTop: 7,
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 13,
+    lineHeight: 19,
     fontWeight: "800",
     color: COLORS.onBackground,
   },
 
   collectionGameStatus: {
+    ...UI_STYLES.caption,
     marginTop: 3,
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: "700",
     color: COLORS.textMuted,
   },
@@ -2627,51 +2524,5 @@ const styles = StyleSheet.create({
   coverPlaceholder: {
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  skeletonProfile: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginHorizontal: 16,
-    marginTop: 18,
-  },
-
-  skeletonAvatar: {
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    backgroundColor:
-      COLORS.surface,
-  },
-
-  skeletonInfo: {
-    flex: 1,
-    marginLeft: 14,
-  },
-
-  skeletonTitle: {
-    width: 150,
-    height: 18,
-    borderRadius: 8,
-    backgroundColor:
-      COLORS.surface,
-  },
-
-  skeletonSubtitle: {
-    width: 100,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor:
-      COLORS.surface,
-    marginTop: 8,
-  },
-
-  skeletonCard: {
-    height: 115,
-    borderRadius: 16,
-    backgroundColor:
-      COLORS.surface,
-    marginHorizontal: 16,
-    marginTop: 20,
   },
 });

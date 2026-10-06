@@ -15,5 +15,22 @@
     "title": "Terminar sessão",
     "confirmation": "Tens a certeza de que pretendes terminar a sessão?",
     "error": "Não foi possível terminar a sessão."
+  },
+  "profile": {
+    "title": "Perfil",
+    "preferences": "As tuas preferências",
+    "description": "Consulta o idioma e a privacidade da coleção nas Definições.",
+    "settings": "Abrir definições"
+  },
+  "privacy": {
+    "title": "Privacidade da coleção",
+    "description": "Quem pode ver os jogos que tens na tua coleção.",
+    "private": "Privada",
+    "privateDescription": "Só tu vês a tua coleção.",
+    "friends": "Apenas amigos",
+    "friendsDescription": "Só amigos aceites veem a tua coleção.",
+    "public": "Pública",
+    "publicDescription": "Qualquer utilizador pode ver a tua coleção.",
+    "changeError": "Não foi possível alterar a privacidade da coleção."
   }
 }

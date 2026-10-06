@@ -10,7 +10,7 @@ const i18next = require('i18next');
 const root = path.resolve(__dirname, '../..');
 
 async function renderNative(source, exportName, props = {}, options = {}) {
-  const resources = Object.fromEntries(['pt', 'en'].map(lang => [lang, Object.fromEntries(['games', 'library', 'common', 'matches', 'campaigns'].map(ns => [ns,
+  const resources = Object.fromEntries(['pt', 'en'].map(lang => [lang, Object.fromEntries(['games', 'library', 'common', 'matches', 'campaigns', 'friends', 'settings'].map(ns => [ns,
     JSON.parse(fs.readFileSync(path.join(root, `src/i18n/locales/${lang}/${ns}.json`), 'utf8')),
   ]))]));
   const i18n = i18next.createInstance();
@@ -39,13 +39,22 @@ async function renderNative(source, exportName, props = {}, options = {}) {
   };
   const router = { push: r => routes.push(r), replace: r => routes.push(['replace', r]), back: () => routes.push('back') };
   const mocks = {
+    'i18next': { __esModule: true, default: i18n },
+    '@/src/i18n': {
+      getStoredLanguage: async () => options.storedLanguage || 'system',
+      changeAppLanguage: async language => {
+        calls.push(['changeAppLanguage', language]);
+        if (options.languageError) throw options.languageError;
+        return language;
+      },
+    },
     'react-native': native,
     'react-native-safe-area-context': { SafeAreaView: host, useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) },
     '@expo/vector-icons': { MaterialIcons: () => null, Ionicons: () => null },
     'expo-image': { Image: () => null },
     'expo-router': { router, useRouter: () => router, useNavigation: () => ({ openDrawer: () => routes.push('menu') }), useLocalSearchParams: () => options.params || ({ id: 'game-id' }), useFocusEffect() {} },
     'react-i18next': { useTranslation: ns => ({ t: (key, opts) => i18n.t(key, { ns, ...opts }), i18n }) },
-    'react-redux': { useSelector: fn => fn({ auth: { user: { id: 'me' } }, library: { items: options.library || [] } }) },
+    'react-redux': { useSelector: fn => fn({ auth: { user: { id: 'me' } }, library: { items: options.library || [] } }), useDispatch: () => action => calls.push(['dispatch', action]) },
     'react-native-toast-message': { __esModule: true, default: { show: p => calls.push(['toast', p]) } },
     'expo-haptics': { impactAsync: async () => {}, ImpactFeedbackStyle: {} },
     'lottie-react-native': { __esModule: true, default: () => null },
@@ -64,7 +73,8 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     useGameSuggestions: () => ({ suggestions: options.suggestions || [], loading: !!options.loading, error: options.error, hasMore: true, fetchSuggestions: async (...args) => calls.push(['fetchSuggestions', ...args]), resetSuggestions() {} }),
     useRecentSearches: () => ({ recentSearches: [], addSearch() {}, removeSearch() {}, clearSearches() {} }),
     useHotGames: () => ({ hotGames: [] }), useIsOnline: () => options.online !== false,
-    useFriends: () => ({ friends: options.friends || [], loading: false }),
+    useFriends: () => ({ friends: options.friends || [], loading: !!options.friendsLoading, error: options.friendsError,
+      refetch: async force => calls.push(['refetchFriends', force]) }),
     useGameSearch: () => ({ searchGame: async () => null, loading: false }),
     useRegisterMatch: () => ({ loading: !!options.saving, error: options.error,
       submitMatch: async payload => { calls.push(['submitMatch', payload]); return options.createdMatch || null; } }),
@@ -81,21 +91,27 @@ async function renderNative(source, exportName, props = {}, options = {}) {
         return [value, next => updates.push([index, typeof next === 'function' ? next(value) : next])];
       } };
       if (mocks[id]) return mocks[id];
+      if (options.stubFriendActions && id.endsWith('/FriendActionsMenu')) return {
+        FriendActionsMenu: p => { calls.push(['friendActions', p]); return null; },
+      };
       if (options.stubRegisterForm && id.endsWith('/RegisterMatchForm')) return { __esModule: true,
         default: p => { calls.push(['registerForm', p]); return null; } };
       const hook = id.split('/').pop();
-      if (id.includes('/hooks/') && hooks[hook]) return { [hook]: hooks[hook] };
-      if (id.includes('/services/')) return { __esModule: true, default: {
+      if (id.includes('/hooks/') && hooks[hook]) return { [hook]: hooks[hook], invalidateFriendsCache: () => calls.push(['invalidateFriendsCache']) };
+      if (id.includes('/services/')) {
+        const services = Object.fromEntries(Object.entries(options.services || {}).map(([method, result]) => [method, async (...args) => {
+          calls.push([method, ...args]);
+          if (result instanceof Error) throw result;
+          return result;
+        }]));
+        return { __esModule: true, ...services, authService: services, default: {
         getById: async id => { calls.push(['getById', id]); return options.game || null; },
         getHistoryByGame: async id => { calls.push(['getHistoryByGame', id]); return []; },
         getUserRatingForGame: async () => null,
         getByGame: async id => { calls.push(['getByGame', id]); return []; },
-        ...Object.fromEntries(Object.entries(options.services || {}).map(([method, result]) => [method, async (...args) => {
-          calls.push([method, ...args]);
-          if (result instanceof Error) throw result;
-          return result;
-        }])),
+        ...services,
       } };
+      }
       if (id.startsWith('@/') || id.startsWith('.')) {
         const base = id.startsWith('@/') ? path.join(root, id.slice(2)) : path.resolve(path.dirname(filename), id);
         const resolved = [base, base + '.ts', base + '.tsx'].find(p => fs.existsSync(p) && fs.statSync(p).isFile());
