@@ -125,16 +125,41 @@ test('organiser cancel/close actions require confirmation and remain status-spec
   }
 });
 
-test('active sessions preserve the inline registration boundary; closed sessions hide it', async () => {
+test('active accepted members open standalone registration; closed and unaccepted sessions hide it', async () => {
   const active = await render(detail, { states: { 0: { ...session, status: 'Active' }, 1: false }, params: { id: session.id }, stubRegisterForm: true });
-  const props = active.calls.find(c => c[0] === 'registerForm')[1];
+  assert.equal(active.calls.some(c => c[0] === 'registerForm'), false);
+  await active.press('Registar partida');
+  assert.deepEqual(active.routes[0], { pathname: '/games/sessions/register', params: { sessionId: session.id } });
+  for (const data of [{ ...session, status: 'Closed' }, { ...session, status: 'Active', players: [{ userId: 'me', userName: 'Me', status: 'Pending' }] }]) {
+    const view = await render(detail, { states: { 0: data, 1: false } });
+    assert.equal(view.controls.some(c => c.accessibilityLabel === 'Registar partida'), false);
+  }
+});
+
+test('match rows associate named players with zero and absent scores, and distinguish missing winner name/result', async () => {
+  const matches = [
+    { id: 'one', gameName: 'Game A', winnerId: 'me', winnerName: 'Test player', players: [{ userId: 'me', userName: 'Test player', score: 17 }, { userId: 'other', userName: 'Other player', score: 0 }] },
+    { id: 'two', gameName: 'Game B', winnerId: 'other', winnerName: null, players: [{ userId: 'other', userName: 'Other player', score: null }] },
+    { id: 'three', gameName: 'Game C', winnerId: null, winnerName: null, isSoloGame: true, players: [] },
+  ];
+  const view = await render(detail, { states: { 0: { ...session, matches }, 1: false } });
+  assert.match(view.html, /Vencedor: Test player/);
+  assert.match(view.html, /Test player<\/span><span>17/);
+  assert.match(view.html, /Other player<\/span><span>0/);
+  assert.match(view.html, /Other player<\/span><span>Não definida/);
+  assert.match(view.html, /Nome do vencedor indisponível/);
+  assert.match(view.html, /Resultado não definido/);
+  assert.doesNotMatch(view.html, /Sem vencedor/);
+});
+
+test('standalone session registration passes context and returns to the same session after success', async () => {
+  const view = await render('src/features/games/sessions/screens/RegisterSessionMatchScreen.tsx', { params: { sessionId: session.id }, stubRegisterForm: true });
+  const props = view.calls.find(c => c[0] === 'registerForm')[1];
   assert.equal(props.sessionId, session.id);
-  assert.equal(props.disableScroll, true);
   assert.equal(props.currentUser.id, 'me');
-  await props.onRegistered();
-  assert.ok(active.calls.some(c => c[0] === 'getById' && c[1] === session.id));
-  const closed = await render(detail, { states: { 0: { ...session, status: 'Closed' }, 1: false }, stubRegisterForm: true });
-  assert.equal(closed.calls.some(c => c[0] === 'registerForm'), false);
+  assert.equal(props.disableScroll, undefined);
+  props.onRegistered();
+  assert.deepEqual(view.routes[0], ['dismissTo', { pathname: '/games/sessions/[id]', params: { id: session.id } }]);
 });
 
 test('campaign list retains status sections, zero ratings and existing destinations', async () => {

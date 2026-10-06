@@ -1,5 +1,11 @@
 # Pendências funcionais do MeepleBoard
 
+## Atualização — detalhe compacto e registo em página própria
+
+Ver [detalhe-sessao-registo.md](detalhe-sessao-registo.md). Corrigido o carregamento dos nomes de jogos, vencedores e jogadores no detalhe da sessão, preservando filtros de privacidade. Pontuações aparecem junto aos nomes e zero é conservado. O registo passa a página própria, com sessão/participantes aceites, proteção do rascunho e retorno/recarga do detalhe. Encerrar mantém confirmação como ação secundária. Validado em DeviceTests; confirmação deste novo percurso no iPhone pendente.
+
+**RESULT01 — contrato de resultados (continuação de M01/C03):** solo perde winnerId no mapper quando isSoloGame=true; cooperativo não envia modo/resultado de equipa explícito e o backend exige vencedor não solo; empate não tem representação explícita. Regras preservadas nesta etapa. Sem WinnerId mostrar Resultado não definido; com WinnerId e sem nome mostrar Nome do vencedor indisponível. Não inferir modos/resultados das pontuações nem do catálogo. Futuramente definir contrato e testar gravação/releitura apenas em SQL descartável, sem reinterpretar dados antigos automaticamente.
+
 ## Atualização — experiência de criação e convites múltiplos
 
 Ver [sessoes-experiencia-convites.md](sessoes-experiencia-convites.md). Formulário com três secções e seletor partilhado pesquisável; subpágina de convites múltiplos, resultados por amigo e repetição apenas dos falhados, com reconciliação após falhas de comunicação. Contadores incluem organizador e distinguem pendentes/recusados. Convites posteriores passam a exigir amizade aceite no backend. Verificados testes isolados e HTTP/SQL real apenas descartável; validação no iPhone pendente. Cancelar versus eliminar, S04, CreatorId no ambiente habitual e fotografias públicas antigas permanecem pendentes; não houve migrações nem alteração à base habitual.

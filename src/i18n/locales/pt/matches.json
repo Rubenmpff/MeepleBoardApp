@@ -32,7 +32,9 @@
     "closedTitle": "🔒 Sessão encerrada",
     "inactiveDescription": "Regista partidas quando a sessão estiver ativa.",
     "noAcceptedTitle": "👥 Sem participantes aceites",
-    "noAcceptedDescription": "Aguarda que os convidados aceitem para poderes registar partidas."
+    "noAcceptedDescription": "Aguarda que os convidados aceitem para poderes registar partidas.",
+    "notEligibleTitle": "Participação não confirmada",
+    "notEligibleDescription": "Só os participantes com convite aceite podem registar partidas nesta sessão."
   },
   "game": {
     "sectionTitle": "Escolhe o jogo",
@@ -300,7 +302,13 @@
     "sendInvites_other": "Enviar {{count}} convites",
     "backToSession": "Voltar à sessão",
     "friendLabel": "Amigo",
-    "result": { "sent": "Convite enviado", "alreadyInvited": "Já tem convite", "failed": "Não foi possível enviar", "friendship": "É necessária amizade aceite", "unavailable": "Convite indisponível; atualiza a sessão" },
+    "result": {
+      "sent": "Convite enviado",
+      "alreadyInvited": "Já tem convite",
+      "failed": "Não foi possível enviar",
+      "friendship": "É necessária amizade aceite",
+      "unavailable": "Convite indisponível; atualiza a sessão"
+    },
     "openFriends": "Ir para Amigos",
     "noFriendsForInvite": "Não tens amigos disponíveis para convidar. Adiciona amigos na área Amigos.",
     "inviteOthers": "Convidar outros amigos",
@@ -318,6 +326,15 @@
     "replyByStart": "Respostas até ao início: {{date}}",
     "organizer": "Organizador: {{name}}",
     "listError": "Não foi possível carregar as sessões.",
-    "selectFriend": "Selecionar {{name}} para convite"
+    "selectFriend": "Selecionar {{name}} para convite",
+    "registerMatch": "Registar partida",
+    "gameNameUnavailable": "Nome do jogo indisponível",
+    "playerNameUnavailable": "Nome do jogador indisponível",
+    "winnerNamed": "Vencedor: {{name}}",
+    "winnerNameUnavailable": "Nome do vencedor indisponível",
+    "resultUndefined": "Resultado não definido",
+    "scoreUndefined": "Não definida",
+    "durationMinutes": "{{count}} min",
+    "organizerRole": "Organizador"
   }
 }

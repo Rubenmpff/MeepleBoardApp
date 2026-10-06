@@ -42,7 +42,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
         element(p.ListFooterComponent));
     },
   };
-  const router = { push: r => routes.push(r), navigate: r => routes.push(r), replace: r => routes.push(['replace', r]), canGoBack: () => options.canGoBack !== false, back: () => routes.push('back') };
+  const router = { push: r => routes.push(r), navigate: r => routes.push(r), replace: r => routes.push(['replace', r]), dismissTo: r => routes.push(['dismissTo', r]), canGoBack: () => options.canGoBack !== false, back: () => routes.push('back') };
   const Tabs = p => { calls.push(['tabs', p]); return React.createElement(host, null, p.tabBar(options.tabProps), p.children); };
   Tabs.Screen = () => null;
   const mocks = {

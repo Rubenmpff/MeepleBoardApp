@@ -102,7 +102,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const MAX_PHOTOS = 5;
-  const navigationGuard = useUnsavedChanges(!!selectedGame || !!location || !!duration || !!comments || personalRating !== undefined || !!notes || !!tags || pendingPhotos.length > 0, loading || uploadingPhotos);
+  const navigationGuard = useUnsavedChanges(!!selectedGame || !!location || !!duration || !!comments || personalRating !== undefined || !!notes || !!tags || pendingPhotos.length > 0, loading || uploadingPhotos, sessionId ? `/games/sessions/${sessionId}` : undefined);
 
   const [unofficialMode, setUnofficialMode] = useState<GameMode | null>(null);
   const [unofficialJustification, setUnofficialJustification] = useState("");
@@ -308,11 +308,10 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       }
 
       navigationGuard.allowExit();
-      onRegistered?.();
       Alert.alert(
         t("success.title"),
         (isSessionMatch ? t("success.session") : t("success.quick")) + photoWarning,
-        [{ text: t("success.ok"), onPress: clearAll }]
+        [{ text: t("success.ok"), onPress: () => { if (onRegistered) onRegistered(); else clearAll(); } }]
       );
     }
   };
@@ -341,11 +340,11 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     );
   }
 
-  if (isSessionMatch && session && acceptedUsersFromSession.length === 0)
+  if (isSessionMatch && session && (acceptedUsersFromSession.length === 0 || !currentUserForSelector))
     return (
       <View style={styles.noticeWarn}>
-        <Text style={styles.noticeTitle}>{t("session.noAcceptedTitle")}</Text>
-        <Text style={styles.noticeText}>{t("session.noAcceptedDescription")}</Text>
+        <Text style={styles.noticeTitle}>{t(currentUserForSelector ? "session.noAcceptedTitle" : "session.notEligibleTitle")}</Text>
+        <Text style={styles.noticeText}>{t(currentUserForSelector ? "session.noAcceptedDescription" : "session.notEligibleDescription")}</Text>
       </View>
     );
 
@@ -373,7 +372,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
   const content = (
     <View style={{ backgroundColor: COLORS.background }}>
-      {!disableScroll && <ScreenHeader mode="cancel" appearance="refresh" title={t("header.registerMatch")} onLeftPress={navigationGuard.cancel} />}
+      {!disableScroll && <ScreenHeader mode="cancel" appearance="refresh" title={t("header.registerMatch")} subtitle={session?.name} onLeftPress={navigationGuard.cancel} />}
       {/* Header */}
       <View style={styles.header}>
         {disableScroll && <PrimaryButton title={i18n.t("navigation:cancel")} variant="secondary" onPress={() => navigationGuard.discard(clearAll)} />}

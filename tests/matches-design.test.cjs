@@ -190,3 +190,33 @@ test('new screen and selector strings are translated in English', async () => {
   const selection = await renderNative(selector, 'default', { users: [], players: [], onChange() {} }, { language: 'en' });
   assert.match(selection.html, /Add players/);
 });
+
+
+test('session registration preserves draft on save failure and exits only after confirmed success', async () => {
+  const session = { id: 'session-id', name: 'Session context', status: 'Active', players: [{ userId: 'me', userName: me.userName, status: 'Accepted' }, { userId: 'other', userName: 'Other player', status: 'Declined' }] };
+  let returned = 0;
+  const failed = await submit({ 0: session }, { sessionId: session.id, onRegistered: () => returned++ });
+  assert.match(failed.html, /Session context/);
+  await failed.press('Guardar partida');
+  assert.equal(returned, 0);
+  assert.equal(failed.updates.some(([index, value]) => index === 3 && value === null), false);
+  const saved = await submit({ 0: session }, { sessionId: session.id, onRegistered: () => returned++ }, { createdMatch: { id: 'new-match' } });
+  await saved.press('Guardar partida');
+  assert.equal(returned, 0);
+  const alert = saved.calls.find(c => c[0] === 'alert');
+  alert[3][0].onPress();
+  assert.equal(returned, 1);
+});
+
+test('session draft cancel uses its session as fallback and keeps editing until discard is confirmed', async () => {
+  const session = { id: 'session-id', status: 'Active', players: [{ userId: 'me', userName: me.userName, status: 'Accepted' }] };
+  const draft = await submit({ 0: session }, { sessionId: session.id }, { canGoBack: false });
+  await draft.press('Cancelar');
+  assert.equal(draft.routes.length, 0);
+  const buttons = draft.calls.find(c => c[0] === 'alert')[3];
+  buttons.find(b => b.style === 'cancel').onPress();
+  assert.equal(draft.routes.length, 0);
+  await draft.press('Cancelar');
+  draft.calls.filter(c => c[0] === 'alert').at(-1)[3].find(b => b.style === 'destructive').onPress();
+  assert.deepEqual(draft.routes, [['replace', '/games/sessions/session-id']]);
+});

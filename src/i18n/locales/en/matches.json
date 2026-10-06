@@ -32,7 +32,9 @@
     "closedTitle": "🔒 Session closed",
     "inactiveDescription": "Register matches when the session is active.",
     "noAcceptedTitle": "👥 No accepted participants",
-    "noAcceptedDescription": "Wait for the invited players to accept before registering matches."
+    "noAcceptedDescription": "Wait for the invited players to accept before registering matches.",
+    "notEligibleTitle": "Participation not confirmed",
+    "notEligibleDescription": "Only participants with an accepted invitation can register matches in this session."
   },
   "game": {
     "sectionTitle": "Choose the game",
@@ -300,7 +302,13 @@
     "sendInvites_other": "Send {{count}} invitations",
     "backToSession": "Back to session",
     "friendLabel": "Friend",
-    "result": { "sent": "Invitation sent", "alreadyInvited": "Already invited", "failed": "Could not send", "friendship": "Accepted friendship required", "unavailable": "Invitation unavailable; refresh the session" },
+    "result": {
+      "sent": "Invitation sent",
+      "alreadyInvited": "Already invited",
+      "failed": "Could not send",
+      "friendship": "Accepted friendship required",
+      "unavailable": "Invitation unavailable; refresh the session"
+    },
     "openFriends": "Go to Friends",
     "noFriendsForInvite": "You have no friends available to invite. Add friends in Friends.",
     "inviteOthers": "Invite other friends",
@@ -318,6 +326,15 @@
     "replyByStart": "Reply before the session starts: {{date}}",
     "organizer": "Organiser: {{name}}",
     "listError": "Could not load sessions.",
-    "selectFriend": "Select {{name}} for invitation"
+    "selectFriend": "Select {{name}} for invitation",
+    "registerMatch": "Register match",
+    "gameNameUnavailable": "Game name unavailable",
+    "playerNameUnavailable": "Player name unavailable",
+    "winnerNamed": "Winner: {{name}}",
+    "winnerNameUnavailable": "Winner name unavailable",
+    "resultUndefined": "Result not defined",
+    "scoreUndefined": "Not defined",
+    "durationMinutes": "{{count}} min",
+    "organizerRole": "Organizer"
   }
 }
