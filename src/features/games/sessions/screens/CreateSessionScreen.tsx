@@ -13,14 +13,15 @@ import { ROUTES } from "@/src/constants/routes";
 import { useTranslation } from "react-i18next";
 import ScreenLayout from "@/src/components/ui/ScreenLayout";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
-import React, { useMemo, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, ScrollView, Platform } from "react-native";
-import { useRouter } from "expo-router";
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, Keyboard, ScrollView, Platform } from "react-native";
+import { useFocusEffect, useRouter } from "expo-router";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { MaterialIcons } from "@expo/vector-icons";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import { useGameSessions } from "../hooks/useGameSessions";
+import FriendSelector from "../components/FriendSelector";
 import { useFriends } from "@/src/features/friends/hooks/useFriends";
 /* ── Helpers ── */
 function formatDate(date: Date, locale: string): string {
@@ -39,6 +40,11 @@ export default function CreateSessionScreen() {
   const router = useRouter();
   const { createSession, error: createError } = useGameSessions();
   const { friends, loading: friendsLoading, error: friendsError, refetch: refetchFriends } = useFriends();
+  const firstFriendsFocus = useRef(true);
+  useFocusEffect(useCallback(() => {
+    if (firstFriendsFocus.current) firstFriendsFocus.current = false;
+    else void refetchFriends(true);
+  }, [refetchFriends]));
   // Form state
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
@@ -62,11 +68,12 @@ export default function CreateSessionScreen() {
   // DatePicker state
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
   const [inviteValidation, setInviteValidation] = useState(false);
-  const showPicker = (target: PickerTarget) => setPickerTarget(target);
+  const showPicker = (target: PickerTarget) => { Keyboard.dismiss(); setPickerTarget(target); };
   const hidePicker = () => setPickerTarget(null);
   const onDateChange = (_event: DateTimePickerEvent, selected?: Date) => {
     if (Platform.OS === "android") hidePicker();
     if (!selected || !pickerTarget) return;
+    navigationGuard.markUnsaved();
     if (pickerTarget === "session_date" || pickerTarget === "session_time") {
       const merged = new Date(sessionDate);
       if (pickerTarget === "session_date") {
@@ -96,12 +103,6 @@ export default function CreateSessionScreen() {
     && !deadlineAfterSession
     && !deadlineInPast
     && !saving;
-  /* ── Friend toggle ── */
-  const toggle = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
   /* ── Submit ── */
   const handleSave = async () => {
     if (!canSave) return;
@@ -141,15 +142,18 @@ export default function CreateSessionScreen() {
         {createError && <Text accessibilityRole="alert" style={{ color: COLORS.error }}>{createError}</Text>}
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerSub}>{t("sessions.createIntro")}</Text>
+          <View style={{ width: 84, height: 56, overflow: "hidden" }}>
+            <Image source={require("@/assets/MeepleBoardLogo.png")} resizeMode="contain" style={{ width: 147, height: 147, position: "absolute", left: -31.5, top: -44.8 }} accessible={false} />
+          </View>
+          <Text style={styles.headerSub}>{t("sessions.createWarmIntro")}</Text>
         </View>
         {/* ── Card: Detalhes ── */}
         <View style={styles.card}>
-          <CardTitle icon="event" label={t("sessions.details")} />
+          <CardTitle icon="event" label={t("sessions.about")} />
           <Field label={t("sessions.name")}>
             <TextInput
               style={[styles.input, nameError && styles.inputError]}
-              value={name} onChangeText={setName}
+              value={name} onChangeText={value => { navigationGuard.markUnsaved(); setName(value); }}
               placeholder={t("sessions.nameHint")}
               placeholderTextColor={COLORS.textMuted} maxLength={60} accessibilityLabel={t("sessions.name")}
             />
@@ -159,7 +163,7 @@ export default function CreateSessionScreen() {
           <Field label={t("sessions.location")}>
             <TextInput
               style={styles.input}
-              value={location} onChangeText={setLocation}
+              value={location} onChangeText={value => { navigationGuard.markUnsaved(); setLocation(value); }}
               placeholder={t("sessions.locationHint")}
               placeholderTextColor={COLORS.textMuted} accessibilityLabel={t("sessions.location")}
             />
@@ -204,14 +208,13 @@ export default function CreateSessionScreen() {
               is24Hour
             />
           )}
-        </View>
-        {/* ── Card: Prazo de resposta ── */}
-        <View style={styles.card}>
+        {/* Prazo integrado na secção Quando */}
+        <View style={{ marginTop: 16, gap: 12 }}>
           <View style={styles.deadlineHeader}>
             <CardTitle icon="timer" label={t("sessions.deadline")} />
             <TouchableOpacity
               style={[styles.toggle, useDeadline && styles.toggleActive]}
-              onPress={() => setUseDeadline((v) => !v)} accessibilityRole="switch" accessibilityLabel={t("sessions.deadline")} accessibilityState={{ checked: useDeadline }}
+              onPress={() => { navigationGuard.markUnsaved(); setUseDeadline((v) => !v); }} accessibilityRole="switch" accessibilityLabel={t("sessions.deadline")} accessibilityState={{ checked: useDeadline }}
             >
               <Text style={[styles.toggleText, useDeadline && styles.toggleTextActive]}>
                 {useDeadline ? t("sessions.enabled") : t("sessions.disabled")}
@@ -267,67 +270,28 @@ export default function CreateSessionScreen() {
             </>
           )}
         </View>
-        {/* ── Card: Convidar amigos ── */}
+        </View>
+        {/* ── Card: Quem vem ── */}
         <View style={styles.card}>
           <CardTitle
             icon="people"
-            label={t("sessions.inviteFriends") + (selectedIds.length ? ` (${selectedIds.length})` : "")}
+            label={t("sessions.who")}
           />
           {inviteValidation && selectedIds.length === 0 && (
             <Text accessibilityRole="alert" style={styles.fieldError}>{t("sessions.friendRequired")}</Text>
           )}
-          {friendsError ? (
-            <View style={styles.emptyFriends}>
-              <Text accessibilityRole="alert" style={styles.fieldError}>{friendsError}</Text>
-              <PrimaryButton title={t("common:retry")} onPress={() => void refetchFriends(true)} />
-            </View>
-          ) : friendsLoading ? (
-            <ActivityIndicator color={COLORS.primary} style={{ marginVertical: 16 }} />
-          ) : friendList.length === 0 ? (
-            <View style={styles.emptyFriends}>
-              <MaterialIcons name="person-add" size={32} color="#ccc" />
-              <Text style={styles.emptyFriendsText}>
-                {t("sessions.noFriends")}
-              </Text>
-              <PrimaryButton title={t("sessions.openFriends")} onPress={() => navigationGuard.discard(() => { navigationGuard.allowExit(); router.push(ROUTES.FRIENDS); })} />
-            </View>
-          ) : (
-            <View>
-              {friendList.map((item) => {
-                const active = selectedIds.includes(item.id);
-                return (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={[styles.friendRow, active && styles.friendRowActive]}
-                    onPress={() => toggle(item.id)}
-                    activeOpacity={0.8} accessibilityRole="checkbox" accessibilityLabel={t("sessions.selectFriend", { name: item.userName })} accessibilityState={{ checked: active }}
-                  >
-                    <View style={[styles.friendAvatar, active && styles.friendAvatarActive]}>
-                      <Text style={[styles.friendAvatarText, active && { color: "#fff" }]}>
-                        {item.userName[0].toUpperCase()}
-                      </Text>
-                    </View>
-                    <Text style={[styles.friendName, active && styles.friendNameActive]}>
-                      {item.userName}
-                    </Text>
-                    <View style={[styles.friendCheck, active && styles.friendCheckActive]}>
-                      {active && <MaterialIcons name="check" size={14} color="#fff" />}
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
-          {selectedIds.length > 0 && (
-            <Text style={styles.inviteHint}>
-              {t("sessions.inviteHint", { count: selectedIds.length })}
-            </Text>
-          )}
+          <Text style={[UI_STYLES.body, { fontWeight: "700", marginBottom: 8 }]}>{t("sessions.organizerYou")}</Text>
+          <Text style={[UI_STYLES.caption, { marginBottom: 12 }]}>{t("sessions.friendRequired")}</Text>
+          <FriendSelector friends={friendList} loading={friendsLoading} error={friendsError}
+            selectedIds={selectedIds} onChange={ids => { navigationGuard.markUnsaved(); setSelectedIds(ids); }} onRetry={() => void refetchFriends(true)}
+            emptyMessage={t("sessions.noFriends")}
+            onFriends={() => navigationGuard.discard(() => { navigationGuard.allowExit(); router.push(ROUTES.FRIENDS); })} />
         </View>
         <View style={{ height: 16 }} />
       </ScrollView>
       {/* Sticky save */}
       <View style={styles.stickyBar}>
+        <Text style={[UI_STYLES.caption, { marginBottom: 8 }]}>{t("sessions.invitesPreview", { count: selectedIds.length })}</Text>
         <PrimaryButton title={t("sessions.createTitle")} onPress={handleSave} disabled={!canSave} loading={saving} />
       </View>
     </ScreenLayout>
@@ -392,8 +356,8 @@ function InlinePicker({ value, mode, onChange, onDone, minimumDate, maximumDate 
 /* ── Styles ── */
 const styles = StyleSheet.create({
   scroll: { padding: 16, paddingBottom: 20 },
-  header: { marginBottom: 20 },
-  headerSub: { ...UI_STYLES.caption, color: COLORS.textMuted, marginTop: 4 },
+  header: { marginBottom: 20, flexDirection: "row", alignItems: "center", gap: 12 },
+  headerSub: { ...UI_STYLES.body, color: COLORS.textMuted, flex: 1 },
   card: { ...UI_STYLES.card, padding: 16, marginBottom: 16 },
   cardTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 },
   cardTitleText: { ...UI_STYLES.section, flexShrink: 1 },
@@ -419,24 +383,5 @@ const styles = StyleSheet.create({
   },
   iosPickerDone: { ...UI_STYLES.button, backgroundColor: COLORS.primary, marginTop: 12 },
   iosPickerDoneText: { color: "#fff", fontWeight: "700", fontSize: 14 },
-  emptyFriends: { alignItems: "center", paddingVertical: 20, gap: 8 },
-  emptyFriendsText: { ...UI_STYLES.empty },
-  friendRow: { ...UI_STYLES.card, minHeight: 64, flexDirection: "row", alignItems: "center", padding: 12, marginBottom: 8 },
-  friendRowActive: { borderColor: COLORS.primary, backgroundColor: COLORS.primary + "08" },
-  friendAvatar: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: "#e0e0e0", alignItems: "center", justifyContent: "center", marginRight: 10,
-  },
-  friendAvatarActive: { backgroundColor: COLORS.primary },
-  friendAvatarText: { fontSize: 15, fontWeight: "800", color: COLORS.textMuted },
-  friendName: { ...UI_STYLES.body, color: COLORS.onBackground, flex: 1, fontWeight: "700" },
-  friendNameActive: { color: COLORS.primary },
-  friendCheck: {
-    width: 24, height: 24, borderRadius: 12,
-    borderWidth: 1.5, borderColor: "#ddd",
-    alignItems: "center", justifyContent: "center",
-  },
-  friendCheckActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  inviteHint: { ...UI_STYLES.caption, color: COLORS.primary, marginTop: 12 },
   stickyBar: { padding: 16, backgroundColor: COLORS.card, borderTopWidth: 1, borderTopColor: COLORS.border },
 });

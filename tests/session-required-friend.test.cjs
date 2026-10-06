@@ -31,30 +31,27 @@ test('no friends explains solo route and has working Friends destination', async
   assert.equal(view.routes.at(-1), '/(app)/(tabs)/(friends)/people');
 });
 
-test('all declined is explicit, excludes previous invitees and sends the existing invitation request', async () => {
-  let reloads = 0;
+test('all declined is explicit and the invitation action opens the contextual subpage', async () => {
   const view = await renderNative(invitations, 'default', { session, onInvited: async () => { reloads++; } }, {
     friends: [{ id: 'peer', userName: 'Peer' }, { id: 'new', userName: 'New friend' }], services: { addPlayer: undefined },
   });
   assert.match(view.html, /Todos os convidados recusaram/);
   assert.ok(!view.controls.some(c => c.accessibilityLabel === 'Convidar Peer'));
-  await view.press('Convidar New friend');
-  assert.deepEqual(view.calls.find(c => c[0] === 'addPlayer'), ['addPlayer', 'session-existing', 'new']);
-  assert.equal(reloads, 1);
+  await view.press('Convidar amigos');
+  assert.deepEqual(view.routes.at(-1), { pathname: '/games/sessions/invite', params: { sessionId: 'session-existing' } });
 });
 
-test('pending guests do not show all-declined; no available friends links to Friends', async () => {
+test('pending guests do not show all-declined; invitation selection lives in the subpage', async () => {
   const view = await renderNative(invitations, 'default', { session: { ...session, players: session.players.map(p => ({ ...p, status: p.isOrganizer ? 1 : 0 })) }, onInvited: async () => {} }, { friends: [{ id: 'peer', userName: 'Peer' }] });
   assert.doesNotMatch(view.html, /Todos os convidados recusaram/);
-  assert.match(view.html, /Todos os teus amigos já foram convidados/);
-  await view.press('Ir para Amigos');
-  assert.equal(view.routes.at(-1), '/(app)/(tabs)/(friends)/people');
+  await view.press('Convidar amigos');
+  assert.equal(view.routes.at(-1).params.sessionId, session.id);
 });
 
 test('only organizer sees additional invitations on upcoming sessions, including existing solo sessions', async () => {
   for (const [status, owner, shown] of [['Upcoming', 'me', true], ['Upcoming', 'other', false], ['Closed', 'me', false], ['Active', 'me', false]]) {
     const view = await renderNative(detail, 'default', {}, { states: { 0: { ...session, status, organizerId: owner }, 1: false }, stubRegisterForm: true });
-    assert.equal(view.html.includes('Convidar outros amigos'), shown);
+    assert.equal(view.html.includes('Convidar amigos'), shown);
   }
   const legacy = await renderNative(detail, 'default', {}, { states: { 0: { ...session, players: [session.players[0]] }, 1: false } });
   assert.match(legacy.html, /Existing session/);

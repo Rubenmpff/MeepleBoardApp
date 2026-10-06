@@ -21,6 +21,7 @@ import { GameSession, getStatusColor } from "@/src/features/games/sessions/types
 import { sessionPlayerGuards } from "@/src/features/games/sessions/types/GameSessionPlayer";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
+import SessionAttendance from "../components/SessionAttendance";
 import { RootState } from "@/src/store/store";
 type TabKey = "Active" | "Upcoming" | "Closed" | "Invites";
 const TABS: { key: TabKey; icon: string }[] = [
@@ -90,8 +91,6 @@ export default function SessionsListScreen() {
           day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
         })
       : null;
-    const acceptedCount = item.acceptedGuestCount ?? 0;
-    const totalInvited = (item.players?.length ?? 1) - 1; // exclude organizer
     // My invite status (for Invites tab)
     const myLink = item.players?.find((p) => p.userId === currentUser?.id);
     const isPending = myLink ? sessionPlayerGuards.isPending(myLink) : false;
@@ -121,7 +120,7 @@ export default function SessionsListScreen() {
         <View style={styles.cardFooter}>
           <View style={styles.cardMeta}>
             <MaterialIcons name="people" size={14} color={COLORS.textMuted} />
-            <Text style={styles.cardMetaText}>{t("sessions.confirmed", { accepted: acceptedCount, total: totalInvited })}</Text>
+            <SessionAttendance players={item.players ?? []} compact />
           </View>
           <View style={styles.cardMeta}>
             <MaterialIcons name="sports-esports" size={14} color={COLORS.textMuted} />
@@ -219,7 +218,7 @@ const styles = StyleSheet.create({
   cardSub: { ...UI_STYLES.body, color: COLORS.textMuted, marginTop: 4 },
   deadlineText: { ...UI_STYLES.caption, color: COLORS.secondary, marginTop: 8 },
   cardFooter: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 12, marginTop: 12 },
-  cardMeta: { flexDirection: "row", flexWrap: "wrap", gap: 12, alignItems: "center" },
+  cardMeta: { flexDirection: "row", flexWrap: "wrap", gap: 12, alignItems: "center", maxWidth: "100%", flexShrink: 1 },
   cardMetaText: { ...UI_STYLES.caption, color: COLORS.textMuted },
   pendingBadge: { backgroundColor: "#fff3cd", padding: 8, borderRadius: 12 },
   pendingBadgeText: { color: "#856404", ...UI_STYLES.caption, fontWeight: "700" },

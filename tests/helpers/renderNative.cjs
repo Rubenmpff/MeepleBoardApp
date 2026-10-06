@@ -59,7 +59,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     'react-native-safe-area-context': { SafeAreaView: p => { nativeViews.push(['safeArea', p]); return React.createElement(host, p); }, useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) },
     '@expo/vector-icons': { MaterialIcons: () => null, MaterialCommunityIcons: () => null, Ionicons: () => null, AntDesign: () => null, Feather: () => null },
     'expo-image': { Image: () => null },
-    'expo-router': { router, Tabs, Redirect: p => { redirects.push(p.href); return null; }, useRouter: () => router, usePathname: () => options.pathname || '/dashboard', useNavigation: () => ({ dispatch: action => calls.push(['navigationDispatch', action]), openDrawer: () => routes.push('menu') }), useLocalSearchParams: () => options.params || ({ id: 'game-id' }), useFocusEffect() {},
+    'expo-router': { router, Tabs, Redirect: p => { redirects.push(p.href); return null; }, useRouter: () => router, usePathname: () => options.pathname || '/dashboard', useNavigation: () => ({ dispatch: action => calls.push(['navigationDispatch', action]), openDrawer: () => routes.push('menu') }), useLocalSearchParams: () => options.params || ({ id: 'game-id' }), useFocusEffect(callback) { if (options.captureFocusEffects) effects.push(callback); },
       withLayoutContext: () => {
         const Tabs = p => { calls.push(['tabs', p]); return React.createElement(host, null, p.tabBar(options.tabProps), p.children); };
         Tabs.Screen = () => null;

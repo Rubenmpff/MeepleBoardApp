@@ -1,5 +1,11 @@
 # Pendências funcionais do MeepleBoard
 
+## Atualização — experiência de criação e convites múltiplos
+
+Ver [sessoes-experiencia-convites.md](sessoes-experiencia-convites.md). Formulário com três secções e seletor partilhado pesquisável; subpágina de convites múltiplos, resultados por amigo e repetição apenas dos falhados, com reconciliação após falhas de comunicação. Contadores incluem organizador e distinguem pendentes/recusados. Convites posteriores passam a exigir amizade aceite no backend. Verificados testes isolados e HTTP/SQL real apenas descartável; validação no iPhone pendente. Cancelar versus eliminar, S04, CreatorId no ambiente habitual e fotografias públicas antigas permanecem pendentes; não houve migrações nem alteração à base habitual.
+
+**S-LIST02 — contador de partidas na lista:** `GameSessionRepository.GetListAsync` não inclui Matches; `GameSessionDto.MatchCount` e `SessionsListScreen` contam essa coleção não carregada. Impacto: a lista pode indicar zero partidas em sessões com partidas registadas. Confirmado o caminho no código; validar reprodução em HTTP/SQL com dados fictícios antes de corrigir. Não confundir esta pendência com os contadores de pessoas corrigidos nesta etapa.
+
 ## Decisão pendente — cancelar versus eliminar sessões
 
 O utilizador pretende rever a distinção entre **cancelar** e **eliminar**, considerando conservar a sessão com estado **Cancelada** no histórico. Atualmente `GameSessionService.CancelSessionAsync` chama `GameSessionRepository.DeleteAsync`; `GameSessionController.Cancel` devolve 204 e o detalhe deixa de existir. No frontend, `GameSessionDetailScreen.handleCancel` usa essa operação e regressa à lista. Impacto: perde-se o histórico da sessão e dos respetivos convites. Antes de implementar, decidir retenção e visibilidade no histórico, permissões para eliminar, efeitos nos convites/partidas associadas e coerência com o cancelamento automático. **Decisão registada; nenhuma alteração de comportamento nesta etapa.** Validar futuramente com HTTP/SQL isolado, incluindo sessões com partidas e acesso dos participantes.

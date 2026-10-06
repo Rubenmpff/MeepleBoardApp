@@ -12,8 +12,8 @@ import { SESSION_STATUS_COLORS } from "@/src/styles/statusColors";
 import { useTranslation } from "react-i18next";
 import ScreenLayout from "@/src/components/ui/ScreenLayout";
 import ScreenState from "@/src/components/ui/ScreenState";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
+import { useMemo, useState, useCallback } from "react";
 import { View, Text, ActivityIndicator, RefreshControl, StyleSheet, Alert, ScrollView, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
@@ -24,6 +24,7 @@ import RegisterMatchForm from "@/src/features/games/matches/components/RegisterM
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import { RootState } from "@/src/store/store";
+import SessionAttendance from "../components/SessionAttendance";
 import SessionInvitations from "../components/SessionInvitations";
 export default function GameSessionDetailScreen() {
   const { t, i18n } = useTranslation("matches");
@@ -51,7 +52,7 @@ export default function GameSessionDetailScreen() {
       setRefreshing(false);
     }
   }, [id]);
-  useEffect(() => { fetchSession(); }, [fetchSession]);
+  useFocusEffect(useCallback(() => { void fetchSession(); }, [fetchSession]));
   /* ── Derived ── */
   const isOrganizer = session?.organizerId === currentUser?.id;
   const isActive    = session?.status === "Active";
@@ -178,26 +179,6 @@ export default function GameSessionDetailScreen() {
           <InfoRow icon="timer" text={t(session?.responseDeadline ? "sessions.replyBy" : "sessions.replyByStart", { date: deadlineLabel })} color={COLORS.secondary} />
         )}
         <InfoRow icon="person" text={t("sessions.organizer", { name: session.organizerUserName })} />
-        {/* Confirmações */}
-        {!isCancelled && !isClosed && (
-          <View style={styles.confirmBar}>
-            <Text style={styles.confirmText}>
-              {t("sessions.confirmed", { accepted: session.acceptedGuestCount ?? 0, total: (session.players?.length ?? 1) - 1 })}
-            </Text>
-            <View style={styles.confirmDots}>
-              {session.players?.filter((p) => !p.isOrganizer).map((p) => (
-                <View
-                  key={p.userId}
-                  style={[
-                    styles.confirmDot,
-                    normalizeInviteStatus(p.status) === "Accepted" && styles.confirmDotAccepted,
-                    normalizeInviteStatus(p.status) === "Declined" && styles.confirmDotDeclined,
-                  ]}
-                />
-              ))}
-            </View>
-          </View>
-        )}
       </View>
       {/* ── Responder convite ── */}
       {isPending && (
@@ -252,11 +233,10 @@ export default function GameSessionDetailScreen() {
         </View>
       )}
       {/* ── Participantes ── */}
-      {isOrganizer && isUpcoming && (
-        <SessionInvitations session={session} onInvited={() => fetchSession({ silent: true })} />
-      )}
       <View style={styles.card}>
-        <SectionTitle icon="people" label={t("sessions.participants")} />
+        <SectionTitle icon="people" label={t("sessions.who")} />
+        <SessionAttendance players={session.players ?? []} />
+        {isOrganizer && isUpcoming && <SessionInvitations session={session} />}
         {session.players?.map((p) => {
           const status = normalizeInviteStatus(p.status);
           return (
