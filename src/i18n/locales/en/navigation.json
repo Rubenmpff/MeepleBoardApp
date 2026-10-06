@@ -17,5 +17,20 @@
   "personal": "Personal",
   "travel": "Travel",
   "business": "Business",
-  "logout": "Log out"
+  "logout": "Log out",
+  "rankings": "Rankings",
+  "pendingJournal": "Pending reviews",
+  "back": "Back",
+  "openMenu": "Open menu",
+  "tabs": {
+    "more": "More",
+    "home": "Home",
+    "register": "Register",
+    "library": "Library",
+    "friends": "Friends"
+  },
+  "startup": {
+    "loading": "Preparing MeepleBoard…",
+    "redirecting": "Checking your session…"
+  }
 }

@@ -11,7 +11,8 @@ import {
   useRouter,
 } from "expo-router";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { useTranslation } from "react-i18next";
 import { APP_THEME } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 
@@ -40,6 +41,7 @@ export default function ScreenHeader({
   leftAccessibilityLabel,
   rightAccessibilityLabel,
 }: Props) {
+  const { t } = useTranslation("navigation");
   const router = useRouter();
   const navigation = useNavigation();
 
@@ -81,8 +83,8 @@ export default function ScreenHeader({
         accessibilityRole="button"
         accessibilityLabel={
           leftAccessibilityLabel ?? (mode === "back"
-            ? "Voltar"
-            : "Abrir menu")
+            ? t("back")
+            : t("openMenu"))
         }
       >
         <Ionicons
@@ -108,7 +110,7 @@ export default function ScreenHeader({
         {!!subtitle && (
           <Text
             style={[styles.subtitle, appearance === "refresh" && UI_STYLES.muted]}
-            numberOfLines={2}
+            numberOfLines={appearance === "refresh" ? undefined : 2}
           >
             {subtitle}
           </Text>

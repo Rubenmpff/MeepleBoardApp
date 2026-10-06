@@ -72,9 +72,47 @@ Os testes usam os hooks existentes com serviços simulados e o serviço de auten
 
 O antigo botão de falha da confirmação dizia «Tentar novamente», mas já navegava para `/welcome`; o novo rótulo descreve esse mesmo destino. Não foi acrescentada uma repetição da confirmação. No iPhone falta validar teclado/autopreenchimento, texto ampliado, navegação por links recebidos, mensagens/toasts, reenvio e sessão após fechar a aplicação.
 
-## Ecrãs e elementos fora dos cinco grupos revistos
+## Rankings e navegação global — revisão final
 
-`src/features/games/catalog/screens/RankingsScreen.tsx` ainda usa os estilos e o cabeçalho anteriores e não foi incluído nesta etapa de autenticação. Os estados transitórios de arranque/redirecionamento em `src/app/index.tsx` e `src/app/_layout.tsx` também não foram redesenhados. O drawer (`src/components/drawer/CustomDrawerContent.tsx`) e a navegação global por separadores (`src/app/(app)/(tabs)/_layout.tsx`) ficaram fora das alterações destes grupos; por exemplo, os rótulos dos separadores continuam fixos em português. Componentes sem chamador, como `WhatCanWePlayModal`, não representam ecrãs disponíveis e não foram ativados.
+| ID | Ficheiros envolvidos | Evidência e impacto | Validação necessária |
+| --- | --- | --- | --- |
+| N01 | `src/features/games/catalog/screens/RankingsScreen.tsx` | `loadPage` não identifica nem cancela pedidos anteriores. Uma resposta do separador Geral pode substituir a lista depois de mudar para Minha, ou uma página antiga pode ser acrescentada à lista entretanto alterada. Confirmado na ausência de proteção e nas atualizações de estado; a ocorrência depende da ordem das respostas. A apresentação explícita de erro/repetição acrescentada nesta revisão não resolve esta concorrência. | Alternar Geral/Minha rapidamente e durante a paginação, com latências invertidas; comparar o separador, jogos e escalas apresentados com o pedido correspondente. Validar numa correção funcional separada. |
+| A08 | `src/components/drawer/CustomDrawerContent.tsx`; `src/features/auth/store/authSlice.ts`; `src/services/tokenService.ts`; `src/services/api.ts` | O logout do menu apenas despacha `logout()` e redireciona. O reducer elimina chaves persistidas e o estado Redux, mas não chama `tokenService.clearAll()`, que limpa `temporaryAccessToken`. `getValidToken` dá prioridade ao token temporário. Está confirmado que este caminho não limpa essa memória; a possibilidade de um pedido posterior continuar autenticado exige reproduzir uma sessão temporária ainda válida. Não foi alterado pelo redesign. | Entrar sem «Lembrar-me», sair pelo menu e observar pedidos pendentes/subsequentes numa conta e ambiente de teste, sem expor tokens. Comparar com o logout em Definições; verificar armazenamento, memória, cache e troca de contas em conjunto com A02/F03. |
+
+### Ajustes visuais e limites
+
+Rankings reutiliza cabeçalho, cartões, tipografia e `ScreenState`; mantém endpoints, página de 20 jogos, posição, escala MB/10, escala BGG, avaliações pessoais (incluindo zero) e destino do jogo. Falhas deixam de parecer listas vazias e podem repetir o mesmo pedido, sem alterar o serviço. Esta recuperação visual não resolve N01.
+
+O arranque e a verificação de sessão reutilizam `StartupState`, o logótipo existente e mensagens PT/EN. Bootstrap, SecureStore, renovação, limpeza de sessão e parsing de links não foram alterados: A02/A05/A06 continuam abertas. O menu mantém identidade e contagem reais, destinos e logout, com áreas seguras e controles maiores. A seleção visual de Campanhas compara o caminho público sem o grupo `(app)`, preservando o destino original. Os quatro separadores, «Mais», swipe, eventos `tabPress`, bloqueio de swipe com teclado, lazy loading e estrutura de stacks/drawer foram preservados; os rótulos passaram a PT/EN e podem ocupar várias linhas.
+
+## Cobertura da revisão visual
+
+A auditoria dos imports a partir das rotas encontrou **33 entradas de rota** (incluindo aliases e arranque) e **29 implementações de ecrãs** em `features`. Não encontrou outro ecrã ativo fora dos grupos anteriores e desta etapa. Os stacks sem cabeçalho próprio mantêm a configuração existente. Nesta revisão foram ainda alinhadas as cores dos seletores de jogos/expansões, do indicador de presença e dos cabeçalhos partilhados; títulos/subtítulos revistos deixam espaço para texto ampliado. O significado das cores de estados, modos e resultados foi mantido.
+
+`src/features/library/components/GameCard.tsx` e `src/features/friends/components/WhatCanWePlayModal.tsx` não são alcançados pelos imports das rotas atuais. Continuam sem ativação e precisarão de revisão se passarem a ser utilizados. Não representam ecrãs disponíveis por testar. As funcionalidades incompletas identificadas em C01/P01/A07 continuam por implementar; nenhum novo fluxo foi criado.
+
+Falta **validação visual e funcional nativa de todos os grupos no iPhone**, especialmente texto ampliado, ecrã pequeno, teclado, áreas seguras, competição entre gestos do drawer/pager, fotografias, seletores nativos e navegação por links. A inspeção de código e os testes simulados não equivalem a essa validação.
+
+## Ordem proposta para correções funcionais
+
+A prioridade considera impacto potencial; não afirma que riscos dependentes de execução ou do contrato .NET já tenham sido reproduzidos. A pontuação individual corrigida anteriormente é distinta das avaliações do diário e dos resultados/modos ainda pendentes.
+
+| Ordem | Impacto | Pendências e ação de validação prioritária |
+| --- | --- | --- |
+| 1 | **Dados incorretos guardados / criação parcial** | C02: rascunho de outro encontro; C05: associação falhada e possível repetição de partidas. Reproduzir apenas numa base de dados de teste e confirmar atomicidade/idempotência .NET. Não está confirmada eliminação de partidas existentes. |
+| 2 | **Autenticação e privacidade entre contas** | A08: token temporário após logout; A02: persistência contrária a «Lembrar-me»; F03: cache sem identidade; D01: privacidade pode ser substituída pela resposta inicial. C10 exige confirmar permissões reais; a presença de controles no frontend não prova autorização indevida no backend. |
+| 3 | **Registo de partidas e resultados** | S01: solo dentro da sessão pode falhar; M01/C03: modo/resultado cooperativo não preservado; C04: vencedor ausente/solo com vários jogadores. Validar pedidos e leitura .NET sem modificar as regras no redesign. |
+| 4 | **Avaliações e acesso à sessão** | M02: meios pontos arredondados no envio; M03: zero tratado como não submetido; A06: falha de renovação pode terminar sessão; A05: descodificação dos links. Confirmar escala do modelo, expiração e URLs reais de teste. |
+| 5 | **Ações concorrentes e entrada/recuperação** | C08/F02: ações repetidas; A01: tratamento diferente da palavra-passe; A04: reenvio desaparece; A03: limite diário não demonstrado pelo contador local. Verificar regras e proteções .NET antes de corrigir. |
+| 6 | **Resultados desatualizados ou acesso bloqueado** | N01/F01: respostas fora de ordem; S02: partidas não recarregadas; F04: carregamento sem parâmetros; F05: falha parcial impede coleção; F06/S03: falha pouco visível; D02: preferência pode divergir do idioma. |
+| 7 | **Parâmetros, datas e avisos** | C06: nomes com vírgulas/parsing de percentagem; C07: dias UTC versus locais; C09: suporte a campanha/foco; S04: prazo inicial passado. C06 pode bloquear o encontro ou desalinhar nomes/IDs, devendo subir de prioridade se reproduzido com os dados reais. |
+| 8 | **Decisões de produto por esclarecer** | C01/P01/A07: envio de convites, conteúdo do perfil, estatísticas gerais, bloqueio, autenticação social e documentos de consentimento. Não iniciar estas funcionalidades durante a consolidação visual. |
+
+### Verificações desta revisão final
+
+TypeScript sem erros; **122 testes automatizados aprovados**, incluindo 15 nesta revisão; exportação iOS concluída; `git diff --check` sem problemas. Backend e base de dados não foram alterados. A validação visual no iPhone/Expo Go permanece pendente.
+
+Os testes isolados cobrem endpoints e paginação dos rankings, leitura de zero, estados de erro e repetição, destinos e contagens reais do menu, ação de logout existente, PT/EN, estados de arranque, redirecionamento com/sem sessão, eventos canceláveis dos separadores e bloqueio/limpeza dos listeners do teclado. Não contactam a API, não escrevem na base de dados nem no SecureStore real e não demonstram a resolução de N01/A08 ou das pendências anteriores. A validação visual no dispositivo está pendente.
 
 ## Limites da validação desta etapa
 

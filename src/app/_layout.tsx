@@ -2,7 +2,6 @@ import "@/src/i18n";
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   StyleSheet,
   View,
 } from "react-native";
@@ -15,7 +14,7 @@ import {
   useDispatch,
 } from "react-redux";
 
-import { COLORS } from "@/src/constants/colors";
+import StartupState from "@/src/components/ui/StartupState";
 import { setToken } from "@/src/features/auth/store/authSlice";
 import { initializeLanguage } from "@/src/i18n";
 import { store } from "@/src/store/store";
@@ -168,12 +167,7 @@ export default function RootLayout() {
       {isAppReady ? (
         <AppContent />
       ) : (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            size="large"
-            color={COLORS.primary}
-          />
-        </View>
+        <StartupState />
       )}
     </Provider>
   );
@@ -182,11 +176,5 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: COLORS.background,
   },
 });

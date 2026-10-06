@@ -10,7 +10,7 @@ const i18next = require('i18next');
 const root = path.resolve(__dirname, '../..');
 
 async function renderNative(source, exportName, props = {}, options = {}) {
-  const resources = Object.fromEntries(['pt', 'en'].map(lang => [lang, Object.fromEntries(['games', 'library', 'common', 'matches', 'campaigns', 'friends', 'settings', 'auth'].map(ns => [ns,
+  const resources = Object.fromEntries(['pt', 'en'].map(lang => [lang, Object.fromEntries(['games', 'library', 'common', 'matches', 'campaigns', 'friends', 'settings', 'auth', 'navigation'].map(ns => [ns,
     JSON.parse(fs.readFileSync(path.join(root, `src/i18n/locales/${lang}/${ns}.json`), 'utf8')),
   ]))]));
   const i18n = i18next.createInstance();
@@ -30,7 +30,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     Modal: p => p.visible ? React.createElement(host, p) : null,
     TextInput: p => { inputs.push(p); return null; }, TouchableOpacity: button, Pressable: button,
     RefreshControl: () => null, Alert: { alert: (...args) => calls.push(['alert', ...args]) },
-    Keyboard: { dismiss: () => calls.push(['dismissKeyboard']) },
+    Keyboard: { dismiss: () => calls.push(['dismissKeyboard']), addListener: (name, callback) => { calls.push(['keyboardListener', name, callback]); return { remove: () => calls.push(['removeKeyboardListener', name]) }; } },
     useWindowDimensions: () => ({ width: options.width || 390, fontScale: options.fontScale || 1 }),
     StyleSheet: { create: v => v, hairlineWidth: 1, absoluteFill: {} },
     Animated: { Value: class { constructor(value) { this.value = value; } }, spring: () => ({ start() {} }), timing: () => ({ start() {} }), View: host },
@@ -54,12 +54,19 @@ async function renderNative(source, exportName, props = {}, options = {}) {
       },
     },
     'react-native': native,
-    'react-native-safe-area-context': { SafeAreaView: host, useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) },
-    '@expo/vector-icons': { MaterialIcons: () => null, Ionicons: () => null, AntDesign: () => null, Feather: () => null },
+    'react-native-safe-area-context': { SafeAreaView: p => { nativeViews.push(['safeArea', p]); return React.createElement(host, p); }, useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) },
+    '@expo/vector-icons': { MaterialIcons: () => null, MaterialCommunityIcons: () => null, Ionicons: () => null, AntDesign: () => null, Feather: () => null },
     'expo-image': { Image: () => null },
-    'expo-router': { router, useRouter: () => router, useNavigation: () => ({ openDrawer: () => routes.push('menu') }), useLocalSearchParams: () => options.params || ({ id: 'game-id' }), useFocusEffect() {} },
+    'expo-router': { router, useRouter: () => router, usePathname: () => options.pathname || '/dashboard', useNavigation: () => ({ openDrawer: () => routes.push('menu') }), useLocalSearchParams: () => options.params || ({ id: 'game-id' }), useFocusEffect() {},
+      withLayoutContext: () => {
+        const Tabs = p => { calls.push(['tabs', p]); return React.createElement(host, null, p.tabBar(options.tabProps), p.children); };
+        Tabs.Screen = () => null;
+        return Tabs;
+      },
+    },
+    'expo-router/js-top-tabs': { createMaterialTopTabNavigator: () => ({ Navigator: host }) },
     'react-i18next': { useTranslation: ns => ({ t: (key, opts) => i18n.t(key, { ns, ...opts }), i18n }) },
-    'react-redux': { useSelector: fn => fn({ auth: { user: { id: 'me' } }, library: { items: options.library || [] } }), useDispatch: () => action => calls.push(['dispatch', action]) },
+    'react-redux': { useSelector: fn => fn({ auth: { user: options.user || { id: 'me' } }, library: { items: options.library || [] } }), useDispatch: () => action => calls.push(['dispatch', action]) },
     'react-native-toast-message': { __esModule: true, default: { show: p => calls.push(['toast', p]) } },
     'expo-haptics': { impactAsync: async () => {}, ImpactFeedbackStyle: {} },
     'lottie-react-native': { __esModule: true, default: () => null },
@@ -70,9 +77,11 @@ async function renderNative(source, exportName, props = {}, options = {}) {
       launchImageLibraryAsync: async () => { calls.push(['pickPhoto']); return options.photoResult || { canceled: true }; },
     },
   };
+  if (options.isolateAuth) mocks['@/src/features/auth/store/authSlice'] = { logout: () => ({ type: 'auth/logout' }) };
   const hooks = {
     useUserLibrary: () => ({ library: options.library || [], loading: !!options.loading, error: options.error, refetch: async () => calls.push(['refetch']) }),
     usePlayedGames: () => ({ playedGames: options.playedGames || [], loading: false }),
+    usePendingJournal: () => ({ count: options.pendingJournalCount || 0 }),
     useLibraryActions: () => ({ loading: false, updateGame: async (...args) => calls.push(['updateGame', ...args]), removeGame: async (...args) => calls.push(['removeGame', ...args]), addGame: async (...args) => calls.push(['addGame', ...args]) }),
     useViewModePreference: () => ({ viewMode: options.viewMode || 'grid', setViewMode: value => calls.push(['viewMode', value]) }),
     useGameSuggestions: () => ({ suggestions: options.suggestions || [], loading: !!options.loading, error: options.error, hasMore: true, fetchSuggestions: async (...args) => calls.push(['fetchSuggestions', ...args]), resetSuggestions() {} }),
@@ -112,7 +121,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
           if (result instanceof Error) throw result;
           return result;
         }]));
-        return { __esModule: true, ...services, authService: services, default: {
+        return { __esModule: true, ...services, authService: services, tokenService: services, default: {
         getById: async id => { calls.push(['getById', id]); return options.game || null; },
         getHistoryByGame: async id => { calls.push(['getHistoryByGame', id]); return []; },
         getUserRatingForGame: async () => null,

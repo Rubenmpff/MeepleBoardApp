@@ -19,7 +19,9 @@ import {
 } from "expo-router/js-top-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
+import { useTranslation } from "react-i18next";
 
 const { Navigator } =
   createMaterialTopTabNavigator();
@@ -41,19 +43,19 @@ const TAB_META: Record<
   }
 > = {
   "(home)": {
-    label: "Início",
+    label: "tabs.home",
     icon: "home-filled",
   },
   "(register)": {
-    label: "Registar",
+    label: "tabs.register",
     icon: "add",
   },
   "(library)": {
-    label: "Biblioteca",
+    label: "tabs.library",
     icon: "casino",
   },
   "(friends)": {
-    label: "Amigos",
+    label: "tabs.friends",
     icon: "people-alt",
   },
 };
@@ -143,6 +145,7 @@ function MainBottomBar({
   state,
   navigation,
 }: any) {
+  const { t } = useTranslation("navigation");
   const insets =
     useSafeAreaInsets();
 
@@ -218,7 +221,7 @@ function MainBottomBar({
         }
       >
         <BottomItem
-          label="Mais"
+          label={t("tabs.more")}
           icon="menu"
           active={false}
           onPress={
@@ -253,7 +256,7 @@ function MainBottomBar({
             <BottomItem
               key={name}
               label={
-                meta.label
+                t(meta.label)
               }
               icon={
                 meta.icon
@@ -342,9 +345,6 @@ function BottomItem({
           emphasized &&
             styles.registerLabel,
         ]}
-        numberOfLines={
-          1
-        }
       >
         {label}
       </Text>
@@ -358,8 +358,8 @@ const styles =
       backgroundColor:
         COLORS.background,
       paddingHorizontal:
-        12,
-      paddingTop: 6,
+        8,
+      paddingTop: 8,
     },
 
     container: {
@@ -374,7 +374,7 @@ const styles =
       backgroundColor:
         COLORS.card,
 
-      borderRadius: 24,
+      borderRadius: 20,
 
       paddingHorizontal:
         4,
@@ -399,6 +399,9 @@ const styles =
     },
 
     item: {
+      ...UI_STYLES.control,
+      minHeight: 64,
+      paddingVertical: 4,
       flex: 1,
       minWidth: 0,
       alignItems:
@@ -419,7 +422,7 @@ const styles =
 
     iconWrapActive: {
       backgroundColor:
-        `${COLORS.primary}12`,
+        COLORS.primarySoft,
     },
 
     registerWrap: {
@@ -432,8 +435,11 @@ const styles =
 
     label: {
       marginTop: 2,
-      fontSize: 10,
-      lineHeight: 12,
+      ...UI_STYLES.caption,
+      textAlign: "center",
+      alignSelf: "stretch",
+      fontSize: 12,
+      lineHeight: 17,
       fontWeight:
         "600",
       color:

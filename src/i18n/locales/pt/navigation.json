@@ -17,5 +17,20 @@
   "personal": "Pessoal",
   "travel": "Viagens",
   "business": "Negócios",
-  "logout": "Terminar sessão"
+  "logout": "Terminar sessão",
+  "rankings": "Rankings",
+  "pendingJournal": "Avaliações pendentes",
+  "back": "Voltar",
+  "openMenu": "Abrir menu",
+  "tabs": {
+    "more": "Mais",
+    "home": "Início",
+    "register": "Registar",
+    "library": "Biblioteca",
+    "friends": "Amigos"
+  },
+  "startup": {
+    "loading": "A preparar o MeepleBoard…",
+    "redirecting": "A verificar a sessão…"
+  }
 }

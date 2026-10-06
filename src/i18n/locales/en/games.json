@@ -113,5 +113,15 @@
       "most_known": "Most known",
       "year_desc": "Newest year"
     }
+  },
+  "rankings": {
+    "title": "Game rankings",
+    "subtitle": "Sorted by the average MeepleBoard community rating",
+    "subtitleMine": "Sorted by your own ratings",
+    "tabGeneral": "Overall",
+    "tabMine": "Mine",
+    "empty": "No games have been rated yet. Review a match in the journal!",
+    "emptyMine": "You have not rated any games yet. Review a match in the journal!",
+    "loadError": "Unable to load the rankings."
   }
 }

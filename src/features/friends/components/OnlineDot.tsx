@@ -8,7 +8,7 @@
 
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 
 export default function OnlineDot({ size = 13 }: { size?: number }) {
   return <View style={[styles.dot, { width: size, height: size, borderRadius: size / 2 }]} />;

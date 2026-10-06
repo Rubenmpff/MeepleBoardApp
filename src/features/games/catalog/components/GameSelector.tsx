@@ -15,7 +15,7 @@ import debounce from "lodash.debounce";
 import LottieView from "lottie-react-native";
 import { useTranslation } from "react-i18next";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { useGameSearch } from "../hooks/useGameSearch";
 import { useGameSuggestions } from "../hooks/useGameSuggestions";
 import { Game } from "../types/Game";

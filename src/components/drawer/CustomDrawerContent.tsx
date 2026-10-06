@@ -1,8 +1,6 @@
 import React from "react";
 import {
-  Platform,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -19,7 +17,8 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_STYLES } from "@/src/styles/uiStyles";
 import { ROUTES } from "@/src/constants/routes";
 import { RootState } from "@/src/store/store";
 import { logout } from "@/src/features/auth/store/authSlice";
@@ -73,7 +72,7 @@ const CustomDrawerContent: React.FC<
   return (
     <SafeAreaView
       style={styles.container}
-      edges={["top", "left", "right"]}
+      edges={["top", "left", "right", "bottom"]}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -83,6 +82,8 @@ const CustomDrawerContent: React.FC<
       >
         {/* ── Cabeçalho: identidade do jogador ── */}
         <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={t("profile")}
           style={styles.profileHeader}
           onPress={() =>
             router.push(ROUTES.PROFILE)
@@ -98,7 +99,7 @@ const CustomDrawerContent: React.FC<
           <View style={{ flex: 1 }}>
             <Text
               style={styles.profileName}
-              numberOfLines={1}
+              numberOfLines={undefined}
             >
               {user?.userName ?? t("welcome")}
             </Text>
@@ -106,7 +107,7 @@ const CustomDrawerContent: React.FC<
             {!!user?.email && (
               <Text
                 style={styles.profileEmail}
-                numberOfLines={1}
+                numberOfLines={undefined}
               >
                 {user.email}
               </Text>
@@ -167,7 +168,7 @@ const CustomDrawerContent: React.FC<
               defaultValue: "Campanhas",
             }),
             "book-open-page-variant-outline",
-            pathname === ROUTES.CAMPAIGNS,
+            pathname === ROUTES.CAMPAIGNS.replace("/(app)", ""),
             () =>
               router.push(ROUTES.CAMPAIGNS)
           )}
@@ -212,6 +213,8 @@ const CustomDrawerContent: React.FC<
 
       <View style={styles.footer}>
         <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={t("logout")}
           onPress={handleLogout}
           style={styles.logoutBtn}
           activeOpacity={0.85}
@@ -247,6 +250,9 @@ function renderMenuItem(
           styles.menuItemActive,
       ]}
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: isActive, disabled: !onPress }}
       disabled={!onPress}
       activeOpacity={onPress ? 0.8 : 1}
     >
@@ -255,7 +261,7 @@ function renderMenuItem(
         size={20}
         color={
           isActive
-            ? "#FFFFFF"
+            ? COLORS.primary
             : COLORS.onBackground
         }
       />
@@ -290,7 +296,7 @@ function renderMenuItem(
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.card,
+    backgroundColor: COLORS.background,
   },
 
   scrollContent: {
@@ -301,15 +307,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    paddingHorizontal: 20,
-    paddingTop:
-      Platform.OS === "android"
-        ? StatusBar.currentHeight ?? 24
-        : 24,
-    paddingBottom: 20,
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    ...UI_STYLES.card,
+    padding: 16,
+    margin: 16,
   },
 
   avatar: {
@@ -328,48 +328,48 @@ const styles = StyleSheet.create({
   },
 
   profileName: {
-    fontSize: 16,
+    ...UI_STYLES.body,
     fontWeight: "700",
     color: COLORS.onBackground,
   },
 
   profileEmail: {
-    fontSize: 12,
+    ...UI_STYLES.caption,
     color: COLORS.textMuted,
     marginTop: 1,
   },
 
   menuBox: {
+    ...UI_STYLES.card,
     backgroundColor: COLORS.card,
     marginHorizontal: 16,
     marginBottom: 16,
-    borderRadius: 12,
-    padding: 10,
-    ...shadow(2),
+    padding: 8,
   },
 
   menuItem: {
+    ...UI_STYLES.control,
+    minHeight: 52,
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 4,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    borderRadius: 8,
   },
 
   menuItemActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primarySoft,
   },
 
   menuText: {
     marginLeft: 14,
-    fontSize: 15,
+    ...UI_STYLES.body,
     flex: 1,
     color: COLORS.onBackground,
   },
 
   menuTextActive: {
-    color: "#FFFFFF",
+    color: COLORS.primary,
     fontWeight: "600",
   },
 
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   },
 
   badgeOnActive: {
-    backgroundColor: "#FFFFFF33",
+    backgroundColor: COLORS.primary,
   },
 
   badgeTxt: {
@@ -400,33 +400,20 @@ const styles = StyleSheet.create({
   },
 
   logoutBtn: {
+    ...UI_STYLES.button,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.primary,
-    padding: 12,
-    borderRadius: 10,
+    backgroundColor: COLORS.error,
     justifyContent: "center",
   },
 
   logoutTxt: {
+    ...UI_STYLES.body,
     color: "#FFFFFF",
     marginLeft: 10,
     fontWeight: "600",
   },
 });
 
-function shadow(elevation: number) {
-  return Platform.OS === "android"
-    ? { elevation }
-    : {
-        shadowColor: "#000000",
-        shadowOpacity: 0.08,
-        shadowRadius: 6,
-        shadowOffset: {
-          width: 0,
-          height: 3,
-        },
-      };
-}
 
 export default CustomDrawerContent;

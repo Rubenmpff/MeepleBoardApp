@@ -1,8 +1,7 @@
 // /app/index.tsx
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import { View, ActivityIndicator } from "react-native";
-import { COLORS } from "../constants/colors";
+import StartupState from "@/src/components/ui/StartupState";
 import { ROUTES } from "../constants/routes";
 import { tokenService } from "../services/tokenService";
 
@@ -40,9 +39,7 @@ export default function IndexPage() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
+      <StartupState redirecting />
     );
   }
 

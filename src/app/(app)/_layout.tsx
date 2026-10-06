@@ -7,7 +7,7 @@ import { useRouter } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 
 import CustomDrawerContent from "@/src/components/drawer/CustomDrawerContent";
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 
 type RemovableSubscription = {
   remove: () => void;

@@ -113,5 +113,15 @@
       "most_known": "Mais conhecidos",
       "year_desc": "Ano mais recente"
     }
+  },
+  "rankings": {
+    "title": "Rankings de jogos",
+    "subtitle": "Ordenado pela avaliação média da comunidade MeepleBoard",
+    "subtitleMine": "Ordenado pelas tuas próprias avaliações",
+    "tabGeneral": "Geral",
+    "tabMine": "Minha",
+    "empty": "Ainda não há jogos avaliados. Avalia uma partida no diário!",
+    "emptyMine": "Ainda não avaliaste nenhum jogo. Avalia uma partida no diário!",
+    "loadError": "Não foi possível carregar os rankings."
   }
 }

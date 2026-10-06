@@ -12,7 +12,7 @@ import {
 import { useTranslation } from "react-i18next";
 import Toast from "react-native-toast-message";
 
-import { COLORS } from "@/src/constants/colors";
+import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import gameService from "../services/gameService";
 import { Game } from "../types/Game";
 import { GameSuggestion } from "../types/GameSuggestion";
