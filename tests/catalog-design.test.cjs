@@ -36,7 +36,7 @@ test('Library error is not displayed as an empty collection and retry uses exist
   const error = await renderNative(libraryScreen, 'default', {}, { error: 'Network error' });
   assert.ok(!error.html.includes('A tua coleção está vazia'));
   await error.press('Tentar novamente');
-  assert.deepEqual(error.calls, [['refetch']]);
+  assert.deepEqual(error.calls, [['refetch'], ['refetchPlayed']]);
   const empty = await renderNative(libraryScreen, 'default', {}, { language: 'en' });
   assert.ok(empty.html.includes('Your collection is empty'));
   const loading = await renderNative(libraryScreen, 'default', {}, { loading: true });
@@ -115,7 +115,7 @@ test('Search translates offline and empty states; failed requests have a working
   const offline = await renderNative(searchScreen, 'default', {}, { states: { 0: 'Test' }, online: false, language: 'en' });
   assert.ok(offline.html.includes('No internet connection'));
   const error = await renderNative(searchScreen, 'default', {}, { states: { 0: 'Test' }, error: 'Network error', language: 'en' });
-  assert.ok(error.html.includes('The data could not be loaded.'));
+  assert.ok(error.html.includes('Unable to communicate with the catalogue.'));
   assert.ok(!error.html.includes(error.i18n.t('search.empty', { ns: 'games' })));
   await error.press('Try again');
   assert.deepEqual(error.calls, [['fetchSuggestions', 'test', true]]);

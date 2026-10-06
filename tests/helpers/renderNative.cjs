@@ -83,7 +83,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
   if (options.isolateAuth) mocks['@/src/features/auth/store/authSlice'] = { logout: () => ({ type: 'auth/logout' }) };
   const hooks = {
     useUserLibrary: () => ({ library: options.library || [], loading: !!options.loading, error: options.error, refetch: async () => calls.push(['refetch']) }),
-    usePlayedGames: () => ({ playedGames: options.playedGames || [], loading: false }),
+    usePlayedGames: () => ({ playedGames: options.playedGames || [], loading: !!options.playedLoading, error: options.playedError, refetch: async () => calls.push(['refetchPlayed']) }),
     usePendingJournal: () => ({ count: options.pendingJournalCount || 0 }),
     useLibraryActions: () => ({ loading: false, updateGame: async (...args) => calls.push(['updateGame', ...args]), removeGame: async (...args) => calls.push(['removeGame', ...args]), addGame: async (...args) => calls.push(['addGame', ...args]) }),
     useViewModePreference: () => ({ viewMode: options.viewMode || 'grid', setViewMode: value => calls.push(['viewMode', value]) }),

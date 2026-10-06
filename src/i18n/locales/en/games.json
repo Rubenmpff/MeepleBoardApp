@@ -1,5 +1,6 @@
 {
   "search": {
+    "communicationError": "Unable to communicate with the catalogue. Check your connection and try again.",
     "placeholder": "🔍 Search for a board game…",
     "searching": "🔍 Searching…",
     "empty": "No games found for this search.",

@@ -1,5 +1,6 @@
 {
   "search": {
+    "communicationError": "Não foi possível comunicar com o catálogo. Verifica a ligação e tenta novamente.",
     "placeholder": "🔍 Pesquisar um jogo de tabuleiro…",
     "searching": "🔍 A procurar…",
     "empty": "Não foram encontrados jogos para esta pesquisa.",

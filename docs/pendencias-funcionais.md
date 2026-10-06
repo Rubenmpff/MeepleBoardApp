@@ -1,5 +1,9 @@
 # Pendências funcionais do MeepleBoard
 
+## Atualização — pesquisa no ambiente descartável
+
+Ver [pesquisa-validacao-iphone.md](pesquisa-validacao-iphone.md). Corrigidos os tokens em falta dos três jogos fictícios do catálogo e a ocultação de falhas ao carregar jogos jogados na Biblioteca. Carregamento, ausência de resultados e falha de comunicação têm verificação PT/EN. O BGG permanece simulado; jogos reais ausentes devolvem listas vazias legítimas. SQL confirmou os tokens e uma entrada fictícia «Meeple Teste Solo» com preço 0 para o autor. UPD01/JRN01 permanecem abertas, sem avanço para criação/registo antes da confirmação no iPhone.
+
 ## Atualização — ambiente descartável (6 de outubro de 2026)
 
 Ver [ambiente-teste-iphone.md](ambiente-teste-iphone.md). As afirmações anteriores sobre ausência de migrações/SQL descrevem etapas anteriores: nesta etapa foram aplicadas 23 migrações exclusivamente à base descartável. A base habitual permanece intocada. SC01 está resolvida no modelo, snapshot e esquema de testes; falta verificar/deployar no ambiente habitual. PR02 (fotografias públicas antigas) continua aberta. Preços da Biblioteca e permissões foram agora verificados com SQL real.

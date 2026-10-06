@@ -1583,7 +1583,7 @@ export default function GameSearchScreen() {
       )}
 
     {suggestionsError && isOnline && (
-      <ScreenState error message={t("ui.loadError")} retryLabel={t("ui.retry")} onRetry={() => { void handleRefresh(); }} />
+      <ScreenState error message={t("search.communicationError")} retryLabel={t("ui.retry")} onRetry={() => { void handleRefresh(); }} />
     )}
   </View>);
 

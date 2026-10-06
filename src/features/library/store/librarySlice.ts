@@ -145,6 +145,7 @@ type LibraryState = {
   error: string | null;
   playedGames: PlayedGame[];
   playedGamesLoading: boolean;
+  playedGamesError: string | null;
 };
 
 const initialState: LibraryState = {
@@ -153,6 +154,7 @@ const initialState: LibraryState = {
   error: null,
   playedGames: [],
   playedGamesLoading: false,
+  playedGamesError: null,
 };
 
 // --- Slice ---
@@ -204,13 +206,16 @@ const librarySlice = createSlice({
       })
       .addCase(fetchPlayedGames.pending, (state) => {
         state.playedGamesLoading = true;
+        state.playedGamesError = null;
       })
       .addCase(fetchPlayedGames.fulfilled, (state, action) => {
         state.playedGames = action.payload;
         state.playedGamesLoading = false;
+        state.playedGamesError = null;
       })
-      .addCase(fetchPlayedGames.rejected, (state) => {
+      .addCase(fetchPlayedGames.rejected, (state, action) => {
         state.playedGamesLoading = false;
+        state.playedGamesError = action.error.message ?? "Failed to load played games";
       });
   },
 });

@@ -51,7 +51,7 @@ export default function MyLibraryScreen() {
   const { t } = useTranslation("library");
   const { width, fontScale } = useWindowDimensions();
   const { library = [], loading, error, refetch } = useUserLibrary();
-  const { playedGames, loading: playedLoading } = usePlayedGames();
+  const { playedGames, loading: playedLoading, error: playedError, refetch: refetchPlayed } = usePlayedGames();
   const { removeGame, updateGame } = useLibraryActions();
   const { viewMode, setViewMode } = useViewModePreference();
 
@@ -149,7 +149,7 @@ export default function MyLibraryScreen() {
   async function onRefresh() {
     setRefreshing(true);
     try {
-      await refetch();
+      await Promise.all([refetch(), refetchPlayed()]);
     } finally {
       setRefreshing(false);
     }
@@ -177,6 +177,12 @@ export default function MyLibraryScreen() {
       />
 
       <CollectionSearchBar value={search} onChangeText={setSearch} />
+      {(error || playedError) && (
+        <SectionCard>
+          <Text style={styles.errorText} accessibilityRole="alert">{t("toast.loadErrorDescription")}</Text>
+          <PrimaryButton title={t("screen.retry")} onPress={() => { void onRefresh(); }} variant="secondary" />
+        </SectionCard>
+      )}
 
       <CollectionTabs active={activeTab} onChange={setActiveTab} />
 
@@ -217,12 +223,7 @@ export default function MyLibraryScreen() {
             <View accessibilityLabel={t("common:loading")} accessibilityState={{ busy: true }}>
               <CollectionSkeleton viewMode={viewMode} />
             </View>
-          ) : error ? (
-            <SectionCard>
-              <Text style={styles.errorText} accessibilityRole="alert">{t("toast.loadErrorDescription")}</Text>
-              <PrimaryButton title={t("screen.retry")} onPress={() => { void refetch(); }} variant="secondary" />
-            </SectionCard>
-          ) : (
+          ) : error || playedError ? null : (
             <CollectionEmptyState
               variant={emptyVariant as any}
               onActionPress={

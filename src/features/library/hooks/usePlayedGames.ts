@@ -10,15 +10,16 @@ export function usePlayedGames() {
 
   const playedGames = useSelector((state: RootState) => state.library.playedGames);
   const loading = useSelector((state: RootState) => state.library.playedGamesLoading);
+  const error = useSelector((state: RootState) => state.library.playedGamesError);
 
   const refetch = useCallback(() => {
     if (!user?.id) return;
-    dispatch(fetchPlayedGames(user.id) as any);
+    return dispatch(fetchPlayedGames(user.id) as any);
   }, [dispatch, user?.id]);
 
   useEffect(() => {
     refetch();
   }, [refetch]);
 
-  return { playedGames, loading, refetch };
+  return { playedGames, loading, error, refetch };
 }
