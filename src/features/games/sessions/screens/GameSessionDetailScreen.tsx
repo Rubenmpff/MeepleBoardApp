@@ -24,6 +24,7 @@ import RegisterMatchForm from "@/src/features/games/matches/components/RegisterM
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import { RootState } from "@/src/store/store";
+import SessionInvitations from "../components/SessionInvitations";
 export default function GameSessionDetailScreen() {
   const { t, i18n } = useTranslation("matches");
   const locale = i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB";
@@ -251,6 +252,9 @@ export default function GameSessionDetailScreen() {
         </View>
       )}
       {/* ── Participantes ── */}
+      {isOrganizer && isUpcoming && (
+        <SessionInvitations session={session} onInvited={() => fetchSession({ silent: true })} />
+      )}
       <View style={styles.card}>
         <SectionTitle icon="people" label={t("sessions.participants")} />
         {session.players?.map((p) => {

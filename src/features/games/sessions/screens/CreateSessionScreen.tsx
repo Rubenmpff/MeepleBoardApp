@@ -1,4 +1,5 @@
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
+import { ROUTES } from "@/src/constants/routes";
 /**
  * CreateSessionScreen.tsx
  *
@@ -7,7 +8,7 @@ import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
  *   - Local (opcional)
  *   - Data e hora da sessão (DatePicker nativo)
  *   - Data limite de resposta (opcional, tem de ser antes da sessão)
- *   - Convidar amigos (opcional)
+ *   - Convidar pelo menos um amigo (obrigatório; convite inicialmente pendente)
  */
 import { useTranslation } from "react-i18next";
 import ScreenLayout from "@/src/components/ui/ScreenLayout";
@@ -60,6 +61,7 @@ export default function CreateSessionScreen() {
   const navigationGuard = useUnsavedChanges(!!name || !!location || selectedIds.length > 0 || sessionDate.getTime() !== defaultSessionDate.getTime() || deadlineDate.getTime() !== defaultDeadline.getTime() || useDeadline, saving, "/games/sessions");
   // DatePicker state
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
+  const [inviteValidation, setInviteValidation] = useState(false);
   const showPicker = (target: PickerTarget) => setPickerTarget(target);
   const hidePicker = () => setPickerTarget(null);
   const onDateChange = (_event: DateTimePickerEvent, selected?: Date) => {
@@ -103,6 +105,11 @@ export default function CreateSessionScreen() {
   /* ── Submit ── */
   const handleSave = async () => {
     if (!canSave) return;
+    if (selectedIds.length === 0) {
+      setInviteValidation(true);
+      Alert.alert(t("sessions.friendRequired"));
+      return;
+    }
     setSaving(true);
     try {
       const created = await createSession({
@@ -116,9 +123,7 @@ export default function CreateSessionScreen() {
         navigationGuard.allowExit();
         Alert.alert(
           t("sessions.created"),
-          selectedIds.length > 0
-            ? t("sessions.inviteCount", { count: selectedIds.length })
-            : t("sessions.inviteLater"),
+          t("sessions.inviteCount", { count: selectedIds.length }),
           [{ text: "OK", onPress: () => router.replace(`/(app)/games/sessions/${created.id}`) }]
         );
       }
@@ -268,6 +273,9 @@ export default function CreateSessionScreen() {
             icon="people"
             label={t("sessions.inviteFriends") + (selectedIds.length ? ` (${selectedIds.length})` : "")}
           />
+          {inviteValidation && selectedIds.length === 0 && (
+            <Text accessibilityRole="alert" style={styles.fieldError}>{t("sessions.friendRequired")}</Text>
+          )}
           {friendsError ? (
             <View style={styles.emptyFriends}>
               <Text accessibilityRole="alert" style={styles.fieldError}>{friendsError}</Text>
@@ -281,6 +289,7 @@ export default function CreateSessionScreen() {
               <Text style={styles.emptyFriendsText}>
                 {t("sessions.noFriends")}
               </Text>
+              <PrimaryButton title={t("sessions.openFriends")} onPress={() => navigationGuard.discard(() => { navigationGuard.allowExit(); router.push(ROUTES.FRIENDS); })} />
             </View>
           ) : (
             <View>

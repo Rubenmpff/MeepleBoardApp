@@ -52,7 +52,7 @@ test('session creation preserves trimmed fields, ISO dates, deadline, invitation
   assert.deepEqual(view.calls.find(c => c[0] === 'createSession')[1], { name: 'Test session', location: 'Table', scheduledStartDate: future.toISOString(), responseDeadline: deadline.toISOString(), playerIds: ['other'] });
   await confirm(view);
   assert.deepEqual(view.routes[0], ['replace', '/(app)/games/sessions/session-test']);
-  const noDeadline = await render(create, { states: { 0: 'Test session', 4: future, 6: false } });
+  const noDeadline = await render(create, { states: { 0: 'Test session', 2: ['other'], 4: future, 6: false } });
   await noDeadline.press('Criar Sessão');
   assert.equal(noDeadline.calls.find(c => c[0] === 'createSession')[1].responseDeadline, undefined);
 });

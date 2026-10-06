@@ -77,7 +77,7 @@ test('Pending saves block exit without offering destructive discard', async () =
 
 test('Successful creation permits its existing replacement without a discard prompt', async () => {
   const ui = await renderNative('src/features/games/sessions/screens/CreateSessionScreen.tsx', 'default', {}, {
-    states: { 0: 'Fixture session', 4: new Date('2099-10-06T18:00:00Z') }, createdSession: { id: 'created-session' },
+    states: { 0: 'Fixture session', 2: ['friend'], 4: new Date('2099-10-06T18:00:00Z') }, createdSession: { id: 'created-session' },
   });
   await ui.press(ui.i18n.t('sessions.createTitle', { ns: 'matches' }));
   const alert = ui.calls.find(c => c[0] === 'alert'); alert[3][0].onPress();

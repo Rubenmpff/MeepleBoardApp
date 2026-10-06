@@ -1,5 +1,9 @@
 # Pendências funcionais do MeepleBoard
 
+## Atualização — amigo obrigatório na criação de sessões
+
+Ver [sessoes-convite-obrigatorio.md](sessoes-convite-obrigatorio.md). Criação exige pelo menos um amigo distinto do organizador, com convite Pending suficiente; backend valida toda a lista antes de escrever. Frontend conserva campos na rejeição e oferece acesso a Amigos quando não há amigos. Acrescentado o acesso à operação de convite já existente no detalhe Upcoming do organizador, com estado de recusa de todos explícito. Confirmados HTTP/SQL descartáveis e preservação das sessões anteriores; regra nova ainda aguarda o iPhone. Cancelamento manual existente elimina a sessão sem histórico (204 e depois 404): comportamento preservado, eventual mudança exige decisão separada. Os jobs automáticos ficam desativados no ambiente de testes. A validação anterior do seletor/UTC e da Sessão iPhone 02 foi confirmada pelo utilizador no dispositivo.
+
 ## Atualização — datas e amigos na criação de sessões
 
 Ver [sessoes-datas-e-amigos.md](sessoes-datas-e-amigos.md). Corrigida a ausência de UTC na resposta de sessões (`MappingEntityToDto`), distinguido prazo personalizado do limite automático e isolada a cache de amigos por login (`useFriends`); abertura força recarga e `CreateSessionScreen` mostra erro/repetição. Seletor iOS com contraste explícito. Criação e reabertura confirmadas com HTTP/SQL real na base descartável, sem aceitar convites ou testar campanhas. Validação visual no iPhone pendente. S04 continua aberta. Limitação adicional: `GameSessionRepository.GetListAsync` inclui Players sem User e pode devolver nomes desconhecidos na lista, embora o detalhe tenha os nomes corretos; validar consumidores antes de corrigir. Base habitual, CreatorId pendente nesse ambiente e fotografias públicas antigas permanecem inalterados.
