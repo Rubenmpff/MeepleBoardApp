@@ -93,7 +93,7 @@
       "editRating": "Edit rating",
       "yourRating": "Your rating",
       "rating": "Rating",
-      "notes": "Notes",
+      "notes": "Private notes",
       "notesPlaceholder": "What did you think of this session?",
       "tags": "Tags",
       "tagsPlaceholder": "epic, plot twist, difficult...",
@@ -101,7 +101,8 @@
       "savedTitle": "Saved!",
       "savedMessage": "Your perspective has been saved.",
       "saveError": "The rating could not be saved.",
-      "journalLoadError": "The journal could not be loaded."
+      "journalLoadError": "The journal could not be loaded.",
+      "participantsOnly": "Participants only"
     },
     "members": {
       "invite": "Invite member",
@@ -164,7 +165,7 @@
     "rating": {
       "title": "Your rating for this encounter",
       "value": "Rating (0–10)",
-      "notes": "📖 Notes",
+      "notes": "📖 Private notes",
       "notesPlaceholder": "Epic moments, what went well or badly...",
       "tags": "🏷️ Tags (comma-separated)",
       "tagsPlaceholder": "epic, plot twist, difficult..."

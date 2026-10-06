@@ -1,3 +1,4 @@
+import JournalPhoto from "../components/JournalPhoto";
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import { useTranslation } from "react-i18next";
@@ -42,9 +43,10 @@ export default function MatchJournalScreen() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const myEntry = entries.find(e => e.userId === currentUser?.id);
-  const alreadySubmitted = !!myEntry?.personalRating;
+  const alreadySubmitted = myEntry?.personalRating != null;
   const isClosed = match?.journalStatus === "Closed";
   const myPhotos = myEntry?.photoUrls ?? [];
+  const myPhotoCount = myPhotos.length + (myEntry?.unavailablePhotoCount ?? 0);
   const MAX_PHOTOS = 5;
 
   const [loadError, setLoadError] = useState(false);
@@ -92,7 +94,6 @@ export default function MatchJournalScreen() {
         notes: notes.trim() || null,
         tags: tags.trim() || null,
       };
-      console.log("📝 JOURNAL UPSERT PAYLOAD =>", id, JSON.stringify(payload));
       await matchService.upsertJournalEntry(id, payload);
       savedDraft.current = JSON.stringify([personalRating, notes, tags]);
       Alert.alert(t("journal.savedTitle"), t("journal.saved"),
@@ -106,7 +107,7 @@ export default function MatchJournalScreen() {
 
   const handlePickPhoto = async () => {
     if (!id) return;
-    if (myPhotos.length >= MAX_PHOTOS) {
+    if (myPhotoCount >= MAX_PHOTOS) {
       Alert.alert(t("photos.limitTitle"), t("photos.limit", { count: MAX_PHOTOS }));
       return;
     }
@@ -195,13 +196,13 @@ export default function MatchJournalScreen() {
       </View>
 
       {/* ── Avaliações dos outros ── */}
-      {(isClosed || alreadySubmitted) && entries.filter(e => e.userId !== currentUser?.id && e.personalRating != null).length > 0 && (
+      {entries.filter(e => e.userId !== currentUser?.id).length > 0 && (
         <View style={styles.card}>
           <View style={styles.cardTitleRow}>
             <MaterialIcons name="people" size={16} color={COLORS.primary} />
             <Text style={styles.cardTitle}>{t("journal.others")}</Text>
           </View>
-          {entries.filter(e => e.userId !== currentUser?.id && e.personalRating != null).map((entry) => (
+          {entries.filter(e => e.userId !== currentUser?.id).map((entry) => (
             <View key={entry.id} style={styles.entryRow}>
               <View style={styles.entryAvatar}>
                 <Text style={styles.entryAvatarText}>{entry.userName[0]?.toUpperCase()}</Text>
@@ -213,11 +214,11 @@ export default function MatchJournalScreen() {
                 {entry.personalRating != null && (
                   <StarRating appearance="refresh" value={entry.personalRating} readonly size={16} showLabel={false} />
                 )}
-                {entry.notes && <Text style={styles.entryNotes}>{entry.notes}</Text>}
+
                 {entry.photoUrls && entry.photoUrls.length > 0 && (
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photoScroll}>
                     {entry.photoUrls.map((url, pi) => (
-                      <Image key={pi} source={{ uri: url }} style={styles.photoThumb} />
+                      <JournalPhoto key={pi} uri={url} style={styles.photoThumb} />
                     ))}
                   </ScrollView>
                 )}
@@ -277,18 +278,19 @@ export default function MatchJournalScreen() {
         )}
 
         <Text style={[styles.fieldLabel, { marginTop: 16 }]}>
-          {t("photos.label")} {myPhotos.length > 0 ? `— ${myPhotos.length}/${MAX_PHOTOS}` : ""}
+          {t("photos.label")} {myPhotoCount > 0 ? `— ${myPhotoCount}/${MAX_PHOTOS}` : ""}
         </Text>
+        {!!myEntry?.unavailablePhotoCount && <Text style={UI_STYLES.muted}>{t("photos.legacyUnavailable", { count: myEntry.unavailablePhotoCount })}</Text>}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photoScroll}>
           {myPhotos.map((url, pi) => (
             <View key={pi} style={styles.photoThumbWrap}>
-              <Image source={{ uri: url }} style={styles.photoThumb} />
+              <JournalPhoto uri={url} style={styles.photoThumb} />
               <TouchableOpacity style={styles.photoRemoveBtn} accessibilityRole="button" accessibilityLabel={t("photos.remove")} onPress={() => handleRemovePhoto(url)}>
                 <MaterialIcons name="close" size={14} color="#fff" />
               </TouchableOpacity>
             </View>
           ))}
-          {myPhotos.length < MAX_PHOTOS && (
+          {myPhotoCount < MAX_PHOTOS && (
             <TouchableOpacity
               style={styles.photoAddBtn}
               accessibilityRole="button" accessibilityLabel={t("photos.add")}

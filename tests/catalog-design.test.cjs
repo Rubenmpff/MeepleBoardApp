@@ -78,9 +78,10 @@ test('Game details loading and failure remain distinct from a missing game', asy
 
 test('Game history preserves returned data and distinguishes failed requests from empty history', async () => {
   const loaded = await renderNative(detailsScreen, 'default', {}, { states: {
-    ...detailsStates('history'), 1: [{ id: 'match-id', matchDate: '2026-10-05', notes: 'Test-only notes', winnerName: 'Test-only winner', personalRating: 3, tags: 'test' }],
+    ...detailsStates('history'), 1: [{ id: 'match-id', matchDate: '2026-10-05', personalNotes: 'Test-only notes', notes: 'Legacy private notes', winnerName: 'Test-only winner', personalRating: 3, tags: 'test' }],
   } });
   for (const text of ['Test-only notes', 'Test-only winner', '#test']) assert.ok(loaded.html.includes(text));
+  assert.ok(!loaded.html.includes('Legacy private notes'));
   const error = await renderNative(detailsScreen, 'default', {}, { states: { ...detailsStates('history'), 7: true } });
   assert.ok(!error.html.includes(error.i18n.t('details.historyEmpty', { ns: 'games' })));
   await error.press('Tentar novamente');

@@ -1,5 +1,7 @@
 # Navegação simplificada
 
+As observações sobre Comentários/Notas abaixo descrevem a auditoria anterior. As permissões do código atualizado estão em [autorizacao-partidas-diarios.md](autorizacao-partidas-diarios.md), incluindo a migração preparada e as limitações das fotografias antigas.
+
 ## Estrutura
 
 A barra inferior apresenta Início, Biblioteca, Registar, Amigos e Mais. Registar é uma ação: abre `/games/register-match` no stack exterior aos separadores. Cancelar usa o histórico do router para regressar ao contexto de origem; uma abertura sem histórico regressa ao Início. O Início conserva a organização anterior.

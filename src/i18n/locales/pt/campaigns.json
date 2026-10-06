@@ -93,7 +93,7 @@
       "editRating": "Editar avaliação",
       "yourRating": "A tua avaliação",
       "rating": "Avaliação",
-      "notes": "Notas",
+      "notes": "Notas privadas",
       "notesPlaceholder": "O que achaste desta sessão?",
       "tags": "Tags",
       "tagsPlaceholder": "épico, reviravolta, difícil...",
@@ -101,7 +101,8 @@
       "savedTitle": "Guardado!",
       "savedMessage": "A tua perspetiva foi guardada.",
       "saveError": "Não foi possível guardar a avaliação.",
-      "journalLoadError": "Não foi possível carregar o diário."
+      "journalLoadError": "Não foi possível carregar o diário.",
+      "participantsOnly": "Apenas participantes"
     },
     "members": {
       "invite": "Convidar membro",
@@ -164,7 +165,7 @@
     "rating": {
       "title": "A tua avaliação deste encontro",
       "value": "Avaliação (0–10)",
-      "notes": "📖 Notas",
+      "notes": "📖 Notas privadas",
       "notesPlaceholder": "Momentos épicos, o que correu bem ou mal...",
       "tags": "🏷️ Tags (separadas por vírgula)",
       "tagsPlaceholder": "épico, reviravolta, difícil..."

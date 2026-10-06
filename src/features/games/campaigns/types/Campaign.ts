@@ -27,11 +27,13 @@ export interface JournalEntry {
   notes?: string | null;
   tags?: string | null;
   photoUrls: string[];
+  unavailablePhotoCount?: number;
   createdAt: string;
   updatedAt?: string | null;
 }
 
 export interface CampaignMatch {
+  canReadJournal?: boolean;
   id: string;
   matchId: string;
   gameName?: string | null;

@@ -86,7 +86,7 @@
     "commentsPlaceholder": "E.g. Close match with a last-minute comeback!",
     "journalTitle": "Match journal",
     "ratingLabel": "Your rating (0–10)",
-    "notesLabel": "📖 Notes (epic moments, strategies...)",
+    "notesLabel": "📖 Private notes",
     "notesPlaceholder": "E.g. Incredible final round, the strategy worked!",
     "tagsLabel": "🏷️ Tags (comma-separated)",
     "tagsPlaceholder": "E.g. epic, comeback, difficult"
@@ -162,7 +162,9 @@
     "removeTitle": "Remove photo",
     "removeConfirm": "Are you sure you want to remove this photo?",
     "removeError": "Could not remove the photo.",
-    "partialFailure": "{{failed}} of {{total}} photos were not uploaded. You can add them in the match journal."
+    "partialFailure": "{{failed}} of {{total}} photos were not uploaded. You can add them in the match journal.",
+    "unavailable": "Photo unavailable",
+    "legacyUnavailable": "{{count}} legacy photos are preserved but unavailable until protected in storage."
   },
   "journal": {
     "closed": "🔒 Closed",
@@ -173,7 +175,7 @@
     "yourRating": "Your review",
     "leaveRating": "Leave your review",
     "rating": "Rating (0–10) *",
-    "notes": "Notes (optional)",
+    "notes": "Private notes (optional)",
     "notesPlaceholder": "Epic moments, strategies, what went well or wrong…",
     "tags": "Tags (optional, comma-separated)",
     "tagsPlaceholder": "epic, comeback, difficult…",

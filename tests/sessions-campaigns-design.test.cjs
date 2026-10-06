@@ -11,7 +11,7 @@ const session = { id: 'session-test', name: 'Test-only session', organizerId: 'm
   players: [{ userId: 'me', userName: 'Test player', isOrganizer: true, status: 'Accepted' }, { userId: 'other', userName: 'Other player', status: 0 }], matches: [] };
 const campaign = { id: 'campaign-test', name: 'Test-only campaign', gameId: 'game-test', gameName: 'Test-only game', status: 'Active', creatorId: 'me', memberCount: 2, matchCount: 1, averagePersonalRating: 0, notes: 'Test-only notes',
   members: [{ userId: 'me', userName: 'Test player', isCreator: true, status: 'Accepted' }, { userId: 'other', userName: 'Other player', status: 'Accepted' }],
-  matches: [{ id: 'campaign-match', matchId: 'match-test', matchDate: '2026-09-01T12:00:00Z', gameName: 'Test-only game', sessionTitle: 'Test-only encounter' }] };
+  matches: [{ canReadJournal: true, id: 'campaign-match', matchId: 'match-test', matchDate: '2026-09-01T12:00:00Z', gameName: 'Test-only game', sessionTitle: 'Test-only encounter' }] };
 const params = { campaignId: campaign.id, gameId: campaign.gameId, gameName: campaign.gameName, memberIds: 'me,other', memberNames: 'Test player,Other player' };
 const render = (file, options = {}) => renderNative(file, 'default', {}, options);
 const confirm = async (view, style) => {

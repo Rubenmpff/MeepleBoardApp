@@ -118,6 +118,15 @@ Os testes isolados cobrem endpoints e paginação dos rankings, leitura de zero,
 
 ## Navegação simplificada — permissões de Comentários e Notas
 
+**Atualização posterior:** a autorização foi implementada e validada por HTTP isolado; ver [autorizacao-partidas-diarios.md](autorizacao-partidas-diarios.md). PR01 descreve o código anterior; a adoção do código novo exige preparar o esquema num ambiente separado. Fotografias públicas antigas continuam por proteger (PR02). A API/base atual não foi alterada pela execução destes testes.
+
+| ID | Ficheiros envolvidos | Impacto e validação restante |
+| --- | --- | --- |
+| PR02 | `CloudinaryPhotoStorageService .cs`; `JournalPhotoReference.cs`; `JournalPhotosController.cs`; `MatchJournalDto.cs` | Prioridade alta: recursos antigos `upload` podem continuar públicos por URL conhecido. A aplicação preserva-os em quarentena. Inventariar e proteger no fornecedor, invalidar URLs/CDN, atualizar referências e testar leitura sem autenticação. Nenhuma operação sobre armazenamento atual foi executada. |
+| SC01 | `MeepleBoardDbContext.cs`; snapshot e migração `AddMatchCreator` | Índice do catálogo preexistente em falta no snapshot; EF9 deteta diferença de modelo. Rever num ambiente separado antes de aplicar a migração de autoria. SQL apenas gerado, nunca executado. |
+
+Nesta correção também foram protegidos os rascunhos de encontros contra cache e respostas fora de ordem (parte de C02) e o zero passou a contar como avaliação submetida no diário (M03). Testes isolados passaram; validação nativa e dos restantes cenários de C02 continua pendente. A02/A08 e as restantes pendências de autenticação não são consideradas resolvidas por esta autorização.
+
 | ID | Ficheiros envolvidos | Evidência e impacto | Validação necessária |
 | --- | --- | --- | --- |
 | PR01 | Backend: `MeepleBoardApi/Controllers/CampaignController.cs`, `MatchController.cs`; `MeepleBoard.Services/Implementations/CampaignService.cs`, `MatchService.cs`; `MeepleBoard.Infra.Data/Repositories/CampaignRepository.cs`. Frontend: `src/features/games/journal/screens/MatchJournalScreen.tsx`; `src/features/games/campaigns/screens/Campaigndetailscreen.tsx`; `src/features/games/catalog/screens/GameDetailsScreen.tsx` | O GET do diário exige autenticação, mas consulta todas as entradas pelo ID da partida sem verificar o utilizador/participação. Os detalhes da partida não declaram autorização nem validam participação e devolvem `ScoreSummary` e `Notes`. As condições visuais de leitura no diário não garantem privacidade no servidor. Além disso, editar uma entrada do diário não atualiza a cópia inicial `Matches.Notes`, lida no histórico do jogo. Cadeias confirmadas no código; acesso efetivo e esquema aplicado não foram testados. | **Prioridade alta: privacidade.** Numa API/base de dados de teste, verificar leitura como participante, conta alheia e visitante; definir visibilidade de resumo/notas e exigir a mesma regra no servidor. Confirmar divergência entre notas do histórico e diário. Não alterar permissões ou sincronização durante a simplificação da navegação. |

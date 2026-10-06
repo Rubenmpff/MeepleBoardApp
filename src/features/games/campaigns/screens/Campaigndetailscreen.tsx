@@ -8,7 +8,7 @@ import ScreenLayout from "@/src/components/ui/ScreenLayout";
 import ScreenState from "@/src/components/ui/ScreenState";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useWindowDimensions, View, Text, ActivityIndicator, ScrollView, TouchableOpacity, StyleSheet, Alert, TextInput, RefreshControl, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
@@ -60,6 +60,7 @@ export default function CampaignDetailScreen() {
   const [actionLoading, setActionLoading] = useState(false);
   const [journalEntries, setJournalEntries] = useState<Record<string, JournalEntry[]>>({});
   const [expandedMatch, setExpandedMatch] = useState<string | null>(null);
+  const selectedJournalMatch = useRef(expandedMatch);
   const [entryDraft, setEntryDraft] = useState<EntryDraft>({ notes: "", tags: "" });
   const [savingEntry, setSavingEntry] = useState(false);
   const [editingNotes, setEditingNotes] = useState(false);
@@ -96,15 +97,26 @@ export default function CampaignDetailScreen() {
       const entries = await campaignService.getJournalEntries(matchId);
       setJournalEntries(prev => ({ ...prev, [matchId]: entries }));
       const mine = entries.find(e => e.userId === currentUser?.id);
-      setEntryDraft(mine
+      if (selectedJournalMatch.current === matchId) setEntryDraft(mine
         ? { personalRating: mine.personalRating ?? undefined, notes: mine.notes ?? "", tags: mine.tags ?? "" }
         : { notes: "", tags: "" });
-    } catch { console.error(t("detail.sessions.journalLoadError")); }
+    } catch {
+      if (selectedJournalMatch.current === matchId) {
+        selectedJournalMatch.current = null;
+        setExpandedMatch(null);
+        Alert.alert(t("common.error"), t("detail.sessions.journalLoadError"));
+      }
+    }
   };
   const toggleMatch = async (matchId: string) => {
-    if (expandedMatch === matchId) { setExpandedMatch(null); return; }
+    if (expandedMatch === matchId) { selectedJournalMatch.current = null; setExpandedMatch(null); return; }
+    selectedJournalMatch.current = matchId;
     setExpandedMatch(matchId);
     if (!journalEntries[matchId]) await loadJournal(matchId);
+    else {
+      const mine = journalEntries[matchId].find(e => e.userId === currentUser?.id);
+      setEntryDraft(mine ? { personalRating: mine.personalRating ?? undefined, notes: mine.notes ?? "", tags: mine.tags ?? "" } : { notes: "", tags: "" });
+    }
   };
   const saveEntry = async (matchId: string) => {
     setSavingEntry(true);
@@ -324,7 +336,7 @@ export default function CampaignDetailScreen() {
                         const myEntry = entries.find(e => e.userId === currentUser?.id);
                         return (
                           <View key={cm.id} style={styles.matchCard}>
-                            <TouchableOpacity style={styles.matchCardHeader} onPress={() => entryDirty ? navigationGuard.discard(() => { void toggleMatch(cm.matchId); }) : void toggleMatch(cm.matchId)} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel={cm.sessionTitle || cm.gameName || t("detail.sessions.encounter")} accessibilityState={{ expanded: isExp }}>
+                            <TouchableOpacity style={styles.matchCardHeader} disabled={cm.canReadJournal !== true} onPress={() => entryDirty ? navigationGuard.discard(() => { void toggleMatch(cm.matchId); }) : void toggleMatch(cm.matchId)} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel={cm.sessionTitle || cm.gameName || t("detail.sessions.encounter")} accessibilityState={{ expanded: isExp, disabled: cm.canReadJournal !== true }}>
                               <View style={{ flex: 1 }}>
                                 <Text style={styles.matchTitle}>{cm.sessionTitle || cm.gameName || t("detail.sessions.encounter")}</Text>
                                 <View style={styles.matchMetaRow}>
@@ -334,16 +346,16 @@ export default function CampaignDetailScreen() {
                                   <Text style={styles.matchMetaText}>
                                     💬 {t("detail.sessions.ratings", { count: entries.length })}
                                   </Text>
-                                  {!myEntry && isMember && (
+                                  {!myEntry && isMember && cm.canReadJournal === true && (
                                     <View style={styles.pendingBadge}>
                                       <Text style={styles.pendingBadgeText}>{t("detail.sessions.evaluate")}</Text>
                                     </View>
                                   )}
                                 </View>
                               </View>
-                              <MaterialIcons name={isExp ? "expand-less" : "expand-more"} size={22} color={COLORS.textMuted} />
+                              {cm.canReadJournal === true ? <MaterialIcons name={isExp ? "expand-less" : "expand-more"} size={22} color={COLORS.textMuted} /> : <Text style={styles.matchMetaText}>{t("detail.sessions.participantsOnly")}</Text>}
                             </TouchableOpacity>
-                            {isExp && (
+                            {isExp && cm.canReadJournal === true && (
                               <View style={styles.journalWrap}>
                                 {/* Entradas existentes */}
                                 {entries.map((entry: JournalEntry) => (
@@ -358,7 +370,7 @@ export default function CampaignDetailScreen() {
                                           <StarRating appearance="refresh" value={entry.personalRating} readonly size={14} showLabel={false} />
                                         )}
                                       </View>
-                                      {entry.notes && <Text style={styles.entryNotes}>{entry.notes}</Text>}
+                                      {entry.userId === currentUser?.id && entry.notes && <Text style={styles.entryNotes}>{entry.notes}</Text>}
                                       {entry.tags && (
                                         <View style={styles.tagsRow}>
                                           {entry.tags.split(",").map((tag, i) => (

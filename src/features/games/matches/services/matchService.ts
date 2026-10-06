@@ -104,8 +104,8 @@ const matchService = {
     try {
       const res = await api.get<JournalEntry[]>(`/campaigns/matches/${matchId}/journal`);
       return res.data ?? [];
-    } catch {
-      return [];
+    } catch (error: any) {
+      throw new Error(extractApiErrorMessage(error, "Não tens acesso ao diário ou não foi possível carregá-lo."));
     }
   },
 

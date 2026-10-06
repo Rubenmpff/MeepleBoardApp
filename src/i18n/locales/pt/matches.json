@@ -86,7 +86,7 @@
     "commentsPlaceholder": "Ex.: Partida renhida, reviravolta no fim!",
     "journalTitle": "Diário de partida",
     "ratingLabel": "A tua avaliação (0–10)",
-    "notesLabel": "📖 Notas (momentos épicos, estratégias...)",
+    "notesLabel": "📖 Notas privadas",
     "notesPlaceholder": "Ex.: Última ronda incrível, a estratégia funcionou!",
     "tagsLabel": "🏷️ Tags (separadas por vírgula)",
     "tagsPlaceholder": "Ex.: épico, reviravolta, difícil"
@@ -162,7 +162,9 @@
     "removeTitle": "Remover fotografia",
     "removeConfirm": "Tens a certeza de que queres remover esta fotografia?",
     "removeError": "Não foi possível remover a fotografia.",
-    "partialFailure": "{{failed}} de {{total}} fotografias não foram enviadas. Podes adicioná-las no diário da partida."
+    "partialFailure": "{{failed}} de {{total}} fotografias não foram enviadas. Podes adicioná-las no diário da partida.",
+    "unavailable": "Fotografia indisponível",
+    "legacyUnavailable": "Há {{count}} fotografias antigas preservadas, indisponíveis até serem protegidas no armazenamento."
   },
   "journal": {
     "closed": "🔒 Fechado",
@@ -173,7 +175,7 @@
     "yourRating": "A tua avaliação",
     "leaveRating": "Deixa a tua avaliação",
     "rating": "Avaliação (0–10) *",
-    "notes": "Notas (opcional)",
+    "notes": "Notas privadas (opcional)",
     "notesPlaceholder": "Momentos épicos, estratégias, o que correu bem ou mal…",
     "tags": "Etiquetas (opcional, separadas por vírgulas)",
     "tagsPlaceholder": "épico, reviravolta, difícil…",

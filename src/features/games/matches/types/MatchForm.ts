@@ -49,6 +49,7 @@ export interface MatchFormData {
    ============================================================ */
 export interface MatchDto {
   id: string;
+  creatorId?: string | null;
   matchDate: string;
   gameId: string;
   gameName: string;
@@ -66,7 +67,7 @@ export interface MatchDto {
   personalRating?: number | null;
 
   /** Notas livres sobre a partida. */
-  notes?: string | null;
+  personalNotes?: string | null;
 
   /** Tags separadas por vírgula. */
   tags?: string | null;

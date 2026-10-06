@@ -293,8 +293,8 @@ export default function GameDetailsScreen() {
                   </View>
 
                   {/* Notes */}
-                  {m.notes && (
-                    <Text style={styles.matchNotes}>{m.notes}</Text>
+                  {m.personalNotes && (
+                    <Text style={styles.matchNotes}>{m.personalNotes}</Text>
                   )}
 
                   {/* Tags */}

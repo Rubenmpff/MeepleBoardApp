@@ -122,6 +122,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
         const services = Object.fromEntries(Object.entries(options.services || {}).map(([method, result]) => [method, async (...args) => {
           calls.push([method, ...args]);
           if (result instanceof Error) throw result;
+          if (typeof result === 'function') return result(...args);
           return result;
         }]));
         return { __esModule: true, ...services, authService: services, tokenService: services, default: {
