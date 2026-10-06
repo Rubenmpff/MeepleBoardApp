@@ -1,5 +1,10 @@
 # Pendências funcionais do MeepleBoard
 
+## Continuação — participantes e avaliação própria
+
+Fechadas em código e em DeviceTests: mínimo de dois participantes distintos em partidas não Solo; Solo indisponível dentro de sessões; avaliação própria obrigatória 0–10 em meios pontos, zero distinto de ausência, estrelas repostas. Corrigido arredondamento do diário com migração exclusiva de testes. Ver [regras, verificação e percurso](formulario-registo-partidas.md). A revisão visual no iPhone permanece aberta até confirmação do utilizador. RESULT01 mantém as limitações de resultados Solo, cooperativos e empate; não inferir vitórias/derrotas/empates e não avançar para dados reais.
+
+
 ## Prioridade atual — revisão visual do registo no iPhone
 
 Após utilização real, o utilizador reportou calendário ilegível, controlos sem texto e espaços excessivos. Correções de data local da sessão/hora independente, tema do seletor, rótulos, seleção compacta do vencedor e detalhes opcionais preparadas; ver [formulario-registo-partidas.md](formulario-registo-partidas.md). TypeScript, 214 testes e bundle iOS aprovados apenas em DeviceTests. **Validação visual aberta: aguardar confirmação no iPhone antes de avançar para RESULT01 ou dados reais.** Backend e base habitual intactos; estas verificações automatizadas não fecham a revisão visual.

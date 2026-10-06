@@ -187,7 +187,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     if (!selectedGame) return;
     const expansion = selectedExpansions[0] ?? null;
     const best = getDefaultMode(selectedGame, expansion);
-    setGameMode(best);
+    setGameMode(isSessionMatch && best === "solo" ? "multiplayer" : best);
     setUnofficialMode(null);
     setUnofficialJustification("");
     setSoloResult("none");
@@ -213,6 +213,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   }, [isSolo, currentUser?.id, currentUser?.userName]);
 
   const handleModePress = (mode: GameMode) => {
+    if (isSessionMatch && mode === "solo") return;
     const info = availableModes[mode];
     if (info.available) {
       if (mode !== gameMode) { setPlayerState(prev => prev.map(p => ({ ...p, isWinner: false }))); setTeamResult(null); }
@@ -227,7 +228,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   };
 
   const handleConfirmUnofficial = () => {
-    if (!pendingUnofficialMode || unofficialJustification.trim().length < 5) return;
+    if (!pendingUnofficialMode || (isSessionMatch && pendingUnofficialMode === "solo") || unofficialJustification.trim().length < 5) return;
     if (pendingUnofficialMode !== gameMode) { setPlayerState(prev => prev.map(p => ({ ...p, isWinner: false }))); setTeamResult(null); }
     setGameMode(pendingUnofficialMode);
     setUnofficialMode(pendingUnofficialMode);
@@ -241,6 +242,12 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     setUnofficialJustification("");
   };
 
+  const participantsValid = !(isSessionMatch && isSolo) && (isSolo || new Set(playerState.map(p => p.id).filter(Boolean)).size >= 2);
+  const validateParticipants = () => {
+    if (participantsValid) return true;
+    Alert.alert(t("validation.errorTitle"), t(isSessionMatch && isSolo ? "form.sessionNoSolo" : "form.twoPlayers"));
+    return false;
+  };
   const canGoNext = (): boolean => {
     if (step === 0) return !!selectedGame && !editingGame;
     if (step === 1 || step === 2) return playerState.length > 0;
@@ -249,6 +256,10 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
   const validateResult = (): boolean => {
     setShowResultErrors(true);
+    if (!validateParticipants()) return false;
+    if (personalRating === undefined || !Number.isFinite(personalRating) || personalRating < 0 || personalRating > 10 || !Number.isInteger(personalRating * 2)) {
+      Alert.alert(t("validation.errorTitle"), t("form.ratingRequired")); return false;
+    }
     if (!hasCompleteScores(playerState, scoresEnabled)) return false;
     if (!isSolo && !isCooperative && !playerState.some(p => p.isWinner)) return false;
     if (!Number.isFinite(matchDate.getTime()) || matchDate.getTime() > Date.now() + 60000) {
@@ -262,6 +273,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     return true;
   };
   const goNext = () => {
+    if (step === 1 && !validateParticipants()) return;
     if (step === 2 && !validateResult()) return;
     if (step < 3 && canGoNext()) setStep((s) => (s + 1) as Step);
   };
@@ -313,6 +325,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
     if (currentUserForSelector && !playerState.some(p => p.id === currentUserForSelector.id))
       return Alert.alert(t("validation.errorTitle"), t("selector.participationRequired"));
+    if (!validateParticipants()) { setStep(1); return; }
     if (!validateResult()) {
       setStep(2);
       return;
@@ -524,6 +537,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       {step === 0 && selectedGame && !editingGame && (
         <View style={styles.card}>
           <SectionTitle icon="gamepad" label={t("modes.sectionTitle")} />
+          {isSessionMatch && <Text style={styles.hint}>{t("form.sessionNoSolo")}</Text>}
           <View style={styles.modeRow}>
             {([
               { mode: "solo" as GameMode,        icon: "person",   label: t("modes.solo"),        color: COLORS.success   },
@@ -531,25 +545,27 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
               { mode: "cooperative" as GameMode, icon: "favorite", label: t("modes.cooperative"), color: COLORS.secondary },
             ]).map(({ mode, icon, label, color }) => {
               const info = availableModes[mode];
+              const blockedSolo = isSessionMatch && mode === "solo";
               const isActive = gameMode === mode;
               const isActiveUnofficial = isActive && unofficialMode === mode;
               return (
                 <TouchableOpacity
                   key={mode}
-                  style={[styles.modeBtn, isActive && { borderColor: color, backgroundColor: color + "18" }, !info.available && styles.modeBtnUnavailable]}
+                  style={[styles.modeBtn, isActive && { borderColor: color, backgroundColor: color + "18" }, (!info.available || blockedSolo) && styles.modeBtnUnavailable]}
+                  disabled={blockedSolo}
                   onPress={() => handleModePress(mode)} activeOpacity={0.8}
-                  accessibilityRole="radio" accessibilityLabel={label} accessibilityState={{ selected: isActive }}
+                  accessibilityRole="radio" accessibilityLabel={label} accessibilityState={{ selected: isActive, disabled: blockedSolo }}
                 >
                   <MaterialIcons name={icon as any} size={24} color={isActive ? color : COLORS.textMuted} />
-                  <Text style={[styles.modeBtnLabel, isActive && { color }, !info.available && { color: COLORS.textMuted }]}>{label}</Text>
-                  {info.available && info.source && (
+                  <Text style={[styles.modeBtnLabel, isActive && { color }, (!info.available || blockedSolo) && { color: COLORS.textMuted }]}>{label}</Text>
+                  {!blockedSolo && info.available && info.source && (
                     <View style={[styles.sourceBadge, info.source === "bgg_official" && styles.sourceBadgeOfficial, info.source === "expansion" && styles.sourceBadgeExpansion]}>
                       <Text style={[styles.sourceBadgeText, info.source === "bgg_official" && { color: COLORS.success }, info.source === "expansion" && { color: "#1E88E5" }]}>
                         {info.source === "bgg_official" ? t("modes.confirmed") : t("modes.expansionShort")}
                       </Text>
                     </View>
                   )}
-                  {!info.available && <View style={styles.forceBadge}><Text style={styles.forceBadgeText}>{t("modes.force")}</Text></View>}
+                  {!blockedSolo && !info.available && <View style={styles.forceBadge}><Text style={styles.forceBadgeText}>{t("modes.force")}</Text></View>}
                   {isActiveUnofficial && <View style={styles.unofficialSmallBadge}><Text style={styles.unofficialSmallBadgeText}>⚠️</Text></View>}
                 </TouchableOpacity>
               );
@@ -609,6 +625,13 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
       {/* ══ STEP 1: Jogadores ══ */}
       {step === 1 && <View style={styles.card}>
+        {!participantsValid && <View style={{ gap: 8, marginBottom: 12 }}>
+          <Text style={styles.hint}>{t("form.twoPlayers")}</Text>
+          <Text style={styles.hint}>{t(isSessionMatch ? "form.sessionPlayersHint" : "form.quickPlayersHint")}</Text>
+          {!isSessionMatch && <TouchableOpacity style={styles.detailsToggle} accessibilityRole="button" onPress={() => setStep(0)}>
+            <Text style={styles.detailsToggleText}>{t("form.changeMode")}</Text>
+          </TouchableOpacity>}
+        </View>}
         {isSolo ? <View style={styles.soloPlayerRow}>
           <Text style={styles.playerName}>{currentUser?.userName ?? t("players.you")}</Text>
           <Text style={styles.hint}>{t("selector.participationRequired")}</Text>
@@ -652,6 +675,8 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
           </View>
           <View style={styles.card}>
+            <MatchRatingField value={personalRating} onChange={setPersonalRating} />
+            {showResultErrors && personalRating === undefined && <Text style={styles.hint}>{t("form.ratingRequired")}</Text>}
             <MatchDateFields value={matchDate} locale={locale} picker={datePicker} onPickerChange={setDatePicker}
               onChange={date => { matchDateEdited.current = true; setMatchDate(date); }} />
           </View>
@@ -669,7 +694,6 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
             <View style={styles.card}>
               <SectionTitle icon="auto-stories" label={t("details.journalTitle")} />
-              <MatchRatingField value={personalRating} onChange={setPersonalRating} />
               <View style={{ marginTop: 8 }}>
                 <DetailField
                   label={t("details.notesLabel")}

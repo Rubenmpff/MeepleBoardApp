@@ -90,7 +90,7 @@ export default function MatchJournalScreen() {
     setSaving(true);
     try {
       const payload = {
-        personalRating: Math.round(personalRating),
+        personalRating: personalRating,
         notes: notes.trim() || null,
         tags: tags.trim() || null,
       };

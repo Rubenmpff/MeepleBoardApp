@@ -74,7 +74,7 @@ test('whole session match row opens detail and detail back preserves origin or f
 });
 
 test('double save during in-flight request sends once; failed creation allows retry with unchanged draft', async () => {
-  const states = { 0: session, 2: 3, 3: { id: 'game', name: 'Fixture game', minPlayers: 1, maxPlayers: 4 }, 4: false, 8: [{ id: 'me', username: 'Author', score: '0', isWinner: true }] };
+  const states = { 0: session, 2: 3, 3: { id: 'game', name: 'Fixture game', minPlayers: 1, maxPlayers: 4 }, 4: false, 8: [{ id: 'me', username: 'Author', score: '0', isWinner: true }, { id: 'peer', username: 'Peer', score: '0', isWinner: false }], 12: 7.5 };
   let resolve;
   const response = new Promise(r => { resolve = r; });
   const view = await renderNative(form, 'default', { sessionId: session.id, currentUser: me }, { states, createdMatch: response });
@@ -91,7 +91,7 @@ test('double save during in-flight request sends once; failed creation allows re
 
 test('initial partial photo failure retains saved response and only failed URIs without recreating match', async () => {
   const view = await renderNative(form, 'default', { sessionId: session.id, currentUser: me }, {
-    states: { 0: session, 2: 3, 3: { id: 'game', name: 'Fixture game', minPlayers: 1, maxPlayers: 4 }, 4: false, 8: [{ id: 'me', username: 'Author', score: '0', isWinner: true }], 15: ['ok://photo', 'failed://photo'] }, createdMatch: match,
+    states: { 0: session, 2: 3, 3: { id: 'game', name: 'Fixture game', minPlayers: 1, maxPlayers: 4 }, 4: false, 8: [{ id: 'me', username: 'Author', score: '0', isWinner: true }, { id: 'peer', username: 'Peer', score: '0', isWinner: false }], 12: 7.5, 15: ['ok://photo', 'failed://photo'] }, createdMatch: match,
     services: { uploadJournalPhoto: (_, uri) => { if (uri.startsWith('failed')) throw new Error('fixture failure'); } },
   });
   await view.press('Guardar partida'); await view.press('Guardar partida');

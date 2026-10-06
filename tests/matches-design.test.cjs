@@ -10,7 +10,7 @@ const me = { id: 'me', userName: 'Test player' };
 const game = { id: 'game-id', name: 'Test-only game', minPlayers: 1, maxPlayers: 4 };
 const players = [{ id: 'me', username: 'Test player', score: '0', isWinner: true }, { id: 'other', username: 'Other player', score: '-17', isWinner: false }];
 const match = { id: 'match-id', gameId: game.id, gameName: game.name, matchDate: '2026-09-01', players: [{ userId: 'me', userName: me.userName, score: 0, isWinner: true }, { userId: 'other', userName: 'Other player' }], journalStatus: 'Open' };
-const formStates = { 2: 3, 3: game, 4: false, 8: players, 23: true };
+const formStates = { 2: 3, 3: game, 4: false, 8: players, 12: 7.5, 23: true };
 const submit = async (states = {}, props = {}, options = {}) => renderNative(form, 'default', { currentUser: me, ...props }, { states: { ...formStates, ...states }, ...options });
 
 test('registration preserves zero and negative scores, manual winner, expansion and optional details', async () => {
@@ -31,7 +31,7 @@ test('registration preserves zero and negative scores, manual winner, expansion 
 
 test('invalid or missing integer score prevents submission and returns to Result', async () => {
   for (const score of ['abc', '1.2', '', '-2147483649']) {
-    const view = await submit({ 8: [{ ...players[0], score }] });
+    const view = await submit({ 8: [{ ...players[0], score }, players[1]] });
     await view.press('Guardar partida');
     assert.equal(view.calls.some(c => c[0] === 'submitMatch'), false);
     assert.deepEqual(view.updates.find(([i]) => i === 2), [2, 2]);
@@ -127,7 +127,7 @@ test('journal zero remains saveable and existing half-rating rounding is unchang
   for (const rating of [0, 7.5]) {
     const view = await renderNative(journal, 'default', {}, { states: { 0: match, 2: false, 4: rating, 5: ' Notes ', 6: ' tag ' }, services: { upsertJournalEntry: undefined } });
     await view.press('Guardar avaliação');
-    assert.deepEqual(view.calls.find(c => c[0] === 'upsertJournalEntry')[2], { personalRating: Math.round(rating), notes: 'Notes', tags: 'tag' });
+    assert.deepEqual(view.calls.find(c => c[0] === 'upsertJournalEntry')[2], { personalRating: rating, notes: 'Notes', tags: 'tag' });
   }
   const unrated = await renderNative(journal, 'default', {}, { states: { 0: match, 2: false } });
   await unrated.press('Cancelar');

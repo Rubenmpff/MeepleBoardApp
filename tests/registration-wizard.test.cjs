@@ -7,7 +7,7 @@ const me = { id: 'me', userName: 'Author' };
 const game = { id: 'game', name: 'Fixture game', imageUrl: 'fixture://cover', minPlayers: 2, maxPlayers: 4 };
 const players = [{ id: 'me', username: 'Author', score: '-17', isWinner: true }, { id: 'peer', username: 'Peer', score: '0', isWinner: false }];
 const session = { id: 'session', name: 'Private context', status: 'Active', players: [{ userId: 'me', userName: 'Author', status: 'Accepted' }, { userId: 'peer', userName: 'Peer', status: 'Accepted' }, { userId: 'declined', userName: 'Declined', status: 'Declined' }, { userId: 'pending', userName: 'Pending', status: 'Pending' }] };
-const states = { 0: session, 2: 2, 3: game, 4: false, 8: players, 23: true, 24: new Date('2026-10-01T14:30:00Z') };
+const states = { 0: session, 2: 2, 3: game, 4: false, 8: players, 12: 7.5, 23: true, 24: new Date('2026-10-01T14:30:00Z') };
 const render = (overrides = {}, options = {}, props = {}) => renderNative(form, 'default', { currentUser: me, sessionId: session.id, ...props }, { ...options, states: { ...states, ...overrides } });
 
 test('four steps keep cover and mode accessible, and review lists names/zero/negatives with correction links', async () => {

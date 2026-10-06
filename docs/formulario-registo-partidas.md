@@ -2,6 +2,18 @@
 
 Implementado em 6 de outubro de 2026, apenas validado no ambiente DeviceTests do Mac. Não foram alteradas credenciais, dependências ou a base habitual.
 
+## Continuação — participantes distintos e avaliação obrigatória
+
+Competitivo exige pelo menos **dois participantes distintos**, no formulário e na criação pela API. Com um jogador, a etapa Jogadores explica como adicionar participantes; no registo rápido oferece acesso explícito ao modo de jogo para escolher Solo. A contagem nunca muda o modo automaticamente. Dentro de sessões Solo está indisponível, incluindo o modo forçado, e a API recusa novas partidas Solo. Elegibilidade, participação obrigatória do utilizador atual e leitura dos registos antigos mantêm-se.
+
+**A minha avaliação é obrigatória:** escala existente **0–10, em meios pontos**, incluindo zero válido. Dez estrelas compactas, botão explícito 0 e ajustes ±0,5 estão sempre visíveis no Resultado, fora dos detalhes opcionais. Sem avaliação mantém o estado ausente e impede guardar; não é zero. O valor aparece em Rever e conserva-se ao voltar entre etapas ou após falha. Cada participante avalia a própria experiência; o registo só cria a entrada do utilizador autenticado.
+
+Corrigida perda de precisão: o diário backend tinha coluna inteira e arredondava a avaliação na criação; o ecrã de diário também arredondava ao enviar. Agora mantém-se o meio ponto em entidade, DTO, escrita e releitura. A migração `PreserveJournalHalfRatings` converte apenas a coluna nullable do diário de int para float, sem preencher valores antigos ausentes. Aplicada exclusivamente à base marcada `MeepleBoard_DeviceTests`; base habitual intacta. Ver [contrato backend](../../MeepleBoardApi/docs/avaliacao-participantes.md).
+
+Validação: Node 22.14.0, TypeScript, 219 testes frontend, 47 testes de regras, 59 testes HTTP de autorização e auditoria de modelo, 32 cenários HTTP/SQL reais. **A validação visual no iPhone continua pendente.** Datas locais, negativos/zero, vencedor manual, rascunhos, privacidade, bloqueio de submissão repetida e repetição apenas de fotografias mantêm-se. RESULT01 (solo, cooperativo e empate) continua pendente; esta etapa só fecha estas duas regras.
+
+Percurso: recarregar Expo 8082 e voltar a autenticar após reinício da API → sessão ativa → Registar partida. Tentar continuar com apenas o próprio utilizador; adicionar outro participante confirmado. Resultado: -17 e 0, vencedor manual; tentar Rever sem avaliação e confirmar bloqueio. Escolher 7 nas estrelas e + para 7,5; Rever, voltar e confirmar retenção. Guardar → confirmação → detalhes → voltar à sessão; reabrir o diário e confirmar 7,5 apenas na própria avaliação. Num segundo registo, verificar que 0 permite guardar e continua 0 ao reabrir. No registo rápido, verificar a escolha explícita de Solo com um jogador; nas sessões Solo deve estar indisponível.
+
 ## Correção após utilização real no iPhone — validação visual aberta
 
 O utilizador reportou calendário quase ilegível, controlos sem texto e espaços excessivos. Esta correção tem prioridade sobre RESULT01: **não avançar para solo, cooperativo, empate ou dados reais antes da confirmação visual**.
@@ -14,7 +26,7 @@ Correções:
 - Data e hora têm linhas próprias com rótulos/valores visíveis. Só Alterar data ou Alterar hora abrem o seletor. Concluir aplica a seleção e fecha; Cancelar descarta apenas a alteração pendente no diálogo. Alterar o dia conserva a hora, e alterar a hora conserva o dia. Mudar de etapa não reinicializa os valores.
 - O diálogo nativo recebe tema claro/escuro, superfície, texto e cor de seleção coerentes. Tem altura limitada ao ecrã e ações Concluir/Cancelar fora da área de scroll. Ecrãs estreitos ou texto ampliado usam rodas nativas para evitar cortar o calendário.
 - Cada jogador tem nome, pontuação e seleção manual do vencedor numa linha compacta. O indicador tem área de toque de 44 pontos; texto ampliado permite quebrar a linha. Mantêm-se zero, negativos, controlo ± e validação obrigatória de todos os valores quando há pontuação.
-- Detalhes opcionais começam recolhidos. A avaliação pessoal mantém valores 0–10 e meios pontos com controlos compactos; Sem avaliação omite o valor. Não foi alterado o componente de estrelas usado nos restantes ecrãs. A revisão usa ligações compactas para corrigir secções. Corrigidos os nomes na seleção dos jogadores e reduzidas margens nas quatro etapas.
+- Detalhes opcionais começam recolhidos. Na correção visual inicial a avaliação mantinha valores 0–10 e meios pontos com controlos compactos; a continuação acima repõe estrelas e torna a avaliação obrigatória. Não foi alterado o componente de estrelas usado nos restantes ecrãs. A revisão usa ligações compactas para corrigir secções. Corrigidos os nomes na seleção dos jogadores e reduzidas margens nas quatro etapas.
 
 Verificação desta correção: Node 22.14.0/npm 10.9.2, TypeScript e **214 testes frontend** aprovados. Os novos testes cobrem UTC/meia-noite local e offsets verão/inverno em Lisboa, independência de data/hora, resposta tardia da sessão, retenção do rascunho, contraste/configuração dos dois temas e limites de layout. Bundle iOS devolveu HTTP 200 em Expo 8082; health confirma DeviceTests/MeepleBoard_DeviceTests/externalDelivery false em API 5099. Backend sem alterações nesta correção, sem novas migrações ou escritas SQL. Contentor habitual observado parado.
 
@@ -30,7 +42,7 @@ Jogadores aparecem numa lista compacta, sem repetir etiquetas e cartões com cam
 
 Resultado contém as opções **Sem pontuação** (predefinição) e **Com pontuação**. Nesta última, cada jogador precisa de um inteiro entre `-2147483648` e `2147483647`. Zero e negativos são valores válidos; espaços/vazio, um sinal isolado, decimais, notação hexadecimal/científica e overflow são recusados. O controlo **±** permite introduzir negativos no teclado numérico do iPhone; num campo vazio produz apenas um sinal pendente, nunca zero.
 
-Desligar pontuação conserva os textos no rascunho, mas omite todos os valores do pedido. Voltar a ligar recupera-os. O vencedor competitivo é sempre selecionado manualmente, mesmo com um único jogador; a maior ou menor pontuação não o decide. Alternar o modo limpa a escolha de resultado para não transportar vencedores de equipa para o competitivo; os valores dos jogadores são conservados ao passar por solo e regressar.
+Desligar pontuação conserva os textos no rascunho, mas omite todos os valores do pedido. Voltar a ligar recupera-os. O vencedor competitivo é sempre selecionado manualmente, com pelo menos dois participantes distintos; a maior ou menor pontuação não o decide. Alternar o modo limpa a escolha de resultado para não transportar vencedores de equipa para o competitivo; os valores dos jogadores são conservados ao passar por solo e regressar.
 
 Data/hora local e detalhes opcionais são editados na etapa Resultado, antes da revisão. A data é enviada em UTC e conserva a tolerância existente de um minuto para o futuro. Duração preenchida exige inteiro positivo compatível com o DTO. Local, comentários, diário, avaliação, tags e fotografias continuam disponíveis numa secção expansível. Rever mostra dados, nomes/pontuações, data/duração e restantes valores preenchidos, com ações para corrigir Jogo, Jogadores, Resultado ou Detalhes. Guardar só aparece na revisão.
 

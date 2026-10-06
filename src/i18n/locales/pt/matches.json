@@ -371,6 +371,16 @@
     "winnerColumn": "Vencedor",
     "ratingDecrease": "Diminuir avaliação",
     "ratingIncrease": "Aumentar avaliação",
-    "ratingClear": "Sem avaliação"
+    "ratingClear": "Sem avaliação",
+    "twoPlayers": "Competitivo exige pelo menos dois participantes distintos.",
+    "sessionNoSolo": "Solo não está disponível dentro de sessões.",
+    "sessionPlayersHint": "Adiciona outro participante confirmado nesta sessão.",
+    "quickPlayersHint": "Adiciona jogadores ou escolhe Solo no modo de jogo.",
+    "changeMode": "Escolher modo de jogo",
+    "ratingRequired": "Indica a tua avaliação de 0 a 10, em meios pontos, antes de guardar.",
+    "ratingTitle": "A tua avaliação · obrigatória",
+    "ratingHint": "Cada pessoa avalia a sua própria experiência.",
+    "notRated": "Não avaliado",
+    "starRating": "Avaliar com {{value}} de 10"
   }
 }
