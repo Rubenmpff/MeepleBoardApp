@@ -76,11 +76,33 @@ test('friend invitation and native date/time controls retain selection and mergi
   await view.press('Select Other player for invitation');
   assert.deepEqual(view.updates.find(c => c[0] === 2), [2, ['other']]);
   assert.equal(view.datePickers[0].locale, 'en-GB');
+  assert.equal(view.datePickers[0].themeVariant, 'light');
+  assert.ok(view.datePickers[0].textColor);
+  assert.equal(view.datePickers[0].style.width, '100%');
   const time = new Date(future); time.setHours(19, 15, 0, 0);
   view.datePickers[0].onChange({}, time);
   assert.equal(view.updates.find(c => c[0] === 4)[1].toISOString(), time.toISOString());
   await view.press('Done');
   assert.deepEqual(view.updates.find(c => c[0] === 7), [7, null]);
+});
+
+test('session friend load failure is distinct from empty results and retries the API', async () => {
+  const view = await render(create, { friendsError: 'Falha ao carregar amigos' });
+  assert.match(view.html, /Falha ao carregar amigos/);
+  assert.doesNotMatch(view.html, /Ainda não tens amigos/);
+  await view.press('Tentar novamente');
+  assert.deepEqual(view.calls.find(c => c[0] === 'refetchFriends'), ['refetchFriends', true]);
+});
+
+test('automatic response limit is distinguished from a custom deadline in both locales', async () => {
+  for (const language of ['pt', 'en']) {
+    const automatic = await render(detail, { language, states: { 0: { ...session, responseDeadline: null, effectiveDeadline: session.scheduledStartDate }, 1: false } });
+    assert.ok(automatic.html.includes(language === 'pt' ? 'Respostas até ao início:' : 'Reply before the session starts:'));
+    const custom = await render(detail, { language, states: { 0: { ...session, responseDeadline: deadline.toISOString() }, 1: false } });
+    assert.ok(custom.html.includes(language === 'pt' ? 'Prazo de resposta:' : 'Reply by:'));
+    const form = await render(create, { language });
+    assert.ok(form.html.includes(language === 'pt' ? 'Até ao início' : 'Until start'));
+  }
 });
 
 test('session invitations still call respondInvite with true or false', async () => {

@@ -203,8 +203,8 @@
     "time": "Hora",
     "deadline": "Prazo de resposta",
     "deadlineDate": "Data limite",
-    "enabled": "Ativado",
-    "disabled": "Desativado",
+    "enabled": "Personalizado",
+    "disabled": "Até ao início",
     "pastSession": "⚠️ A data tem de ser no futuro.",
     "pastDeadline": "⚠️ O prazo não pode ser no passado.",
     "lateDeadline": "⚠️ O prazo tem de ser antes da data da sessão.",
@@ -272,6 +272,7 @@
     "matches": "{{count}} partidas",
     "matchesTitle": "Partidas ({{count}})",
     "replyBy": "Prazo de resposta: {{date}}",
+    "replyByStart": "Respostas até ao início: {{date}}",
     "organizer": "Organizador: {{name}}",
     "listError": "Não foi possível carregar as sessões.",
     "selectFriend": "Selecionar {{name}} para convite"

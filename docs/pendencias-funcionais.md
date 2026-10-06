@@ -1,5 +1,9 @@
 # Pendências funcionais do MeepleBoard
 
+## Atualização — datas e amigos na criação de sessões
+
+Ver [sessoes-datas-e-amigos.md](sessoes-datas-e-amigos.md). Corrigida a ausência de UTC na resposta de sessões (`MappingEntityToDto`), distinguido prazo personalizado do limite automático e isolada a cache de amigos por login (`useFriends`); abertura força recarga e `CreateSessionScreen` mostra erro/repetição. Seletor iOS com contraste explícito. Criação e reabertura confirmadas com HTTP/SQL real na base descartável, sem aceitar convites ou testar campanhas. Validação visual no iPhone pendente. S04 continua aberta. Limitação adicional: `GameSessionRepository.GetListAsync` inclui Players sem User e pode devolver nomes desconhecidos na lista, embora o detalhe tenha os nomes corretos; validar consumidores antes de corrigir. Base habitual, CreatorId pendente nesse ambiente e fotografias públicas antigas permanecem inalterados.
+
 ## Atualização — escrita de sessões e erros após guardar
 
 Ver [estabilizacao-escrita-sessoes.md](estabilizacao-escrita-sessoes.md). UPD01 e JRN01 estão corrigidas e verificadas com HTTP/SQL real; S01/S02/S03 foram corrigidas no frontend, com testes e validação visual pendente. Corrigida a aceitação/recusa de convites que não persistia (tracking de `GameSessionPlayerRepository`) e o 500 ao negar registo (`MatchController.Forbid` usado com mensagem). Autorizações preservadas. Os registos anteriores descrevem o estado histórico; não significam que estes problemas continuem abertos. Campanhas e restantes modos/resultados ainda aguardam a etapa específica; S04 permanece aberta.

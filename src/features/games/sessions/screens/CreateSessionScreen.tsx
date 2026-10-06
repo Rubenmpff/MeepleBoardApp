@@ -37,7 +37,7 @@ export default function CreateSessionScreen() {
   const locale = i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB";
   const router = useRouter();
   const { createSession, error: createError } = useGameSessions();
-  const { friends, loading: friendsLoading } = useFriends();
+  const { friends, loading: friendsLoading, error: friendsError, refetch: refetchFriends } = useFriends();
   // Form state
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
@@ -268,7 +268,12 @@ export default function CreateSessionScreen() {
             icon="people"
             label={t("sessions.inviteFriends") + (selectedIds.length ? ` (${selectedIds.length})` : "")}
           />
-          {friendsLoading ? (
+          {friendsError ? (
+            <View style={styles.emptyFriends}>
+              <Text accessibilityRole="alert" style={styles.fieldError}>{friendsError}</Text>
+              <PrimaryButton title={t("common:retry")} onPress={() => void refetchFriends(true)} />
+            </View>
+          ) : friendsLoading ? (
             <ActivityIndicator color={COLORS.primary} style={{ marginVertical: 16 }} />
           ) : friendList.length === 0 ? (
             <View style={styles.emptyFriends}>
@@ -363,6 +368,8 @@ function InlinePicker({ value, mode, onChange, onDone, minimumDate, maximumDate 
     <View style={styles.iosPickerWrap}>
       <DateTimePicker
         value={value} mode={mode} display="spinner"
+        themeVariant="light" textColor={COLORS.onBackground}
+        style={{ width: "100%", height: 216 }}
         onChange={onChange}
         minimumDate={minimumDate} maximumDate={maximumDate}
         locale={i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB"}
@@ -399,7 +406,7 @@ const styles = StyleSheet.create({
   toggleTextActive: { color: COLORS.primary },
   deadlineHint: { ...UI_STYLES.caption, color: COLORS.textMuted },
   iosPickerWrap: {
-    marginTop: 12, borderTopWidth: 1, borderTopColor: "#eee", paddingTop: 8,
+    marginTop: 12, borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 8, backgroundColor: COLORS.card,
   },
   iosPickerDone: { ...UI_STYLES.button, backgroundColor: COLORS.primary, marginTop: 12 },
   iosPickerDoneText: { color: "#fff", fontWeight: "700", fontSize: 14 },

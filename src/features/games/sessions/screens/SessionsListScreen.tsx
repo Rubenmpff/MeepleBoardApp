@@ -116,7 +116,7 @@ export default function SessionsListScreen() {
         <Text style={styles.cardSub}>🗓 {when}</Text>
         {/* Deadline (só para Upcoming) */}
         {item.status === "Upcoming" && deadline && (
-          <Text style={styles.deadlineText}>⏰ {t("sessions.replyBy", { date: deadline })}</Text>
+          <Text style={styles.deadlineText}>⏰ {t(item.responseDeadline ? "sessions.replyBy" : "sessions.replyByStart", { date: deadline })}</Text>
         )}
         <View style={styles.cardFooter}>
           <View style={styles.cardMeta}>

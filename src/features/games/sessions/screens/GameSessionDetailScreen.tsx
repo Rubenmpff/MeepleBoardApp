@@ -174,7 +174,7 @@ export default function GameSessionDetailScreen() {
         {!!session.location && <InfoRow icon="place" text={session.location} />}
         {!!scheduledLabel && <InfoRow icon="schedule" text={scheduledLabel} />}
         {!!deadlineLabel && isUpcoming && (
-          <InfoRow icon="timer" text={t("sessions.replyBy", { date: deadlineLabel })} color={COLORS.secondary} />
+          <InfoRow icon="timer" text={t(session?.responseDeadline ? "sessions.replyBy" : "sessions.replyByStart", { date: deadlineLabel })} color={COLORS.secondary} />
         )}
         <InfoRow icon="person" text={t("sessions.organizer", { name: session.organizerUserName })} />
         {/* Confirmações */}

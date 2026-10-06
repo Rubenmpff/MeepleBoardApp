@@ -203,8 +203,8 @@
     "time": "Time",
     "deadline": "Response deadline",
     "deadlineDate": "Deadline date",
-    "enabled": "Enabled",
-    "disabled": "Disabled",
+    "enabled": "Custom",
+    "disabled": "Until start",
     "pastSession": "⚠️ The date must be in the future.",
     "pastDeadline": "⚠️ The deadline cannot be in the past.",
     "lateDeadline": "⚠️ The deadline must be before the session date.",
@@ -272,6 +272,7 @@
     "matches": "{{count}} matches",
     "matchesTitle": "Matches ({{count}})",
     "replyBy": "Reply by: {{date}}",
+    "replyByStart": "Reply before the session starts: {{date}}",
     "organizer": "Organiser: {{name}}",
     "listError": "Could not load sessions.",
     "selectFriend": "Select {{name}} for invitation"
