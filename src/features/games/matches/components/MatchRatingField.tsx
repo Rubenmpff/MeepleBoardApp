@@ -1,6 +1,6 @@
 import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_COLORS as COLORS, RATING_COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 
 // Ten compact stars; half-point controls remain explicit and accessible.
@@ -14,8 +14,9 @@ export default function MatchRatingField({ value, onChange }: { value?: number; 
         style={styles.starButton} accessibilityRole="button" accessibilityLabel={t("form.starRating", { value: point })}
         accessibilityState={{ selected: value === point }} onPress={() => onChange(point)}>
         <View style={styles.starGlyph}>
-          <Text allowFontScaling={false} style={[styles.star, { color: value !== undefined && value >= point ? COLORS.secondary : COLORS.textMuted }]}>★</Text>
-          {value === point - 0.5 && <View style={styles.half}><Text allowFontScaling={false} style={[styles.star, { color: COLORS.secondary }]}>★</Text></View>}
+          <Text allowFontScaling={false} style={[styles.star, { color: value !== undefined && value >= point ? RATING_COLORS.gold : RATING_COLORS.empty }]}>{value !== undefined && value >= point ? "★" : "☆"}</Text>
+          {value === point - 0.5 && <View style={styles.half}><Text allowFontScaling={false} style={[styles.star, { color: RATING_COLORS.gold }]}>★</Text></View>}
+          {value !== undefined && value >= point - 0.5 && <Text allowFontScaling={false} style={[styles.star, styles.outline]}>☆</Text>}
         </View>
         <Text style={styles.number}>{point}</Text>
       </TouchableOpacity>)}
@@ -43,6 +44,7 @@ const styles = StyleSheet.create({
   starButton: { width: "18%", minWidth: 44, minHeight: 56, alignItems: "center", justifyContent: "center" },
   starGlyph: { width: 30, height: 34, position: "relative" },
   star: { fontSize: 30, lineHeight: 34 },
+  outline: { position: "absolute", left: 0, top: 0, color: RATING_COLORS.outline },
   half: { position: "absolute", width: 15, overflow: "hidden", left: 0, top: 0 },
   number: { ...UI_STYLES.caption, color: COLORS.onBackground },
   hint: { ...UI_STYLES.caption, color: COLORS.textMuted },

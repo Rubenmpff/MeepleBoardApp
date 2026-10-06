@@ -1,5 +1,12 @@
 # Pendências funcionais do MeepleBoard
 
+## Próxima decisão — Solo, cooperativo e empate
+
+O utilizador confirmou melhoria do formulário e pediu estrelas amarelas/douradas. Ajustada a paleta com contorno contrastante e estrelas vazias sem preenchimento; corrigida a indicação indevida «toca para avaliar» no diário com zero válido. Avaliação 0 verificada novamente por gravação e duas releituras HTTP em DeviceTests, sem avaliação atribuída ao segundo jogador. Confirmação física do dourado/zero ainda pendente.
+
+Ver [proposta de modos/resultados e impacto no histórico](proposta-modos-resultados.md): contrato explícito, critérios de estatísticas e preservação de legado ambíguo. **Nenhuma regra de resultado nova foi implementada nesta etapa.** Autenticação com duas propostas visuais, Estatísticas, «O teu ano à mesa» e auditoria dos ecrãs estão registados em [próximas etapas](proximas-etapas-produto.md), para apresentar propostas antes de implementar cada uma.
+
+
 ## Continuação — participantes e avaliação própria
 
 Fechadas em código e em DeviceTests: mínimo de dois participantes distintos em partidas não Solo; Solo indisponível dentro de sessões; avaliação própria obrigatória 0–10 em meios pontos, zero distinto de ausência, estrelas repostas. Corrigido arredondamento do diário com migração exclusiva de testes. Ver [regras, verificação e percurso](formulario-registo-partidas.md). A revisão visual no iPhone permanece aberta até confirmação do utilizador. RESULT01 mantém as limitações de resultados Solo, cooperativos e empate; não inferir vitórias/derrotas/empates e não avançar para dados reais.

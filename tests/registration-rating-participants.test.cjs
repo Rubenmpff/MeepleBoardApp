@@ -54,3 +54,13 @@ test('stars expose whole points and explicit zero with half-point adjustments', 
   await view.press('Avaliar com 7 de 10'); await view.press('Avaliar com 0 de 10'); await view.press('Diminuir avaliação');
   assert.deepEqual(changes, [7, 0, 7]); assert.match(view.html, /★/);
 });
+
+ test('shared diary stars distinguish explicit zero from an absent rating', async () => {
+  for (const readonly of [true, false]) {
+    const zero = await renderNative('src/shared/components/StarRating.tsx', 'StarRating', { value: 0, readonly, appearance: 'refresh' });
+    assert.match(zero.html, /0.0\/10/); assert.match(zero.html, /Avaliação zero/);
+    assert.doesNotMatch(zero.html, /Toca.*avaliar/);
+  }
+  const empty = await renderNative('src/shared/components/StarRating.tsx', 'StarRating', { appearance: 'refresh' });
+  assert.doesNotMatch(empty.html, /0.0\/10|Avaliação zero/);
+});

@@ -40,7 +40,8 @@
     "masterpiece": "💯 Obra-prima!",
     "tapToRate": "Toca nas estrelas para avaliar",
     "setHalfAccessibility": "Definir avaliação como {{value}} em 10",
-    "setFullAccessibility": "Definir avaliação como {{value}} em 10"
+    "setFullAccessibility": "Definir avaliação como {{value}} em 10",
+    "zero": "Avaliação zero"
   },
   "details": {
     "notFound": "Jogo não encontrado.",

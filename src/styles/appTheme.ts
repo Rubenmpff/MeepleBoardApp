@@ -25,3 +25,6 @@ export const UI_COLORS = {
   textMuted: APP_THEME.colors.muted, surface: APP_THEME.colors.card,
   secondary: APP_THEME.colors.session, success: APP_THEME.colors.library,
 };
+
+// Bright gold fill with a contrasting outline; empty stars stay hollow.
+export const RATING_COLORS = { gold: "#F5BE32", outline: "#8A6200", empty: "#52616B" } as const;

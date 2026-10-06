@@ -40,7 +40,8 @@
     "masterpiece": "💯 Masterpiece!",
     "tapToRate": "Tap the stars to rate",
     "setHalfAccessibility": "Set rating to {{value}} out of 10",
-    "setFullAccessibility": "Set rating to {{value}} out of 10"
+    "setFullAccessibility": "Set rating to {{value}} out of 10",
+    "zero": "Zero rating"
   },
   "details": {
     "notFound": "Game not found.",

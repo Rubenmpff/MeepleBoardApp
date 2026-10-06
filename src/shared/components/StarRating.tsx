@@ -6,7 +6,7 @@ import {
   View,
 } from "react-native";
 import { useTranslation } from "react-i18next";
-import { UI_COLORS, APP_THEME } from "@/src/styles/appTheme";
+import { UI_COLORS, APP_THEME, RATING_COLORS } from "@/src/styles/appTheme";
 
 interface StarRatingProps {
   value?: number | null;
@@ -17,8 +17,8 @@ interface StarRatingProps {
   appearance?: "default" | "refresh";
 }
 
-const STAR_COLOR = "#F9A825";
-const STAR_EMPTY = "#E0E0E0";
+const STAR_COLOR = RATING_COLORS.gold;
+const STAR_EMPTY = RATING_COLORS.empty;
 
 function Star({
   index,
@@ -62,12 +62,12 @@ function Star({
           styles.starBase,
           {
             fontSize: size,
-            color: refresh ? (full ? UI_COLORS.secondary : UI_COLORS.textMuted) : (full ? STAR_COLOR : STAR_EMPTY),
+            color: full ? STAR_COLOR : STAR_EMPTY,
             ...(refresh ? { position: "absolute", left: (100 - size) / 2 } as const : {}),
           },
         ]}
       >
-        ★
+        {full ? "★" : "☆"}
       </Text>
 
       {half && (
@@ -76,13 +76,16 @@ function Star({
             allowFontScaling={!refresh}
             style={[
               styles.starBase,
-              { fontSize: size, color: refresh ? UI_COLORS.secondary : STAR_COLOR },
+              { fontSize: size, color: STAR_COLOR },
             ]}
           >
             ★
           </Text>
         </View>
       )}
+
+      {(full || half) && <Text allowFontScaling={!refresh} style={{ position: "absolute", top: 0,
+        left: refresh ? (100 - size) / 2 : 0, fontSize: size, color: RATING_COLORS.outline }}>☆</Text>}
 
       {!readonly && (
         <>
@@ -127,7 +130,7 @@ export function StarRating({
   const refresh = appearance === "refresh" && !readonly;
 
   function getRatingLabel(rating: number): string {
-    if (rating === 0) return t("rating.none");
+    if (rating === 0) return t("rating.zero");
     if (rating <= 1) return t("rating.terrible");
     if (rating <= 2) return t("rating.veryWeak");
     if (rating <= 3) return t("rating.weak");
@@ -168,7 +171,7 @@ export function StarRating({
         })}
       </View>
 
-      {showLabel && current > 0 && (
+      {showLabel && value != null && (
         <View style={styles.labelRow}>
           <Text style={[styles.labelValue, refresh && { color: UI_COLORS.onBackground }]}>
             {current.toFixed(1)}/10
@@ -179,7 +182,7 @@ export function StarRating({
         </View>
       )}
 
-      {showLabel && current === 0 && !readonly && (
+      {showLabel && value == null && !readonly && (
         <Text style={[styles.labelEmpty, refresh && { ...APP_THEME.text.caption, color: UI_COLORS.textMuted }]}>{t("rating.tapToRate")}</Text>
       )}
     </View>
@@ -208,7 +211,7 @@ const styles = StyleSheet.create({
   labelValue: {
     fontSize: 15,
     fontWeight: "800",
-    color: STAR_COLOR,
+    color: UI_COLORS.onBackground,
   },
   labelText: {
     fontSize: 13,
