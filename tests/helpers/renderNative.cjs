@@ -31,7 +31,8 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     TextInput: p => { inputs.push(p); return null; }, TouchableOpacity: button, Pressable: button,
     RefreshControl: () => null, Alert: { alert: (...args) => calls.push(['alert', ...args]) },
     Keyboard: { dismiss: () => calls.push(['dismissKeyboard']), addListener: (name, callback) => { calls.push(['keyboardListener', name, callback]); return { remove: () => calls.push(['removeKeyboardListener', name]) }; } },
-    useWindowDimensions: () => ({ width: options.width || 390, fontScale: options.fontScale || 1 }),
+    useColorScheme: () => options.colorScheme || "light",
+    useWindowDimensions: () => ({ width: options.width || 390, height: options.height || 844, fontScale: options.fontScale || 1 }),
     StyleSheet: { create: v => v, hairlineWidth: 1, absoluteFill: {} },
     Animated: { Value: class { constructor(value) { this.value = value; } }, spring: () => ({ start() {} }), timing: () => ({ start() {} }), View: host },
     FlatList: p => {

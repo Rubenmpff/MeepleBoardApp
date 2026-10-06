@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, useWindowDimensions } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { PlayerState } from "../../../users/types/PlayerState";
@@ -17,8 +17,17 @@ type Props = {
 
 export default function MatchResultFields({ players, onChange, scoresEnabled, onScoresEnabled, competitive, showErrors }: Props) {
   const { t } = useTranslation("matches");
+  const { width, fontScale } = useWindowDimensions();
+  const expanded = width < 360 || fontScale > 1.3;
   const updateScore = (id: string, score: string) => onChange(players.map(p => p.id === id ? { ...p, score } : p));
-  return <View style={{ gap: 12 }}>
+  const winnerControl = (p: PlayerState) => competitive && <TouchableOpacity accessibilityRole="radio"
+    accessibilityLabel={t("selector.winnerFor", { name: p.username })} accessibilityState={{ selected: p.isWinner }}
+    onPress={() => onChange(players.map(player => ({ ...player, isWinner: player.id === p.id })))}
+    style={[styles.winner, p.isWinner && styles.active]}>
+    <MaterialIcons name={p.isWinner ? "radio-button-checked" : "radio-button-unchecked"} size={24} color={p.isWinner ? COLORS.primary : COLORS.textMuted} />
+  </TouchableOpacity>;
+
+  return <View style={{ gap: 8 }}>
     <View style={styles.options}>
       {[false, true].map(enabled => <TouchableOpacity key={String(enabled)} accessibilityRole="radio"
         accessibilityState={{ selected: scoresEnabled === enabled }} onPress={() => onScoresEnabled(enabled)}
@@ -28,35 +37,33 @@ export default function MatchResultFields({ players, onChange, scoresEnabled, on
     </View>
     <Text style={styles.hint}>{t(competitive ? "form.winnerHelp" : "form.modeLimitations")}</Text>
     {scoresEnabled && <Text style={styles.hint}>{t("form.scoreHelp")}</Text>}
+    {competitive && <Text style={styles.columnLabel}>{t("form.winnerColumn")}</Text>}
     {players.map(p => {
       const error = scoresEnabled ? scoreError(p.score) : undefined;
       const visibleError = error && (showErrors || !!p.score?.trim());
-      return <View key={p.id} style={styles.player}>
-        <View style={styles.nameRow}>
-          <Text style={styles.name}>{p.username || t("sessions.playerNameUnavailable")}</Text>
-          {competitive && <TouchableOpacity accessibilityRole="radio"
-            accessibilityLabel={t("selector.winnerFor", { name: p.username })} accessibilityState={{ selected: p.isWinner }}
-            onPress={() => onChange(players.map(player => ({ ...player, isWinner: player.id === p.id })))}
-            style={[styles.winner, p.isWinner && styles.active]}>
-            <MaterialIcons name={p.isWinner ? "emoji-events" : "radio-button-unchecked"} size={20} color={p.isWinner ? COLORS.primary : COLORS.textMuted} />
-            <Text style={styles.winnerText}>{t(p.isWinner ? "selector.winner" : "selector.setWinner")}</Text>
-          </TouchableOpacity>}
-        </View>
-        {scoresEnabled && <View style={{ gap: 6 }}>
-          <Text style={styles.label}>{t("form.scoreFor", { name: p.username })}</Text>
-          <View style={styles.scoreRow}>
-            <TouchableOpacity style={styles.sign} accessibilityRole="button" accessibilityLabel={t("form.toggleSign", { name: p.username })}
-              onPress={() => updateScore(p.id, toggleScoreSign(p.score))}>
-              <Text style={styles.signText}>±</Text>
-            </TouchableOpacity>
-            <TextInput style={[styles.input, visibleError && { borderColor: COLORS.error }]}
-              accessibilityLabel={t("form.scoreFor", { name: p.username })}
-              value={p.score ?? ""} onChangeText={value => updateScore(p.id, value)}
-              keyboardType="number-pad" placeholder="—" placeholderTextColor={COLORS.textMuted}
-              autoCorrect={false} selectTextOnFocus returnKeyType="done" />
+      return <View key={p.id} style={[styles.player, p.isWinner && competitive && styles.selectedPlayer]}>
+        <View style={[styles.playerRow, expanded && styles.expandedRow]}>
+          <View style={[styles.nameRow, expanded && styles.expandedNameRow]}>
+            <Text style={styles.name}>{p.username || t("sessions.playerNameUnavailable")}</Text>
+            {expanded && winnerControl(p)}
           </View>
-          {visibleError && <Text accessibilityLiveRegion="polite" style={styles.error}>{t(error === "required" ? "form.scoreRequired" : "form.scoreInvalid")}</Text>}
-        </View>}
+          {scoresEnabled && <View style={[styles.scoreBlock, expanded && styles.expandedScore]}>
+            <Text style={styles.label}>{t("form.points")}</Text>
+            <View style={styles.scoreRow}>
+              <TouchableOpacity style={styles.sign} accessibilityRole="button" accessibilityLabel={t("form.toggleSign", { name: p.username })}
+                onPress={() => updateScore(p.id, toggleScoreSign(p.score))}>
+                <Text style={styles.signText}>±</Text>
+              </TouchableOpacity>
+              <TextInput style={[styles.input, visibleError && { borderColor: COLORS.error }]}
+                accessibilityLabel={t("form.scoreFor", { name: p.username })}
+                value={p.score ?? ""} onChangeText={value => updateScore(p.id, value)}
+                keyboardType="number-pad" placeholder="—" placeholderTextColor={COLORS.textMuted}
+                autoCorrect={false} selectTextOnFocus returnKeyType="done" />
+            </View>
+          </View>}
+          {!expanded && winnerControl(p)}
+        </View>
+        {visibleError && <Text accessibilityLiveRegion="polite" style={styles.error}>{t(error === "required" ? "form.scoreRequired" : "form.scoreInvalid")}</Text>}
       </View>;
     })}
     {competitive && showErrors && !players.some(p => p.isWinner) && <Text accessibilityLiveRegion="polite" style={styles.error}>{t("validation.selectWinner")}</Text>}
@@ -65,19 +72,25 @@ export default function MatchResultFields({ players, onChange, scoresEnabled, on
 
 const styles = StyleSheet.create({
   options: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  option: { ...UI_STYLES.control, padding: 12, borderWidth: 1, borderColor: COLORS.border, flexGrow: 1, alignItems: "center" },
-  optionText: { ...UI_STYLES.body, fontWeight: "700" },
+  option: { ...UI_STYLES.control, padding: 10, borderWidth: 1, borderColor: COLORS.border, flexGrow: 1, alignItems: "center" },
+  optionText: { ...UI_STYLES.body, fontWeight: "700", color: COLORS.onBackground },
   active: { borderColor: COLORS.primary, backgroundColor: COLORS.primarySoft },
   hint: { ...UI_STYLES.caption, color: COLORS.textMuted },
-  player: { gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  nameRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 },
-  name: { ...UI_STYLES.body, fontWeight: "700", flexGrow: 1, flexShrink: 1 },
-  winner: { ...UI_STYLES.control, paddingHorizontal: 12, borderWidth: 1, borderColor: COLORS.border, flexDirection: "row", gap: 8, flexWrap: "wrap" },
-  winnerText: { ...UI_STYLES.caption, color: COLORS.primary, fontWeight: "700", flexShrink: 1 },
+  columnLabel: { ...UI_STYLES.caption, color: COLORS.onBackground, fontWeight: "700", textAlign: "right" },
+  player: { paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: COLORS.border, gap: 4 },
+  selectedPlayer: { borderBottomColor: COLORS.primary },
+  playerRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  expandedRow: { flexDirection: "column", alignItems: "stretch" },
+  nameRow: { flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: 8 },
+  expandedNameRow: { flex: 0, width: "100%" },
+  name: { ...UI_STYLES.body, color: COLORS.onBackground, fontWeight: "700", flex: 1, minWidth: 0 },
+  winner: { width: 44, minHeight: 44, borderRadius: 22, borderWidth: 1, borderColor: COLORS.border, alignItems: "center", justifyContent: "center" },
   label: { ...UI_STYLES.caption, color: COLORS.textMuted },
-  scoreRow: { flexDirection: "row", gap: 8, alignItems: "center" },
-  sign: { ...UI_STYLES.control, minWidth: 52, padding: 10, backgroundColor: COLORS.primarySoft, alignItems: "center" },
+  scoreBlock: { width: 132, gap: 2 },
+  expandedScore: { width: "100%" },
+  scoreRow: { flexDirection: "row", gap: 4, alignItems: "center" },
+  sign: { ...UI_STYLES.control, minWidth: 44, paddingHorizontal: 8, backgroundColor: COLORS.primarySoft, alignItems: "center" },
   signText: { fontSize: 22, color: COLORS.primary, fontWeight: "700" },
-  input: { ...UI_STYLES.field, flex: 1, minWidth: 0, fontWeight: "700" },
+  input: { ...UI_STYLES.field, minHeight: 44, paddingHorizontal: 8, paddingVertical: 8, flex: 1, minWidth: 0, fontWeight: "700", textAlign: "right" },
   error: { ...UI_STYLES.caption, color: COLORS.error },
 });

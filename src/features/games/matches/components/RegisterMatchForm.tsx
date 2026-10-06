@@ -19,7 +19,7 @@ import { toMatchPlayerDto } from "../../../users/utils/playerMappers";
 import { GameSelector } from "../../catalog/components/GameSelector";
 import { ExpansionSelector } from "../../catalog/components/ExpansionSelector";
 import PlayerSelector from "../../../users/components/PlayerSelector";
-import { StarRating } from "../../../../shared/components/StarRating";
+import MatchRatingField from "./MatchRatingField";
 
 import { Game } from "../../catalog/types/Game";
 import { useRouter } from "expo-router";
@@ -27,7 +27,8 @@ import MatchSummary from "./MatchSummary";
 import GameCover from "./GameCover";
 import MatchResultFields from "./MatchResultFields";
 import { hasCompleteScores } from "../utils/registrationScores";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import MatchDateFields from "./MatchDateFields";
+import { initialSessionMatchDate } from "../utils/registrationDate";
 import { MatchDto, MatchFormData } from "../types/MatchForm";
 import { PlayerState } from "../../../users/types/PlayerState";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
@@ -89,6 +90,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const [step, setStep] = useState<Step>(0);
   useEffect(() => {
     Keyboard.dismiss();
+    setDatePicker(null);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, [step]);
 
@@ -127,6 +129,8 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const [showDetails, setShowDetails] = useState(false);
   const [showResultErrors, setShowResultErrors] = useState(false);
   const [teamResult, setTeamResult] = useState<"win" | "loss" | null>(null);
+  const initializedSessionDate = useRef<string | null>(null);
+  const matchDateEdited = useRef(false);
 
   useEffect(() => {
     let mounted = true;
@@ -135,7 +139,13 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       try {
         setSessionLoading(true);
         const data = await sessionService.getById(sessionId);
-        if (mounted) setSession(data);
+        if (mounted) {
+          setSession(data);
+          if (data && initializedSessionDate.current !== sessionId && !matchDateEdited.current) {
+            setMatchDate(current => initialSessionMatchDate(data, current));
+            initializedSessionDate.current = sessionId;
+          }
+        }
       } catch { if (mounted) setSession(null); }
       finally { if (mounted) setSessionLoading(false); }
     }
@@ -283,12 +293,15 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const clearAll = () => {
     submittedMatch.current = null;
     multiplayerDraft.current = [];
+    matchDateEdited.current = false;
+    initializedSessionDate.current = null;
     navigationGuard.markUnsaved();
     setSelectedGame(null); setSelectedExpansions([]); setPlayerState([]);
     setLocation(""); setDuration(""); setComments("");
     setPersonalRating(undefined); setNotes(""); setTags(""); setPendingPhotos([]);
     setUnofficialMode(null); setUnofficialJustification("");
-    setSavedMatch(null); setFailedPhotos([]); setScoresEnabled(false); setMatchDate(new Date());
+    setSavedMatch(null); setFailedPhotos([]); setScoresEnabled(false);
+    setMatchDate(isSessionMatch && session ? initialSessionMatchDate(session, new Date()) : new Date());
     setShowDetails(false); setShowResultErrors(false); setDatePicker(null); setTeamResult(null);
     setEditingGame(true); setGameMode("multiplayer"); setSoloResult("none"); setStep(0);
   };
@@ -639,22 +652,16 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
           </View>
           <View style={styles.card}>
-            <SectionTitle icon="event" label={t("form.date")} />
-            <View style={styles.dateRow}>
-              <PrimaryButton title={matchDate.toLocaleDateString(locale)} variant="secondary" accessibilityLabel={t("form.date")} onPress={() => { Keyboard.dismiss(); setDatePicker("date"); }} />
-              <PrimaryButton title={matchDate.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })} variant="secondary" accessibilityLabel={t("form.time")} onPress={() => { Keyboard.dismiss(); setDatePicker("time"); }} />
-            </View>
-            {datePicker && <View>
-              <DateTimePicker value={matchDate} mode={datePicker} display={Platform.OS === "ios" ? "inline" : "default"}
-                maximumDate={datePicker === "date" ? new Date() : undefined}
-                onChange={(_event, date) => { if (date) setMatchDate(date); if (Platform.OS !== "ios") setDatePicker(null); }} />
-              {Platform.OS === "ios" && <PrimaryButton title={t("form.done")} variant="secondary" onPress={() => setDatePicker(null)} />}
-            </View>}
-            <PrimaryButton title={t("form.optionalDetails")} variant="secondary" onPress={() => setShowDetails(value => !value)} />
+            <MatchDateFields value={matchDate} locale={locale} picker={datePicker} onPickerChange={setDatePicker}
+              onChange={date => { matchDateEdited.current = true; setMatchDate(date); }} />
           </View>
+          <TouchableOpacity style={styles.detailsToggle} accessibilityRole="button" accessibilityState={{ expanded: showDetails }}
+            onPress={() => setShowDetails(value => !value)}>
+            <Text style={styles.detailsToggleText}>{t("details.optionalTitle")}</Text>
+            <MaterialIcons name={showDetails ? "expand-less" : "expand-more"} size={22} color={COLORS.primary} />
+          </TouchableOpacity>
           {showDetails && <View>
             <View style={styles.card}>
-              <SectionTitle icon="info" label={t("details.optionalTitle")} />
               <DetailField label={t("details.locationLabel")} placeholder={t("details.locationPlaceholder")} value={location} onChangeText={setLocation} />
               <DetailField label={t("details.durationLabel")} placeholder={t("details.durationPlaceholder")} value={duration} onChangeText={setDuration} keyboardType="numeric" />
               <DetailField label={t("details.commentsLabel")} placeholder={t("details.commentsPlaceholder")} value={comments} onChangeText={setComments} multiline numberOfLines={3} />
@@ -662,9 +669,8 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
             <View style={styles.card}>
               <SectionTitle icon="auto-stories" label={t("details.journalTitle")} />
-              <Text style={styles.subLabel}>{t("details.ratingLabel")}</Text>
-              <StarRating appearance="refresh" value={personalRating} onChange={setPersonalRating} size={30} />
-              <View style={{ marginTop: 16 }}>
+              <MatchRatingField value={personalRating} onChange={setPersonalRating} />
+              <View style={{ marginTop: 8 }}>
                 <DetailField
                   label={t("details.notesLabel")}
                   placeholder={t("details.notesPlaceholder")}
@@ -730,14 +736,15 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
                   : playerState.find((p) => p.isWinner)?.username ?? t("summary.notDefined")}
               />
             )}
-            <PrimaryButton title={t("form.edit", { section: t("steps.game") })} variant="secondary" onPress={() => setStep(0)} />
+            <ReviewEdit label={t("form.edit", { section: t("steps.game") })} onPress={() => setStep(0)} />
             <SummaryRow label={t("summary.players")} value={`${playerState.length}`} />
             {playerState.map(p => <SummaryRow key={p.id} label={p.username || t("sessions.playerNameUnavailable")}
               value={scoresEnabled ? String(p.score?.trim() ?? "") : t("form.withoutScores")} />)}
-            <PrimaryButton title={t("form.edit", { section: t("steps.players") })} variant="secondary" onPress={() => setStep(1)} />
+            <ReviewEdit label={t("form.edit", { section: t("steps.players") })} onPress={() => setStep(1)} />
             <SummaryRow label={t("steps.result")} value={t(scoresEnabled ? "form.withScores" : "form.withoutScores")} />
-            <PrimaryButton title={t("form.edit", { section: t("steps.result") })} variant="secondary" onPress={() => setStep(2)} />
-            <SummaryRow label={t("form.date")} value={matchDate.toLocaleString(locale)} />
+            <ReviewEdit label={t("form.edit", { section: t("steps.result") })} onPress={() => setStep(2)} />
+            <SummaryRow label={t("form.date")} value={matchDate.toLocaleDateString(locale)} />
+            <SummaryRow label={t("form.time")} value={matchDate.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })} />
             {selectedExpansions.length > 0 && <SummaryRow label={t("summary.expansions")} value={selectedExpansions.map((e) => e.name).join(", ")} />}
             {location.trim() !== "" && <SummaryRow label={t("summary.location")} value={location} />}
             {duration.trim() !== "" && <SummaryRow label={t("summary.duration")} value={t("summary.minutes", { value: duration })} />}
@@ -747,7 +754,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
             {tags.trim() && <SummaryRow label={t("details.tagsLabel")} value={tags.trim()} />}
             {isUnofficial && <SummaryRow label={t("modes.reasonLabel")} value={unofficialJustification} />}
             {pendingPhotos.length > 0 && <SummaryRow label={t("photos.label")} value={String(pendingPhotos.length)} />}
-            <PrimaryButton title={t("form.edit", { section: t("steps.details") })} variant="secondary"
+            <ReviewEdit label={t("form.edit", { section: t("steps.details") })}
               onPress={() => { setShowDetails(true); setStep(2); }} />
           </View>
 
@@ -833,13 +840,20 @@ function DetailField({ label, placeholder, value, onChangeText, keyboardType, mu
     <View style={styles.detailField}>
       <Text style={styles.detailLabel}>{label}</Text>
       <TextInput
-        style={[styles.detailInput, multiline && { minHeight: (numberOfLines ?? 3) * 26, paddingTop: 10 }]}
+        style={[styles.detailInput, multiline && { minHeight: Math.min(numberOfLines ?? 3, 3) * 22, paddingTop: 10 }]}
         accessibilityLabel={label} placeholder={placeholder} placeholderTextColor={COLORS.textMuted} value={value} onChangeText={onChangeText}
         keyboardType={keyboardType ?? "default"} multiline={multiline} numberOfLines={numberOfLines}
         textAlignVertical={multiline ? "top" : "center"}
       />
     </View>
   );
+}
+
+function ReviewEdit({ label, onPress }: { label: string; onPress: () => void }) {
+  return <TouchableOpacity accessibilityRole="button" accessibilityLabel={label} style={styles.reviewEdit} onPress={onPress}>
+    <Text style={styles.detailsToggleText}>{label}</Text>
+    <MaterialIcons name="edit" size={16} color={COLORS.primary} />
+  </TouchableOpacity>;
 }
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
@@ -855,7 +869,7 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 16, paddingBottom: 20, backgroundColor: COLORS.background },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
 
-  header: { marginBottom: 16 },
+  header: { marginBottom: 8 },
   title: { ...UI_STYLES.title },
   badgeRow: { flexDirection: "row", marginTop: 6, gap: 8, flexWrap: "wrap" },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
@@ -867,7 +881,7 @@ const styles = StyleSheet.create({
   unofficialBadge: { backgroundColor: "#fff8e1", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, borderWidth: 1, borderColor: "#ffe082" },
   unofficialBadgeText: { fontSize: 11, fontWeight: "700", color: "#f39c12" },
 
-  progressContainer: { flexDirection: "row", alignItems: "flex-start", marginBottom: 20 },
+  progressContainer: { flexDirection: "row", alignItems: "flex-start", marginBottom: 12 },
   progressStep: { flex: 1, minWidth: 0, alignItems: "center", gap: 4 },
   progressDot: { width: 32, height: 32, borderRadius: 16, backgroundColor: COLORS.border, alignItems: "center", justifyContent: "center" },
   progressDotDone: { backgroundColor: COLORS.success },
@@ -880,13 +894,14 @@ const styles = StyleSheet.create({
   progressLine: { width: 8, height: 2, backgroundColor: COLORS.border, marginTop: 15 },
   progressLineDone: { backgroundColor: COLORS.success },
 
-  card: { paddingVertical: 12, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  sectionTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 },
+  card: { paddingVertical: 8, marginBottom: 4, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  sectionTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
   sectionTitleText: { ...UI_STYLES.section },
 
-  gameRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 16 },
+  gameRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 8 },
   modeLink: { minHeight: 44, justifyContent: "center" },
-  dateRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 },
+  detailsToggle: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, paddingVertical: 8 },
+  detailsToggleText: { ...UI_STYLES.body, color: COLORS.primary, fontWeight: "700", flexShrink: 1 },
   gameName: { ...UI_STYLES.section },
   gameMeta: { ...UI_STYLES.caption, color: COLORS.textMuted, marginTop: 4 },
   subLabel: { fontSize: 13, fontWeight: "700", color: COLORS.onBackground, marginBottom: 8 },
@@ -916,7 +931,7 @@ const styles = StyleSheet.create({
   playerName: { fontSize: 15, fontWeight: "700", color: COLORS.onBackground },
 
   detailField: { marginBottom: 12 },
-  detailLabel: { ...UI_STYLES.body, fontWeight: "700", marginBottom: 8 },
+  detailLabel: { ...UI_STYLES.body, color: COLORS.onBackground, fontWeight: "700", marginBottom: 4 },
   detailInput: { ...UI_STYLES.field },
 
   tagsPreviewRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 6 },
@@ -930,10 +945,11 @@ const styles = StyleSheet.create({
   photoAddText: { ...UI_STYLES.caption, color: COLORS.primary, fontWeight: "700", marginTop: 4 },
 
   summaryCard: { paddingVertical: 12, marginBottom: 12, gap: 8 },
+  reviewEdit: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-start" },
   summaryTitle: { ...UI_STYLES.section, marginBottom: 12 },
   summaryRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingVertical: 7, borderBottomWidth: 0.5, borderBottomColor: "#e0e8f4" },
   summaryLabel: { ...UI_STYLES.caption, color: COLORS.textMuted, flex: 1 },
-  summaryValue: { ...UI_STYLES.body, fontWeight: "700", flex: 1.5, textAlign: "right" },
+  summaryValue: { ...UI_STYLES.body, color: COLORS.onBackground, fontWeight: "700", flex: 1.5, textAlign: "right" },
 
   errorText: { color: COLORS.error, fontWeight: "700", textAlign: "center", marginTop: 10, fontSize: 14 },
 

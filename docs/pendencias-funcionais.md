@@ -1,5 +1,9 @@
 # Pendências funcionais do MeepleBoard
 
+## Prioridade atual — revisão visual do registo no iPhone
+
+Após utilização real, o utilizador reportou calendário ilegível, controlos sem texto e espaços excessivos. Correções de data local da sessão/hora independente, tema do seletor, rótulos, seleção compacta do vencedor e detalhes opcionais preparadas; ver [formulario-registo-partidas.md](formulario-registo-partidas.md). TypeScript, 214 testes e bundle iOS aprovados apenas em DeviceTests. **Validação visual aberta: aguardar confirmação no iPhone antes de avançar para RESULT01 ou dados reais.** Backend e base habitual intactos; estas verificações automatizadas não fecham a revisão visual.
+
 ## Atualização — formulário partilhado e inteiros com sinal
 
 Ver [formulario-registo-partidas.md](formulario-registo-partidas.md). Implementadas as etapas Jogo → Jogadores → Resultado → Rever, com capa/nome/modo acessível, seleção compacta e utilizador atual obrigatório. Com pontuação exige um inteiro por jogador (zero/negativos incluídos); sem pontuação omite valores e conserva o rascunho. Vencedor manual, controlo ± no iPhone, data/detalhes antes da revisão e ações de correção. Mantidas privacidade, saída protegida, bloqueio de ressubmissão e repetição apenas de fotografias falhadas. Confirmado em testes isolados e HTTP/SQL marcado; validação visual/física no iPhone pendente. **RESULT01 continua a próxima etapa:** corrigir contrato de solo, cooperativo e empate, sem reinterpretar partidas antigas. Pontuações antigas incompletas permanecem legíveis sem preenchimento automático.

@@ -2,6 +2,26 @@
 
 Implementado em 6 de outubro de 2026, apenas validado no ambiente DeviceTests do Mac. Não foram alteradas credenciais, dependências ou a base habitual.
 
+## Correção após utilização real no iPhone — validação visual aberta
+
+O utilizador reportou calendário quase ilegível, controlos sem texto e espaços excessivos. Esta correção tem prioridade sobre RESULT01: **não avançar para solo, cooperativo, empate ou dados reais antes da confirmação visual**.
+
+Causas identificadas no código: o seletor iOS seguia o tema do sistema sobre uma superfície clara da aplicação; os botões de data/hora eram componentes com conteúdo flexível numa linha sem largura atribuída; o nome do participante reutilizava `flex: 1` num contentor vertical sem altura definida. A avaliação apresentava vinte áreas de toque em várias linhas, e a revisão repetia botões grandes. Os testes de renderização anteriores não calculavam layout nativo e não podiam certificar a apresentação real.
+
+Correções:
+
+- A data inicial da sessão usa o dia de `scheduledStartDate` convertido para o fuso do dispositivo; usa `startDate` como fallback legado. Conserva a hora local atual da partida, sem copiar a hora de início da sessão. No registo rápido começa na data/hora atuais. A inicialização só ocorre uma vez e não substitui uma alteração já confirmada no rascunho.
+- Data e hora têm linhas próprias com rótulos/valores visíveis. Só Alterar data ou Alterar hora abrem o seletor. Concluir aplica a seleção e fecha; Cancelar descarta apenas a alteração pendente no diálogo. Alterar o dia conserva a hora, e alterar a hora conserva o dia. Mudar de etapa não reinicializa os valores.
+- O diálogo nativo recebe tema claro/escuro, superfície, texto e cor de seleção coerentes. Tem altura limitada ao ecrã e ações Concluir/Cancelar fora da área de scroll. Ecrãs estreitos ou texto ampliado usam rodas nativas para evitar cortar o calendário.
+- Cada jogador tem nome, pontuação e seleção manual do vencedor numa linha compacta. O indicador tem área de toque de 44 pontos; texto ampliado permite quebrar a linha. Mantêm-se zero, negativos, controlo ± e validação obrigatória de todos os valores quando há pontuação.
+- Detalhes opcionais começam recolhidos. A avaliação pessoal mantém valores 0–10 e meios pontos com controlos compactos; Sem avaliação omite o valor. Não foi alterado o componente de estrelas usado nos restantes ecrãs. A revisão usa ligações compactas para corrigir secções. Corrigidos os nomes na seleção dos jogadores e reduzidas margens nas quatro etapas.
+
+Verificação desta correção: Node 22.14.0/npm 10.9.2, TypeScript e **214 testes frontend** aprovados. Os novos testes cobrem UTC/meia-noite local e offsets verão/inverno em Lisboa, independência de data/hora, resposta tardia da sessão, retenção do rascunho, contraste/configuração dos dois temas e limites de layout. Bundle iOS devolveu HTTP 200 em Expo 8082; health confirma DeviceTests/MeepleBoard_DeviceTests/externalDelivery false em API 5099. Backend sem alterações nesta correção, sem novas migrações ou escritas SQL. Contentor habitual observado parado.
+
+**A revisão visual permanece pendente até confirmação do utilizador no iPhone.** Testes e bundle aprovados não demonstram legibilidade física, disposição real ou comportamento do teclado.
+
+Percurso curto: recarregar o Expo Go em 8082 → abrir sessão ativa → Registar partida → Resultado. Confirmar dia da sessão e rótulos, abrir Alterar data, verificar contraste em claro/escuro, Concluir e confirmar fecho; alterar a hora e mudar de etapa/regressar para verificar retenção. Introduzir -17/0 e escolher o vencedor pelo indicador, abrir/recolher detalhes e verificar teclado/texto ampliado. Rever → guardar → confirmar → detalhes → voltar à sessão e reabrir. Depois, no registo rápido, confirmar que começa no dia atual. Não é necessário reiniciar a API para esta correção frontend.
+
 ## Percurso
 
 O mesmo `RegisterMatchForm` serve o registo rápido e o registo da sessão: **Jogo → Jogadores → Resultado → Rever**. A capa real (proporções preservadas/fallback neutro), nome e modo selecionado acompanham as etapas. O modo pode ser corrigido através do cabeçalho e é escolhido junto do jogo, sem etapa própria. Mantêm-se modos oficiais, expansões e justificação de modo não oficial.

@@ -363,6 +363,14 @@
     "reviewHint": "Check the details before saving. You can edit any section.",
     "modeLimitations": "Solo and cooperative retain current result-saving limitations. Ties do not yet have their own result.",
     "newMatch": "Register another match",
-    "dateInvalid": "Select a valid date and time."
+    "dateInvalid": "Select a valid date and time.",
+    "changeDate": "Change date",
+    "changeTime": "Change time",
+    "cancel": "Cancel",
+    "points": "Points",
+    "winnerColumn": "Winner",
+    "ratingDecrease": "Decrease rating",
+    "ratingIncrease": "Increase rating",
+    "ratingClear": "No rating"
   }
 }

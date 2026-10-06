@@ -363,6 +363,14 @@
     "reviewHint": "Confirma os dados antes de guardar. Podes corrigir qualquer secção.",
     "modeLimitations": "Solo e cooperativo mantêm as limitações atuais de gravação do resultado. Empates ainda não têm registo próprio.",
     "newMatch": "Registar outra partida",
-    "dateInvalid": "Seleciona uma data e hora válidas."
+    "dateInvalid": "Seleciona uma data e hora válidas.",
+    "changeDate": "Alterar data",
+    "changeTime": "Alterar hora",
+    "cancel": "Cancelar",
+    "points": "Pontos",
+    "winnerColumn": "Vencedor",
+    "ratingDecrease": "Diminuir avaliação",
+    "ratingIncrease": "Aumentar avaliação",
+    "ratingClear": "Sem avaliação"
   }
 }

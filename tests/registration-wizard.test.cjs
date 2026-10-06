@@ -83,7 +83,10 @@ test('optional details and native date controls occur before review; invalid fut
   const view = await render({ 25: 'date', 26: true });
   assert.equal(view.datePickers.length, 1);
   view.datePickers[0].onChange({}, new Date('2026-10-02T14:30:00Z'));
-  assert.deepEqual(view.updates.find(([i]) => i === 24), [24, new Date('2026-10-02T14:30:00Z')]);
+  assert.equal(view.updates.some(([i]) => i === 24), false);
+  await view.press('Concluir');
+  assert.equal(view.updates.some(([i]) => i === 24), true);
+  assert.deepEqual(view.updates.find(([i]) => i === 25), [25, null]);
   assert.equal(view.inputs.some(p => p.accessibilityLabel?.includes('Duração (minutos)')), true);
   for (const values of [{ 24: new Date(Date.now() + 3600000) }, { 10: '1.5' }, { 10: '-1' }]) {
     const invalid = await render(values); await invalid.press('Rever partida');

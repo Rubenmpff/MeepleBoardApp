@@ -207,8 +207,8 @@ export default function PlayerSelector({
       {selectionOnly && <View>
         {players.map(p => <View key={p.id} style={styles.selectedRow}>
           <View style={styles.avatar}><Text style={styles.avatarText}>{p.username?.slice(0, 1).toUpperCase() || "?"}</Text></View>
-          <View style={{ flex: 1, minWidth: 0 }}><Text style={styles.playerName}>{p.username}</Text>
-            {shouldLockMe && isMe(p.id) && <Text style={styles.emptyText}>{t("selector.participationRequired")}</Text>}
+          <View style={{ flex: 1, minWidth: 0 }}><Text style={styles.compactName}>{p.username}</Text>
+            {shouldLockMe && isMe(p.id) && <Text style={styles.requiredHint}>{t("selector.participationRequired")}</Text>}
           </View>
           {shouldLockMe && isMe(p.id) ? <MaterialIcons name="lock-outline" size={20} color={COLORS.textMuted} /> :
             <TouchableOpacity style={styles.clearBtn} accessibilityRole="button" accessibilityLabel={t("selector.removePlayer", { name: p.username })} onPress={() => removePlayer(p.id)}>
@@ -316,7 +316,9 @@ export default function PlayerSelector({
 }
 
 const styles = StyleSheet.create({
-  selectedRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  compactName: { ...UI_STYLES.body, color: COLORS.onBackground, fontWeight: "700" },
+  requiredHint: { ...UI_STYLES.caption, color: COLORS.textMuted, marginTop: 2 },
+  selectedRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   avatar: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", backgroundColor: COLORS.primarySoft },
   avatarText: { color: COLORS.primary, fontWeight: "800", fontSize: 16 },
   container: { marginTop: 0 },
