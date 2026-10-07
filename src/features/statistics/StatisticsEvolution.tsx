@@ -44,8 +44,13 @@ export default function StatisticsEvolution({ buckets, unit, language, title, co
     <Text style={styles.link}>{t("consultMonths")} {details ? "⌃" : "⌄"}</Text>
    </TouchableOpacity>
   </>}
-  {(!overview || details) && <>
-  {overview && <Text style={styles.muted}>{t("chartScroll")}</Text>}
+  {overview && details && <View style={styles.stack}>
+   {buckets.map(bucket => <TouchableOpacity key={bucket.key} style={styles.inlineAction} accessibilityRole="button"
+    accessibilityLabel={`${accessibleDate(bucket.key)}: ${countLabel(bucket.matches)}`} onPress={() => onSelect(bucket.key)}>
+    <Text style={[styles.text, styles.grow]}>{accessibleDate(bucket.key)}</Text><Text style={styles.inlineValue}>{bucket.matches}</Text><Text style={styles.link} importantForAccessibility="no">›</Text>
+   </TouchableOpacity>)}
+  </View>}
+  {!overview && <>
   <ScrollView horizontal showsHorizontalScrollIndicator keyboardShouldPersistTaps="handled" contentContainerStyle={chart.columns}>
    {buckets.map(bucket => <TouchableOpacity key={bucket.key} style={[chart.column, { width: columnWidth }]}
     accessibilityRole="button" accessibilityLabel={`${accessibleDate(bucket.key)}: ${countLabel(bucket.matches)}`} onPress={() => onSelect(bucket.key)}>

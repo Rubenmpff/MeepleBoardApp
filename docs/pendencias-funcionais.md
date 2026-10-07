@@ -1,5 +1,9 @@
 # Pendências funcionais do MeepleBoard
 
+## Estado atual: Companhia, Explorar e retrospetiva implementados
+
+Após autorização para avançar, Companhia/comparações, Jogos e recordes, Avaliações, Coleção e O teu ano à mesa com preview/partilha local anónima estão implementados, não apenas propostos. Consultar meses usa lista textual compacta. Ver [implementação e validação](estatisticas-companhia-explorar-ano.md). Testes SQL/API e automatizados não aprovam a composição/partilha nativa: confirmar no iPhone, primeiro Companhia, depois restantes percursos. Limites de moeda/aquisição/comparabilidade estão explícitos, sem dados inventados. Jogar novamente, Solo empate/não definido, cooperativo, campanhas e fluxos de autenticação mantêm as pendências manuais. As notas seguintes descrevem fases históricas.
+
 ## Estatísticas — fase 1 implementada
 
 Resumo e contratos/agregações com partidas de suporte implementados, ver `estatisticas-fase-1.md`; confirmação nativa pendente. Continuação autorizada: secções exploráveis → retrospetiva → partilha sempre anónima para amigos, sem opção de desligar proteção. Jogar novamente permanece pendente. Não encerra os testes de Solo, cooperativo, campanhas ou autenticação. Os estados anteriores abaixo são históricos.

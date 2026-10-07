@@ -1,6 +1,8 @@
 # Estatísticas e «O teu ano à mesa» — proposta atual
 
-Estado: Início/Biblioteca e controlos testados aprovados no iPhone; manter identidade Clube Meeple. Só análise, documentação e mockups nesta etapa; implementação por fases após aprovação. Sem consultas/escritas na base habitual ou alterações de contratos/código/migrações. Jogar novamente com jogo pré-selecionado continua pendente; não clonar partidas.
+Estado da proposta original (preservada como referência). Implementação entretanto autorizada e realizada: [estado atual](estatisticas-companhia-explorar-ano.md).
+
+Estado original: Início/Biblioteca e controlos testados aprovados no iPhone; manter identidade Clube Meeple. Só análise, documentação e mockups nesta etapa; implementação por fases após aprovação. Sem consultas/escritas na base habitual ou alterações de contratos/código/migrações. Jogar novamente com jogo pré-selecionado continua pendente; não clonar partidas.
 
 ## Mockup ilustrativo
 

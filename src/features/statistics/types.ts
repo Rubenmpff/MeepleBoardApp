@@ -1,6 +1,6 @@
 export type Mode = "COMPETITIVE" | "SOLO" | "COOPERATIVE" | "UNKNOWN";
 export type Period = "week" | "month" | "year" | "custom";
-export type Metric = "all" | "games" | "duration" | "missing-duration" | "ratings" | "known" | "wins" | "losses" | "draws" | "undefined" | "legacy";
+export type Metric = "all" | "games" | "duration" | "missing-duration" | "ratings" | "known" | "wins" | "losses" | "draws" | "undefined" | "legacy" | "scores" | PairMetric;
 export type Query = { start: string; endExclusive: string; timeZone: string; gameId?: string; mode?: Mode };
 export type Results = { wins: number; losses: number; draws: number; known: number; withoutResult: number; legacy: number; winRate: number | null };
 export type GameSummary = { gameId: string; name: string; imageUrl: string | null; matches: number };
@@ -8,5 +8,15 @@ export type Summary = Query & { matches: number; distinctGames: number; recorded
  averagePersonalRating: number | null; ratedMatches: number; results: Results; modes: { mode: Mode; matches: number; results: Results }[];
  bucketUnit: "day" | "month"; evolution: { key: string; matches: number }[]; games: GameSummary[]; gameOptions: GameSummary[] };
 export type SupportingMatch = { id: string; gameId: string; gameName: string; gameImageUrl: string | null; matchDate: string; gameMode: Mode;
- outcome: "Win" | "Loss" | "Draw" | null; resultSource: "Legacy" | "Explicit"; durationInMinutes: number | null; score: number | null; personalRating: number | null };
+ outcome: "Win" | "Loss" | "Draw" | null; resultSource: "Legacy" | "Explicit"; durationInMinutes: number | null; score: number | null; personalRating: number | null; friendScore?:number|null; friendOutcome?:string|null };
 export type MatchPage = { total: number; offset: number; limit: number; items: SupportingMatch[] };
+export type PairMetric = 'pair-all'|'my-win'|'friend-win'|'shared-win'|'my-only-win'|'friend-only-win'|'pair-draw'|'draw-together'|'draw-with-other'|'other-win'|'other-shared-win'|'other-draw'|'team-win'|'team-loss'|'team-draw'|'pair-known'|'unknown-pair'|'paired-scores';
+export type PairResults = {myWins:number;friendWins:number;sharedWins:number;myOnlyWins:number;friendOnlyWins:number;draws:number;drawsTogether:number;otherWins:number;otherSharedWins:number;otherDraws:number;teamWins:number;teamLosses:number;teamDraws:number;known:number;unknown:number};
+export type Companion = {friendId:string;name:string;matches:number};
+export type PairGame = GameSummary & {mode:Mode;results:PairResults;completeScores:number;scores:{matchId:string;date:string;mine:number|null;friend:number|null}[]};
+export type CompanyReport = {friendId:string|null;friendName:string|null;matches:number;results:PairResults;companions:Companion[];games:GameSummary[];comparisons:PairGame[];evolution:{key:string;matches:number;results:PairResults}[]};
+export type ExploreGame = GameSummary & {mode:Mode;results:Results;scored:number;minimum:number|null;maximum:number|null;averageScore:number|null;rated:number;averageRating:number|null;firstRecorded:string};
+export type LibraryStatistic = {entryId:string;gameId:string;name:string;imageUrl:string|null;status:'Owned'|'Played'|'Wishlist';pricePaid:number|null;addedAt:string;hasRecordedMatch:boolean;matchesInPeriod:number};
+export type ExploreReport = {games:ExploreGame[];ratings:{key:string;rated:number;average:number|null}[];collection:LibraryStatistic[]};
+export type YearGame = GameSummary & {wins:number;known:number;mode:Mode|null};
+export type YearReport = {year:number;timeZone:string;summary:Summary;mostPlayed:YearGame[];mostWins:YearGame[];bestWinRate:YearGame[];rateMinimumSample:number;mostFrequentCompanyMatches:number|null;mostFrequentCompanyTies:number;activeMonths:{key:string;matches:number}[];firstRecordedGames:GameSummary[]};

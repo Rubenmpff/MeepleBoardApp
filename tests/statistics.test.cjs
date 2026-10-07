@@ -32,7 +32,7 @@ test('Evolution columns open their supporting period, including zero activity, w
  assert.deepEqual(r.routes.at(-1),{pathname:'/statistics/matches',params:{...filtered,metric:'all',bucket:'2024-01'}});
  await r.press(`fevereiro de 2024: ${r.i18n.t('statistics:matchCount',{count:0})}`);
  assert.equal(r.routes.at(-1).params.bucket,'2024-02');
- assert.ok(r.nativeViews.some(([kind,props])=>kind==='scroll'&&props.horizontal));
+ assert.ok(!r.nativeViews.some(([kind,props])=>kind==='scroll'&&props.horizontal));
  const selections=[];
  const daily=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',{
   buckets:[{key:'2024-10-27',matches:2}],unit:'day',language:'pt',title:'Evolução',
@@ -124,5 +124,5 @@ test('Annual overview includes activity beyond June and exposes month details wi
  const selected=[];
  const details=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',{...props,onSelect:key=>selected.push(key)},{states:{0:true},fontScale:2});
  await details.press('outubro de 2026: 158 partidas');assert.deepEqual(selected,['2026-10']);
- assert.ok(details.nativeViews.some(([kind,props])=>kind==='scroll'&&props.horizontal));
+ assert.ok(!details.nativeViews.some(([kind,props])=>kind==='scroll'&&props.horizontal));
 });

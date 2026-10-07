@@ -18,7 +18,7 @@ export default function StatisticsMatchesScreen() {
  const params=useLocalSearchParams();const router=useRouter();const {t,i18n}=useTranslation("statistics");
  const value=(key:string)=>{const v=params[key];return Array.isArray(v)?v[0]:v;};
  const query:Query={start:value("start")??"",endExclusive:value("endExclusive")??"",timeZone:value("timeZone")??"UTC",gameId:value("gameId"),mode:value("mode") as Mode|undefined};
- const metric=(value("metric")??"all") as Metric,bucket=value("bucket"),key=JSON.stringify({...query,metric,bucket});
+ const metric=(value("metric")??"all") as Metric,bucket=value("bucket"),friendId=value("friendId"), scoreValue=value("scoreValue"), key=JSON.stringify({...query,metric,bucket,friendId,scoreValue});
  const scope=key+account;
  const [loadedScope,setLoadedScope]=useState(scope);
  const [page,setPage]=useState<MatchPage|null>(null),[offset,setOffset]=useState(0),[loading,setLoading]=useState(true),[error,setError]=useState(false),[refresh,setRefresh]=useState(0);
@@ -26,8 +26,8 @@ export default function StatisticsMatchesScreen() {
   const controller=new AbortController();let active=true;setLoading(true);setError(false);
   const requestOffset=loadedScope===scope?offset:0;
   if(requestOffset===0)setPage(null);
-  const {metric,bucket,...filter}=JSON.parse(key);
-  service.matches(filter,metric,requestOffset,bucket,controller.signal).then(result=>{if(active){setPage(previous=>({...result,items:requestOffset===0?result.items:[...(previous?.items??[]),...result.items]}));setLoadedScope(scope);if(requestOffset!==offset)setOffset(requestOffset);}})
+  const {metric,bucket,friendId,scoreValue,...filter}=JSON.parse(key);
+  service.matches(filter,metric,requestOffset,bucket,controller.signal,{friendId,scoreValue:scoreValue==null?undefined:Number(scoreValue)}).then(result=>{if(active){setPage(previous=>({...result,items:requestOffset===0?result.items:[...(previous?.items??[]),...result.items]}));setLoadedScope(scope);if(requestOffset!==offset)setOffset(requestOffset);}})
    .catch(()=>{if(active)setError(true);}).finally(()=>{if(active)setLoading(false);});
   return()=>{active=false;controller.abort();};
  },[key,offset,refresh,account]);
@@ -48,6 +48,8 @@ export default function StatisticsMatchesScreen() {
    <Text style={styles.text}>{match.resultSource==="Legacy"?t("legacyItem"):match.outcome?t(`outcomes.${match.outcome}`):t("undefinedItem")}{match.gameMode==="COOPERATIVE"?` · ${t("teamResult")}`:""}</Text>
    <Text style={styles.muted}>{t("recordedTime")}: {match.durationInMinutes==null?t("unavailable"):`${num(match.durationInMinutes)} min`}</Text>
    {match.score!=null&&<Text style={styles.text}>{t("myScore")}: {num(match.score)}</Text>}
+   {friendId&&<Text style={styles.text}>{t("friendScore")}: {match.friendScore==null?t("unavailable"):num(match.friendScore)}</Text>}
+   {friendId&&<Text style={styles.text}>{t("friendResult")}: {match.resultSource==="Legacy"?t("legacyItem"):match.friendOutcome==="Undefined"?t("undefinedItem"):match.friendOutcome?t(`outcomes.${match.friendOutcome}`):t("unavailable")}</Text>}
    <Text style={styles.text}>{t("myRating")}: {match.personalRating==null?t("unrated"):`${num(match.personalRating)}/10`}</Text>
    <Text style={styles.link}>{t("details")} ›</Text>
   </TouchableOpacity>)}

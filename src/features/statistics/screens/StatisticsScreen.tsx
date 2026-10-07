@@ -140,6 +140,11 @@ export default function StatisticsScreen() {
       </View>
      </>}
     <View style={styles.section}>
+     <Text style={styles.title} accessibilityRole="header">{t("explore")}</Text>
+     {(["company","games","ratings","collection"] as const).map(section=><TouchableOpacity key={section} style={styles.inlineAction} accessibilityRole="button" onPress={()=>router.push({pathname:section==="company"?"/statistics/company":"/statistics/explore",params:{...query,period,section}} as never)}><Text style={[styles.link,styles.grow]}>{t(section==="company"?"company":section==="games"?"gamesRecords":section==="ratings"?"ratingsSection":"collectionSection")}</Text><Text style={styles.link}>›</Text></TouchableOpacity>)}
+     <Button title={t("yearAtTable")} onPress={()=>router.push({pathname:"/statistics/year",params:{...query,year:query.start.slice(0,4)}} as never)}/>
+    </View>
+    <View style={styles.section}>
      <TouchableOpacity style={styles.inlineAction} accessibilityRole="button" accessibilityLabel={t("howCalculated")} accessibilityState={{ expanded: calculations }} onPress={() => setCalculations(v => !v)}>
       <Text style={[styles.link, styles.grow]}>{t("howCalculated")}</Text><Text style={styles.link} importantForAccessibility="no">{calculations ? "⌃" : "⌄"}</Text>
      </TouchableOpacity>

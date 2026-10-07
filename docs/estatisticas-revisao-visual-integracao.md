@@ -1,6 +1,6 @@
 # Estatísticas — correção de composição, 07/10/2026
 
-Estado: correção implementada; aprovação visual **pendente no iPhone**. O utilizador rejeitou a apresentação anterior por ser extensa, repetitiva e distante do mockup. Não avançar com novas secções ou retrospetiva antes de rever esta composição.
+Estado histórico da correção do resumo. Entretanto, o utilizador confirmou «O resumo está mais organizado» e autorizou Companhia e restantes secções/retrospetiva. Ver [implementação atual](estatisticas-companhia-explorar-ano.md); as novas páginas/partilha continuam pendentes de confirmação nativa. A confirmação do resumo não valida automaticamente todos os estados com texto ampliado/teclado.
 
 ## Problemas confirmados no código anterior
 
@@ -55,7 +55,7 @@ A nova versão ainda não tem captura nativa nem aprovação visual. As capturas
 3. Abrir um período sem duração/atividade: «Sem duração registada», cobertura correta, zero sem barra. Comparar a visão anual completa e abrir Consultar meses para percorrer todos os valores.
 4. Abrir «Como calculamos» e confirmar fuso/explicações; testar texto ampliado e intervalo personalizado com teclado aberto.
 
-Manter aprovação visual aberta até confirmação do utilizador. Novas secções/retrospetiva aguardam esta revisão. Solo empate/não definido, cooperativo, campanhas, autenticação e «Jogar novamente» conservam as pendências existentes.
+Manter aprovação visual aberta até confirmação do utilizador. Novas secções/retrospetiva entretanto autorizadas e implementadas; ver atualização no início deste documento. Solo empate/não definido, cooperativo, campanhas, autenticação e «Jogar novamente» conservam as pendências existentes.
 
 ## Integração habitual
 

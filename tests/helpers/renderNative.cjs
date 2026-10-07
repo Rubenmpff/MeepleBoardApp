@@ -57,6 +57,8 @@ async function renderNative(source, exportName, props = {}, options = {}) {
       },
     },
     'react-native': native,
+    'react-native-view-shot': {captureRef:async()=>'/tmp/test.png',releaseCapture:uri=>calls.push(['releaseCapture',uri])},
+    'expo-sharing': {isAvailableAsync:async()=>true,shareAsync:async(...args)=>calls.push(['shareImage',...args])},
     'react-native-safe-area-context': { SafeAreaView: p => { nativeViews.push(['safeArea', p]); return React.createElement(host, p); }, useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) },
     '@expo/vector-icons': { MaterialIcons: () => null, MaterialCommunityIcons: () => null, Ionicons: () => null, AntDesign: () => null, Feather: () => null },
     'expo-image': { Image: () => null },
@@ -119,6 +121,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
       if (options.stubRegisterForm && id.endsWith('/RegisterMatchForm')) return { __esModule: true,
         default: p => { calls.push(['registerForm', p]); return null; } };
       const hook = id.split('/').pop();
+      if (!options.realReportHook && id.endsWith('/hooks/useReport')) return { __esModule:true, default: (key) => { calls.push(['reportKey',key]); return { data: options.statisticsReport || null, busy:!!options.reportBusy, error:!!options.reportError, refresh:()=>calls.push(['refreshReport']) }; } };
       if (!options.realStatisticsHook && id.endsWith('/hooks/useStatistics')) return { __esModule: true, default: query => { calls.push(['statisticsQuery',query]); return { data: options.statisticsSummary || null, loading: !!options.statisticsLoading, error: !!options.statisticsError, refetch: () => calls.push(['refetchStatistics']) }; } };
       if (id.includes('/hooks/') && hooks[hook]) return { [hook]: hooks[hook], invalidateFriendsCache: () => calls.push(['invalidateFriendsCache']) };
       if (id.includes('/services/')) {
