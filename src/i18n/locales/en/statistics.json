@@ -49,9 +49,9 @@
   "rateRule": "Wins ÷ (wins + losses + draws). Undefined and ambiguous legacy results are excluded.",
   "withoutResult_one": "{{count}} match without a known result",
   "withoutResult_other": "{{count}} matches without a known result",
-  "legacy_one": "{{count}} match with a legacy result",
-  "legacy_other": "{{count}} matches with legacy results",
-  "legacyRule": "Original information is preserved. We do not infer results from scores or missing winners.",
+  "legacy_one": "{{count}} older match awaiting confirmation",
+  "legacy_other": "{{count}} older matches awaiting confirmation",
+  "legacyRule": "Older results awaiting confirmation are excluded from win rate. Original information is preserved; we do not infer results from scores or missing winners.",
   "modeResults": "{{wins}} wins · {{losses}} losses · {{draws}} draws",
   "teamResult": "Team result",
   "teamRule": "In cooperative play, the result belongs to the team and applies to its participants.",
@@ -77,19 +77,24 @@
     "losses": "Losses",
     "draws": "Draws",
     "undefined": "No known result",
-    "legacy": "Legacy results"
+    "legacy": "Older results awaiting confirmation"
   },
   "outcomes": {
     "Win": "Win",
     "Loss": "Loss",
     "Draw": "Draw"
   },
-  "legacyItem": "Legacy result — no automatic classification",
+  "legacyItem": "Older result awaiting confirmation",
   "undefinedItem": "Result undefined",
   "myScore": "Your score",
   "myRating": "Your rating",
   "unrated": "Not rated",
   "details": "View details",
   "more": "Load more matches",
-  "selectGame": "Select game: {{name}}"
+  "selectGame": "Select game: {{name}}",
+  "noDuration": "No recorded duration",
+  "howCalculated": "How we calculate",
+  "durationRule": "We add recorded durations only. Coverage shows how many matches have duration; missing duration is not zero.",
+  "chartScale": "Scale: 0–{{maximum}} matches",
+  "chartEmpty": "No matches in this period"
 }

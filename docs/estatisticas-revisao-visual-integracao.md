@@ -1,38 +1,53 @@
-# Revisão de Estatísticas e integração — 07/10/2026
+# Estatísticas — correção de composição, 07/10/2026
 
-O primeiro resumo foi uma entrega funcional, não uma revisão visual concluída. O mockup aprovado continua a referência. Não substituir a identidade aprovada da autenticação, Início ou Biblioteca.
+Estado: correção implementada; aprovação visual **pendente no iPhone**. O utilizador rejeitou a apresentação anterior por ser extensa, repetitiva e distante do mockup. Não avançar com novas secções ou retrospetiva antes de rever esta composição.
 
-## Afinação já aplicada
+## Problemas confirmados no código anterior
 
-- Indicadores agrupados em fundo lavanda, com ação na área inteira e indicação discreta, eliminando a repetição de «Consultar partidas» em cada indicador.
-- Resultados agrupados num único bloco, com bordas suaves; valores ficam separados de cobertura e explicações.
-- Evolução passa de uma lista de barras mínimas para gráfico de colunas real, junto ao resumo: meses/dias localizados, contagens visíveis e cada coluna abre as partidas do intervalo correspondente. Zero tem altura zero, sem inventar atividade; o eixo é comum às colunas e normalizado ao maior valor.
-- Scroll horizontal no gráfico quando necessário, sem reduzir rótulos/texto à força. Texto ampliado mantém scroll vertical e indicadores numa coluna. Verde escuro nos dados; lavanda/branco quente nos fundos.
+- Modos apresentados como múltiplos controlos permanentes e cartões de resultados repetidos por modo.
+- Tempo e o texto «Indisponível» dividiam uma grelha com três métricas, demasiado estreita.
+- Fórmulas e explicações ocupavam o resumo inteiro; muitos valores repetiam ações e contornos.
+- Fundos lavanda independentes na área de cada coluna pareciam barras mesmo com valor zero. A escala não era explícita.
 
-Não é captura do iPhone. TypeScript e verificações funcionais não confirmam contraste/composição/renderização nativa. Capturas anunciadas pelo utilizador ainda aguardadas para comparação concreta.
+## Composição corrigida
 
-## Diferenças intencionais / trabalho seguinte
+- Período segmentado compacto, sem contorno por opção; navegação do período centrada.
+- Jogo e Modo em seletores lado a lado quando há espaço, empilhados em ecrãs estreitos/texto ampliado. Só um seletor fica aberto de cada vez. Listas de opções mostram o estado selecionado e conservam a escolha de jogo/período/modo.
+- Partidas e jogos alinhados num resumo lavanda com duas métricas; tempo num bloco próprio de largura inteira. «Sem duração registada» substitui a ausência de duração, sem valor numérico inventado. Duração zero continua `0 min`.
+- Gráfico sem fundos por coluna. Zero não renderiza qualquer barra. Escala inteira comum visível, contagens junto às colunas, rótulos mensais/dias sem truncamento e scroll horizontal. Acessibilidade inclui mês/ano ou dia completo. A altura representa a contagem dividida pelo teto da escala, nunca um mínimo artificial.
+- Um único bloco Resultados: três totais e uma linha para a taxa/amostra. O seletor global de Modo filtra estes resultados e todos os restantes indicadores; contexto do modo visível. Não repetimos cartões completos por modo.
+- Indicadores tocáveis sem contorno individual; cobertura/amostra junto aos valores, acesso às partidas sem repetição de botões. As partidas sem resultado e as antigas por confirmar mantêm os seus acessos.
+- «Resultados antigos por confirmar» e variantes substituem a terminologia «legado» na apresentação. Métrica/API `legacy` mantida, sem alterações de classificação ou dados.
+- Fuso, fórmulas, limites dos dados, avaliação própria e regras cooperativas em «Como calculamos», fechado por defeito. Amostra e cobertura permanecem no resumo.
+- Avaliação e jogos mais jogados mantêm acessos existentes, com linhas simples. Não adicionámos secções exploráveis nem retrospetiva.
 
-- Usamos colunas, em vez da área de linha vazia do mockup, para representar contagens discretas e permitir tocar em cada período. Não desenhamos uma linha fictícia.
-- O mockup tinha placeholders sem dados; a implementação conserva cobertura, origem legada, filtros e texto confortável mesmo quando ocupam mais espaço.
-- As três métricas podem quebrar linhas em ecrãs estreitos/texto ampliado; não cortar rótulos para reproduzir literalmente a grelha.
-- Filtros de modo ainda ocupam mais altura do que a proposta. Secções por modo/avaliações continuam visíveis no resumo funcional; devem migrar para as secções exploráveis à medida que forem implementadas, preservando acessos.
-- Explorar e retrospetiva/partilha continuam fases autorizadas em desenvolvimento, não funcionalidades concluídas por esta afinação. Não introduzir botões sem destino para simular o mockup.
+## Comparação com o mockup
 
-## Ambiente e integração
+[Mockup aprovado](mockups/estatisticas/estatisticas-ano-partilha.png): recuperação do período compacto, seletores em paralelo, fundo lavanda comum e hierarquia Resumo → Evolução → Resultados. A divisão duas métricas + tempo próprio segue a correção explícita do utilizador, em vez das três colunas originais. Os contornos ficam essencialmente nos seletores/campos, não em cada valor.
 
-App 8082 → API 5099 → `MeepleBoard_DeviceTests`; health confirma `DeviceTests` e `externalDelivery=false`. Endpoints e agregações de Estatísticas estão integrados na API principal. DeviceTests fornece configuração exclusiva, dados fictícios e substitutos locais externos.
+Diferenças intencionais: colunas com dados em vez da área de linha ilustrativa vazia; scroll confortável em vez de obrigar toda a página a caber num ecrã; opções empilhadas e texto completo com ampliação. Não mostramos acessos fictícios a Explorar/retrospetiva ainda não implementados.
 
-Auditoria backend, configurações, migrações, serviços externos, futura cópia e execução no Windows: [integração da cópia real](../../MeepleBoardApi/docs/integracao-copia-real.md). No Mac, a ligação habitual nos User Secrets aponta para SQL `localhost:1433`, base `MeepleBoardDb`; isto não identifica a base efetiva do PC Windows. O utilizador confirmou não ter transferido a base. Nenhuma ligação à base habitual foi realizada.
+As capturas referidas pelo utilizador **não estavam anexadas/disponíveis nesta mensagem**. A comparação foi feita com o mockup existente e os problemas descritos; não foi feita comparação visual direta com capturas do iPhone. Não apresentar um mockup como captura real.
 
-Migrações e API principal aplicam-se também no Windows; não usar o anfitrião fictício para migrar uma cópia real. Estatísticas não criaram migração nova. Transferência e validação real ficam para quando houver acesso ao PC; continuar agora com testes fictícios.
+## Verificação e limites
 
-## Confirmação no iPhone
+- Node 22.14.0; TypeScript sem erros; 251 testes frontend aprovados, incluindo 11 de Estatísticas.
+- Verificados: filtros/drilldown/back, opções e explicações fechadas por defeito, duração ausente versus zero, avaliações próprias zero, rótulos PT/EN, estados vazios/erro/carregamento, cancelamento de pedidos e lógica da escala/ausência de barras para zero.
+- Exportação iOS concluída em `.expo/statistics-composition-ios-export`, ignorada. Expo 8082 ativo.
+- Health da API 5099: `DeviceTests`, base `MeepleBoard_DeviceTests`, `externalDelivery=false`. Nenhuma alteração de backend, migração, ligação SQL ou dados nesta revisão. Base habitual intacta.
+- O harness de testes verifica comportamento e propriedades; não comprova equilíbrio visual nativo, contraste percebido, posição dos elementos com teclado real ou cortes no dispositivo. Não há captura nativa/simulador nesta validação.
 
-Abrir Mais → Estatísticas, comparar cabeçalho/filtros/resumo/resultados e gráfico. Selecionar um período com atividade; tocar numa coluna e voltar. Mudar modo/jogo e verificar gráfico/cobertura. Testar ano vazio e texto ampliado, incluindo scroll horizontal e vertical. Comparar capturas com o mockup e ajustar antes de considerar a revisão visual concluída.
+## Percurso curto no iPhone
 
-Solo empate/não definido, resultados cooperativos, campanhas e fluxos de autenticação ainda não confirmados mantêm as pendências existentes. «Jogar novamente» permanece pendente.
+1. Mais → Estatísticas. Comparar período, seletores, duas métricas, tempo e o único bloco Resultados.
+2. Selecionar um modo e um jogo; tocar num total ou coluna → partida → Voltar → Voltar. Confirmar contexto/filtros mantidos.
+3. Abrir um período sem duração/atividade: «Sem duração registada», cobertura correta, zero sem barra. Percorrer todos os meses no gráfico.
+4. Abrir «Como calculamos» e confirmar fuso/explicações; testar texto ampliado e intervalo personalizado com teclado aberto.
 
-## Verificações executadas
+Manter aprovação visual aberta até confirmação do utilizador. Novas secções/retrospetiva aguardam esta revisão. Solo empate/não definido, cooperativo, campanhas, autenticação e «Jogar novamente» conservam as pendências existentes.
 
-Node 22.14.0; TypeScript sem erros, 249 testes frontend aprovados (9 de Estatísticas) e export iOS concluído, em pasta ignorada `.expo/statistics-visual-ios-export`. Health da API confirma a base fictícia. A auditoria SQL da cópia foi preparada e revista, mas não executada: ainda não existe cópia disponível. Sem mudanças no pipeline/API de arranque nem nos dados habituais.
+## Integração habitual
+
+As agregações/endpoints permanecem na API principal. DeviceTests fornece apenas configuração/dados fictícios e substitutos externos. A configuração habitual local aponta para SQL `localhost:1433`, base `MeepleBoardDb`; não identifica a origem efetiva do PC Windows. O utilizador trouxe código sem transferir a base. A transferência aguarda acesso ao PC.
+
+[Configurações, migrações e futura cópia isolada](../../MeepleBoardApi/docs/integracao-copia-real.md). Nenhuma validação da base real é declarada concluída.

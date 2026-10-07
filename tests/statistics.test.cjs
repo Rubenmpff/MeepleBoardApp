@@ -9,7 +9,7 @@ const summary={...query,matches:3,distinctGames:1,recordedMinutes:0,matchesWithD
 test('Every statistic navigates to supporting matches with the same period/game/mode filters',async()=>{
  const filtered={...query,gameId:'game-id',mode:'COMPETITIVE'};
  const r=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:filtered}});
- const labels={all:'Partidas: 3',games:'Jogos diferentes: 1',duration:'Tempo registado: 0 min','missing-duration':'2 partidas sem duração ›',wins:'Vitórias: 1',losses:'Derrotas: 0',draws:'Empates: 1',known:'Taxa de vitória: 50%',undefined:'1 partida sem resultado conhecido ›',legacy:'1 partida com resultado legado ›',ratings:'Avaliação média (0–10): 0'};
+ const labels={all:'Partidas: 3',games:'Jogos diferentes: 1',duration:'Tempo registado: 0 min','missing-duration':'2 partidas sem duração',wins:'Vitórias: 1',losses:'Derrotas: 0',draws:'Empates: 1',known:'Taxa de vitória: 50%',undefined:'1 partida sem resultado conhecido',legacy:'1 partida antiga por confirmar',ratings:'Avaliação média (0–10): 0'};
  for(const [metric,label]of Object.entries(labels)){
   await r.press(label);const route=r.routes.at(-1);assert.equal(route.pathname,'/statistics/matches');assert.equal(route.params.metric,metric);
   for(const [key,val]of Object.entries(filtered))assert.equal(route.params[key],val);
@@ -18,7 +18,7 @@ test('Every statistic navigates to supporting matches with the same period/game/
 });
 test('Statistics keeps zero measurements, mode labels, scrolling and does not show unknown results as losses',async()=>{
  for(const language of ['pt','en']){
- const r=await renderNative(source,'default',{}, {language,statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query},width:320,fontScale:2});
+ const r=await renderNative(source,'default',{}, {language,statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query,8:true},width:320,fontScale:2});
  assert.match(r.html,/0 min/);assert.match(r.html,/50%/);assert.match(r.html,/Long game name preserved/);
  assert.equal(r.nativeViews.find(v=>v[0]==='scroll')[1].keyboardShouldPersistTaps,'handled');
  assert.ok(r.html.includes(r.i18n.t('statistics:winRate')));assert.ok(r.html.includes(r.i18n.t('statistics:modes.SOLO')));assert.ok(r.html.includes(r.i18n.t('statistics:modes.COOPERATIVE')));
@@ -28,9 +28,9 @@ test('Statistics keeps zero measurements, mode labels, scrolling and does not sh
 test('Evolution columns open their supporting period, including zero activity, without losing filters',async()=>{
  const filtered={...query,mode:'SOLO',gameId:'game-id'};
  const r=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:filtered},width:320,fontScale:2});
- await r.press('2024-01: 3 partidas');
+ await r.press('janeiro de 2024: 3 partidas');
  assert.deepEqual(r.routes.at(-1),{pathname:'/statistics/matches',params:{...filtered,metric:'all',bucket:'2024-01'}});
- await r.press(`2024-02: ${r.i18n.t('statistics:matchCount',{count:0})}`);
+ await r.press(`fevereiro de 2024: ${r.i18n.t('statistics:matchCount',{count:0})}`);
  assert.equal(r.routes.at(-1).params.bucket,'2024-02');
  assert.ok(r.nativeViews.some(([kind,props])=>kind==='scroll'&&props.horizontal));
  const selections=[];
@@ -38,19 +38,19 @@ test('Evolution columns open their supporting period, including zero activity, w
   buckets:[{key:'2024-10-27',matches:2}],unit:'day',language:'pt',title:'Evolução',
   countLabel:n=>`${n} partidas`,onSelect:key=>selections.push(key),
  });
- await daily.press('2024-10-27: 2 partidas');
+ await daily.press('27 de outubro de 2024: 2 partidas');
  assert.deepEqual(selections,['2024-10-27']);
  assert.match(daily.html,/27/);
 });
 test('Statistics separates unavailable, empty, failed and loading states',async()=>{
  const empty={...summary,matches:0,distinctGames:0,recordedMinutes:null,averagePersonalRating:null,results:{wins:0,losses:0,draws:0,known:0,withoutResult:0,legacy:0,winRate:null},games:[],gameOptions:[],evolution:[],modes:[]};
- const r=await renderNative(source,'default',{}, {statisticsSummary:empty});assert.match(r.html,/Sem partidas registadas/);assert.match(r.html,/Indisponível/);assert.doesNotMatch(r.html,/0%/);
+ const r=await renderNative(source,'default',{}, {statisticsSummary:empty});assert.match(r.html,/Sem partidas registadas/);assert.match(r.html,/Sem duração registada/);assert.doesNotMatch(r.html,/0%/);
  const error=await renderNative(source,'default',{}, {statisticsError:true});await error.press('Tentar novamente');assert.ok(error.calls.some(c=>c[0]==='refetchStatistics'));assert.doesNotMatch(error.html,/Sem partidas registadas/);
  const loading=await renderNative(source,'default',{}, {statisticsLoading:true});assert.match(loading.html,/A carregar estatísticas/);assert.doesNotMatch(loading.html,/Sem partidas registadas/);
 });
 test('Game and mode changes retain period; custom date input is validated before applying',async()=>{
- const r=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query,7:true}});
- await r.press('Solo');assert.deepEqual(r.updates.at(-1),[3,{...query,mode:'SOLO'}]);
+ const r=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query,7:true,8:true}});
+ await r.press('Solo');assert.ok(r.updates.some(([i,v])=>i===3&&v.mode==='SOLO'&&v.start===query.start));
  await r.press('Selecionar jogo: '+game.name);assert.ok(r.updates.some(([i,v])=>i===3&&v.gameId===game.gameId&&v.start===query.start));
  const invalid=await renderNative(source,'default',{}, {states:{0:'Europe/Lisbon',2:'custom',3:query,4:'2024-02-30',5:'2024-03-01'}});
  await invalid.press('Aplicar intervalo');assert.ok(invalid.updates.some(([i,v])=>i===6&&v===true));assert.ok(!invalid.updates.some(([i])=>i===3));
@@ -58,7 +58,7 @@ test('Game and mode changes retain period; custom date input is validated before
 test('Supporting list keeps own score/rating zero, negative values, legacy label and detail/back context',async()=>{
  const data={total:1,offset:0,limit:25,items:[{id:'match-id',gameId:'game-id',gameName:game.name,gameImageUrl:null,matchDate:'2024-01-03T12:00:00Z',gameMode:'SOLO',outcome:null,resultSource:'Legacy',durationInMinutes:0,score:-5,personalRating:0}]};
  const r=await renderNative('src/features/statistics/screens/StatisticsMatchesScreen.tsx','default',{}, {params:{...query,metric:'legacy'},states:{1:data,3:false},width:320,fontScale:2});
- assert.match(r.html,/-5/);assert.match(r.html,/0\/10/);assert.match(r.html,/0 min/);assert.match(r.html,/Resultado legado/);
+ assert.match(r.html,/-5/);assert.match(r.html,/0\/10/);assert.match(r.html,/0 min/);assert.match(r.html,/Resultado antigo por confirmar/);
  await r.press(game.name);assert.deepEqual(r.routes.at(-1),{pathname:'/games/matches/[id]',params:{id:'match-id'}});
  await r.press('Voltar');assert.equal(r.routes.at(-1),'back');
 });
@@ -82,4 +82,31 @@ test('Statistics header puts Back in its own row when keyboard or enlarged text 
  const props={title:'Estatísticas',backLabel:'Voltar',onBack(){}};
  const r=await renderNative('src/features/statistics/StatisticsHeader.tsx','default',props,{states:{0:true,1:true},stateModules:['src/components/ui/ClubHeader.tsx'],width:390});
  assert.equal(r.images.length,0);assert.ok(r.controls.some(c=>c.accessibilityLabel==='Voltar'&&c.style.position!=='absolute'));assert.match(r.html,/Estatísticas/);
+});
+test('Selectors and calculation notes stay collapsed until requested, while filters and coverage remain available',async()=>{
+ const r=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query}});
+ assert.doesNotMatch(r.html,/Vitórias ÷|Zero é uma avaliação|Europe\/Lisbon|Resultado da equipa/);
+ assert.match(r.html,/Duração em 1 de 3 partidas/);
+ assert.equal(r.controls.filter(c=>c.accessibilityLabel==='Vitórias: 1').length,1);
+ await r.press('Modo de jogo: Todos os modos');
+ assert.ok(r.updates.some(([i,v])=>i===8&&v===true));
+ assert.ok(r.updates.some(([i,v])=>i===7&&v===false));
+ await r.press('Como calculamos');
+ assert.ok(r.updates.some(([i,v])=>i===9&&v===true));
+ const notes=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query,9:true}});
+ assert.match(notes.html,/Europe\/Lisbon/);assert.match(notes.html,/Vitórias ÷/);
+ assert.match(notes.html,/Zero é uma avaliação/);
+ const noDuration=await renderNative(source,'default',{}, {statisticsSummary:{...summary,recordedMinutes:null,matchesWithDuration:0,matchesWithoutDuration:3},states:{0:'Europe/Lisbon',3:query}});
+ await noDuration.press('Tempo registado: Sem duração registada');
+ assert.equal(noDuration.routes.at(-1).params.metric,'missing-duration');
+});
+test('Zero activity renders no bar; all real bars share an explicit integer scale',async()=>{
+ const props={buckets:[{key:'2024-01',matches:3},{key:'2024-02',matches:0}],unit:'month',language:'pt',title:'Evolução',countLabel:n=>`${n} partidas`,onSelect(){}};
+ const chart=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',props,{captureStatisticsPlot:true});
+ const bars=chart.calls.filter(c=>c[0]==='statisticsBar');
+ assert.equal(bars.length,1);assert.equal(bars[0][1].testID,'statistics-bar-2024-01');
+ assert.equal(bars[0][1].style[1].height,84);assert.match(chart.html,/Escala: 0–4 partidas/);
+ const empty=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',{...props,buckets:[{key:'2024-01',matches:0}]},{captureStatisticsPlot:true});
+ assert.equal(empty.calls.filter(c=>c[0]==='statisticsBar').length,0);
+ assert.match(empty.html,/Sem partidas neste período/);assert.doesNotMatch(empty.html,/NaN|Infinity/);
 });

@@ -49,9 +49,9 @@
   "rateRule": "Vitórias ÷ (vitórias + derrotas + empates). Resultados não definidos e legados ambíguos ficam fora da taxa.",
   "withoutResult_one": "{{count}} partida sem resultado conhecido",
   "withoutResult_other": "{{count}} partidas sem resultado conhecido",
-  "legacy_one": "{{count}} partida com resultado legado",
-  "legacy_other": "{{count}} partidas com resultado legado",
-  "legacyRule": "A informação antiga é preservada. Não deduzimos resultados pelas pontuações ou pela ausência de vencedor.",
+  "legacy_one": "{{count}} partida antiga por confirmar",
+  "legacy_other": "{{count}} partidas antigas por confirmar",
+  "legacyRule": "Resultados antigos por confirmar não entram na taxa de vitória. Preservamos a informação original, sem deduzir resultados pelas pontuações ou pela ausência de vencedor.",
   "modeResults": "{{wins}} vitórias · {{losses}} derrotas · {{draws}} empates",
   "teamResult": "Resultado da equipa",
   "teamRule": "No cooperativo, o resultado pertence à equipa e aplica-se aos seus participantes.",
@@ -77,19 +77,24 @@
     "losses": "Derrotas",
     "draws": "Empates",
     "undefined": "Sem resultado conhecido",
-    "legacy": "Resultados legados"
+    "legacy": "Resultados antigos por confirmar"
   },
   "outcomes": {
     "Win": "Vitória",
     "Loss": "Derrota",
     "Draw": "Empate"
   },
-  "legacyItem": "Resultado legado — sem classificação automática",
+  "legacyItem": "Resultado antigo por confirmar",
   "undefinedItem": "Resultado não definido",
   "myScore": "A tua pontuação",
   "myRating": "A tua avaliação",
   "unrated": "Não avaliada",
   "details": "Ver detalhes",
   "more": "Carregar mais partidas",
-  "selectGame": "Selecionar jogo: {{name}}"
+  "selectGame": "Selecionar jogo: {{name}}",
+  "noDuration": "Sem duração registada",
+  "howCalculated": "Como calculamos",
+  "durationRule": "Somamos apenas as durações registadas. A cobertura indica quantas partidas têm duração; ausência não vale zero.",
+  "chartScale": "Escala: 0–{{maximum}} partidas",
+  "chartEmpty": "Sem partidas neste período"
 }
