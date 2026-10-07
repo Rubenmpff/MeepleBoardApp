@@ -96,5 +96,10 @@
   "howCalculated": "Como calculamos",
   "durationRule": "Somamos apenas as durações registadas. A cobertura indica quantas partidas têm duração; ausência não vale zero.",
   "chartScale": "Escala: 0–{{maximum}} partidas",
-  "chartEmpty": "Sem partidas neste período"
+  "chartEmpty": "Sem partidas neste período",
+  "modeShort": "Modo",
+  "consultMonths": "Consultar meses",
+  "chartScroll": "Desliza para consultar todos os meses.",
+  "unknownCompact": "{{count}} sem resultado conhecido",
+  "olderCompact": "Destes, {{count}} antigos por confirmar"
 }

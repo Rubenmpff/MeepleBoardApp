@@ -96,5 +96,10 @@
   "howCalculated": "How we calculate",
   "durationRule": "We add recorded durations only. Coverage shows how many matches have duration; missing duration is not zero.",
   "chartScale": "Scale: 0–{{maximum}} matches",
-  "chartEmpty": "No matches in this period"
+  "chartEmpty": "No matches in this period",
+  "modeShort": "Mode",
+  "consultMonths": "View months",
+  "chartScroll": "Swipe to view every month.",
+  "unknownCompact": "{{count}} without a known result",
+  "olderCompact": "Of these, {{count}} older results await confirmation"
 }

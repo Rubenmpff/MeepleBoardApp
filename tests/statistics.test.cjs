@@ -27,7 +27,7 @@ test('Statistics keeps zero measurements, mode labels, scrolling and does not sh
 });
 test('Evolution columns open their supporting period, including zero activity, without losing filters',async()=>{
  const filtered={...query,mode:'SOLO',gameId:'game-id'};
- const r=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:filtered},width:320,fontScale:2});
+ const r=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:filtered,10:true},stateModules:['src/features/statistics/StatisticsEvolution.tsx'],width:320,fontScale:2});
  await r.press('janeiro de 2024: 3 partidas');
  assert.deepEqual(r.routes.at(-1),{pathname:'/statistics/matches',params:{...filtered,metric:'all',bucket:'2024-01'}});
  await r.press(`fevereiro de 2024: ${r.i18n.t('statistics:matchCount',{count:0})}`);
@@ -105,8 +105,24 @@ test('Zero activity renders no bar; all real bars share an explicit integer scal
  const chart=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',props,{captureStatisticsPlot:true});
  const bars=chart.calls.filter(c=>c[0]==='statisticsBar');
  assert.equal(bars.length,1);assert.equal(bars[0][1].testID,'statistics-bar-2024-01');
- assert.equal(bars[0][1].style[1].height,84);assert.match(chart.html,/Escala: 0–4 partidas/);
+ assert.equal(bars[0][1].style[1].height,63);assert.match(chart.html,/Escala: 0–4 partidas/);
  const empty=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',{...props,buckets:[{key:'2024-01',matches:0}]},{captureStatisticsPlot:true});
  assert.equal(empty.calls.filter(c=>c[0]==='statisticsBar').length,0);
  assert.match(empty.html,/Sem partidas neste período/);assert.doesNotMatch(empty.html,/NaN|Infinity/);
+});
+
+test('Annual overview includes activity beyond June and exposes month details without hiding the second half of the year',async()=>{
+ const buckets=Array.from({length:12},(_,i)=>({key:`2026-${String(i+1).padStart(2,'0')}`,matches:i===9?158:0}));
+ const props={buckets,unit:'month',language:'pt',title:'Evolução',countLabel:n=>`${n} partidas`,onSelect(){}};
+ const r=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',props,{captureStatisticsPlot:true});
+ assert.equal(r.calls.filter(c=>c[0]==='statisticsBar').length,1);
+ assert.equal(r.calls.find(c=>c[0]==='statisticsBar')[1].testID,'statistics-bar-2026-10');
+ assert.equal(r.calls.find(c=>c[0]==='statisticsBar')[1].style[1].height,84);
+ assert.ok(r.controls.some(c=>c.accessibilityLabel?.includes('outubro de 2026: 158 partidas')));
+ assert.ok(!r.nativeViews.some(([kind,props])=>kind==='scroll'&&props.horizontal));
+ await r.press('Consultar meses');assert.ok(r.updates.some(([i,v])=>i===0&&v===true));
+ const selected=[];
+ const details=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',{...props,onSelect:key=>selected.push(key)},{states:{0:true},fontScale:2});
+ await details.press('outubro de 2026: 158 partidas');assert.deepEqual(selected,['2026-10']);
+ assert.ok(details.nativeViews.some(([kind,props])=>kind==='scroll'&&props.horizontal));
 });

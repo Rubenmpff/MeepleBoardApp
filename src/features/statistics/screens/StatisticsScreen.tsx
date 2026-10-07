@@ -50,8 +50,8 @@ export default function StatisticsScreen() {
   accessibilityRole="button" accessibilityLabel={`${label}: ${value}`} accessibilityHint={t("viewSupporting")} onPress={action}>
   <Text style={styles.value}>{value}</Text><Text style={styles.text}>{label}</Text>
  </TouchableOpacity>;
- const supporting = (label: string, action: () => void) => <TouchableOpacity style={styles.inlineAction} accessibilityRole="button" accessibilityLabel={label} accessibilityHint={t("viewSupporting")} onPress={action}>
-  <Text style={[styles.muted, styles.grow]}>{label}</Text><Text style={styles.link} importantForAccessibility="no">›</Text>
+ const supporting = (label: string, action: () => void, displayLabel = label) => <TouchableOpacity style={styles.inlineAction} accessibilityRole="button" accessibilityLabel={label} accessibilityHint={t("viewSupporting")} onPress={action}>
+  <Text style={[styles.muted, styles.grow]}>{displayLabel}</Text><Text style={styles.link} importantForAccessibility="no">›</Text>
  </TouchableOpacity>;
 
  return <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>
@@ -76,11 +76,11 @@ export default function StatisticsScreen() {
      <View style={styles.row}>
       <TouchableOpacity style={[styles.selector, { flexBasis: stacked ? "100%" : "46%" }]} accessibilityRole="button" accessibilityLabel={`${t("game")}: ${gameLabel}`} accessibilityState={{ expanded: chooseGame }}
        onPress={() => { setChooseGame(v => !v); setChooseMode(false); }}>
-       <View style={styles.grow}><Text style={styles.muted}>{t("game")}</Text><Text style={styles.selectorValue}>{gameLabel}</Text></View><Text style={styles.link} importantForAccessibility="no">⌄</Text>
+       <Text style={[styles.selectorValue, styles.grow]}>{query.gameId ? gameLabel : t("game")}</Text><Text style={styles.link} importantForAccessibility="no">⌄</Text>
       </TouchableOpacity>
       <TouchableOpacity style={[styles.selector, { flexBasis: stacked ? "100%" : "46%" }]} accessibilityRole="button" accessibilityLabel={`${t("mode")}: ${modeLabel}`} accessibilityState={{ expanded: chooseMode }}
        onPress={() => { setChooseMode(v => !v); setChooseGame(false); }}>
-       <View style={styles.grow}><Text style={styles.muted}>{t("mode")}</Text><Text style={styles.selectorValue}>{modeLabel}</Text></View><Text style={styles.link} importantForAccessibility="no">⌄</Text>
+       <Text style={[styles.selectorValue, styles.grow]}>{query.mode ? modeLabel : t("modeShort")}</Text><Text style={styles.link} importantForAccessibility="no">⌄</Text>
       </TouchableOpacity>
      </View>
      {chooseGame && <View style={styles.options}>
@@ -103,11 +103,11 @@ export default function StatisticsScreen() {
         {metric(t("games"), number(data.distinctGames), () => show("games"))}
        </View>
        <TouchableOpacity style={styles.timeLine} accessibilityRole="button" accessibilityLabel={`${t("recordedTime")}: ${data.recordedMinutes == null ? t("noDuration") : `${number(data.recordedMinutes)} min`}`} accessibilityHint={t("viewSupporting")} onPress={() => show(data.recordedMinutes == null ? "missing-duration" : "duration")}>
-        <Text style={styles.text}>{t("recordedTime")}</Text>
-        <Text style={styles.inlineValue}>{data.recordedMinutes == null ? t("noDuration") : `${number(data.recordedMinutes)} min`}</Text>
+        {data.recordedMinutes != null && <Text style={styles.text}>{t("recordedTime")}</Text>}
+        <Text style={styles.text}>{data.recordedMinutes == null ? t("noDuration") : `${number(data.recordedMinutes)} min`}</Text>
         <Text style={styles.muted}>{t("durationCoverage", { known: data.matchesWithDuration, total: data.matches })}</Text>
        </TouchableOpacity>
-       {data.matchesWithoutDuration > 0 && supporting(t("missingDuration", { count: data.matchesWithoutDuration }), () => show("missing-duration"))}
+       {data.matchesWithoutDuration > 0 && data.matchesWithDuration > 0 && supporting(t("missingDuration", { count: data.matchesWithoutDuration }), () => show("missing-duration"))}
       </View>
       <StatisticsEvolution buckets={data.evolution} unit={data.bucketUnit} language={i18n.language} title={t("evolution")} countLabel={count => t("matchCount", { count })} onSelect={bucket => show("all", { bucket })} />
       <View style={styles.section}>
@@ -122,8 +122,8 @@ export default function StatisticsScreen() {
         <View style={styles.grow}><Text style={styles.text}>{t("winRate")}</Text><Text style={styles.muted}>{t("knownResults", { count: data.results.known })}</Text></View>
         <Text style={styles.rateValue}>{data.results.winRate == null ? "—" : `${number(data.results.winRate)}%`}</Text>
        </TouchableOpacity>
-       {data.results.withoutResult > 0 && supporting(t("withoutResult", { count: data.results.withoutResult }), () => show("undefined"))}
-       {data.results.legacy > 0 && supporting(t("legacy", { count: data.results.legacy }), () => show("legacy"))}
+       {data.results.withoutResult > 0 && supporting(t("withoutResult", { count: data.results.withoutResult }), () => show("undefined"), t("unknownCompact", { count: data.results.withoutResult }))}
+       {data.results.legacy > 0 && supporting(t("legacy", { count: data.results.legacy }), () => show("legacy"), t("olderCompact", { count: data.results.legacy }))}
       </View>
       <View style={styles.section}>
        <Text style={styles.title} accessibilityRole="header">{t("personalRating")}</Text>

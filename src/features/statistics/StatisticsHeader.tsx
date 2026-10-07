@@ -9,7 +9,7 @@ export default function StatisticsHeader({title,subtitle,backLabel,onBack}:{titl
  const stacked=keyboardOpen||width<360||fontScale>1.25;
  return <View>
   {stacked&&<TouchableOpacity style={styles.control} accessibilityRole="button" accessibilityLabel={backLabel} onPress={onBack}><Text style={styles.link}>‹ {backLabel}</Text></TouchableOpacity>}
-  <ClubHeader title={title} subtitle={subtitle}/>
+  <ClubHeader title={title} subtitle={subtitle} compact/>
   {!stacked&&<TouchableOpacity style={{position:"absolute",left:8,top:12,minHeight:44,justifyContent:"center",paddingHorizontal:8}} accessibilityRole="button" accessibilityLabel={backLabel} onPress={onBack}><Text style={styles.link}>‹ {backLabel}</Text></TouchableOpacity>}
  </View>;
 }
