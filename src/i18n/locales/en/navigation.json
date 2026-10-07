@@ -46,5 +46,6 @@
     "discard": "Discard and leave",
     "busyTitle": "Operation in progress",
     "busyMessage": "Wait for the operation to finish before leaving."
-  }
+  },
+  "statistics": "Statistics"
 }

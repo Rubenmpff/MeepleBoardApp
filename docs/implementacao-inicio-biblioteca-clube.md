@@ -1,5 +1,7 @@
 # Início e Biblioteca — identidade Clube Meeple
 
+Confirmação recebida no iPhone: Início/Biblioteca ficaram bem e os controlos testados funcionam. Mantém-se a versão como base; isto não valida percursos não testados.
+
 Identidade aprovada aplicada apenas a estes ecrãs e aos seus componentes próprios. Paleta opt-in `clubTheme`, cabeçalho `ClubHeader`, botões/cartões e capas partilhados neste âmbito; `appTheme`, autenticação e navegação global não alterados. Modais AddToLibrary/ManageLibraryEntry partilhados com outras áreas mantêm o tema anterior, para evitar alteração indireta fora do âmbito. Preservados destinos, filtros, estados, preço (incluindo zero), edição, ordenação, preferências grelha/lista, ações secundárias, toque prolongado e cálculo de contagens.
 
 Cabeçalhos com logótipo original centrado, tamanho 104×68, título 22/30 e curva suave em lavanda; fundo branco quente, ações verde escuro e estrelas douradas. Com teclado aberto o logótipo/subtítulo recolhem; a Biblioteca usa KeyboardAvoidingView, mantém toques no teclado e permite recolhê-lo com scroll. Capas em contain mantêm proporções, com fallback neutro ao faltar/falhar e reset por URI. Nomes dos jogos não limitados a duas linhas. Grelha passa a uma coluna em ecrãs estreitos/texto ampliado. Alvos de ação mantêm mínimos 44/52 pt.

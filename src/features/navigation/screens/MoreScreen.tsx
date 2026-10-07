@@ -22,7 +22,7 @@ export default function MoreScreen() {
   const groups = [
     { title: t("games"), entries: [[t("gameSearch"), ROUTES.SEARCH_GAMES]] },
     { title: t("more.play"), entries: [[t("sessions"), ROUTES.SESSIONS], [t("campaigns"), ROUTES.CAMPAIGNS]] },
-    { title: t("more.reviews"), entries: [[t("pendingJournal"), ROUTES.PENDING_JOURNAL], [t("rankings"), ROUTES.RANKINGS]] },
+    { title: t("more.reviews"), entries: [[t("statistics"), ROUTES.STATISTICS], [t("pendingJournal"), ROUTES.PENDING_JOURNAL], [t("rankings"), ROUTES.RANKINGS]] },
     { title: t("more.account"), entries: [[t("profile"), ROUTES.PROFILE], [t("settings"), ROUTES.SETTINGS]] },
   ];
   return <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>

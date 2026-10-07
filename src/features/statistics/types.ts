@@ -1,0 +1,12 @@
+export type Mode = "COMPETITIVE" | "SOLO" | "COOPERATIVE" | "UNKNOWN";
+export type Period = "week" | "month" | "year" | "custom";
+export type Metric = "all" | "games" | "duration" | "missing-duration" | "ratings" | "known" | "wins" | "losses" | "draws" | "undefined" | "legacy";
+export type Query = { start: string; endExclusive: string; timeZone: string; gameId?: string; mode?: Mode };
+export type Results = { wins: number; losses: number; draws: number; known: number; withoutResult: number; legacy: number; winRate: number | null };
+export type GameSummary = { gameId: string; name: string; imageUrl: string | null; matches: number };
+export type Summary = Query & { matches: number; distinctGames: number; recordedMinutes: number | null; matchesWithDuration: number; matchesWithoutDuration: number;
+ averagePersonalRating: number | null; ratedMatches: number; results: Results; modes: { mode: Mode; matches: number; results: Results }[];
+ bucketUnit: "day" | "month"; evolution: { key: string; matches: number }[]; games: GameSummary[]; gameOptions: GameSummary[] };
+export type SupportingMatch = { id: string; gameId: string; gameName: string; gameImageUrl: string | null; matchDate: string; gameMode: Mode;
+ outcome: "Win" | "Loss" | "Draw" | null; resultSource: "Legacy" | "Explicit"; durationInMinutes: number | null; score: number | null; personalRating: number | null };
+export type MatchPage = { total: number; offset: number; limit: number; items: SupportingMatch[] };

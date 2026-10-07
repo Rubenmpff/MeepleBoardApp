@@ -1,4 +1,6 @@
 export const ROUTES = {
+  STATISTICS: "/statistics",
+
   HOME: "/dashboard",
 
   GAME_DETAILS: "/games/details/[id]",

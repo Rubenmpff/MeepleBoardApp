@@ -10,7 +10,7 @@ const i18next = require('i18next');
 const root = path.resolve(__dirname, '../..');
 
 async function renderNative(source, exportName, props = {}, options = {}) {
-  const resources = Object.fromEntries(['pt', 'en'].map(lang => [lang, Object.fromEntries(['games', 'library', 'common', 'matches', 'campaigns', 'friends', 'settings', 'auth', 'navigation'].map(ns => [ns,
+  const resources = Object.fromEntries(['pt', 'en'].map(lang => [lang, Object.fromEntries(['games', 'library', 'common', 'matches', 'campaigns', 'friends', 'settings', 'auth', 'navigation', 'statistics'].map(ns => [ns,
     JSON.parse(fs.readFileSync(path.join(root, `src/i18n/locales/${lang}/${ns}.json`), 'utf8')),
   ]))]));
   const i18n = i18next.createInstance();
@@ -119,6 +119,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
       if (options.stubRegisterForm && id.endsWith('/RegisterMatchForm')) return { __esModule: true,
         default: p => { calls.push(['registerForm', p]); return null; } };
       const hook = id.split('/').pop();
+      if (!options.realStatisticsHook && id.endsWith('/hooks/useStatistics')) return { __esModule: true, default: query => { calls.push(['statisticsQuery',query]); return { data: options.statisticsSummary || null, loading: !!options.statisticsLoading, error: !!options.statisticsError, refetch: () => calls.push(['refetchStatistics']) }; } };
       if (id.includes('/hooks/') && hooks[hook]) return { [hook]: hooks[hook], invalidateFriendsCache: () => calls.push(['invalidateFriendsCache']) };
       if (id.includes('/services/')) {
         const services = Object.fromEntries(Object.entries(options.services || {}).map(([method, result]) => [method, async (...args) => {

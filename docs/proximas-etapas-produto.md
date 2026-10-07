@@ -1,10 +1,14 @@
 # Próximas etapas — proposta antes de implementação
 
+**Estado mais recente:** visão de Estatísticas/retrospetiva aprovada para implementação por fases. Fase 1 (contratos + resumo e suporte) implementada; ver `estatisticas-fase-1.md`. Secções exploráveis, retrospetiva e partilha são trabalho autorizado por concluir. Na partilha, amigos sempre anónimos e proteção informativa, sem controlo para desativar.
+
+Estado atual: Início e Biblioteca e controlos testados aprovados no iPhone; Estatísticas e «O teu ano à mesa» em proposta antes de implementação. Ver [estrutura, contratos, indicadores, privacidade e fases](proposta-estatisticas-ano-a-mesa.md). Jogar novamente permanece pendente. Os parágrafos seguintes conservam a sequência histórica.
+
 Pedidos registados pelo utilizador. Não implementar todos em conjunto. A tarefa atual ajusta estrelas, confirma avaliação zero e propõe modos/resultados; ver [proposta atual](proposta-modos-resultados.md). A melhoria do formulário foi reconhecida no iPhone; isso não fecha todos os casos de calendário/teclado/texto ampliado nem o novo dourado/zero.
 
 ## 1. Autenticação — comparar duas propostas visuais
 
-Apresentar **dois mockups comparáveis**, usando `assets/MeepleBoardLogo.png` e a mascote existente (`assets/animations/ghost.json`), antes de alterar ecrãs. Não substituir a mascote nem inventar outro logótipo.
+Apresentar **dois mockups comparáveis**, usando `assets/MeepleBoardLogo.png` e apenas assets confirmados (a indicação histórica de `ghost.json` como mascote estava errada: é um placeholder, excluído da decoração), antes de alterar ecrãs. Não substituir a mascote nem inventar outro logótipo.
 
 Explorar duas direções: «Um lugar à mesa» (superfícies creme, ilustração acolhedora com mascote e pequenos detalhes de tabuleiro) e «Vamos jogar?» (cor suave mais presente, mascote expressiva e composição lúdica). Estas são direções para os mockups futuros, não propostas visuais já aprovadas. Mostrar entrada, registo, recuperação/reset de password e estados de validação/carregamento pertinentes. Comparar teclado aberto e texto ampliado; logo/mascote não podem ocupar o espaço dos campos e ação principal. Manter contraste, etiquetas persistentes, áreas de toque, foco e anúncios acessíveis. Conservar todos os fluxos, validações, autenticação, recuperação e acessos existentes. Analisar AuthLayout centrado dentro de cartão e o impacto do teclado, sem redesenhar nesta etapa.
 
@@ -26,7 +30,7 @@ Prioridade alta: partidas, jogos diferentes, tempo conhecido e cobertura; jogos 
 | Coleção/despesas | Status Owned, AddedAt e PricePaid nullable | AddedAt é entrada na coleção, não data comprovada de compra. Sem data de aquisição/moeda/transações não há despesa anual fiável nem soma segura entre moedas. Propor esses campos antes de novos indicadores; não preencher antigos por suposição. |
 | Tenho mas ainda não joguei | Owned sem partida própria registada | Texto «Sem partidas registadas», não «Nunca jogaste»; usar partidas como fonte, validar contadores desnormalizados de biblioteca antes de os usar. |
 
-Antes dos gráficos, alinhar UserService (WinnerId), MatchPlayerRepository (IsWinner) e FriendshipRepository (inferências de empate/derrota e modo do catálogo). Não construir Estatísticas em cima de projeções que já perderam desconhecidos. Proposta visual futura: números principais grandes, pequenas capas reais, um gráfico temporal simples e secções com “Ver mais”; cobertura/indisponibilidade próximas do valor.
+Atualização: estes leitores já foram alinhados aos resultados explícitos. Antes dos novos gráficos, acrescentar agregações por período, cobertura e privacidade; não voltar a inferir resultados. Não construir Estatísticas em cima de projeções que já perderam desconhecidos. Proposta visual futura: números principais grandes, pequenas capas reais, um gráfico temporal simples e secções com “Ver mais”; cobertura/indisponibilidade próximas do valor.
 
 ## 3. «O teu ano à mesa»
 

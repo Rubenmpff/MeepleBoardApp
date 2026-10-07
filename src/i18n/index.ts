@@ -5,6 +5,9 @@ import {
   initReactI18next,
 } from "react-i18next";
 
+import ptStatistics from "./locales/pt/statistics.json";
+import enStatistics from "./locales/en/statistics.json";
+
 import ptCommon from "./locales/pt/common.json";
 import ptNavigation from "./locales/pt/navigation.json";
 import ptSettings from "./locales/pt/settings.json";
@@ -37,6 +40,7 @@ export type AppLanguage =
 
 const resources = {
   pt: {
+    statistics: ptStatistics,
     common: ptCommon,
     navigation: ptNavigation,
     settings: ptSettings,
@@ -50,6 +54,7 @@ const resources = {
   },
 
   en: {
+    statistics: enStatistics,
     common: enCommon,
     navigation: enNavigation,
     settings: enSettings,

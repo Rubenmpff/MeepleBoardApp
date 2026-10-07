@@ -1,5 +1,13 @@
 # Pendências funcionais do MeepleBoard
 
+## Estatísticas — fase 1 implementada
+
+Resumo e contratos/agregações com partidas de suporte implementados, ver `estatisticas-fase-1.md`; confirmação nativa pendente. Continuação autorizada: secções exploráveis → retrospetiva → partilha sempre anónima para amigos, sem opção de desligar proteção. Jogar novamente permanece pendente. Não encerra os testes de Solo, cooperativo, campanhas ou autenticação. Os estados anteriores abaixo são históricos.
+
+## Atualização: Estatísticas e retrospetiva
+
+Início/Biblioteca e controlos testados aprovados pelo utilizador no iPhone; conservar implementação como base. Esta confirmação não encerra todos os fluxos de autenticação, Solo empate/não definido, cooperativo ou campanhas. Estatísticas e «O teu ano à mesa»: analisar/propor antes de implementar, ver `proposta-estatisticas-ano-a-mesa.md`. Jogar novamente com jogo pré-selecionado continua pendente; não duplicar partidas. Os estados anteriores abaixo são históricos.
+
 ## Estado confirmado pelo utilizador — autenticação e próximos testes (7 de outubro de 2026)
 
 A direção visual atual da autenticação foi aprovada no iPhone e fica como base. Esta confirmação não valida todos os fluxos. A01–A08 continuam abertas; registo, confirmação/reenvio de email, recuperação e nova palavra-passe exigem percursos reais de teste, incluindo sucesso, falhas/ligação expirada, deep links com aplicação aberta/fechada, mensagens, consentimento e palavras-passe. Confirmar sessão com/sem Manter sessão iniciada após fechar o processo, expiração/rede e logout/troca de conta; verificar URLs dos documentos. Permanecem verificações específicas de texto ampliado, teclado/autofill e proteção de saída nos seis ecrãs, sem invalidar a aprovação da direção visual.
