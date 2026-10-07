@@ -1,5 +1,15 @@
 # Afinação de autenticação — Clube Meeple
 
+## Afinação final: composição centrada
+
+O logótipo centra-se na largura total do cabeçalho nos seis ecrãs, incluindo Boas-vindas e confirmação de email sem botão de regresso. Voltar/Cancelar continua à esquerda e dado/meeple à direita, numa camada independente. Se a largura disponível não comportar as três zonas (considerando fontScale), os formulários passam os controlos para uma linha abaixo do logótipo; não se corta o logótipo. Com texto ampliado/ecrã baixo conserva-se o logótipo e recolhe-se a decoração. Com teclado aberto recolhem-se ambos, conservando regresso, título e campos. Não se altera a ação nem a proteção de saída.
+
+Títulos 22/30, peso 700 (antes 24/32, 800), sem limite de ampliação/linhas. Início do formulário a 14 pt. Documentos das Boas-vindas ficam depois de Entrar/Criar conta, numa linha com quebra automática e áreas de toque mínimas de 44 pt; URLs, textos e traduções inalterados. Recuperação, confirmação de email e nova palavra-passe usam o mesmo cabeçalho partilhado.
+
+Validação: Node 22.14.0, TypeScript, 238 testes (30 autenticação), exportação iOS `.expo/auth-final-ios-export` ignorada, bundle iOS HTTP 200 em Expo 8082. API confirmou DeviceTests / MeepleBoard_DeviceTests / externalDelivery=false. Sem alterações de API, dados ou tema global. As verificações estruturais cobrem centragem independente e adaptação a 320 pt/fontScale 2 nos seis ecrãs; não comprovam a geometria nativa.
+
+Resultado real disponível no Expo 8082. Este Mac só tem CommandLineTools, sem simulador iOS/Xcode completo: não foi possível obter captura nativa. Comparação visual final permanece pendente no iPhone, sem substituir uma captura por mockup. Confirmar Boas-vindas/Entrada/Registo sem teclado; teclado no último campo; texto ampliado; recuperação e estados de confirmação de email/nova palavra-passe com ligações de testes válidas/expiradas. Manter testes Solo/coop pendentes e restantes etapas sem implementação.
+
 ## Recuperação da personalidade do mockup B
 
 A comparação com `b-clube-meeple.png` identificou detalhes retirados em excesso: dados/meeples e curva suave, em vez dos dois pequenos círculos e canto arredondado isolado. Recuperados no `AuthPlayfulDetails`: dado do conjunto de ícones existente e meeple genérico sem rosto, construído com formas nativas. Não são personagens nem mascotes. Grupo de 68 × 40 pt dentro da linha do logótipo (68 pt): não acrescenta altura. Curva elíptica absoluta revela apenas 10 pt dentro da margem inferior existente, sem deslocar o formulário. Todos os elementos decorativos são inacessíveis ao leitor de ecrã e não interceptam toques.

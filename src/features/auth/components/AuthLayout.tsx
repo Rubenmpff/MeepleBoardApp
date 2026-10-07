@@ -21,6 +21,7 @@ export default function AuthLayout({ title, children, onBack, backAccessibilityL
   const focused = useRef<FocusTarget | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const compact = keyboardOpen || height < 700 || fontScale >= 1.4;
+  const stackedHeader = Math.min(width, 520) - 40 < 104 + 2 * (100 * fontScale + 8);
   function revealField(target: FocusTarget) {
     focused.current = target;
     if (timer.current) clearTimeout(timer.current);
@@ -41,15 +42,19 @@ export default function AuthLayout({ title, children, onBack, backAccessibilityL
         <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentInsetAdjustmentBehavior="never" contentContainerStyle={styles.content}>
           <View style={styles.page}>
             <View style={[styles.hero, compact && styles.compactHero]}>
-              <View style={styles.navigation}>
-                {onBack && <TouchableOpacity style={styles.back} onPress={onBack} accessibilityRole="button" accessibilityLabel={cancelForm ? t("cancel") : backAccessibilityLabel ?? t("back")}>
-                  <Feather name="chevron-left" size={20} color={colors.primary} />
-                  <Text style={styles.backText}>{t(cancelForm ? "cancel" : "back")}</Text>
-                </TouchableOpacity>}
-                {!compact && <View style={styles.logoViewport}>
-                  <Image source={require("@/assets/MeepleBoardLogo.png")} style={styles.logo} resizeMode="contain" accessibilityLabel="MeepleBoard" />
+              <View testID="authentication-header" style={[styles.navigation, !keyboardOpen && styles.fullNavigation, !keyboardOpen && stackedHeader && onBack && styles.stackedNavigation]}>
+                {!keyboardOpen && <View testID="authentication-logo" style={[styles.logoPosition, stackedHeader && styles.stackedLogo]}>
+                  <View style={styles.logoViewport}>
+                    <Image source={require("@/assets/MeepleBoardLogo.png")} style={styles.logo} resizeMode="contain" accessibilityLabel="MeepleBoard" />
+                  </View>
                 </View>}
-                {!compact && <AuthPlayfulDetails />}
+                <View testID="authentication-controls" style={styles.controls}>
+                  {onBack ? <TouchableOpacity style={styles.back} onPress={onBack} accessibilityRole="button" accessibilityLabel={cancelForm ? t("cancel") : backAccessibilityLabel ?? t("back")}>
+                    <Feather name="chevron-left" size={20} color={colors.primary} />
+                    <Text style={styles.backText}>{t(cancelForm ? "cancel" : "back")}</Text>
+                  </TouchableOpacity> : <View />}
+                  {!compact && <AuthPlayfulDetails />}
+                </View>
               </View>
               <View style={styles.headingRow}>
                 <View style={styles.heading}>
@@ -75,15 +80,21 @@ const styles = StyleSheet.create({
   content: { flexGrow: 1, paddingBottom: 24 }, page: { width: "100%", maxWidth: 520, alignSelf: "center" },
   hero: { backgroundColor: colors.hero, paddingHorizontal: 20, paddingTop: 8, paddingBottom: 14, overflow: "hidden" },
   compactHero: { paddingTop: 4, paddingBottom: 10 },
-  navigation: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 },
+  navigation: { marginBottom: 6 },
+  fullNavigation: { minHeight: 68, justifyContent: "center" },
+  stackedNavigation: { paddingTop: 68 },
+  // Center against the full header width, independently of either side control.
+  logoPosition: { position: "absolute", left: 0, right: 0, alignItems: "center" },
+  stackedLogo: { top: 0 },
+  controls: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
   back: { minHeight: 44, paddingVertical: 8, flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 1 },
   backText: { fontSize: 16, lineHeight: 24, color: colors.primary, fontWeight: "600", flexShrink: 1 },
   // The original square PNG has transparent margins. Crop its display viewport, not the asset.
   logoViewport: { width: 104, height: 68, overflow: "hidden" },
   logo: { position: "absolute", width: 180, height: 180, left: -40, top: -54 },
   headingRow: { flexDirection: "row", alignItems: "center", gap: 12 }, heading: { flex: 1, minWidth: 0, gap: 4 },
-  title: { fontSize: 24, lineHeight: 32, color: colors.text, fontWeight: "800" },
+  title: { fontSize: 22, lineHeight: 30, color: colors.text, fontWeight: "700" },
   subtitle: { fontSize: 16, lineHeight: 24, color: colors.muted },
   curve: { position: "absolute", bottom: -90, width: 100, height: 100, borderRadius: 50, backgroundColor: colors.background },
-  form: { paddingHorizontal: 20, paddingTop: 16, gap: 14 },
+  form: { paddingHorizontal: 20, paddingTop: 14, gap: 14 },
 });

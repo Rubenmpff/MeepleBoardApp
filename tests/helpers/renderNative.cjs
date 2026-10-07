@@ -20,7 +20,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
   const host = ({ children }) => React.createElement('div', null, children);
   const button = p => { controls.push(p); return React.createElement('button', null, p.children); };
   const native = {
-    View: p => { if (options.captureDecoration && p.testID?.startsWith('auth-')) calls.push(['authDecoration', p]); return React.createElement(host, p); }, Text: ({ children }) => React.createElement('span', null, children),
+    View: p => { if (options.captureLayout && p.testID?.startsWith('authentication-')) calls.push(['headerLayout', p]); if (options.captureDecoration && p.testID?.startsWith('auth-')) calls.push(['authDecoration', p]); return React.createElement(host, p); }, Text: ({ children }) => React.createElement('span', null, children),
     ScrollView: p => { nativeViews.push(['scroll', p]); return React.createElement(host, p); },
     KeyboardAvoidingView: p => { nativeViews.push(['keyboard', p]); return React.createElement(host, p); },
     Platform: { OS: options.platform || 'ios' }, Image: p => { images.push(p); return null; }, ActivityIndicator: () => null,

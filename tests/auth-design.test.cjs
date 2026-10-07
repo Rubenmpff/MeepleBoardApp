@@ -33,7 +33,7 @@ test('All six screens render translated headings with shared keyboard scrolling 
   for (const language of ['pt', 'en']) for (const name of ['welcome', 'signin', 'signup', 'confirm-email', 'forgot-password', 'reset-password']) {
     const r = await render(name, { language, width: 320, fontScale: 2 });
     assert.doesNotMatch(r.html, /auth:|signIn\.title|confirmEmail\.title/);
-    assert.equal(r.images.length, 0); // Decorative logo collapses with enlarged text.
+    assert.equal(r.images.length, 1); // Original logo retains a centered row with enlarged text.
     assert.equal(r.nativeViews.find(x => x[0] === 'scroll')[1].keyboardShouldPersistTaps, 'handled');
     assert.equal(r.nativeViews.find(x => x[0] === 'keyboard')[1].behavior, 'padding');
   }
@@ -193,7 +193,7 @@ test('Club layout collapses decoration for keyboard, small screens and larger te
     const view = await renderNative(source, 'default', { title: 'Criar conta', subtitle: 'HELP', children: 'FORM_CONTENT' }, { ...options, captureIllustrations: true });
     assert.match(view.html, /Criar conta/); assert.match(view.html, /FORM_CONTENT/);
     assert.ok(!view.calls.some(c => c[0] === 'lottie'));
-    assert.equal(view.images.length, 0);
+    assert.equal(view.images.length, options.states ? 0 : 1);
     assert.equal(view.calls.find(c => c[0] === 'statusBar')[1].style, 'dark');
     if (options.states) assert.doesNotMatch(view.html, /HELP/);
     assert.equal(view.nativeViews.find(x => x[0] === 'scroll')[1].keyboardShouldPersistTaps, 'handled');
@@ -294,5 +294,19 @@ test('Board-game details and curve use existing header space and disappear with 
   for (const options of [{states:{0:true}},{height:568,width:320},{fontScale:2}]) {
     const r=await renderNative(source,'default',{title:'Entrada',children:'FIELDS'},{...options,captureDecoration:true});
     assert.equal(r.calls.filter(c=>c[0]==='authDecoration').length,0); assert.match(r.html,/FIELDS/);
+  }
+});
+
+
+test('Logo centers against the full header on all six screens, with separate controls on narrow screens', async () => {
+  for (const name of ['welcome', 'signin', 'signup', 'forgot-password', 'reset-password', 'confirm-email']) {
+    for (const options of [{width:390}, {width:320}, {width:320,fontScale:2}]) {
+      const r=await render(name,{...options,captureLayout:true});
+      const logo=r.calls.find(c=>c[0]==='headerLayout'&&c[1].testID==='authentication-logo')[1];
+      assert.equal(logo.style[0].left,0); assert.equal(logo.style[0].right,0);
+      assert.equal(logo.style[0].alignItems,'center'); assert.equal(r.images.length,1);
+      const header=r.calls.find(c=>c[0]==='headerLayout'&&c[1].testID==='authentication-header')[1];
+      if(options.width===320 && ['signin','signup','forgot-password','reset-password'].includes(name)) assert.equal(header.style[2].paddingTop,68);
+    }
   }
 });

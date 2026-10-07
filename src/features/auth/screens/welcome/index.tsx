@@ -3,7 +3,6 @@ import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import AuthLayout from "../../components/AuthLayout";
 import AuthButton from "../../components/AuthButton";
-import { UI_STYLES } from "@/src/styles/uiStyles";
 import { AUTH_COLORS } from "../../styles/authTheme";
 
 const DOCUMENTS = [
@@ -24,11 +23,13 @@ export default function Welcome() {
       <AuthButton variant="secondary" title={t("welcome.signUp")} onPress={() => router.push("/signup")} />
       <View style={styles.documents}>
         <Text style={styles.subtitle}>{t("welcome.termsIntro")}</Text>
+        <View style={styles.documentLinks}>
         {DOCUMENTS.map(document => (
-          <TouchableOpacity key={document.key} style={UI_STYLES.control} accessibilityRole="link" accessibilityLabel={t("welcome." + document.key)} onPress={() => Linking.openURL(document.url)}>
+          <TouchableOpacity key={document.key} style={styles.documentLink} accessibilityRole="link" accessibilityLabel={t("welcome." + document.key)} onPress={() => Linking.openURL(document.url)}>
             <Text style={styles.link}>{t("welcome." + document.key)}</Text>
           </TouchableOpacity>
         ))}
+        </View>
       </View>
     </AuthLayout>
   );
@@ -36,6 +37,8 @@ export default function Welcome() {
 
 const styles = StyleSheet.create({
   subtitle: { fontSize: 16, lineHeight: 24, color: APP_THEME.colors.muted, textAlign: "left" },
-  documents: { borderTopWidth: 1, borderTopColor: APP_THEME.colors.border, paddingTop: APP_THEME.space.lg, gap: APP_THEME.space.xs },
+  documents: { borderTopWidth: 1, borderTopColor: APP_THEME.colors.border, paddingTop: 12, gap: APP_THEME.space.xs },
+  documentLinks: { flexDirection: "row", flexWrap: "wrap", columnGap: 16, rowGap: 0 },
+  documentLink: { minHeight: 44, justifyContent: "center", maxWidth: "100%", paddingVertical: 8 },
   link: { fontSize: 16, lineHeight: 24, color: APP_THEME.colors.primary, fontWeight: "600" },
 });
