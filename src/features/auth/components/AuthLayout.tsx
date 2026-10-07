@@ -3,6 +3,7 @@ import { FocusEvent, Image, Keyboard, KeyboardAvoidingView, Platform, ScrollView
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import AuthPlayfulDetails from "./AuthPlayfulDetails";
 import { StatusBar } from "expo-status-bar";
 import { AUTH_COLORS as colors } from "../styles/authTheme";
 
@@ -14,7 +15,7 @@ type Props = { title: string; children: ReactNode; onBack?: () => void; backAcce
 
 export default function AuthLayout({ title, children, onBack, backAccessibilityLabel, subtitle, cancelForm = false }: Props) {
   const { t } = useTranslation("navigation");
-  const { height, fontScale } = useWindowDimensions();
+  const { width, height, fontScale } = useWindowDimensions();
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const scroll = useRef<ScrollView>(null);
   const focused = useRef<FocusTarget | null>(null);
@@ -48,9 +49,7 @@ export default function AuthLayout({ title, children, onBack, backAccessibilityL
                 {!compact && <View style={styles.logoViewport}>
                   <Image source={require("@/assets/MeepleBoardLogo.png")} style={styles.logo} resizeMode="contain" accessibilityLabel="MeepleBoard" />
                 </View>}
-                {!compact && <View style={styles.tokens} accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-                  <View style={styles.token} /><View style={[styles.token, styles.secondToken]} />
-                </View>}
+                {!compact && <AuthPlayfulDetails />}
               </View>
               <View style={styles.headingRow}>
                 <View style={styles.heading}>
@@ -59,6 +58,8 @@ export default function AuthLayout({ title, children, onBack, backAccessibilityL
                 </View>
 
               </View>
+              {!compact && <View testID="auth-header-curve" pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants"
+                style={[styles.curve, { left: Math.min(width, 520) / 2 - 50, transform: [{ scaleX: Math.min(width, 520) * 1.3 / 100 }] }]} />}
             </View>
             <FocusContext.Provider value={revealField}>
               <View style={styles.form}>{children}</View>
@@ -72,7 +73,7 @@ export default function AuthLayout({ title, children, onBack, backAccessibilityL
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background }, body: { flex: 1 },
   content: { flexGrow: 1, paddingBottom: 24 }, page: { width: "100%", maxWidth: 520, alignSelf: "center" },
-  hero: { backgroundColor: colors.hero, paddingHorizontal: 20, paddingTop: 8, paddingBottom: 14, borderBottomRightRadius: 20 },
+  hero: { backgroundColor: colors.hero, paddingHorizontal: 20, paddingTop: 8, paddingBottom: 14, overflow: "hidden" },
   compactHero: { paddingTop: 4, paddingBottom: 10 },
   navigation: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 },
   back: { minHeight: 44, paddingVertical: 8, flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 1 },
@@ -83,8 +84,6 @@ const styles = StyleSheet.create({
   headingRow: { flexDirection: "row", alignItems: "center", gap: 12 }, heading: { flex: 1, minWidth: 0, gap: 4 },
   title: { fontSize: 24, lineHeight: 32, color: colors.text, fontWeight: "800" },
   subtitle: { fontSize: 16, lineHeight: 24, color: colors.muted },
-  tokens: { flexDirection: "row", gap: 5, marginLeft: "auto" },
-  token: { width: 9, height: 9, borderRadius: 5, backgroundColor: "#AFCBBC" },
-  secondToken: { backgroundColor: "#CBBEE2" },
+  curve: { position: "absolute", bottom: -90, width: 100, height: 100, borderRadius: 50, backgroundColor: colors.background },
   form: { paddingHorizontal: 20, paddingTop: 16, gap: 14 },
 });

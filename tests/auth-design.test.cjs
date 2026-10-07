@@ -279,3 +279,20 @@ test('Welcome describes existing features without promising messages and auth ne
   assert.doesNotMatch(layout, /ghost.json|LottieView/);
   for (const file of ['src/features/dashboard/screens/DashboardScreen.tsx', 'src/features/games/catalog/components/GameSelector.tsx']) assert.match(fs.readFileSync(file,'utf8'), /ghost.json/);
 });
+
+test('Board-game details and curve use existing header space and disappear with keyboard or enlarged text', async () => {
+  const source = 'src/features/auth/components/AuthLayout.tsx';
+  const normal = await renderNative(source,'default',{title:'Entrada',children:'FIELDS'},{captureDecoration:true});
+  const decorations=normal.calls.filter(c=>c[0]==='authDecoration').map(c=>c[1]);
+  assert.deepEqual(decorations.map(p=>p.testID),['auth-playful-details','auth-header-curve']);
+  for(const p of decorations) {
+    assert.equal(p.pointerEvents,'none'); assert.equal(p.accessibilityElementsHidden,true);
+    assert.equal(p.importantForAccessibility,'no-hide-descendants');
+  }
+  assert.equal(decorations[0].style.height,40); // Smaller than the existing 68 pt logo row.
+  assert.equal(decorations[1].style[0].position,'absolute'); // No added flow height.
+  for (const options of [{states:{0:true}},{height:568,width:320},{fontScale:2}]) {
+    const r=await renderNative(source,'default',{title:'Entrada',children:'FIELDS'},{...options,captureDecoration:true});
+    assert.equal(r.calls.filter(c=>c[0]==='authDecoration').length,0); assert.match(r.html,/FIELDS/);
+  }
+});
