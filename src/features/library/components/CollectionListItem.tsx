@@ -1,11 +1,12 @@
 import { translatedRelativeDate } from "../utils/translatedRelativeDate";
+import GameCover from "@/src/components/ui/GameCover";
 import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionListItem.tsx
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
+import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
+import { UI_STYLES } from "@/src/styles/clubTheme";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
 import { CollectionEntry, formatBggRating } from "../utils/collectionHelpers";
 
@@ -44,17 +45,11 @@ export function CollectionListItem({ entry, onPress, onLongPress, onPrimaryActio
 
   return (
     <Pressable style={({ pressed }) => [styles.row, pressed && styles.rowPressed]} onPress={onPress} onLongPress={onLongPress} accessibilityRole="button" accessibilityLabel={uiT("ui.viewPage") + ": " + entry.gameName}>
-      {entry.gameImageUrl ? (
-        <Image source={{ uri: entry.gameImageUrl }} style={styles.image} resizeMode="contain" />
-      ) : (
-        <View style={[styles.image, styles.imagePlaceholder]}>
-          <MaterialIcons name="casino" size={22} color={COLORS.textMuted} />
-        </View>
-      )}
+      <GameCover uri={entry.gameImageUrl} style={styles.image} />
 
       <View style={styles.info}>
         <View style={styles.nameRow}>
-          <Text style={styles.name} numberOfLines={2}>{entry.gameName}</Text>
+          <Text style={styles.name}>{entry.gameName}</Text>
           {onMenuPress && (
             <Pressable accessibilityRole="button" accessibilityLabel={uiT("ui.menuGame", { name: entry.gameName })} style={styles.menuBtn} onPress={(event) => { event.stopPropagation(); onMenuPress?.(); }} hitSlop={8}>
               <MaterialIcons name="more-vert" size={18} color={COLORS.textMuted} />
@@ -110,10 +105,10 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     shadowColor: "#000",
-    shadowOpacity: 0.04,
+    shadowOpacity: 0,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
-    elevation: 1,
+    elevation: 0,
   },
   rowPressed: { opacity: 0.85 },
 

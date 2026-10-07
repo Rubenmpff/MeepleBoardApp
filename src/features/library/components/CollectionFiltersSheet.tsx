@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionFiltersSheet.tsx
 import React, { useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
+import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
+import { UI_STYLES } from "@/src/styles/clubTheme";
 import {
   CollectionFilters, EMPTY_FILTERS, HistoryFilter, TypeFilter,
 } from "../utils/collectionHelpers";

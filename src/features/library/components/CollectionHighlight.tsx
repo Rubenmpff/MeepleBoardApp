@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
+import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
+import { UI_STYLES } from "@/src/styles/clubTheme";
 import { CollectionEntry } from "../utils/collectionHelpers";
 
 const STALE_DAYS_THRESHOLD = 21;

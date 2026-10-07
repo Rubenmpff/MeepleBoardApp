@@ -1,8 +1,8 @@
 // src/features/library/components/CollectionSkeleton.tsx
 import React, { useEffect, useRef } from "react";
 import { Animated, StyleSheet, View } from "react-native";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
+import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
+import { UI_STYLES } from "@/src/styles/clubTheme";
 import { ViewMode } from "../hooks/useViewModePreference";
 
 function usePulse() {

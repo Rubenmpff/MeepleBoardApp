@@ -1,5 +1,14 @@
 # Pendências funcionais do MeepleBoard
 
+## Estado confirmado pelo utilizador — autenticação e próximos testes (7 de outubro de 2026)
+
+A direção visual atual da autenticação foi aprovada no iPhone e fica como base. Esta confirmação não valida todos os fluxos. A01–A08 continuam abertas; registo, confirmação/reenvio de email, recuperação e nova palavra-passe exigem percursos reais de teste, incluindo sucesso, falhas/ligação expirada, deep links com aplicação aberta/fechada, mensagens, consentimento e palavras-passe. Confirmar sessão com/sem Manter sessão iniciada após fechar o processo, expiração/rede e logout/troca de conta; verificar URLs dos documentos. Permanecem verificações específicas de texto ampliado, teclado/autofill e proteção de saída nos seis ecrãs, sem invalidar a aprovação da direção visual.
+
+Mantêm-se explicitamente pendentes no iPhone: **Solo com empate e resultado não definido; cooperativo com vitória, derrota, empate e resultado não definido; campanhas e encontros** (criação/abertura, participantes, registo, resultados e persistência/releitura, em ambiente de testes). As confirmações competitivas, Solo vitória/derrota, zero/meios pontos e dourado previamente recebidas não abrangem estes percursos. Os registos históricos de problemas abaixo não devem ser confundidos com reabertura automática de correções já documentadas.
+
+Início/Biblioteca: identidade entretanto aprovada e implementada apenas nestes ecrãs; confirmação visual nativa pendente, ver `implementacao-inicio-biblioteca-clube.md`. Jogar novamente com pré-seleção fica para contrato próprio, sem clonar partidas. A proposta lado a lado fica como referência histórica. Sem alteração global, código de ecrãs, contratos, dados ou base habitual. Estatísticas e retrospetiva continuam para etapas posteriores. Ver `proposta-identidade-inicio-biblioteca.md`.
+
+
 **AUTH-VISUAL02 — afinação aplicada, confirmação no iPhone pendente:** ver [afinação](afinacao-autenticacao-clube.md). Placeholder branco retirado da decoração; preservar uso original. Não usar mascote sem asset confirmado. Validar cabeçalho leve, interruptores ligado/desligado, Criar conta, Voltar/Cancelar, teclado e texto ampliado. Paleta global intacta; comparar prévia de Início/Biblioteca antes de decidir. Solo com empate/não definido e resultados cooperativos continuam pendentes. Estatísticas e retrospetiva continuam para depois.
 
 ## Estado atual da validação no iPhone — 7 de outubro de 2026

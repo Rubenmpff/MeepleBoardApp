@@ -1,1 +1,1 @@
-export { default } from "@/src/components/ui/SectionCard";
+export { default } from "@/src/components/ui/ClubSectionCard";

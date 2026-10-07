@@ -1,1 +1,1 @@
-export { default } from "@/src/components/ui/PrimaryButton";
+export { default } from "@/src/components/ui/ClubPrimaryButton";

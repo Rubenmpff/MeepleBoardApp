@@ -1,3 +1,4 @@
+import ClubHeader from "@/src/components/ui/ClubHeader";
 import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionHeader.tsx
 
@@ -9,8 +10,8 @@ import {
   View,
 } from "react-native";
 
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
+import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
+import { UI_STYLES } from "@/src/styles/clubTheme";
 
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
 
@@ -40,18 +41,7 @@ export function CollectionHeader({
   const { t: uiT, i18n } = useTranslation("library");
   return (
     <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <View style={styles.headerText}>
-          <Text style={styles.title} accessibilityRole="header">
-            {uiT("ui.title")}
-          </Text>
-
-          <Text style={styles.subtitle}>
-            {uiT("ui.gamesCount", { count: totalCount })}
-          </Text>
-        </View>
-
-      </View>
+      <ClubHeader title={uiT("ui.title")} subtitle={uiT("ui.gamesCount", {count:totalCount})}/>
 
       <TouchableOpacity style={styles.addAction} onPress={onAddPress} accessibilityRole="button" accessibilityLabel={uiT("ui.add")}>
         <Text style={styles.addLabel}>{uiT("ui.add")}</Text>
@@ -152,9 +142,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     shadowColor: "#0B1220",
     shadowOffset: { width: 0, height: 2, },
-    shadowOpacity: 0.045,
+    shadowOpacity: 0,
     shadowRadius: 8,
-    elevation: 1,
+    elevation: 0,
   },
 
   summaryItem: {

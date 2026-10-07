@@ -1,5 +1,9 @@
 # Afinação de autenticação — Clube Meeple
 
+## Aprovação da direção visual
+
+O utilizador confirmou satisfação com a direção visual atual no iPhone; conservar esta versão como base. A aprovação visual não encerra os percursos funcionais de autenticação nem todos os testes de acessibilidade/teclado. Ver o estado mais recente em `pendencias-funcionais.md`.
+
 ## Afinação final: composição centrada
 
 O logótipo centra-se na largura total do cabeçalho nos seis ecrãs, incluindo Boas-vindas e confirmação de email sem botão de regresso. Voltar/Cancelar continua à esquerda e dado/meeple à direita, numa camada independente. Se a largura disponível não comportar as três zonas (considerando fontScale), os formulários passam os controlos para uma linha abaixo do logótipo; não se corta o logótipo. Com texto ampliado/ecrã baixo conserva-se o logótipo e recolhe-se a decoração. Com teclado aberto recolhem-se ambos, conservando regresso, título e campos. Não se altera a ação nem a proteção de saída.

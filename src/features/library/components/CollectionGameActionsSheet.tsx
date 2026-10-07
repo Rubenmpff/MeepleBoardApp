@@ -15,8 +15,8 @@ import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
 
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
+import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
+import { UI_STYLES } from "@/src/styles/clubTheme";
 import { ROUTES } from "@/src/constants/routes";
 import { useLibraryActions } from "../hooks/useLibraryActions";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";

@@ -1,10 +1,11 @@
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
+import GameCover from "@/src/components/ui/GameCover";
 
 import { ROUTES } from "@/src/constants/routes";
 import { RootState } from "@/src/store/store";
@@ -73,13 +74,7 @@ export default function DashboardScreen() {
             ) : lastMatch ? (
               <View style={styles.stack}>
                 <View style={[styles.matchRow, compact && styles.matchRowCompact]}>
-                  {lastMatch.imageUrl ? (
-                    <Image source={{ uri: lastMatch.imageUrl }} style={styles.cover} resizeMode="cover" accessible={false} />
-                  ) : (
-                    <View style={[styles.cover, styles.coverFallback]}>
-                      <MaterialIcons name="sports-esports" size={30} color={theme.colors.primary} />
-                    </View>
-                  )}
+                  <GameCover uri={lastMatch.imageUrl} style={styles.cover} />
                   <View style={[styles.matchContent, compact && styles.matchContentCompact]}>
                     <Text style={styles.matchName}>{lastMatch.name}</Text>
                     {(
@@ -94,13 +89,11 @@ export default function DashboardScreen() {
                     </View>
                   </View>
                 </View>
-                <PrimaryButton title={t("lastMatch.playAgain")} variant="secondary" onPress={registerMatch} />
               </View>
             ) : (
               <View style={styles.empty}>
                 <LottieView source={require("@/assets/animations/ghost.json")} autoPlay loop style={styles.lottie} />
                 <Text style={styles.emptyText}>{t("lastMatch.empty")}</Text>
-                <PrimaryButton title={t("lastMatch.registerFirst")} variant="secondary" onPress={registerMatch} />
               </View>
             )}
           </SectionCard>
@@ -156,7 +149,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: theme.colors.background },
   content: {
     width: "100%", maxWidth: 680, alignSelf: "center", paddingHorizontal: theme.space.lg,
-    paddingTop: theme.space.md, paddingBottom: theme.space.xxl, gap: theme.space.xl,
+    paddingTop: 0, paddingBottom: theme.space.xxl, gap: theme.space.lg,
   },
   compactContent: { paddingHorizontal: theme.space.md },
   section: { gap: theme.space.md },

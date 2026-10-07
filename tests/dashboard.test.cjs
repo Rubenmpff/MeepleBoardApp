@@ -21,6 +21,7 @@ async function renderHome(options = {}) {
   const native = {
     View: primitive('View'), Text: primitive('Text'), ScrollView: primitive('ScrollView'),
     Image: () => null, ActivityIndicator: () => null,
+    Keyboard: { addListener: () => ({ remove() {} }) },
     StyleSheet: { create: value => value },
     useWindowDimensions: () => ({ width: options.width || 390, fontScale: options.fontScale || 1 }),
     Pressable: props => { buttons.push(props); return React.createElement('button', null, props.children); },
@@ -74,8 +75,8 @@ test('Home preserves registration and shortcut destinations in Portuguese and En
     const t = resources[language].dashboard;
     assert.equal((rendered.html.match(/Player with a long name/g) || []).length, 1);
     assert.ok(rendered.html.includes(t.lastMatch.empty.replace(/'/g, "&#x27;")), rendered.html);
-    for (const label of [t.quickActions.registerMatch.title, t.lastMatch.registerFirst, t.quickActions.sessions.title, t.quickActions.library.title, t.quickActions.campaigns.title]) rendered.press(label);
-    assert.deepEqual(rendered.routes, ['/games/register-match', '/games/register-match', '/games/sessions', '/(app)/(tabs)/(library)/library', '/(app)/games/campaigns']);
+    for (const label of [t.quickActions.registerMatch.title, t.quickActions.sessions.title, t.quickActions.library.title, t.quickActions.campaigns.title]) rendered.press(label);
+    assert.deepEqual(rendered.routes, ['/games/register-match', '/games/sessions', '/(app)/(tabs)/(library)/library', '/(app)/games/campaigns']);
     assert.ok(!rendered.html.includes(t.pending.title));
   }
 });
@@ -97,7 +98,9 @@ test('last match data and replay destination survive small screens and enlarged 
   for (const options of [{ width: 320 }, { width: 390, fontScale: 1.6 }]) {
     const rendered = await renderHome({ ...options, lastMatch: { data: { name: 'Existing match', date: '05/10/2026', winner: 'Existing winner', imageUrl: null } } });
     for (const text of ['Existing match', 'Existing winner', '05/10/2026']) assert.ok(rendered.html.includes(text));
-    rendered.press('Registar outra partida');
+    assert.equal(rendered.buttons.filter(b=>b.accessibilityLabel==='Registar partida').length,1);
+    assert.ok(!rendered.buttons.some(b=>b.accessibilityLabel==='Registar outra partida'));
+    rendered.press('Registar partida');
     assert.deepEqual(rendered.routes, ['/games/register-match']);
   }
 });

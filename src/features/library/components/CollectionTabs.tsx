@@ -2,8 +2,8 @@ import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionTabs.tsx
 import React, { useRef } from "react";
 import { Animated, LayoutChangeEvent, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
+import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
+import { UI_STYLES } from "@/src/styles/clubTheme";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
 
 export type CollectionTab = "ALL" | GameLibraryStatus.Owned | GameLibraryStatus.Wishlist | "PLAYED";

@@ -1,5 +1,7 @@
 # Preferência para uma etapa posterior — autenticação
 
+**Estado atual:** direção visual aprovada pelo utilizador; conservar a implementação como base. Fluxos de autenticação e testes específicos ainda pendentes em `pendencias-funcionais.md`. Os parágrafos seguintes conservam a sequência histórica, não anulam esta aprovação.
+
 Correção e afinação após revisão no iPhone: `ghost.json` é um placeholder, não a mascote MeepleBoard. Removido apenas da decoração da autenticação; preservado nos usos originais. Não existe ficheiro confirmado da verdadeira mascote para esta tarefa: usar só o logótipo. Cabeçalho mais baixo, campos mais leves, interruptores legíveis, Criar conta na Entrada, descrição de funcionalidades existentes e Voltar/Cancelar conforme dados/operação no formulário. Identidade global preservada; Início e Biblioteca têm apenas uma prévia de documentação, não alterações funcionais/visuais aplicadas. Confirmação nativa pendente.
 
 Atualização: o utilizador escolheu B — Clube Meeple como direção e autorizou a implementação. Os seis ecrãs usam agora essa identidade; confirmação visual nativa pendente. Backend funcional, autenticação, regras e base habitual não alterados. As propostas e respetiva implementação estão documentadas no frontend em `docs/propostas-autenticacao-visual.md`.

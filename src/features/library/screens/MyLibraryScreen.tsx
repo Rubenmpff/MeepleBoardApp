@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
   RefreshControl,
   StyleSheet,
   View,
@@ -13,11 +15,11 @@ import {
 } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { useTranslation } from "react-i18next";
-import { APP_THEME as theme } from "@/src/styles/appTheme";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
-import SectionCard from "@/src/components/ui/SectionCard";
+import { APP_THEME as theme } from "@/src/styles/clubTheme";
+import PrimaryButton from "@/src/components/ui/ClubPrimaryButton";
+import SectionCard from "@/src/components/ui/ClubSectionCard";
 
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
 
 import { CollectionHeader } from "../components/CollectionHeader";
 import { CollectionSearchBar } from "../components/CollectionSearchBar";
@@ -214,7 +216,7 @@ export default function MyLibraryScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right", "bottom"]}>
-      <View style={styles.content}>
+      <KeyboardAvoidingView style={styles.content} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <FlatList
           key={`${viewMode}-${columns}`}
           data={isLoading ? [] : visibleEntries}
@@ -266,8 +268,9 @@ export default function MyLibraryScreen() {
           }
           contentContainerStyle={styles.listContent}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
         />
-      </View>
+      </KeyboardAvoidingView>
 
       {manageEntry?.game && (
         <ManageLibraryEntryModal

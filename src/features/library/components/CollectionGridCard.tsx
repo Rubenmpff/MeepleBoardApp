@@ -1,10 +1,11 @@
+import GameCover from "@/src/components/ui/GameCover";
 import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionGridCard.tsx
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
+import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
+import { UI_STYLES } from "@/src/styles/clubTheme";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
 import { CollectionEntry, formatBggRating } from "../utils/collectionHelpers";
 
@@ -45,13 +46,7 @@ export function CollectionGridCard({ entry, onPress, onLongPress, onPrimaryActio
       onLongPress={onLongPress} accessibilityRole="button" accessibilityLabel={uiT("ui.viewPage") + ": " + entry.gameName}
     >
       <View style={styles.imageWrap}>
-        {entry.gameImageUrl ? (
-          <Image source={{ uri: entry.gameImageUrl }} style={styles.image} resizeMode="contain" />
-        ) : (
-          <View style={styles.imagePlaceholder}>
-            <MaterialIcons name="casino" size={32} color={COLORS.textMuted} />
-          </View>
-        )}
+        <GameCover uri={entry.gameImageUrl} style={styles.image} />
 
         <View style={styles.imageOverlayRow}>
           {statusMeta && (
@@ -70,7 +65,7 @@ export function CollectionGridCard({ entry, onPress, onLongPress, onPrimaryActio
       </View>
 
       <View style={styles.body}>
-        <Text style={styles.name} numberOfLines={2}>{entry.gameName}</Text>
+        <Text style={styles.name}>{entry.gameName}</Text>
         {entry.isExpansion && <Text style={styles.expansionTag}>{uiT("ui.expansion")}
         </Text>}
 
@@ -109,15 +104,15 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: "hidden",
     shadowColor: "#000",
-    shadowOpacity: 0.05,
+    shadowOpacity: 0,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    elevation: 0,
   },
   cardPressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
 
   imageWrap: { aspectRatio: 1, backgroundColor: COLORS.surface, justifyContent: "flex-end" },
-  image: { width: "100%", height: "100%" },
+  image: { position: "absolute", top: 0, left: 0, width: "100%", height: "100%" },
   imagePlaceholder: { ...StyleSheet.absoluteFill, alignItems: "center", justifyContent: "center" },
 
   imageOverlayRow: { flexDirection: "row", alignItems: "center", padding: 8 },

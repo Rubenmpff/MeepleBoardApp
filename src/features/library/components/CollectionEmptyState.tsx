@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
+import { UI_STYLES } from "@/src/styles/clubTheme";
+import PrimaryButton from "@/src/components/ui/ClubPrimaryButton";
 
 type Variant = "collection" | "wishlist" | "played" | "search" | "all" | "filters";
 
