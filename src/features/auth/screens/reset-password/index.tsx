@@ -3,13 +3,15 @@ import { Text, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { AUTH_COLORS as AUTH } from "../../styles/authTheme";
 import AuthLayout from "../../components/AuthLayout";
 import AuthField from "../../components/AuthField";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import AuthButton from "../../components/AuthButton";
 import { AUTH_STYLES as styles } from "../../styles/authStyles";
 import { ROUTES } from "@/src/constants/routes";
 import { useResetPassword } from "../../hooks/useResetPassword";
+
+const COLORS = { ...AUTH, textMuted: AUTH.muted, onBackground: AUTH.text, border: AUTH.border, onPrimary: AUTH.onPrimary, success: AUTH.primary };
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
@@ -144,7 +146,7 @@ export default function ResetPasswordScreen() {
         </TouchableOpacity>
       </AuthField>
 
-      <PrimaryButton title={t("resetPassword.button")} onPress={handleReset} loading={loading} accessibilityLabel={t(
+      <AuthButton title={t("resetPassword.button")} onPress={handleReset} loading={loading} accessibilityLabel={t(
         "resetPassword.submitAccessibility"
       )} />
     </AuthLayout>

@@ -1,5 +1,16 @@
 # Pendências funcionais do MeepleBoard
 
+## Estado atual da validação no iPhone — 7 de outubro de 2026
+
+A pedido explícito do utilizador, ficam **pendentes** os testes de Solo com empate, Solo com resultado não definido e **todos os resultados cooperativos** (vitória, derrota, empate e não definido). Esta marcação substitui as confirmações breves anteriormente interpretadas como validação desses percursos. Os testes automatizados não substituem esta confirmação.
+
+Confirmados de forma explícita: empate competitivo parcial, vitória partilhada competitiva, Solo com vitória, Solo com derrota, pontuação zero e negativa, avaliação zero e 7,5/meios pontos, estrelas douradas legíveis e releitura dos percursos confirmados. Não generalizar estas confirmações a todos os ecrãs/estados nativos.
+
+**AUTH-PASSWORD01 — divergência preexistente de validação:** `useRegister.ts` exige 8 caracteres, maiúscula, número e caráter especial; Identity exige 8, maiúscula, minúscula e número, sem exigir caráter especial. O DTO tem MinLength(6), mas não representa sozinho a regra efetiva do serviço. Não alterado nesta proposta visual; rever separadamente para evitar rejeições inesperadas.
+
+Etapa atual: **Clube Meeple implementado na autenticação, pendente de confirmação visual no iPhone**. Ver [implementação e percurso](propostas-autenticacao-visual.md). Regras, API e base habitual preservadas. Estatísticas e retrospetiva «O teu ano à mesa» continuam como etapas seguintes de análise/proposta, não autorizadas para implementação nesta etapa.
+
+
 RESULT01: contrato e leitores implementados; confirmar no iPhone vitória partilhada, empate parcial, Solo e resultado da equipa. Avaliação zero e estrelas douradas: confirmação visual pendente. Nova Estatísticas/autenticação/retrospetiva/redesigns continuam pendentes.
 
 ## Próxima decisão — Solo, cooperativo e empate

@@ -3,14 +3,16 @@ import { BackHandler, Switch, Text, TouchableOpacity, View } from "react-native"
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { AUTH_COLORS as AUTH } from "../../styles/authTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import AuthLayout from "../../components/AuthLayout";
 import AuthField from "../../components/AuthField";
 import AuthMessage from "../../components/AuthMessage";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import AuthButton from "../../components/AuthButton";
 import { AUTH_STYLES as styles } from "../../styles/authStyles";
 import { useSignIn } from "../../hooks/useSignIn";
+
+const COLORS = { ...AUTH, textMuted: AUTH.muted, onBackground: AUTH.text, border: AUTH.border, onPrimary: AUTH.onPrimary, success: AUTH.primary };
 
 export default function SignInScreen() {
   const router = useRouter();
@@ -80,12 +82,12 @@ export default function SignInScreen() {
     }
 
     return (
-      <PrimaryButton variant="secondary" title={message} onPress={handleResendConfirmation} loading={resendLoading} disabled={resendLoading || resendCooldown > 0} accessibilityLabel={t("signIn.resend.accessibility")} />
+      <AuthButton variant="secondary" title={message} onPress={handleResendConfirmation} loading={resendLoading} disabled={resendLoading || resendCooldown > 0} accessibilityLabel={t("signIn.resend.accessibility")} />
     );
   }
 
   return (
-    <AuthLayout title={t("signIn.title")} onBack={cancel} backAccessibilityLabel={t(
+    <AuthLayout title={t("visual.signInTitle")} subtitle={t("visual.signInSubtitle")} onBack={cancel} backAccessibilityLabel={t(
         "signIn.backAccessibility"
       )}>
 
@@ -212,7 +214,7 @@ export default function SignInScreen() {
       {showResend &&
         renderResendBlock()}
 
-      <PrimaryButton title={t("signIn.button")} onPress={handleLogin} loading={loading} accessibilityLabel={t(
+      <AuthButton title={t("signIn.button")} onPress={handleLogin} loading={loading} accessibilityLabel={t(
         "signIn.button"
       )} />
     </AuthLayout>

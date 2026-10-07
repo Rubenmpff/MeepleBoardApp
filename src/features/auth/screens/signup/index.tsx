@@ -3,13 +3,15 @@ import { Switch, Text, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { AUTH_COLORS as AUTH } from "../../styles/authTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import AuthLayout from "../../components/AuthLayout";
 import AuthField from "../../components/AuthField";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import AuthButton from "../../components/AuthButton";
 import { AUTH_STYLES as styles } from "../../styles/authStyles";
 import { useRegister } from "../../hooks/useRegister";
+
+const COLORS = { ...AUTH, textMuted: AUTH.muted, onBackground: AUTH.text, border: AUTH.border, onPrimary: AUTH.onPrimary, success: AUTH.primary };
 
 export default function SignUpScreen() {
   const router = useRouter();
@@ -44,7 +46,7 @@ export default function SignUpScreen() {
   ] = useState(false);
 
   return (
-    <AuthLayout title={t("signUp.title")} onBack={cancel} backAccessibilityLabel={t(
+    <AuthLayout title={t("visual.signUpTitle")} subtitle={t("visual.signUpSubtitle")} onBack={cancel} backAccessibilityLabel={t(
         "signUp.backAccessibility"
       )}>
 
@@ -130,6 +132,8 @@ export default function SignUpScreen() {
           />
         </TouchableOpacity>
       </AuthField>
+
+      <Text style={styles.helper}>{t("registerValidation.weakPasswordDescription")}</Text>
 
       <AuthField label={t(
         "signUp.confirmPassword"
@@ -231,7 +235,7 @@ export default function SignUpScreen() {
         </Text>
       </View>
 
-      <PrimaryButton title={t("signUp.button")} onPress={handleSignUp} loading={loading} accessibilityLabel={t(
+      <AuthButton title={t("signUp.button")} onPress={handleSignUp} loading={loading} accessibilityLabel={t(
         "signUp.createAccessibility"
       )} />
 

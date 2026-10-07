@@ -1,14 +1,16 @@
 import { Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { AUTH_COLORS as AUTH } from "../../styles/authTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import AuthLayout from "../../components/AuthLayout";
 import AuthField from "../../components/AuthField";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import AuthButton from "../../components/AuthButton";
 import { AUTH_STYLES as styles } from "../../styles/authStyles";
 import { ROUTES } from "@/src/constants/routes";
 import { useForgotPassword } from "../../hooks/useForgotPassword";
+
+const COLORS = { ...AUTH, textMuted: AUTH.muted, onBackground: AUTH.text, border: AUTH.border, onPrimary: AUTH.onPrimary, success: AUTH.primary };
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
@@ -51,7 +53,7 @@ export default function ForgotPasswordScreen() {
           "forgotPassword.emailAccessibility"
         )} />
 
-      <PrimaryButton title={t("forgotPassword.button")} onPress={handleSubmit} loading={loading} accessibilityLabel={t(
+      <AuthButton title={t("forgotPassword.button")} onPress={handleSubmit} loading={loading} accessibilityLabel={t(
         "forgotPassword.buttonAccessibility"
       )} />
 

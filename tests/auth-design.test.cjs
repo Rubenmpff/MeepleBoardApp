@@ -182,3 +182,48 @@ test('Authentication translations have matching PT/EN keys', () => {
   const keys = (value, prefix = '') => Object.entries(value).flatMap(([key, child]) => typeof child === 'object' ? keys(child, prefix + key + '.') : [prefix + key]);
   assert.deepEqual(keys(read('pt')).sort(), keys(read('en')).sort());
 });
+
+test('Club layout collapses decoration for keyboard, small screens and larger text, keeping title and content', async () => {
+  const source = 'src/features/auth/components/AuthLayout.tsx';
+  const normal = await renderNative(source, 'default', { title: 'A tua próxima jogada.', subtitle: 'Entra na MeepleBoard.', children: 'FORM_CONTENT' }, { captureIllustrations: true });
+  assert.equal(normal.calls.find(c => c[0] === 'lottie')[1].autoPlay, false);
+  assert.equal(normal.calls.find(c => c[0] === 'lottie')[1].progress, 0);
+  assert.match(normal.html, /A tua próxima jogada/); assert.match(normal.html, /Entra na MeepleBoard/); assert.match(normal.html, /FORM_CONTENT/);
+  for (const options of [{ states: { 0: true } }, { height: 568, width: 320 }, { fontScale: 2 }]) {
+    const view = await renderNative(source, 'default', { title: 'Criar conta', subtitle: 'HELP', children: 'FORM_CONTENT' }, { ...options, captureIllustrations: true });
+    assert.match(view.html, /Criar conta/); assert.match(view.html, /FORM_CONTENT/);
+    assert.ok(!view.calls.some(c => c[0] === 'lottie'));
+    assert.equal(view.calls.find(c => c[0] === 'statusBar')[1].style, 'dark');
+    if (options.states) assert.doesNotMatch(view.html, /HELP/);
+    assert.equal(view.nativeViews.find(x => x[0] === 'scroll')[1].keyboardShouldPersistTaps, 'handled');
+  }
+});
+test('Keyboard listeners compact the hero, follow focus and clean up on exit', async () => {
+  const view = await renderNative('src/features/auth/components/AuthLayout.tsx', 'default', { title: 'Criar conta', children: 'FORM' }, { captureEffects: true });
+  const cleanup = await flushEffects(view);
+  const listeners = view.calls.filter(c => c[0] === 'keyboardListener');
+  assert.deepEqual(listeners.map(c => c[1]), ['keyboardWillShow', 'keyboardDidShow', 'keyboardWillHide']);
+  listeners[0][2](); assert.deepEqual(view.updates.at(-1), [0, true]);
+  listeners[2][2](); assert.deepEqual(view.updates.at(-1), [0, false]);
+  cleanup(); assert.equal(view.calls.filter(c => c[0] === 'removeKeyboardListener').length, 3);
+});
+test('Auth field keeps caller focus and blur handlers while updating its focus state', async () => {
+  const events = [];
+  const view = await renderNative('src/features/auth/components/AuthField.tsx', 'default', {
+    label: 'Email', value: 'draft@example.org', keyboardType: 'email-address', onFocus: e => events.push(e), onBlur: e => events.push(e),
+  });
+  const event = { target: { measureLayout() {} } };
+  view.inputs[0].onFocus(event); assert.deepEqual(view.updates.at(-1), [0, true]);
+  view.inputs[0].onBlur(event); assert.deepEqual(view.updates.at(-1), [0, false]);
+  assert.deepEqual(events, [event, event]); assert.equal(view.inputs[0].value, 'draft@example.org');
+  assert.equal(view.inputs[0].accessibilityLabel, 'Email');
+});
+test('Authentication palette meets normal text and control contrast on its actual surfaces', async () => {
+  const view = await renderNative('src/features/auth/components/AuthLayout.tsx', 'default', { title: 'Title' });
+  const c = view.load('src/features/auth/styles/authTheme.ts').AUTH_COLORS;
+  const luminance = hex => hex.match(/[0-9a-f]{2}/gi).map(v => parseInt(v,16)/255).map(v => v <= .04045 ? v/12.92 : ((v+.055)/1.055)**2.4).reduce((sum,v,i) => sum+v*[.2126,.7152,.0722][i],0);
+  const contrast = (a,b) => { const values=[luminance(a),luminance(b)].sort((x,y)=>y-x); return (values[0]+.05)/(values[1]+.05); };
+  for (const surface of [c.background,c.hero,c.field,c.mint]) for (const ink of [c.text,c.muted,c.primary]) assert.ok(contrast(ink,surface)>=4.5, `${ink} on ${surface}`);
+  assert.ok(contrast(c.onPrimary,c.primary)>=4.5); assert.ok(contrast(c.border,c.field)>=3);
+  assert.ok(contrast(c.error,c.errorSoft)>=4.5);
+});

@@ -60,6 +60,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     'react-native-safe-area-context': { SafeAreaView: p => { nativeViews.push(['safeArea', p]); return React.createElement(host, p); }, useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) },
     '@expo/vector-icons': { MaterialIcons: () => null, MaterialCommunityIcons: () => null, Ionicons: () => null, AntDesign: () => null, Feather: () => null },
     'expo-image': { Image: () => null },
+    'expo-status-bar': { StatusBar: p => { calls.push(['statusBar', p]); return null; } },
     'expo-router': { router, Tabs, Redirect: p => { redirects.push(p.href); return null; }, useRouter: () => router, usePathname: () => options.pathname || '/dashboard', useNavigation: () => ({ dispatch: action => calls.push(['navigationDispatch', action]), openDrawer: () => routes.push('menu') }), useLocalSearchParams: () => options.params || ({ id: 'game-id' }), useFocusEffect(callback) { if (options.captureFocusEffects) effects.push(callback); },
       withLayoutContext: () => {
         const Tabs = p => { calls.push(['tabs', p]); return React.createElement(host, null, p.tabBar(options.tabProps), p.children); };
@@ -73,7 +74,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     'react-redux': { useSelector: fn => fn({ auth: { user: options.user || { id: 'me' } }, library: { items: options.library || [] } }), useDispatch: () => action => calls.push(['dispatch', action]) },
     'react-native-toast-message': { __esModule: true, default: { show: p => calls.push(['toast', p]) } },
     'expo-haptics': { impactAsync: async () => {}, ImpactFeedbackStyle: {}, notificationAsync: async () => {}, NotificationFeedbackType: { Success: 'success' } },
-    'lottie-react-native': { __esModule: true, default: () => null },
+    'lottie-react-native': { __esModule: true, default: p => { if (options.captureIllustrations) calls.push(['lottie', p]); return null; } },
     '@react-native-community/datetimepicker': { __esModule: true, default: p => { datePickers.push(p); return null; } },
     'expo-image-picker': {
       MediaTypeOptions: { Images: 'images' },

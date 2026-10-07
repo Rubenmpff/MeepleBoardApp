@@ -1,7 +1,8 @@
 import { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { UI_STYLES } from "@/src/styles/uiStyles";
-import { UI_COLORS } from "@/src/styles/appTheme";
+import { AUTH_COLORS } from "../styles/authTheme";
+const UI_COLORS = { error: AUTH_COLORS.error, success: AUTH_COLORS.primary, librarySoft: AUTH_COLORS.mint };
 
 export default function AuthMessage({ children, variant = "error" }: { children: ReactNode; variant?: "error" | "success" }) {
   const success = variant === "success";

@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { AUTH_COLORS as AUTH } from "../../styles/authTheme";
 import AuthLayout from "../../components/AuthLayout";
 import AuthMessage from "../../components/AuthMessage";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import AuthButton from "../../components/AuthButton";
 import ScreenState from "@/src/components/ui/ScreenState";
 import { AUTH_STYLES as styles } from "../../styles/authStyles";
 import { ROUTES } from "@/src/constants/routes";
@@ -23,6 +23,8 @@ function getSingleParam(
 
   return value ?? "";
 }
+
+const COLORS = { ...AUTH, textMuted: AUTH.muted, onBackground: AUTH.text, border: AUTH.border, onPrimary: AUTH.onPrimary, success: AUTH.primary };
 
 export default function ConfirmEmailScreen() {
   const router = useRouter();
@@ -164,7 +166,7 @@ export default function ConfirmEmailScreen() {
 
           <AuthMessage variant={success ? "success" : "error"}>{message}</AuthMessage>
 
-          <PrimaryButton title={buttonLabel} onPress={() =>
+          <AuthButton title={buttonLabel} onPress={() =>
             router.replace(
               success
                 ? ROUTES.SIGN_IN
