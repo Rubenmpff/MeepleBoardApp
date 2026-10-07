@@ -1,5 +1,7 @@
 # Pendências funcionais do MeepleBoard
 
+**AUTH-VISUAL02 — afinação aplicada, confirmação no iPhone pendente:** ver [afinação](afinacao-autenticacao-clube.md). Placeholder branco retirado da decoração; preservar uso original. Não usar mascote sem asset confirmado. Validar cabeçalho leve, interruptores ligado/desligado, Criar conta, Voltar/Cancelar, teclado e texto ampliado. Paleta global intacta; comparar prévia de Início/Biblioteca antes de decidir. Solo com empate/não definido e resultados cooperativos continuam pendentes. Estatísticas e retrospetiva continuam para depois.
+
 ## Estado atual da validação no iPhone — 7 de outubro de 2026
 
 A pedido explícito do utilizador, ficam **pendentes** os testes de Solo com empate, Solo com resultado não definido e **todos os resultados cooperativos** (vitória, derrota, empate e não definido). Esta marcação substitui as confirmações breves anteriormente interpretadas como validação desses percursos. Os testes automatizados não substituem esta confirmação.

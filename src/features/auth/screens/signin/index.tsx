@@ -22,6 +22,7 @@ export default function SignInScreen() {
 
   const {
     cancel,
+    openRegistration,
     email,
     setEmail,
     password,
@@ -87,7 +88,7 @@ export default function SignInScreen() {
   }
 
   return (
-    <AuthLayout title={t("visual.signInTitle")} subtitle={t("visual.signInSubtitle")} onBack={cancel} backAccessibilityLabel={t(
+    <AuthLayout title={t("visual.signInTitle")} subtitle={t("visual.signInSubtitle")} onBack={cancel} cancelForm={!!email || !!password || rememberMe || loading || resendLoading} backAccessibilityLabel={t(
         "signIn.backAccessibility"
       )}>
 
@@ -190,7 +191,7 @@ export default function SignInScreen() {
           )}
         </Text>
 
-        <Switch hitSlop={8}
+        <Switch hitSlop={8} ios_backgroundColor={AUTH.switchOff} accessibilityState={{ checked: rememberMe }}
           accessibilityLabel={t("signIn.rememberMe")} value={rememberMe}
           onValueChange={
             setRememberMe
@@ -198,7 +199,7 @@ export default function SignInScreen() {
           thumbColor={COLORS.onPrimary}
           trackColor={{
             false:
-              COLORS.border,
+              AUTH.switchOff,
             true:
               COLORS.primary,
           }}
@@ -217,6 +218,9 @@ export default function SignInScreen() {
       <AuthButton title={t("signIn.button")} onPress={handleLogin} loading={loading} accessibilityLabel={t(
         "signIn.button"
       )} />
+      <TouchableOpacity style={UI_STYLES.control} onPress={openRegistration} accessibilityRole="button" accessibilityLabel={t("signIn.createAccount")} disabled={loading || resendLoading} accessibilityState={{ disabled: loading || resendLoading }}>
+        <Text style={styles.alreadyText}>{t("signIn.noAccount")}<Text style={styles.loginLink}>{t("signIn.createAccount")}</Text></Text>
+      </TouchableOpacity>
     </AuthLayout>
   );
 }

@@ -1,5 +1,13 @@
 # Duas propostas visuais de autenticação
 
+## Afinação após revisão no iPhone
+
+Ver [afinação atual](afinacao-autenticacao-clube.md). Cabeçalho e logótipo reduzidos, bordas de 1 pt, interruptores corrigidos no iOS, Criar conta na Entrada e Voltar/Cancelar conforme o estado do formulário. O fantasma foi retirado da autenticação: **é um placeholder, não a mascote**. Os usos originais em Início/GameSelector mantêm-se; não foi criado nem usado um substituto. Sem ficheiro confirmado de mascote, continua-se só com o logótipo existente.
+
+Os mockups A/B abaixo são referências históricas e contêm esse erro de identificação; não representam a decoração atual nem autorizam usar o placeholder como mascote. A paleta global mantém-se intacta; ver a prévia de Início/Biblioteca na afinação, antes de decidir qualquer alteração global.
+
+## Registo histórico da primeira implementação
+
 ## Implementação — Clube Meeple
 
 Direção B aprovada pelo utilizador e aplicada aos seis ecrãs: boas-vindas, Entrada, Registo, recuperação, nova palavra-passe e confirmação de email. Apenas identidade visual/composição; sem alterações a hooks, serviços, endpoints, validação, tokens ou navegação.

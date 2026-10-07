@@ -3,7 +3,6 @@ import { FocusEvent, Image, Keyboard, KeyboardAvoidingView, Platform, ScrollView
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import LottieView from "lottie-react-native";
 import { StatusBar } from "expo-status-bar";
 import { AUTH_COLORS as colors } from "../styles/authTheme";
 
@@ -11,9 +10,9 @@ type FocusTarget = FocusEvent["target"];
 const FocusContext = createContext<(target: FocusTarget) => void>(() => {});
 export const useAuthFieldFocus = () => useContext(FocusContext);
 
-type Props = { title: string; children: ReactNode; onBack?: () => void; backAccessibilityLabel?: string; subtitle?: string };
+type Props = { title: string; children: ReactNode; onBack?: () => void; backAccessibilityLabel?: string; subtitle?: string; cancelForm?: boolean };
 
-export default function AuthLayout({ title, children, onBack, backAccessibilityLabel, subtitle }: Props) {
+export default function AuthLayout({ title, children, onBack, backAccessibilityLabel, subtitle, cancelForm = false }: Props) {
   const { t } = useTranslation("navigation");
   const { height, fontScale } = useWindowDimensions();
   const [keyboardOpen, setKeyboardOpen] = useState(false);
@@ -42,23 +41,23 @@ export default function AuthLayout({ title, children, onBack, backAccessibilityL
           <View style={styles.page}>
             <View style={[styles.hero, compact && styles.compactHero]}>
               <View style={styles.navigation}>
-                {onBack && <TouchableOpacity style={styles.back} onPress={onBack} accessibilityRole="button" accessibilityLabel={backAccessibilityLabel ?? t("cancel")}>
+                {onBack && <TouchableOpacity style={styles.back} onPress={onBack} accessibilityRole="button" accessibilityLabel={cancelForm ? t("cancel") : backAccessibilityLabel ?? t("back")}>
                   <Feather name="chevron-left" size={20} color={colors.primary} />
-                  <Text style={styles.backText}>{t("cancel")}</Text>
+                  <Text style={styles.backText}>{t(cancelForm ? "cancel" : "back")}</Text>
                 </TouchableOpacity>}
-                <View style={styles.logoViewport}>
+                {!compact && <View style={styles.logoViewport}>
                   <Image source={require("@/assets/MeepleBoardLogo.png")} style={styles.logo} resizeMode="contain" accessibilityLabel="MeepleBoard" />
-                </View>
+                </View>}
+                {!compact && <View style={styles.tokens} accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+                  <View style={styles.token} /><View style={[styles.token, styles.secondToken]} />
+                </View>}
               </View>
               <View style={styles.headingRow}>
                 <View style={styles.heading}>
                   <Text style={styles.title} accessibilityRole="header">{title}</Text>
                   {!!subtitle && !keyboardOpen && <Text style={styles.subtitle}>{subtitle}</Text>}
                 </View>
-                {!compact && <View style={styles.mascot} accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-                  <View style={styles.token} />
-                  <LottieView source={require("@/assets/animations/ghost.json")} progress={0} autoPlay={false} loop={false} style={styles.ghost} />
-                </View>}
+
               </View>
             </View>
             <FocusContext.Provider value={revealField}>
@@ -73,19 +72,19 @@ export default function AuthLayout({ title, children, onBack, backAccessibilityL
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background }, body: { flex: 1 },
   content: { flexGrow: 1, paddingBottom: 24 }, page: { width: "100%", maxWidth: 520, alignSelf: "center" },
-  hero: { backgroundColor: colors.hero, paddingHorizontal: 20, paddingTop: 8, paddingBottom: 20, borderBottomRightRadius: 32 },
-  compactHero: { paddingBottom: 12 },
-  navigation: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 },
+  hero: { backgroundColor: colors.hero, paddingHorizontal: 20, paddingTop: 8, paddingBottom: 14, borderBottomRightRadius: 20 },
+  compactHero: { paddingTop: 4, paddingBottom: 10 },
+  navigation: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 },
   back: { minHeight: 44, paddingVertical: 8, flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 1 },
   backText: { fontSize: 16, lineHeight: 24, color: colors.primary, fontWeight: "600", flexShrink: 1 },
   // The original square PNG has transparent margins. Crop its display viewport, not the asset.
-  logoViewport: { width: 132, height: 88, overflow: "hidden" },
-  logo: { position: "absolute", width: 230, height: 230, left: -50, top: -68 },
-  headingRow: { flexDirection: "row", alignItems: "center", gap: 12 }, heading: { flex: 1, minWidth: 0, gap: 8 },
-  title: { fontSize: 26, lineHeight: 34, color: colors.text, fontWeight: "800" },
+  logoViewport: { width: 104, height: 68, overflow: "hidden" },
+  logo: { position: "absolute", width: 180, height: 180, left: -40, top: -54 },
+  headingRow: { flexDirection: "row", alignItems: "center", gap: 12 }, heading: { flex: 1, minWidth: 0, gap: 4 },
+  title: { fontSize: 24, lineHeight: 32, color: colors.text, fontWeight: "800" },
   subtitle: { fontSize: 16, lineHeight: 24, color: colors.muted },
-  mascot: { width: 78, height: 116, overflow: "hidden" },
-  ghost: { position: "absolute", width: 240, height: 240, left: -81, top: -64 },
-  token: { position: "absolute", width: 20, height: 20, borderRadius: 10, backgroundColor: "#BCD7C8", top: 4, right: 0 },
-  form: { paddingHorizontal: 20, paddingTop: 20, gap: 12 },
+  tokens: { flexDirection: "row", gap: 5, marginLeft: "auto" },
+  token: { width: 9, height: 9, borderRadius: 5, backgroundColor: "#AFCBBC" },
+  secondToken: { backgroundColor: "#CBBEE2" },
+  form: { paddingHorizontal: 20, paddingTop: 16, gap: 14 },
 });

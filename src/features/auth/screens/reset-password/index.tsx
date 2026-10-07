@@ -38,7 +38,7 @@ export default function ResetPasswordScreen() {
   ] = useState(false);
 
   return (
-    <AuthLayout title={t("resetPassword.title")} onBack={cancel} backAccessibilityLabel={t(
+    <AuthLayout title={t("resetPassword.title")} onBack={cancel} cancelForm={!!newPassword || !!confirmPassword || loading} backAccessibilityLabel={t(
         "resetPassword.backAccessibility"
       )}>
 

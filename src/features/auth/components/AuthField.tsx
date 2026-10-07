@@ -23,7 +23,7 @@ export default function AuthField({ label, children, style, accessibilityLabel, 
 const styles = StyleSheet.create({
   field: { gap: 6 },
   label: { fontSize: 16, lineHeight: 24, color: colors.text, fontWeight: "700" },
-  row: { minHeight: 52, borderWidth: 2, borderColor: colors.border, borderRadius: 14, backgroundColor: colors.field, flexDirection: "row", alignItems: "center" },
+  row: { minHeight: 52, borderWidth: 1, borderColor: colors.border, borderRadius: 12, backgroundColor: colors.field, flexDirection: "row", alignItems: "center" },
   focused: { borderColor: colors.primary },
   input: { fontSize: 16, lineHeight: 24, color: colors.text, flex: 1, minWidth: 0, minHeight: 52, paddingHorizontal: 14, paddingVertical: 12 },
 });

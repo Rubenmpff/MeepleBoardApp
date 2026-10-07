@@ -46,7 +46,7 @@ export default function SignUpScreen() {
   ] = useState(false);
 
   return (
-    <AuthLayout title={t("visual.signUpTitle")} subtitle={t("visual.signUpSubtitle")} onBack={cancel} backAccessibilityLabel={t(
+    <AuthLayout title={t("visual.signUpTitle")} subtitle={t("visual.signUpSubtitle")} onBack={cancel} cancelForm={!!username || !!email || !!password || !!confirmPassword || acceptTerms || loading} backAccessibilityLabel={t(
         "signUp.backAccessibility"
       )}>
 
@@ -190,7 +190,7 @@ export default function SignUpScreen() {
           styles.termsContainer
         }
       >
-        <Switch hitSlop={8}
+        <Switch hitSlop={8} ios_backgroundColor={AUTH.switchOff} accessibilityState={{ checked: acceptTerms }}
           accessibilityLabel={t("signUp.acceptAccessibility")} value={acceptTerms}
           onValueChange={
             setAcceptTerms
@@ -198,7 +198,7 @@ export default function SignUpScreen() {
           thumbColor={COLORS.onPrimary}
           trackColor={{
             false:
-              COLORS.border,
+              AUTH.switchOff,
             true:
               COLORS.primary,
           }}

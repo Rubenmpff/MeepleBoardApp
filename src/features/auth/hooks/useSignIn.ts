@@ -292,6 +292,7 @@ export const useSignIn = () => {
 
   return {
     cancel: navigationGuard.cancel,
+    openRegistration: () => navigationGuard.discard(() => router.push("/signup")),
     email,
     setEmail,
 

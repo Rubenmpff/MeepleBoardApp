@@ -25,7 +25,7 @@ export default function ForgotPasswordScreen() {
   } = useForgotPassword();
 
   return (
-    <AuthLayout title={t("forgotPassword.title")} onBack={cancel} backAccessibilityLabel={t(
+    <AuthLayout title={t("forgotPassword.title")} onBack={cancel} cancelForm={!!email || loading} backAccessibilityLabel={t(
         "forgotPassword.backAccessibility"
       )}>
 

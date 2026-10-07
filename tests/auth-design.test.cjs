@@ -33,7 +33,7 @@ test('All six screens render translated headings with shared keyboard scrolling 
   for (const language of ['pt', 'en']) for (const name of ['welcome', 'signin', 'signup', 'confirm-email', 'forgot-password', 'reset-password']) {
     const r = await render(name, { language, width: 320, fontScale: 2 });
     assert.doesNotMatch(r.html, /auth:|signIn\.title|confirmEmail\.title/);
-    assert.equal(r.images[0].accessibilityLabel, 'MeepleBoard');
+    assert.equal(r.images.length, 0); // Decorative logo collapses with enlarged text.
     assert.equal(r.nativeViews.find(x => x[0] === 'scroll')[1].keyboardShouldPersistTaps, 'handled');
     assert.equal(r.nativeViews.find(x => x[0] === 'keyboard')[1].behavior, 'padding');
   }
@@ -112,7 +112,7 @@ test('Registration retains both visibility toggles, consent editing and back act
   await r.press('Mostrar palavra-passe'); await r.press('Mostrar confirmação da palavra-passe');
   assert.deepEqual(r.updates.slice(-2), [[6, true], [7, true]]);
   r.switches[0].onValueChange(true); assert.deepEqual(r.updates.at(-1), [4, true]);
-  await r.press('Cancelar'); assert.deepEqual(r.routes, ['back']);
+  await r.press('Voltar'); assert.deepEqual(r.routes, ['back']);
 });
 test('Recovery retains email validation, normalization, failure message and success navigation', async () => {
   for (const value of ['', 'invalid']) {
@@ -186,13 +186,14 @@ test('Authentication translations have matching PT/EN keys', () => {
 test('Club layout collapses decoration for keyboard, small screens and larger text, keeping title and content', async () => {
   const source = 'src/features/auth/components/AuthLayout.tsx';
   const normal = await renderNative(source, 'default', { title: 'A tua próxima jogada.', subtitle: 'Entra na MeepleBoard.', children: 'FORM_CONTENT' }, { captureIllustrations: true });
-  assert.equal(normal.calls.find(c => c[0] === 'lottie')[1].autoPlay, false);
-  assert.equal(normal.calls.find(c => c[0] === 'lottie')[1].progress, 0);
+  assert.ok(!normal.calls.some(c => c[0] === 'lottie'));
+  assert.equal(normal.images[0].accessibilityLabel, 'MeepleBoard');
   assert.match(normal.html, /A tua próxima jogada/); assert.match(normal.html, /Entra na MeepleBoard/); assert.match(normal.html, /FORM_CONTENT/);
   for (const options of [{ states: { 0: true } }, { height: 568, width: 320 }, { fontScale: 2 }]) {
     const view = await renderNative(source, 'default', { title: 'Criar conta', subtitle: 'HELP', children: 'FORM_CONTENT' }, { ...options, captureIllustrations: true });
     assert.match(view.html, /Criar conta/); assert.match(view.html, /FORM_CONTENT/);
     assert.ok(!view.calls.some(c => c[0] === 'lottie'));
+    assert.equal(view.images.length, 0);
     assert.equal(view.calls.find(c => c[0] === 'statusBar')[1].style, 'dark');
     if (options.states) assert.doesNotMatch(view.html, /HELP/);
     assert.equal(view.nativeViews.find(x => x[0] === 'scroll')[1].keyboardShouldPersistTaps, 'handled');
@@ -224,6 +225,57 @@ test('Authentication palette meets normal text and control contrast on its actua
   const luminance = hex => hex.match(/[0-9a-f]{2}/gi).map(v => parseInt(v,16)/255).map(v => v <= .04045 ? v/12.92 : ((v+.055)/1.055)**2.4).reduce((sum,v,i) => sum+v*[.2126,.7152,.0722][i],0);
   const contrast = (a,b) => { const values=[luminance(a),luminance(b)].sort((x,y)=>y-x); return (values[0]+.05)/(values[1]+.05); };
   for (const surface of [c.background,c.hero,c.field,c.mint]) for (const ink of [c.text,c.muted,c.primary]) assert.ok(contrast(ink,surface)>=4.5, `${ink} on ${surface}`);
-  assert.ok(contrast(c.onPrimary,c.primary)>=4.5); assert.ok(contrast(c.border,c.field)>=3);
+  assert.ok(contrast(c.onPrimary,c.primary)>=4.5); assert.ok(contrast(c.onPrimary,c.switchOff)>=4.5); assert.ok(contrast(c.border,c.field)>=3);
   assert.ok(contrast(c.error,c.errorSoft)>=4.5);
+});
+
+test('Back is truthful on empty forms and Cancel preserves the guard on changed forms in both languages', async () => {
+  for (const language of ['pt', 'en']) for (const name of ['signin', 'signup', 'forgot-password', 'reset-password']) {
+    const empty = await render(name, { language, params: linkParams });
+    await empty.press(language === 'pt' ? 'Voltar' : 'Back');
+    assert.deepEqual(empty.routes, ['back']);
+    const dirty = await render(name, { language, params: linkParams, states: { 0: 'draft' } });
+    await dirty.press(language === 'pt' ? 'Cancelar' : 'Cancel');
+    assert.ok(dirty.guards.some(guard => guard.enabled));
+  }
+});
+test('Sign-in offers registration without submitting or discarding the existing draft, and blocks it while busy', async () => {
+  for (const language of ['pt', 'en']) {
+    const r = await render('signin', { language, states: signInStates });
+    assert.match(r.html, language === 'pt' ? /Ainda não tens conta/ : /Don.t have an account yet/);
+    await r.press(r.i18n.t('auth:signIn.createAccount'));
+    assert.deepEqual(r.routes, []);
+    const prompt = r.calls.find(c => c[0] === 'alert');
+    prompt[3].find(button => button.style === 'cancel').onPress();
+    assert.deepEqual(r.routes, []);
+    await r.press(r.i18n.t('auth:signIn.createAccount'));
+    r.calls.filter(c => c[0] === 'alert').at(-1)[3].find(button => button.style === 'destructive').onPress();
+    assert.deepEqual(r.routes, ['/signup']); assert.ok(!r.calls.some(c => c[0] === 'login'));
+    const empty = await render('signin', { language });
+    await empty.press(empty.i18n.t('auth:signIn.createAccount')); assert.deepEqual(empty.routes, ['/signup']);
+    assert.equal(r.inputs[0].value, signInStates[0]); assert.equal(r.inputs[1].value, password);
+    assert.ok(r.guards.some(g => g.enabled));
+  }
+  const busy = await render('signin', { states: { 3: true } });
+  await assert.rejects(busy.press('Criar conta'), /Disabled button/);
+});
+test('Native switches expose checked state and an explicit iOS off track with contrasting thumbs', async () => {
+  for (const name of ['signin', 'signup']) for (const value of [false, true]) {
+    const states = name === 'signin' ? { 2: value } : { 4: value };
+    const r = await render(name, { states }); const control = r.switches[0];
+    assert.equal(control.value, value); assert.equal(control.accessibilityState.checked, value);
+    assert.equal(control.ios_backgroundColor, control.trackColor.false);
+    assert.notEqual(control.trackColor.false, control.trackColor.true);
+    assert.equal(control.thumbColor, '#FFFFFF');
+  }
+});
+test('Welcome describes existing features without promising messages and auth never uses the placeholder', async () => {
+  for (const language of ['pt','en']) {
+    const r = await render('welcome', { language, captureIllustrations: true });
+    assert.doesNotMatch(r.html, /conversa|chat|message|mensage/i);
+    assert.ok(!r.calls.some(c => c[0] === 'lottie'));
+  }
+  const layout = fs.readFileSync('src/features/auth/components/AuthLayout.tsx', 'utf8');
+  assert.doesNotMatch(layout, /ghost.json|LottieView/);
+  for (const file of ['src/features/dashboard/screens/DashboardScreen.tsx', 'src/features/games/catalog/components/GameSelector.tsx']) assert.match(fs.readFileSync(file,'utf8'), /ghost.json/);
 });
