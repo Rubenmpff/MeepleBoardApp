@@ -25,6 +25,23 @@ test('Statistics keeps zero measurements, mode labels, scrolling and does not sh
  assert.doesNotMatch(r.html,/statistics:|undefined%|NaN/);
  }
 });
+test('Evolution columns open their supporting period, including zero activity, without losing filters',async()=>{
+ const filtered={...query,mode:'SOLO',gameId:'game-id'};
+ const r=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:filtered},width:320,fontScale:2});
+ await r.press('2024-01: 3 partidas');
+ assert.deepEqual(r.routes.at(-1),{pathname:'/statistics/matches',params:{...filtered,metric:'all',bucket:'2024-01'}});
+ await r.press(`2024-02: ${r.i18n.t('statistics:matchCount',{count:0})}`);
+ assert.equal(r.routes.at(-1).params.bucket,'2024-02');
+ assert.ok(r.nativeViews.some(([kind,props])=>kind==='scroll'&&props.horizontal));
+ const selections=[];
+ const daily=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',{
+  buckets:[{key:'2024-10-27',matches:2}],unit:'day',language:'pt',title:'Evolução',
+  countLabel:n=>`${n} partidas`,onSelect:key=>selections.push(key),
+ });
+ await daily.press('2024-10-27: 2 partidas');
+ assert.deepEqual(selections,['2024-10-27']);
+ assert.match(daily.html,/27/);
+});
 test('Statistics separates unavailable, empty, failed and loading states',async()=>{
  const empty={...summary,matches:0,distinctGames:0,recordedMinutes:null,averagePersonalRating:null,results:{wins:0,losses:0,draws:0,known:0,withoutResult:0,legacy:0,winRate:null},games:[],gameOptions:[],evolution:[],modes:[]};
  const r=await renderNative(source,'default',{}, {statisticsSummary:empty});assert.match(r.html,/Sem partidas registadas/);assert.match(r.html,/Indisponível/);assert.doesNotMatch(r.html,/0%/);

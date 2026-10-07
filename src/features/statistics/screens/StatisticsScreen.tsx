@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import StatisticsHeader from "../StatisticsHeader";
+import StatisticsEvolution from "../StatisticsEvolution";
 import GameCover from "@/src/components/ui/GameCover";
 import Button from "@/src/components/ui/ClubPrimaryButton";
 import { APP_THEME as theme } from "@/src/styles/clubTheme";
@@ -22,12 +23,14 @@ export default function StatisticsScreen() {
  const [chooseGame,setChooseGame]=useState(false);
  const {data,loading,error,refetch}=useStatistics(query);
  const number=(value:number|null)=>value==null?t("unavailable"):new Intl.NumberFormat(i18n.language,{maximumFractionDigits:2}).format(value);
+ const dateLabel=(iso:string,options:Intl.DateTimeFormatOptions)=>new Intl.DateTimeFormat(i18n.language,{...options,timeZone:"UTC"}).format(new Date(`${iso}T12:00:00Z`));
+ const periodLabel=period==="year"?query.start.slice(0,4):period==="month"?dateLabel(query.start,{month:"long",year:"numeric"}):`${dateLabel(query.start,{day:"numeric",month:"short",year:"numeric"})} — ${dateLabel(inclusiveEnd(query.endExclusive),{day:"numeric",month:"short",year:"numeric"})}`;
  const show=(metric:Metric, extra:Partial<Query>&{bucket?:string}={})=>router.push({pathname:"/statistics/matches",params:{...query,...extra,metric}} as never);
  const changePeriod=(next:Period)=>{setPeriod(next);setInvalid(false);if(next==="custom"){setCustomStart(query.start);setCustomEnd(inclusiveEnd(query.endExclusive));}if(next!=="custom")setQuery(q=>({...q,...periodQuery(next,anchor,timeZone)}));};
  const shift=(direction:number)=>{const next=shiftAnchor(anchor,period,direction);setAnchor(next);if(period!=="custom")setQuery(q=>({...q,...periodQuery(period,next,timeZone)}));};
  const selectMode=(mode?:Mode)=>setQuery(q=>({...q,mode}));
- const metric=(label:string,value:string,onPress:()=>void,hint?:string)=><TouchableOpacity key={label} style={[styles.metric,{flexBasis:width<360||fontScale>1.25?"100%":154}]} onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label}: ${value}`} accessibilityHint={t("viewSupporting")}>
-  <Text style={styles.text}>{label}</Text><Text style={styles.value}>{value}</Text>{!!hint&&<Text style={styles.muted}>{hint}</Text>}<Text style={styles.link}>{t("viewMatches")} ›</Text>
+ const metric=(label:string,value:string,onPress:()=>void,hint?:string)=><TouchableOpacity key={label} style={[styles.metric,{flexBasis:width<360||fontScale>1.25?"100%":"28%"}]} onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label}: ${value}`} accessibilityHint={t("viewSupporting")}>
+  <Text style={styles.text}>{label}</Text><View style={{flexDirection:"row",alignItems:"center",gap:4}}><Text style={[styles.value,{flex:1}]}>{value}</Text><Text style={styles.metricArrow} importantForAccessibility="no">›</Text></View>{!!hint&&<Text style={styles.muted}>{hint}</Text>}
  </TouchableOpacity>;
  return <SafeAreaView style={styles.screen} edges={["top","left","right"]}>
   <KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS==="ios"?"padding":undefined}>
@@ -36,7 +39,7 @@ export default function StatisticsScreen() {
    <View style={styles.row}>{(["week","month","year","custom"] as Period[]).map(p=><TouchableOpacity key={p} accessibilityRole="button" accessibilityState={{selected:p===period}} style={[styles.control,p===period&&styles.selected]} onPress={()=>changePeriod(p)}><Text style={[styles.text,p===period&&styles.selectedText]}>{t(`period.${p}`)}</Text></TouchableOpacity>)}</View>
    <View style={styles.row}>
     {period!=="custom"&&<TouchableOpacity style={styles.control} accessibilityRole="button" accessibilityLabel={t("previousPeriod")} onPress={()=>shift(-1)}><Text style={styles.link}>‹</Text></TouchableOpacity>}
-    <Text style={[styles.text,{flex:1}]}>{query.start} — {inclusiveEnd(query.endExclusive)}</Text>
+    <Text style={[styles.title,{flex:1,textAlign:"center"}]}>{periodLabel}</Text>
     {period!=="custom"&&<TouchableOpacity style={styles.control} accessibilityRole="button" accessibilityLabel={t("nextPeriod")} onPress={()=>shift(1)}><Text style={styles.link}>›</Text></TouchableOpacity>}
    </View><Text style={styles.muted}>{t("timeZone",{zone:timeZone})}</Text>
    {period==="custom"&&<View style={styles.stack}>
@@ -56,12 +59,14 @@ export default function StatisticsScreen() {
    </View>}
    {loading?<View accessibilityState={{busy:true}}><ActivityIndicator color={theme.colors.primary}/><Text style={styles.muted}>{t("loading")}</Text></View>:error?<View style={styles.stack}><Text style={styles.text} accessibilityRole="alert">{t("error")}</Text><Button title={t("retry")} onPress={refetch}/></View>:data&&<>
     {data.matches===0&&<Text style={styles.text}>{t("empty")}</Text>}
-    <View style={styles.row}>
+    <View style={[styles.row,styles.summary]}>
      {metric(t("matches"),number(data.matches),()=>show("all"))}
      {metric(t("games"),number(data.distinctGames),()=>show("games"))}
      {metric(t("recordedTime"),data.recordedMinutes==null?t("unavailable"):`${number(data.recordedMinutes)} min`,()=>show("duration"),t("durationCoverage",{known:data.matchesWithDuration,total:data.matches}))}
     </View>
     <TouchableOpacity style={styles.control} accessibilityRole="button" onPress={()=>show("missing-duration")}><Text style={styles.link}>{t("missingDuration",{count:data.matchesWithoutDuration})} ›</Text></TouchableOpacity>
+    <StatisticsEvolution buckets={data.evolution} unit={data.bucketUnit} language={i18n.language} title={t("evolution")} countLabel={count=>t("matchCount",{count})} onSelect={bucket=>show("all",{bucket})}/>
+    <View style={styles.card}>
     <Text style={styles.title} accessibilityRole="header">{t("results")}</Text>
     {query.mode==="COOPERATIVE"&&<Text style={styles.muted}>{t("teamRule")}</Text>}
     <View style={styles.row}>
@@ -72,6 +77,7 @@ export default function StatisticsScreen() {
     <TouchableOpacity style={styles.control} accessibilityRole="button" onPress={()=>show("undefined")}><Text style={styles.link}>{t("withoutResult",{count:data.results.withoutResult})} ›</Text></TouchableOpacity>
     <TouchableOpacity style={styles.control} accessibilityRole="button" onPress={()=>show("legacy")}><Text style={styles.link}>{t("legacy",{count:data.results.legacy})} ›</Text></TouchableOpacity>
     <Text style={styles.muted}>{t("legacyRule")}</Text>
+    </View>
     {!query.mode&&data.modes.filter(m=>m.matches>0).map(mode=><View key={mode.mode} style={styles.card}>
      <TouchableOpacity accessibilityRole="button" style={styles.control} onPress={()=>{selectMode(mode.mode);}}><Text style={styles.title}>{t(`modes.${mode.mode}`)} ›</Text></TouchableOpacity>
      {mode.mode==="COOPERATIVE"&&<Text style={styles.muted}>{t("teamRule")}</Text>}
@@ -81,11 +87,6 @@ export default function StatisticsScreen() {
     <Text style={styles.title} accessibilityRole="header">{t("personalRating")}</Text>
     {metric(t("averageRating"),number(data.averagePersonalRating),()=>show("ratings"),t("ratingCoverage",{known:data.ratedMatches,total:data.matches}))}
     <Text style={styles.muted}>{t("ratingRule")}</Text>
-    <Text style={styles.title} accessibilityRole="header">{t("evolution")}</Text>
-    {data.evolution.map(bucket=><TouchableOpacity key={bucket.key} style={styles.control} accessibilityRole="button" accessibilityLabel={`${bucket.key}: ${bucket.matches}`} onPress={()=>show("all",{bucket:bucket.key})}>
-     <Text style={styles.text}>{bucket.key} · {t("matchCount",{count:bucket.matches})}</Text>
-     <View style={[styles.bar,{width:`${100*bucket.matches/Math.max(1,...data.evolution.map(b=>b.matches))}%`}]} />
-    </TouchableOpacity>)}
     <Text style={styles.title} accessibilityRole="header">{t("mostPlayed")}</Text>
     {data.games.filter((g,index)=>index<5||g.matches===(data.games[4]?.matches)).map(game=><TouchableOpacity key={game.gameId} style={styles.gameRow} accessibilityRole="button" accessibilityLabel={game.name} onPress={()=>show("all",{gameId:game.gameId})}>
      <GameCover uri={game.imageUrl} style={styles.cover}/><View style={styles.grow}><Text style={styles.gameName}>{game.name}</Text><Text style={styles.muted}>{t("matchCount",{count:game.matches})}</Text><Text style={styles.link}>{t("viewMatches")} ›</Text></View>
