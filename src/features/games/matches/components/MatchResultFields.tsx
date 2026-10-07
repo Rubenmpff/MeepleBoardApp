@@ -13,16 +13,18 @@ type Props = {
   onScoresEnabled: (enabled: boolean) => void;
   competitive: boolean;
   showErrors: boolean;
+  selectionKind?: "winner" | "draw";
+  multiple?: boolean;
 };
 
-export default function MatchResultFields({ players, onChange, scoresEnabled, onScoresEnabled, competitive, showErrors }: Props) {
+export default function MatchResultFields({ players, onChange, scoresEnabled, onScoresEnabled, competitive, showErrors, selectionKind = "winner", multiple = false }: Props) {
   const { t } = useTranslation("matches");
   const { width, fontScale } = useWindowDimensions();
   const expanded = width < 360 || fontScale > 1.3;
   const updateScore = (id: string, score: string) => onChange(players.map(p => p.id === id ? { ...p, score } : p));
-  const winnerControl = (p: PlayerState) => competitive && <TouchableOpacity accessibilityRole="radio"
-    accessibilityLabel={t("selector.winnerFor", { name: p.username })} accessibilityState={{ selected: p.isWinner }}
-    onPress={() => onChange(players.map(player => ({ ...player, isWinner: player.id === p.id })))}
+  const winnerControl = (p: PlayerState) => competitive && <TouchableOpacity accessibilityRole={multiple ? "checkbox" : "radio"}
+    accessibilityLabel={t(selectionKind === "draw" ? "outcomes.drawFor" : "selector.winnerFor", { name: p.username })} accessibilityState={{ selected: p.isWinner }}
+    onPress={() => onChange(players.map(player => ({ ...player, isWinner: multiple ? (player.id === p.id ? !player.isWinner : player.isWinner) : player.id === p.id })))}
     style={[styles.winner, p.isWinner && styles.active]}>
     <MaterialIcons name={p.isWinner ? "radio-button-checked" : "radio-button-unchecked"} size={24} color={p.isWinner ? COLORS.primary : COLORS.textMuted} />
   </TouchableOpacity>;
@@ -35,9 +37,9 @@ export default function MatchResultFields({ players, onChange, scoresEnabled, on
         <Text style={[styles.optionText, scoresEnabled === enabled && { color: COLORS.primary }]}>{t(enabled ? "form.withScores" : "form.withoutScores")}</Text>
       </TouchableOpacity>)}
     </View>
-    <Text style={styles.hint}>{t(competitive ? "form.winnerHelp" : "form.modeLimitations")}</Text>
+    <Text style={styles.hint}>{t(competitive ? selectionKind === "draw" ? "outcomes.drawHelp" : "form.winnerHelp" : "outcomes.noIndividualWinner")}</Text>
     {scoresEnabled && <Text style={styles.hint}>{t("form.scoreHelp")}</Text>}
-    {competitive && <Text style={styles.columnLabel}>{t("form.winnerColumn")}</Text>}
+    {competitive && <Text style={styles.columnLabel}>{t(selectionKind === "draw" ? "outcomes.drawColumn" : "form.winnerColumn")}</Text>}
     {players.map(p => {
       const error = scoresEnabled ? scoreError(p.score) : undefined;
       const visibleError = error && (showErrors || !!p.score?.trim());
@@ -66,7 +68,7 @@ export default function MatchResultFields({ players, onChange, scoresEnabled, on
         {visibleError && <Text accessibilityLiveRegion="polite" style={styles.error}>{t(error === "required" ? "form.scoreRequired" : "form.scoreInvalid")}</Text>}
       </View>;
     })}
-    {competitive && showErrors && !players.some(p => p.isWinner) && <Text accessibilityLiveRegion="polite" style={styles.error}>{t("validation.selectWinner")}</Text>}
+    {competitive && showErrors && players.filter(p => p.isWinner).length < (selectionKind === "draw" ? 2 : 1) && <Text accessibilityLiveRegion="polite" style={styles.error}>{t(selectionKind === "draw" ? "outcomes.twoDrawPlayers" : "validation.selectWinner")}</Text>}
   </View>;
 }
 

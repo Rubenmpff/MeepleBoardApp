@@ -82,10 +82,10 @@ export default function DashboardScreen() {
                   )}
                   <View style={[styles.matchContent, compact && styles.matchContentCompact]}>
                     <Text style={styles.matchName}>{lastMatch.name}</Text>
-                    {!!lastMatch.winner && (
+                    {(
                       <View style={styles.metadata}>
                         <MaterialIcons name="emoji-events" size={18} color={theme.colors.session} />
-                        <Text style={styles.metadataText}>{lastMatch.winner}</Text>
+                        <Text style={styles.metadataText}>{lastMatch.result != null ? t(`matches:outcomes.${lastMatch.gameMode === "COOPERATIVE" ? `team${lastMatch.result}` : lastMatch.gameMode === "COMPETITIVE" && lastMatch.result === "Win" ? "winnersNamed" : lastMatch.result}`, { name: lastMatch.winnerNames?.join(", ") || t("matches:sessions.winnerNameUnavailable") }) : t(lastMatch.winner ? "matches:outcomes.legacyWinner" : "matches:outcomes.legacyUnknown", { name: lastMatch.winner })}</Text>
                       </View>
                     )}
                     <View style={styles.metadata}>

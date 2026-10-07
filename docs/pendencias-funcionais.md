@@ -1,5 +1,7 @@
 # Pendências funcionais do MeepleBoard
 
+RESULT01: contrato e leitores implementados; confirmar no iPhone vitória partilhada, empate parcial, Solo e resultado da equipa. Avaliação zero e estrelas douradas: confirmação visual pendente. Nova Estatísticas/autenticação/retrospetiva/redesigns continuam pendentes.
+
 ## Próxima decisão — Solo, cooperativo e empate
 
 O utilizador confirmou melhoria do formulário e pediu estrelas amarelas/douradas. Ajustada a paleta com contorno contrastante e estrelas vazias sem preenchimento; corrigida a indicação indevida «toca para avaliar» no diário com zero válido. Avaliação 0 verificada novamente por gravação e duas releituras HTTP em DeviceTests, sem avaliação atribuída ao segundo jogador. Confirmação física do dourado/zero ainda pendente.

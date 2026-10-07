@@ -23,6 +23,7 @@ export interface MatchPlayerDto {
 
   /** Indica se este jogador é o vencedor */
   isWinner: boolean;
+  outcome?: "Win" | "Loss" | "Draw" | "Undefined" | null;
 
   /** Posição final do jogador (1 = primeiro, 2 = segundo, etc.) */
   rankPosition?: number;

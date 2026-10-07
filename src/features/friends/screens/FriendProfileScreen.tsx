@@ -621,6 +621,7 @@ function SummaryTab({
         </View>
       </View>
 
+      {profile.sharedMatches > 0 && <Text style={{ color: COLORS.textMuted }}>{i18n.t("matches:outcomes.known", { count: profile.knownResultMatches ?? 0 })} · {i18n.t("matches:outcomes.withoutResult", { count: profile.matchesWithoutResult ?? profile.sharedMatches })}</Text>}
       {profile.sharedMatches === 0 && (
         <View style={styles.emptyCard}>
           <Ionicons
@@ -1803,19 +1804,11 @@ function resultText(
   result: string,
   name: string
 ) {
-  return result === "teamWin"
-    ? i18n.t("friends:text.teamWin")
-    : result === "teamLoss"
-      ? i18n.t("friends:text.teamLoss")
-      : result ===
-        "currentUserWin"
-        ? i18n.t("friends:text.youWon")
-        : result ===
-          "otherUserWin"
-          ? name
-            ? i18n.t("friends:card.friendWon", { name })
-            : i18n.t("friends:text.yourFriendWon")
-          : i18n.t("friends:text.draw");
+  const keys: Record<string, string> = { teamWin: "teamWin", teamLoss: "teamLoss", teamDraw: "teamDraw", sharedWin: "sharedWin", currentUserDraw: "currentUserDraw", otherUserDraw: "otherUserDraw", bothLost: "bothLost", undefined: "Undefined", legacyUnknown: "legacyUnknown" };
+  if (result === "currentUserWin") return i18n.t("friends:text.youWon");
+  if (result === "otherUserWin") return name ? i18n.t("friends:card.friendWon", { name }) : i18n.t("friends:text.yourFriendWon");
+  if (result === "draw") return i18n.t("friends:text.draw");
+  return i18n.t(`matches:outcomes.${keys[result] ?? "legacyUnknown"}`);
 }
 
 const cardShadow = {

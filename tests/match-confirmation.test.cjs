@@ -12,8 +12,8 @@ test('saved confirmation uses factual names/scores/cover and opens details witho
   let returned = 0;
   const view = await saved({}, { onRegistered: () => returned++ });
   assert.match(view.html, /Partida guardada/);
-  assert.match(view.html, /Fixture game/); assert.match(view.html, /Vencedor: Author/);
-  assert.match(view.html, /Participant<\/span><\/div><span>0/);
+  assert.match(view.html, /Fixture game/); assert.match(view.html, /Vencedor registado: Author/);
+  assert.match(view.html, /Participant<\/span><\/div>.*<span>0/);
   assert.equal(view.images[0].resizeMode, 'contain');
   assert.equal(view.controls.some(c => c.accessibilityLabel === 'Guardar partida'), false);
   await view.press('Ver detalhes da partida');
@@ -55,7 +55,7 @@ test('covers keep proportions and switch to neutral placeholder for missing/fail
 test('summary never derives result from scores or solo flag; names and absent scores remain distinct', async () => {
   for (const language of ['pt', 'en']) {
     const view = await renderNative(summary, 'default', { match: { ...match, winnerId: null, winnerName: null, isSoloGame: true, players: [{ userId: 'me', userName: 'Author', score: null }] } }, { language });
-    assert.match(view.html, language === 'pt' ? /Resultado não definido/ : /Result not defined/);
+    assert.match(view.html, language === 'pt' ? /Resultado antigo sem informação suficiente/ : /Older result has insufficient information/);
     assert.match(view.html, language === 'pt' ? /Não definida/ : /Not defined/);
     const unavailable = await renderNative(summary, 'default', { match: { ...match, winnerName: null } }, { language });
     assert.match(unavailable.html, language === 'pt' ? /Nome do vencedor indisponível/ : /Winner name unavailable/);

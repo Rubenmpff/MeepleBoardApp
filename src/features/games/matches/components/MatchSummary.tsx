@@ -3,7 +3,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { MatchDto } from "../types/MatchForm";
 import GameCover from "./GameCover";
-import { matchResultKey } from "../../sessions/utils/matchResultKey";
+import { matchResultText } from "../../sessions/utils/matchResultKey";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 
@@ -15,16 +15,17 @@ export default function MatchSummary({ match, compact = false }: { match: MatchD
       <GameCover uri={match.gameImageUrl} size={compact ? 64 : 100} />
       <View style={styles.info}>
         <Text style={styles.name}>{match.gameName?.trim() || t("sessions.gameNameUnavailable")}</Text>
-        <Text style={styles.meta}>{t(matchResultKey(match), { name: match.winnerName })}</Text>
+        <Text style={styles.meta}>{matchResultText(match, t)}</Text>
         {date && !Number.isNaN(date.getTime()) && <Text style={styles.meta}>{date.toLocaleString(i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</Text>}
         {match.durationInMinutes != null && <Text style={styles.meta}>{t("sessions.durationMinutes", { count: match.durationInMinutes })}</Text>}
       </View>
     </View>
     {(match.players ?? []).map(player => <View key={player.userId} style={styles.player}>
       <View style={styles.playerName}>
-        {match.winnerId === player.userId && <MaterialIcons name="emoji-events" size={15} color={COLORS.primary} />}
-        <Text style={[styles.body, match.winnerId === player.userId && styles.winner]}>{player.userName?.trim() || t("sessions.playerNameUnavailable")}</Text>
+        {(match.result != null ? player.outcome === "Win" : match.winnerId === player.userId) && <MaterialIcons name="emoji-events" size={15} color={COLORS.primary} />}
+        <Text style={[styles.body, (match.result != null ? player.outcome === "Win" : match.winnerId === player.userId) && styles.winner]}>{player.userName?.trim() || t("sessions.playerNameUnavailable")}</Text>
       </View>
+      <Text style={styles.meta}>{player.outcome ? t(`outcomes.${player.outcome}`) : t("outcomes.legacyUnknown")}</Text>
       <Text style={styles.score}>{player.score == null ? t("sessions.scoreUndefined") : String(player.score)}</Text>
     </View>)}
   </View>;

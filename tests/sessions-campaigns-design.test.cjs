@@ -143,12 +143,12 @@ test('match rows associate named players with zero and absent scores, and distin
     { id: 'three', gameName: 'Game C', winnerId: null, winnerName: null, isSoloGame: true, players: [] },
   ];
   const view = await render(detail, { states: { 0: { ...session, matches }, 1: false } });
-  assert.match(view.html, /Vencedor: Test player/);
-  assert.match(view.html, /Test player<\/span><\/div><span>17/);
-  assert.match(view.html, /Other player<\/span><\/div><span>0/);
-  assert.match(view.html, /Other player<\/span><\/div><span>Não definida/);
+  assert.match(view.html, /Vencedor registado: Test player/);
+  assert.match(view.html, /Test player<\/span><\/div>.*?<span>17/);
+  assert.match(view.html, /Other player<\/span><\/div>.*?<span>0/);
+  assert.match(view.html, /Other player<\/span><\/div>.*?<span>Não definida/);
   assert.match(view.html, /Nome do vencedor indisponível/);
-  assert.match(view.html, /Resultado não definido/);
+  assert.match(view.html, /Resultado antigo sem informação suficiente/);
   assert.doesNotMatch(view.html, /Sem vencedor/);
 });
 
@@ -246,7 +246,7 @@ test('campaign notes and journal requests preserve trimmed text, optional rating
 });
 
 test('encounter submission preserves score-less request, association and photo order', async () => {
-  const view = await render(encounter, { params, states: { 0: ['me', 'other'], 6: ' Encounter ', 7: ' Outcome ', 8: '90', 9: ' Table ', 10: 0, 13: ['test-only-photo'] }, services: { registerMatch: { id: 'created-match' }, addMatch: undefined, uploadJournalPhoto: undefined } });
+  const view = await render(encounter, { params, states: { 0: ['me', 'other'], 2: 'competitive', 16: 'Undefined', 6: ' Encounter ', 7: ' Outcome ', 8: '90', 9: ' Table ', 10: 0, 13: ['test-only-photo'] }, services: { registerMatch: { id: 'created-match' }, addMatch: undefined, uploadJournalPhoto: undefined } });
   await view.press('Registar encontro');
   const payload = view.calls.find(c => c[0] === 'registerMatch')[1];
   assert.deepEqual(payload.players, [{ userId: 'me', isWinner: false }, { userId: 'other', isWinner: false }]);
@@ -258,17 +258,17 @@ test('encounter submission preserves score-less request, association and photo o
   assert.ok(view.calls.findIndex(c => c[0] === 'addMatch') < view.calls.findIndex(c => c[0] === 'uploadJournalPhoto'));
 });
 
-test('encounter preserves optional mode controls and competitive winner validation', async () => {
-  const view = await render(encounter, { params, states: { 1: true, 2: 'competitive' } });
+test('encounter preserves mode controls and sends explicit team results', async () => {
+  const view = await render(encounter, { params, states: { 0: ['me', 'other'], 1: true, 2: 'competitive', 10: 7.5, 16: 'Win' } });
   await view.press('Registar encontro');
   assert.equal(view.calls.some(c => c[0] === 'registerMatch'), false);
   assert.equal(view.calls.some(c => c[0] === 'alert'), true);
   await view.press('Cooperativo');
   assert.deepEqual(view.updates.find(c => c[0] === 2), [2, 'cooperative']);
-  const coop = await render(encounter, { params, states: { 2: 'cooperative', 5: true }, services: { registerMatch: { id: 'created' }, addMatch: undefined } });
+  const coop = await render(encounter, { params, states: { 0: ['me', 'other'], 2: 'cooperative', 5: true, 10: 7.5 }, services: { registerMatch: { id: 'created' }, addMatch: undefined } });
   await coop.press('Registar encontro');
-  // C03 is deliberately still open: the existing request does not encode coopWin.
-  assert.equal('gameMode' in coop.calls.find(c => c[0] === 'registerMatch')[1], false);
+  const payload = coop.calls.find(c => c[0] === 'registerMatch')[1];
+  assert.equal(payload.gameMode, 'COOPERATIVE'); assert.equal(payload.result, 'Win'); assert.equal(payload.winnerId, undefined);
 });
 
 test('encounter photos keep pending selection, permission guard and existing five-photo cap', async () => {

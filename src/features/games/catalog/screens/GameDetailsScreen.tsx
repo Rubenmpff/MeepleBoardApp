@@ -1,3 +1,4 @@
+import { matchResultText } from "../../sessions/utils/matchResultKey";
 /**
  * GameDetailsScreen.tsx
  *
@@ -287,9 +288,7 @@ export default function GameDetailsScreen() {
                     {m.location && (
                       <Text style={styles.matchMetaText}>📍 {m.location}</Text>
                     )}
-                    {m.winnerName && (
-                      <Text style={styles.matchMetaText}>🏆 {m.winnerName}</Text>
-                    )}
+                    <Text style={styles.matchMetaText}>{matchResultText(m, (key, options) => t(`matches:${key}`, options))}</Text>
                   </View>
 
                   {/* Notes */}

@@ -102,7 +102,7 @@ test('Shared history displays zero and missing scores distinctly and retains mat
 });
 test('Shared statistics include a best score of zero', async () => {
   const r = await renderNative(historyScreen, 'default', {}, { states: { 0: 'stats', 1: [match], 2: false }, language: 'en' });
-  assert.match(r.html, /Your best score/); assert.match(r.html, /Your best score<\/span><span>0/);
+  assert.match(r.html, /Your highest recorded score/); assert.match(r.html, /Your highest recorded score<\/span><span>0/);
 });
 test('Shared history retry retains friend and game identifiers', async () => {
   const r = await renderNative(historyScreen, 'default', {}, { states: { 2: false, 4: 'Falha de rede' }, params: { id: 'friend-a', gameId: 'game-a' }, services: { getSharedMatchesForGame: [match] } });

@@ -59,7 +59,7 @@ export type SharedMatch = {
   gameName: string;
   imageUrl?: string | null;
   matchDate: string;
-  result: "teamWin" | "teamLoss" | "currentUserWin" | "otherUserWin" | "draw";
+  result: "teamWin" | "teamLoss" | "currentUserWin" | "otherUserWin" | "draw" | "teamDraw" | "sharedWin" | "currentUserDraw" | "otherUserDraw" | "bothLost" | "undefined" | "legacyUnknown";
 };
 
 export type SharedSession = {
@@ -77,6 +77,9 @@ export type UserProfile = UserSearchResult & {
   totalMatches: number;
   totalGamesPlayed: number;
   totalGamesOwned: number;
+  matchesWithoutResult?: number;
+  knownResultMatches?: number;
+  legacyResultMatches?: number;
   sharedMatches: number;
   sharedGames: number;
   sharedMinutes: number;
@@ -101,9 +104,13 @@ export type SharedMatchDetail = {
   gameName: string;
   imageUrl?: string | null;
   matchDate: string;
-  result: "teamWin" | "teamLoss" | "currentUserWin" | "otherUserWin" | "draw";
+  result: "teamWin" | "teamLoss" | "currentUserWin" | "otherUserWin" | "draw" | "teamDraw" | "sharedWin" | "currentUserDraw" | "otherUserDraw" | "bothLost" | "undefined" | "legacyUnknown";
   durationInMinutes?: number | null;
   location?: string | null;
+  gameMode?: "COMPETITIVE" | "SOLO" | "COOPERATIVE" | null;
+  currentOutcome?: "Win" | "Loss" | "Draw" | "Undefined" | null;
+  otherOutcome?: "Win" | "Loss" | "Draw" | "Undefined" | null;
+  resultSource?: "Legacy" | "Explicit";
   currentUserScore?: number | null;
   otherUserScore?: number | null;
 };

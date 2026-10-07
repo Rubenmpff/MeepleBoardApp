@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import ScreenHeader from "@/src/components/navigation/ScreenHeader";
 import GameCover from "../components/GameCover";
-import { matchResultKey } from "../../sessions/utils/matchResultKey";
+import { matchResultText } from "../../sessions/utils/matchResultKey";
 import ScreenState from "@/src/components/ui/ScreenState";
 /**
  * MatchDetailScreen.tsx
@@ -84,7 +84,7 @@ export default function MatchDetailScreen() {
           <GameCover uri={match.gameImageUrl} size={88} />
           <View style={styles.headerInfo}>
             <Text style={styles.gameName} >{match.gameName}</Text>
-            <Text style={styles.date}>{t(matchResultKey(match), { name: match.winnerName })}</Text>
+            <Text style={styles.date}>{matchResultText(match, t)}</Text>
             <Text style={styles.date}>{formatDate(match.matchDate, i18n.language)}</Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("ui.viewGame")} onPress={() => router.push({ pathname: ROUTES.GAME_DETAILS, params: { id: match.gameId } } as never)}>
               <Text style={styles.link}>{t("ui.viewGame")}</Text>
@@ -97,7 +97,7 @@ export default function MatchDetailScreen() {
             <MetaChip icon="time-outline" label={duration(match.durationInMinutes)} />
           )}
           {!!match.location && <MetaChip icon="location-outline" label={match.location} />}
-          {match.isSoloGame && <MetaChip icon="person-outline" label="Solo" />}
+          <MetaChip icon="person-outline" label={match.gameMode ? t(match.gameMode === "SOLO" ? "modes.solo" : match.gameMode === "COOPERATIVE" ? "modes.cooperative" : "modes.multiplayer") : t("outcomes.modeUnknown")} />
         </View>
 
         <View style={styles.section}>
@@ -105,16 +105,17 @@ export default function MatchDetailScreen() {
           <View style={styles.card}>
             {players.map((p, index) => (
               <View key={p.id ?? p.userId} style={[styles.playerRow, index === players.length - 1 && styles.playerRowLast]}>
-                <View style={[styles.rankBadge, p.isWinner && styles.rankBadgeWinner]}>
-                  {p.isWinner ? (
+                <View style={[styles.rankBadge, (match.result != null ? p.outcome === "Win" : p.isWinner) && styles.rankBadgeWinner]}>
+                  {(match.result != null ? p.outcome === "Win" : p.isWinner) ? (
                     <Ionicons name="trophy" size={14} color="#fff" />
                   ) : (
-                    <Text style={styles.rankBadgeText}>{p.rankPosition ?? index + 1}</Text>
+                    <Text style={styles.rankBadgeText}>{p.rankPosition ?? "—"}</Text>
                   )}
                 </View>
                 <Text style={[styles.playerName, isMine(p.userId) && styles.playerNameMine]}>
                   {isMine(p.userId) ? t("players.you") : p.userName ?? t("players.player")}
                 </Text>
+                <Text style={styles.date}>{p.outcome ? t(`outcomes.${p.outcome}`) : t("outcomes.legacyUnknown")}</Text>
                 {typeof p.score === "number" && <Text style={styles.playerScore}>{t("ui.points", { score: p.score })}</Text>}
               </View>
             ))}

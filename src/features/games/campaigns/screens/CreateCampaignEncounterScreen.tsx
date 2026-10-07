@@ -1,3 +1,4 @@
+import { MatchOutcome } from "../../matches/types/MatchForm";
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 /**
  * CreateCampaignEncounterScreen.tsx
@@ -57,10 +58,15 @@ export default function CreateCampaignEncounterScreen() {
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const MAX_PHOTOS = 5;
   const [saving, setSaving] = useState(false);
+  const [explicitResult, setExplicitResult] = useState<MatchOutcome | undefined>();
+  const [resultPlayers, setResultPlayers] = useState<string[]>([]);
+  const [sharedVictoryAllowed, setSharedVictoryAllowed] = useState(false);
   const navigationGuard = useUnsavedChanges(!!sessionTitle || !!sessionOutcome || !!duration || !!location || personalRating !== undefined || !!notes || !!tags || pendingPhotos.length > 0 || gameMode !== null || soloResult !== "none" || winnerId !== undefined || coopWin !== undefined || selectedPlayers.join(",") !== (currentUser?.id ?? ""), saving || uploadingPhotos, campaignId ? `/games/campaigns/${campaignId}` : "/(app)/games/campaigns");
   const isSolo = gameMode === "solo";
   const isCoop = gameMode === "cooperative";
   const isComp = gameMode === "competitive";
+  const result: MatchOutcome = explicitResult ?? (isSolo ? soloResult === "player_win" ? "Win" : soloResult === "game_win" ? "Loss" : "Undefined" : isCoop ? coopWin === true ? "Win" : coopWin === false ? "Loss" : "Undefined" : winnerId ? "Win" : "Undefined");
+  const resultIds = isComp && result !== "Undefined" ? resultPlayers.length ? resultPlayers : winnerId ? [winnerId] : [] : [];
   const getModeLabel = () => {
     if (!gameMode) return t("encounter.mode.undefined");
     if (gameMode === "competitive") return t("encounter.mode.competitive");
@@ -108,9 +114,11 @@ export default function CreateCampaignEncounterScreen() {
   const handleSubmit = async () => {
     if (!gameId || !campaignId) return Alert.alert(t("common.error"), t("encounter.validation.missingData"));
     if (selectedPlayers.length === 0) return Alert.alert(t("common.error"), t("encounter.validation.selectPlayer"));
-    // Vencedor só obrigatório se modo competitivo definido
-    if (isComp && !winnerId)
-      return Alert.alert(t("common.error"), t("encounter.validation.selectWinner"));
+    if (!gameMode) { setShowMode(true); return Alert.alert(t("common.error"), tm("form.changeMode")); }
+    if (isSolo ? selectedPlayers.length !== 1 : new Set(selectedPlayers).size < 2) return Alert.alert(t("common.error"), tm(isSolo ? "outcomes.soloOne" : "form.twoPlayers"));
+    if (personalRating === undefined || !Number.isFinite(personalRating) || personalRating < 0 || personalRating > 10 || !Number.isInteger(personalRating * 2)) return Alert.alert(t("common.error"), tm("form.ratingRequired"));
+    if (resultIds.some(id => !selectedPlayers.includes(id))) return Alert.alert(t("common.error"), tm("outcomes.selectionMembersOnly"));
+    if (isComp && result !== "Undefined" && (resultIds.length < (result === "Draw" ? 2 : 1) || result === "Win" && resultIds.length > 1 && !sharedVictoryAllowed)) return Alert.alert(t("common.error"), tm(result === "Draw" ? "outcomes.twoDrawPlayers" : "validation.selectWinner"));
     const dur = duration.trim() ? Number(duration) : undefined;
     if (dur !== undefined && (isNaN(dur) || dur <= 0))
       return Alert.alert(t("common.error"), t("encounter.validation.invalidDuration"));
@@ -122,10 +130,10 @@ export default function CreateCampaignEncounterScreen() {
         matchDate: new Date().toISOString(),
         isSoloGame: isSolo,
         players: selectedPlayers.map(id => ({ userId: id, isWinner: false })),
-        winnerId: isSolo
-          ? (soloResult === "player_win" ? currentUser?.id : undefined)
-          : isCoop ? undefined
-          : winnerId,
+        gameMode: isSolo ? "SOLO" : isCoop ? "COOPERATIVE" : "COMPETITIVE",
+        result, resultPlayerIds: resultIds,
+        sharedVictoryAllowed: isComp && result === "Win" && sharedVictoryAllowed,
+        winnerId: result === "Win" && !isCoop ? isSolo ? currentUser?.id : resultIds.length === 1 ? resultIds[0] : undefined : undefined,
         durationInMinutes: dur,
         location: location.trim() || undefined,
         // resultado geral vai nas notas da partida (scoreSummary)
@@ -283,7 +291,7 @@ export default function CreateCampaignEncounterScreen() {
                       setGameMode(prev => prev === m.key ? null : m.key);
                       setWinnerId(undefined);
                       setCoopWin(undefined);
-                      setSoloResult("none");
+                      setSoloResult("none"); setExplicitResult(undefined); setResultPlayers([]); setSharedVictoryAllowed(false);
                     }}
                     activeOpacity={0.8} accessibilityRole="radio" accessibilityLabel={m.label} accessibilityState={{ selected: gameMode === m.key }}
                   >
@@ -292,72 +300,28 @@ export default function CreateCampaignEncounterScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
-              {/* Resultado por modo */}
-              {isSolo && (
-                <View style={{ marginTop: 14 }}>
-                  <Text style={styles.subLabel}>{t("encounter.result.title")}</Text>
-                  <View style={styles.resultRow}>
-                    {([
-                      { key: "player_win", label: t("encounter.result.playerWon"),        emoji: "🏆", color: COLORS.success },
-                      { key: "game_win",   label: t("encounter.result.gameWon"), emoji: "💀", color: COLORS.error },
-                      { key: "none",       label: t("encounter.result.noResult"),  emoji: "—",  color: COLORS.textMuted },
-                    ] as { key: SoloResult; label: string; emoji: string; color: string }[]).map(r => (
-                      <TouchableOpacity
-                        key={r.key}
-                        style={[styles.resultBtn, soloResult === r.key && { borderColor: r.color, backgroundColor: r.color + "12" }]}
-                        onPress={() => setSoloResult(r.key)}
-                        activeOpacity={0.8} accessibilityRole="radio" accessibilityLabel={r.label} accessibilityState={{ selected: soloResult === r.key }}
-                      >
-                        <Text style={styles.resultEmoji}>{r.emoji}</Text>
-                        <Text style={[styles.resultLabel, soloResult === r.key && { color: r.color, fontWeight: "700" }]}>{r.label}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+              {gameMode && <View style={{ gap: 8, marginTop: 12 }}>
+                <Text style={styles.subLabel}>{tm("steps.result")}</Text>
+                <View style={styles.resultRow}>
+                  {(isComp ? ["Win", "Draw", "Undefined"] : ["Win", "Loss", "Draw", "Undefined"]).map(value => <TouchableOpacity key={value}
+                    style={[styles.resultBtn, result === value && styles.winnerOptionSelected]} accessibilityRole="radio" accessibilityState={{ selected: result === value }}
+                    onPress={() => { setExplicitResult(value as MatchOutcome); setResultPlayers([]); setWinnerId(undefined); }}>
+                    <Text style={styles.resultLabel}>{tm(isCoop ? `outcomes.team${value}` : `outcomes.${value}`)}</Text>
+                  </TouchableOpacity>)}
                 </View>
-              )}
-              {isCoop && (
-                <View style={{ marginTop: 14 }}>
-                  <Text style={styles.subLabel}>{t("encounter.result.teamTitle")}</Text>
-                  <View style={styles.resultRow}>
-                    <TouchableOpacity
-                      style={[styles.resultBtn, coopWin === true && { borderColor: COLORS.success, backgroundColor: COLORS.success + "12" }]}
-                      onPress={() => setCoopWin(v => v === true ? undefined : true)} activeOpacity={0.8} accessibilityRole="radio"
-                    >
-                      <Text style={styles.resultEmoji}>🏆</Text>
-                      <Text style={[styles.resultLabel, coopWin === true && { color: COLORS.success, fontWeight: "700" }]}>{t("encounter.result.teamWon")}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.resultBtn, coopWin === false && { borderColor: COLORS.error, backgroundColor: COLORS.error + "12" }]}
-                      onPress={() => setCoopWin(v => v === false ? undefined : false)} activeOpacity={0.8} accessibilityRole="button"
-                    >
-                      <Text style={styles.resultEmoji}>💀</Text>
-                      <Text style={[styles.resultLabel, coopWin === false && { color: COLORS.error, fontWeight: "700" }]}>{t("encounter.result.teamLost")}</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
-              {isComp && selectedPlayers.length > 0 && (
-                <View style={{ marginTop: 14 }}>
-                  <Text style={styles.subLabel}>{t("encounter.result.winner")}</Text>
-                  {selectedPlayers.map(pid => (
-                    <TouchableOpacity
-                      key={pid}
-                      style={[styles.winnerOption, winnerId === pid && styles.winnerOptionSelected]}
-                      onPress={() => setWinnerId(prev => prev === pid ? undefined : pid)}
-                      activeOpacity={0.8} accessibilityRole="radio" accessibilityLabel={getMemberName(pid)} accessibilityState={{ selected: winnerId === pid }}
-                    >
-                      <MaterialIcons
-                        name={winnerId === pid ? "radio-button-checked" : "radio-button-unchecked"}
-                        size={20} color={winnerId === pid ? COLORS.primary : COLORS.textMuted}
-                      />
-                      <Text style={[styles.winnerOptionText, winnerId === pid && { color: COLORS.primary }]}>
-                        {getMemberName(pid)}
-                      </Text>
-                      {winnerId === pid && <Text>🏆</Text>}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
+                {isComp && result === "Win" && <TouchableOpacity style={styles.winnerOption} accessibilityRole="checkbox" accessibilityState={{ checked: sharedVictoryAllowed }}
+                  onPress={() => { setSharedVictoryAllowed(v => !v); setResultPlayers([]); setWinnerId(undefined); }}>
+                  <Text>{sharedVictoryAllowed ? "☑ " : "☐ "}{tm("outcomes.sharedAllowed")}</Text>
+                </TouchableOpacity>}
+                {isComp && result !== "Undefined" && selectedPlayers.map(pid => <TouchableOpacity key={pid}
+                  accessibilityRole={result === "Draw" || sharedVictoryAllowed ? "checkbox" : "radio"}
+                  accessibilityLabel={tm(result === "Draw" ? "outcomes.drawFor" : "selector.winnerFor", { name: getMemberName(pid) })}
+                  accessibilityState={{ selected: resultIds.includes(pid) }} style={[styles.winnerOption, resultIds.includes(pid) && styles.winnerOptionSelected]}
+                  onPress={() => { setWinnerId(undefined); setResultPlayers(prev => result === "Draw" || sharedVictoryAllowed ? prev.includes(pid) ? prev.filter(id => id !== pid) : [...prev, pid] : [pid]); }}>
+                  <Text>{resultIds.includes(pid) ? "☑ " : "☐ "}{getMemberName(pid)}</Text>
+                </TouchableOpacity>)}
+                <Text style={styles.hint}>{tm(result === "Draw" && isComp ? "outcomes.drawHelp" : "outcomes.explicitHelp")}</Text>
+              </View>}
             </View>
           )}
         </View>

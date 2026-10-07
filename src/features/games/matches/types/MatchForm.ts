@@ -3,6 +3,7 @@
 import { MatchPlayerDto } from "./MatchPlayer";
 
 /** Tipos de modo de jogo suportados */
+export type MatchOutcome = "Win" | "Loss" | "Draw" | "Undefined";
 export type GameMode = "SOLO" | "COOPERATIVE" | "COMPETITIVE";
 
 /* ============================================================
@@ -30,6 +31,9 @@ export interface MatchFormData {
   scoresEnabled?: boolean;
   players: MatchPlayerDto[];
   gameMode?: GameMode;
+  result?: MatchOutcome;
+  resultPlayerIds?: string[];
+  sharedVictoryAllowed?: boolean;
   expansions?: { bggId: number; name: string }[];
 
   // ── Diário de partida ──────────────────────────────────────────────────
@@ -59,6 +63,12 @@ export interface MatchDto {
   winnerId?: string;
   winnerName?: string;
   isSoloGame: boolean;
+  gameMode?: GameMode | null;
+  result?: MatchOutcome | null;
+  resultSource?: "Legacy" | "Explicit";
+  resultPlayerIds?: string[] | null;
+  winnerIds?: string[];
+  sharedVictoryAllowed?: boolean | null;
   durationInMinutes?: number;
   location?: string;
   scoreSummary?: string;
@@ -96,6 +106,9 @@ export interface MatchDto {
    📌 Última partida
    ============================================================ */
 export interface LastMatch {
+  gameMode?: GameMode | null;
+  result?: MatchOutcome | null;
+  winnerNames?: string[];
   name: string;
   date: string;
   winner: string;

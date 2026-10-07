@@ -29,7 +29,7 @@ import MatchResultFields from "./MatchResultFields";
 import { hasCompleteScores } from "../utils/registrationScores";
 import MatchDateFields from "./MatchDateFields";
 import { initialSessionMatchDate } from "../utils/registrationDate";
-import { MatchDto, MatchFormData } from "../types/MatchForm";
+import { MatchDto, MatchFormData, MatchOutcome } from "../types/MatchForm";
 import { PlayerState } from "../../../users/types/PlayerState";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
@@ -42,7 +42,7 @@ import {
   GameMode, AvailableModes,
 } from "../../catalog/types/GameSuggestion";
 
-type SoloResult = "player_win" | "game_win" | "none";
+type SoloResult = "player_win" | "game_win" | "draw" | "none";
 
 type Props = {
   sessionId?: string;
@@ -128,7 +128,9 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const [datePicker, setDatePicker] = useState<"date" | "time" | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showResultErrors, setShowResultErrors] = useState(false);
-  const [teamResult, setTeamResult] = useState<"win" | "loss" | null>(null);
+  const [teamResult, setTeamResult] = useState<"win" | "loss" | "draw" | null>(null);
+  const [competitiveResult, setCompetitiveResult] = useState<"Win" | "Draw" | "Undefined">("Win");
+  const [sharedVictoryAllowed, setSharedVictoryAllowed] = useState(false);
   const initializedSessionDate = useRef<string | null>(null);
   const matchDateEdited = useRef(false);
 
@@ -196,6 +198,10 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
   const isSolo = gameMode === "solo";
   const isCooperative = gameMode === "cooperative";
+  const result: MatchOutcome = isSolo ? soloResult === "player_win" ? "Win" : soloResult === "game_win" ? "Loss" : soloResult === "draw" ? "Draw" : "Undefined"
+    : isCooperative ? teamResult === "win" ? "Win" : teamResult === "loss" ? "Loss" : teamResult === "draw" ? "Draw" : "Undefined" : competitiveResult;
+  const resultPlayerIds = !isSolo && !isCooperative && result !== "Undefined" ? playerState.filter(p => p.isWinner).map(p => p.id) : [];
+  const outcomeFor = (id: string): MatchOutcome => isSolo || isCooperative || result === "Undefined" ? result : resultPlayerIds.includes(id) ? result : "Loss";
   const isUnofficial = unofficialMode === gameMode;
 
   useEffect(() => {
@@ -242,7 +248,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     setUnofficialJustification("");
   };
 
-  const participantsValid = !(isSessionMatch && isSolo) && (isSolo || new Set(playerState.map(p => p.id).filter(Boolean)).size >= 2);
+  const participantsValid = !(isSessionMatch && isSolo) && (isSolo ? new Set(playerState.map(p => p.id).filter(Boolean)).size === 1 : new Set(playerState.map(p => p.id).filter(Boolean)).size >= 2);
   const validateParticipants = () => {
     if (participantsValid) return true;
     Alert.alert(t("validation.errorTitle"), t(isSessionMatch && isSolo ? "form.sessionNoSolo" : "form.twoPlayers"));
@@ -261,7 +267,11 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       Alert.alert(t("validation.errorTitle"), t("form.ratingRequired")); return false;
     }
     if (!hasCompleteScores(playerState, scoresEnabled)) return false;
-    if (!isSolo && !isCooperative && !playerState.some(p => p.isWinner)) return false;
+    if (!isSolo && !isCooperative && result !== "Undefined") {
+      if (resultPlayerIds.length < (result === "Draw" ? 2 : 1) || (result === "Win" && resultPlayerIds.length > 1 && !sharedVictoryAllowed)) {
+        Alert.alert(t("validation.errorTitle"), t(result === "Draw" ? "outcomes.twoDrawPlayers" : "validation.selectWinner")); return false;
+      }
+    }
     if (!Number.isFinite(matchDate.getTime()) || matchDate.getTime() > Date.now() + 60000) {
       Alert.alert(t("validation.errorTitle"), t("form.dateInvalid")); return false;
     }
@@ -314,6 +324,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     setUnofficialMode(null); setUnofficialJustification("");
     setSavedMatch(null); setFailedPhotos([]); setScoresEnabled(false);
     setMatchDate(isSessionMatch && session ? initialSessionMatchDate(session, new Date()) : new Date());
+    setCompetitiveResult("Win"); setSharedVictoryAllowed(false);
     setShowDetails(false); setShowResultErrors(false); setDatePicker(null); setTeamResult(null);
     setEditingGame(true); setGameMode("multiplayer"); setSoloResult("none"); setStep(0);
   };
@@ -332,17 +343,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     }
     const dur = duration.trim() ? Number(duration) : undefined;
 
-    let winnerId: string | undefined;
-    if (isSolo) {
-      if (soloResult === "player_win" && currentUser?.id) winnerId = currentUser.id;
-    } else if (isCooperative) {
-      winnerId = undefined;
-    } else {
-      const winner = playerState.find((p) => p.isWinner);
-      if (!winner)
-        return Alert.alert(t("validation.errorTitle"), t("validation.selectWinner"));
-      winnerId = winner?.id;
-    }
+    const winnerId = result === "Win" && !isCooperative ? isSolo ? currentUser?.id : resultPlayerIds.length === 1 ? resultPlayerIds[0] : undefined : undefined;
 
     let players: MatchFormData["players"];
     try {
@@ -360,7 +361,11 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       durationInMinutes: dur,
       scoreSummary: comments.trim() || undefined,
       isSoloGame: isSolo,
-      players,
+      gameMode: isSolo ? "SOLO" : isCooperative ? "COOPERATIVE" : "COMPETITIVE",
+      result,
+      resultPlayerIds,
+      sharedVictoryAllowed: !isSolo && !isCooperative && result === "Win" && sharedVictoryAllowed,
+      players: players.map(p => ({ ...p, isWinner: outcomeFor(p.userId) === "Win", outcome: outcomeFor(p.userId) })),
       winnerId,
       expansions: selectedExpansions.map((e) => ({ bggId: e.bggId!, name: e.name })),
       sessionId: sessionId || undefined,
@@ -646,32 +651,26 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
         <View>
           <View style={styles.card}>
             <SectionTitle icon="emoji-events" label={t("steps.result")} />
+            <View style={styles.resultRow}>
+              {(isSolo || isCooperative ? ["Win", "Loss", "Draw", "Undefined"] : ["Win", "Draw", "Undefined"]).map(value => <ResultButton key={value} emoji={value === "Win" ? "🏆" : value === "Loss" ? "—" : value === "Draw" ? "=" : "?"}
+                label={t(isCooperative ? `outcomes.team${value}` : `outcomes.${value}`)} active={result === value} activeColor={COLORS.primary}
+                onPress={() => {
+                  if (isSolo) setSoloResult(value === "Win" ? "player_win" : value === "Loss" ? "game_win" : value === "Draw" ? "draw" : "none");
+                  else if (isCooperative) setTeamResult(value === "Win" ? "win" : value === "Loss" ? "loss" : value === "Draw" ? "draw" : null);
+                  else { setCompetitiveResult(value as "Win" | "Draw" | "Undefined"); setPlayerState(prev => prev.map(p => ({ ...p, isWinner: false }))); }
+                }} />)}
+            </View>
+            {!isSolo && !isCooperative && result === "Win" && <TouchableOpacity style={styles.detailsToggle} accessibilityRole="checkbox"
+              accessibilityState={{ checked: sharedVictoryAllowed }} onPress={() => {
+                setSharedVictoryAllowed(value => !value);
+                if (sharedVictoryAllowed && playerState.filter(p => p.isWinner).length > 1) setPlayerState(prev => prev.map(p => ({ ...p, isWinner: false })));
+              }}>
+              <Text style={styles.detailsToggleText}>{sharedVictoryAllowed ? "☑ " : "☐ "}{t("outcomes.sharedAllowed")}</Text>
+            </TouchableOpacity>}
             <MatchResultFields players={playerState} onChange={setPlayerState} scoresEnabled={scoresEnabled}
-              onScoresEnabled={setScoresEnabled} competitive={!isSolo && !isCooperative} showErrors={showResultErrors} />
-            {isSolo && (
-              <View style={{ marginTop: 20 }}>
-                <Text style={styles.subLabel}>{t("modes.result")}</Text>
-                <View style={styles.resultRow}>
-                  <ResultButton emoji="🏆" label={t("modes.playerWon")}        active={soloResult === "player_win"} activeColor={COLORS.success} onPress={() => setSoloResult("player_win")} />
-                  <ResultButton emoji="💀" label={t("modes.gameWon")} active={soloResult === "game_win"}   activeColor={COLORS.error}   onPress={() => setSoloResult("game_win")} />
-                  <ResultButton emoji="—"  label={t("modes.noResult")} active={soloResult === "none"}        activeColor={COLORS.textMuted}           onPress={() => setSoloResult("none")} />
-                </View>
-              </View>
-            )}
-
-            {isCooperative && (
-              <View style={{ marginTop: 20 }}>
-                <Text style={styles.subLabel}>{t("modes.teamResult")}</Text>
-                <View style={styles.resultRow}>
-                  <ResultButton emoji="🏆" label={t("modes.teamWon")}
-                    active={teamResult === "win"} activeColor={COLORS.success}
-                    onPress={() => { setTeamResult("win"); setPlayerState((prev) => prev.map((p) => ({ ...p, isWinner: true }))); }} />
-                  <ResultButton emoji="💀" label={t("modes.teamLost")}
-                    active={teamResult === "loss"} activeColor={COLORS.error}
-                    onPress={() => { setTeamResult("loss"); setPlayerState((prev) => prev.map((p) => ({ ...p, isWinner: false }))); }} />
-                </View>
-              </View>
-            )}
+              onScoresEnabled={setScoresEnabled} competitive={!isSolo && !isCooperative && result !== "Undefined"}
+              selectionKind={result === "Draw" ? "draw" : "winner"} multiple={result === "Draw" || sharedVictoryAllowed} showErrors={showResultErrors} />
+            <Text style={styles.hint}>{t("outcomes.explicitHelp")}</Text>
 
           </View>
           <View style={styles.card}>
@@ -751,19 +750,13 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
             <Text style={styles.summaryTitle}>{t("summary.title")}</Text>
             <SummaryRow label={t("summary.game")} value={selectedGame?.name ?? "—"} />
             <SummaryRow label={t("summary.mode")} value={`${getModeLabel(gameMode)}${isUnofficial ? " ⚠️" : ""}`} />
-            {isSolo && <SummaryRow label={t("summary.result")} value={getSoloResultLabel(soloResult)} />}
-            {!isSolo && (
-              <SummaryRow
-                label={isCooperative ? t("summary.teamResult") : t("summary.winner")}
-                value={isCooperative
-                  ? teamResult === "win" ? `🏆 ${t("modes.teamWon")}` : teamResult === "loss" ? `💀 ${t("modes.teamLost")}` : t("sessions.resultUndefined")
-                  : playerState.find((p) => p.isWinner)?.username ?? t("summary.notDefined")}
-              />
-            )}
+            <SummaryRow label={t("summary.result")} value={t(isCooperative ? `outcomes.team${result}` : `outcomes.${result}`)} />
+            {result === "Win" && !isSolo && !isCooperative && <SummaryRow label={t("summary.winner")} value={playerState.filter(p => p.isWinner).map(p => p.username).join(", ")} />}
+            {sharedVictoryAllowed && !isSolo && !isCooperative && result === "Win" && <Text style={styles.hint}>{t("outcomes.sharedAllowed")}</Text>}
             <ReviewEdit label={t("form.edit", { section: t("steps.game") })} onPress={() => setStep(0)} />
             <SummaryRow label={t("summary.players")} value={`${playerState.length}`} />
             {playerState.map(p => <SummaryRow key={p.id} label={p.username || t("sessions.playerNameUnavailable")}
-              value={scoresEnabled ? String(p.score?.trim() ?? "") : t("form.withoutScores")} />)}
+              value={`${t(`outcomes.${outcomeFor(p.id)}`)} · ${scoresEnabled ? String(p.score?.trim() ?? "") : t("form.withoutScores")}`} />)}
             <ReviewEdit label={t("form.edit", { section: t("steps.players") })} onPress={() => setStep(1)} />
             <SummaryRow label={t("steps.result")} value={t(scoresEnabled ? "form.withScores" : "form.withoutScores")} />
             <ReviewEdit label={t("form.edit", { section: t("steps.result") })} onPress={() => setStep(2)} />

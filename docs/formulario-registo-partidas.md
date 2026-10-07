@@ -1,5 +1,7 @@
 # Registo partilhado — inteiros com sinal e revisão
 
+Atualização: modos e resultados explícitos implementados; ver [regras aprovadas](proposta-modos-resultados.md). As limitações de Solo/cooperativo/empate descritas nas etapas históricas abaixo foram substituídas por este contrato. Confirmação visual pendente.
+
 Implementado em 6 de outubro de 2026, apenas validado no ambiente DeviceTests do Mac. Não foram alteradas credenciais, dependências ou a base habitual.
 
 ## Continuação — participantes distintos e avaliação obrigatória

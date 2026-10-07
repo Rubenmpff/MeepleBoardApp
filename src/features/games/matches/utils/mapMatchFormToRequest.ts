@@ -1,6 +1,6 @@
 // src/features/games/utils/mapMatchFormToRequest.ts
 
-import { MatchFormData, GameMode } from "../types/MatchForm";
+import { MatchFormData, GameMode, MatchOutcome } from "../types/MatchForm";
 import { MatchPlayerDto } from "../types/MatchPlayer";
 import { validatePlayerScore } from "../../../users/utils/playerMappers";
 
@@ -27,6 +27,9 @@ export interface CreateMatchRequest {
   playerScores?: { userId: string; score: number }[];
 
   gameMode?: GameMode;
+  result?: MatchOutcome;
+  resultPlayerIds?: string[];
+  sharedVictoryAllowed?: boolean;
   expansions?: { bggId: number; name: string }[];
 
   // ── Diário de partida ──────────────────────────────────────────────────
@@ -61,6 +64,11 @@ function extractPlayerIds(players: MatchPlayerDto[] | undefined): string[] {
 }
 
 function inferWinnerId(form: MatchFormData): string | undefined {
+  if (form.result !== undefined) {
+    if (form.result !== "Win" || form.gameMode === "COOPERATIVE") return undefined;
+    if (form.gameMode === "SOLO") return form.players[0]?.userId;
+    return form.resultPlayerIds?.length === 1 ? form.resultPlayerIds[0] : undefined;
+  }
   if (form.isSoloGame) return undefined;
 
   const direct = normalizeId(form.winnerId);
@@ -82,6 +90,9 @@ function inferWinnerId(form: MatchFormData): string | undefined {
 export function mapMatchFormToRequest(form: MatchFormData): CreateMatchRequest {
   const playerIds = extractPlayerIds(form.players);
   const winnerId = inferWinnerId(form);
+  if (form.result !== undefined && (form.resultPlayerIds ?? []).some(id => !playerIds.includes(id))) {
+    throw new Error("A seleção de resultado deve conter participantes da partida.");
+  }
   const playerScores = form.scoresEnabled === false ? [] : form.players.flatMap((player) => {
     if (player.score == null) {
       if (form.scoresEnabled) throw new Error("Indica a pontuação de todos os jogadores.");
@@ -94,7 +105,7 @@ export function mapMatchFormToRequest(form: MatchFormData): CreateMatchRequest {
   });
 
   const finalPlayerIds =
-    winnerId && !playerIds.includes(winnerId)
+    form.result === undefined && winnerId && !playerIds.includes(winnerId)
       ? uniq([...playerIds, winnerId])
       : playerIds;
 
@@ -118,6 +129,9 @@ export function mapMatchFormToRequest(form: MatchFormData): CreateMatchRequest {
     playerScores: playerScores.length ? playerScores : undefined,
 
     gameMode: form.gameMode,
+    result: form.result,
+    resultPlayerIds: form.resultPlayerIds,
+    sharedVictoryAllowed: form.sharedVictoryAllowed,
     expansions: form.expansions,
 
     // ── Diário ─────────────────────────────────────────────────────────

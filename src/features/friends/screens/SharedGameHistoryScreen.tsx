@@ -784,6 +784,8 @@ function StatsContent({
         styles.statsContent
       }
     >
+      <Text style={styles.emptyText}>{i18n.t("matches:outcomes.withoutResult", { count: stats.withoutResult })} · {i18n.t("matches:outcomes.legacyCount", { count: stats.legacyResults })}</Text>
+      <Text style={styles.emptyText}>{i18n.t("matches:outcomes.loadedSample", { count: stats.totalMatches })}</Text>
       {stats.competitiveMatches >
         0 && (
           <StatsSection
@@ -871,7 +873,7 @@ function StatsContent({
               null && (
                 <MetricRow
                   label={t("text.yourWinRate")}
-                  value={`${stats.competitiveWinRate}%`}
+                  value={`${stats.competitiveWinRate}% · n=${stats.competitiveMatches}`}
                 />
               )}
           </StatsSection>
@@ -896,11 +898,12 @@ function StatsContent({
               }
             />
 
+            <MetricRow label={i18n.t("matches:outcomes.Draw")} value={stats.teamDraws} />
             {stats.cooperativeSuccessRate !=
               null && (
                 <MetricRow
                   label={t("text.successRate")}
-                  value={`${stats.cooperativeSuccessRate}%`}
+                  value={`${stats.cooperativeSuccessRate}% · n=${stats.cooperativeMatches}`}
                 />
               )}
           </StatsSection>
@@ -1131,6 +1134,9 @@ type GameStats = {
   draws: number;
   teamWins: number;
   teamLosses: number;
+  teamDraws: number;
+  withoutResult: number;
+  legacyResults: number;
   competitiveMatches: number;
   cooperativeMatches: number;
   totalMinutes: number;
@@ -1154,50 +1160,17 @@ type GameStats = {
 function calculateStats(
   list: SharedMatchDetail[]
 ): GameStats {
-  const currentUserWins =
-    list.filter(
-      (match) =>
-        match.result ===
-        "currentUserWin"
-    ).length;
-
-  const friendWins =
-    list.filter(
-      (match) =>
-        match.result ===
-        "otherUserWin"
-    ).length;
-
-  const draws =
-    list.filter(
-      (match) =>
-        match.result ===
-        "draw"
-    ).length;
-
-  const teamWins =
-    list.filter(
-      (match) =>
-        match.result ===
-        "teamWin"
-    ).length;
-
-  const teamLosses =
-    list.filter(
-      (match) =>
-        match.result ===
-        "teamLoss"
-    ).length;
-
-  const competitiveMatches =
-    currentUserWins +
-    friendWins +
-    draws;
-
-  const cooperativeMatches =
-    teamWins +
-    teamLosses;
-
+  const competitive = list.filter(m => m.gameMode === "COMPETITIVE" && m.resultSource === "Explicit" && m.currentOutcome != null && m.currentOutcome !== "Undefined");
+  const cooperative = list.filter(m => m.gameMode === "COOPERATIVE" && m.resultSource === "Explicit" && m.currentOutcome != null && m.currentOutcome !== "Undefined");
+  const currentUserWins = competitive.filter(m => m.currentOutcome === "Win").length;
+  const friendWins = competitive.filter(m => m.otherOutcome === "Win").length;
+  const draws = competitive.filter(m => m.currentOutcome === "Draw").length;
+  const teamWins = cooperative.filter(m => m.currentOutcome === "Win").length;
+  const teamLosses = cooperative.filter(m => m.currentOutcome === "Loss").length;
+  const teamDraws = cooperative.filter(m => m.currentOutcome === "Draw").length;
+  const competitiveMatches = competitive.length, cooperativeMatches = cooperative.length;
+  const withoutResult = list.filter(m => m.currentOutcome == null || m.currentOutcome === "Undefined").length;
+  const legacyResults = list.filter(m => m.resultSource !== "Explicit").length;
   const totalMinutes =
     list.reduce(
       (
@@ -1304,7 +1277,7 @@ function calculateStats(
     friendWins,
     draws,
     teamWins,
-    teamLosses,
+    teamLosses, teamDraws, withoutResult, legacyResults,
     competitiveMatches,
     cooperativeMatches,
     totalMinutes,
@@ -1384,8 +1357,10 @@ function resultText(
     case "otherUserWin":
       return i18n.t("friends:text.yourFriendWon");
 
-    default:
-      return i18n.t("friends:text.draw");
+    case "draw": return i18n.t("friends:text.draw");
+    case "teamDraw": case "sharedWin": case "currentUserDraw": case "otherUserDraw": case "bothLost": return i18n.t(`matches:outcomes.${result}`);
+    case "undefined": return i18n.t("matches:outcomes.Undefined");
+    default: return i18n.t("matches:outcomes.legacyUnknown");
   }
 }
 

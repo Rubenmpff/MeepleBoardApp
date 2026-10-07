@@ -10,7 +10,7 @@ const React = require('react');
 const { renderToStaticMarkup } = require('react-dom/server');
 const i18next = require('i18next');
 const root = path.resolve(__dirname, '..');
-const resources = Object.fromEntries(['pt', 'en'].map(lang => [lang, { dashboard: JSON.parse(fs.readFileSync(path.join(root, `src/i18n/locales/${lang}/dashboard.json`), 'utf8')) }]));
+const resources = Object.fromEntries(['pt', 'en'].map(lang => [lang, { dashboard: JSON.parse(fs.readFileSync(path.join(root, `src/i18n/locales/${lang}/dashboard.json`), 'utf8')), matches: JSON.parse(fs.readFileSync(path.join(root, `src/i18n/locales/${lang}/matches.json`), 'utf8')) }]));
 
 async function renderHome(options = {}) {
   const i18n = i18next.createInstance();
