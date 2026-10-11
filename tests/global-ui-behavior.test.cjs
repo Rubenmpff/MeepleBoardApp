@@ -12,8 +12,8 @@ const flush = () => new Promise(resolve => setImmediate(resolve));
 test('Rankings preserves overall endpoint, pagination and game destination', async () => {
   const ui = await renderNative(rankings, 'default', {}, { states: ['geral', [game], 0, 2, false, false], captureEffects: true,
     services: { getRankings: { data: [game], totalPages: 2 } } });
-  assert.match(ui.html, /MB ⭐ 8\.0/);
-  assert.match(ui.html, /BGG ⭐ 7\.2/);
+  assert.match(ui.html, /★ 8,0 MeepleBoard/);
+  assert.match(ui.html, /★ 7,2 BGG/);
   await ui.press(game.name);
   assert.deepEqual(ui.routes[0], { pathname: '/games/details/[id]', params: { id: game.id } });
   ui.effects[0](); await flush();
@@ -25,7 +25,7 @@ test('Rankings preserves overall endpoint, pagination and game destination', asy
 test('Personal ranking preserves zero and personal endpoint', async () => {
   const ui = await renderNative(rankings, 'default', {}, { states: ['minha', [game], 0, 1, false, false], captureEffects: true,
     services: { getMyRankings: { data: [game], totalPages: 1 } } });
-  assert.match(ui.html, /⭐ 0\.0/); assert.doesNotMatch(ui.html, /BGG ⭐/);
+  assert.match(ui.html, /★ 0,0/); assert.doesNotMatch(ui.html, /BGG/);
   ui.effects[0](); await flush();
   assert.deepEqual(ui.calls, [['getMyRankings', 0, 20]]);
   ui.lists[0].onEndReached(); await flush(); assert.equal(ui.calls.length, 1);
@@ -72,7 +72,7 @@ for (const language of ['pt', 'en']) {
     assert.equal(ui.controls.some(c => c.accessibilityLabel === t('back')), false);
     const sheet = await renderNative(newSheet, 'default', { visible: true, onClose() {} }, { language });
     for (const key of ['registerMatch', 'newSession', 'addGame']) await sheet.press(t('newSheet.' + key));
-    assert.deepEqual(sheet.routes, ['/games/register-match', '/games/sessions/create', '/games/search']);
+    assert.deepEqual(sheet.routes, ['/games/register-match', '/games/sessions/create', { pathname: '/(app)/(tabs)/(library)/library', params: { area: 'discover' } }]);
     const settings = await renderNative('src/features/settings/screens/SettingsScreen.tsx', 'default', {}, { language });
     await settings.press(ui.i18n.t('logout.button', { ns: 'settings' }));
     assert.equal(settings.calls.find(c => c[0] === 'alert')[1], ui.i18n.t('logout.title', { ns: 'settings' }));

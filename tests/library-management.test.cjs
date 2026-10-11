@@ -7,19 +7,19 @@ const game = { id: 'game-id', name: 'Fixture game', bggId: 42 };
 for (const language of ['pt', 'en']) test(`Catalogue access in the new sheet and explicit collection action (${language})`, async () => {
   const sheet = await renderNative('src/features/navigation/components/NewSheet.tsx', 'default', { visible: true, onClose() {} }, { language });
   await sheet.press(sheet.i18n.t('newSheet.addGame', { ns: 'navigation' }));
-  assert.deepEqual(sheet.routes, ['/games/search']);
+  assert.deepEqual(sheet.routes, [{ pathname: '/(app)/(tabs)/(library)/library', params: { area: 'discover' } }]);
   const library = await renderNative('src/features/library/screens/MyLibraryScreen.tsx', 'default', {}, { language });
-  assert.ok(library.html.includes(library.i18n.t('ui.catalogHint', { ns: 'library' })));
   assert.equal(library.inputs[0].placeholder, library.i18n.t('ui.searchPlaceholder', { ns: 'library' }));
-  await library.press(library.i18n.t('ui.add', { ns: 'library' }));
-  assert.deepEqual(library.routes, ['/games/search']);
+  const game = await renderNative('src/features/games/catalog/screens/GameDetailsScreen.tsx', 'default', {}, { language, states: { 0: { id: 'game-id', name: 'Fixture game' }, 4: false } });
+  await game.press(game.i18n.t('details.addToLibrary', { ns: 'games' }));
+  assert.ok(game.updates.some(([, value]) => value === true), 'the add sheet opens from the game page');
 });
 
 test('Both price forms distinguish empty, free, comma decimals and invalid input', async () => {
   for (const [text, value] of [['', null], ['0', 0], [' 35,50 ', 35.5], ['.50', .5], ['2.75', 2.75], ['oops', 'invalid'], ['12oops', 'invalid'], ['-1', 'invalid'], ['Infinity', 'invalid'], ['1,2,3', 'invalid'], ['1.234', 'invalid']]) {
     const values = [];
-    const add = await renderNative(modal, 'default', { visible: true, game, onClose() {}, onAddToLibrary: v => values.push(v) }, { language: 'en', states: { 0: 'price', 1: text } });
-    await add.press('Confirm');
+    const add = await renderNative(modal, 'default', { visible: true, game, onClose() {}, onAddToLibrary: v => values.push(v) }, { language: 'en', states: { 0: 1, 1: text } });
+    await add.press('Add');
     const entry = { id: 'entry-id', gameId: game.id, status: 1, pricePaid: 50, game };
     const edit = await renderNative('src/features/library/components/ManageLibraryEntryModal.tsx', 'default', { visible: true, game, entry, onClose() {} }, { language: 'en', states: { 1: text } });
     await edit.press('Save changes');
@@ -36,8 +36,8 @@ test('Both price forms distinguish empty, free, comma decimals and invalid input
 
 test('Addition failure keeps the entered price and cancel respects the discard guard', async () => {
   let closed = 0;
-  const ui = await renderNative(modal, 'default', { visible: true, game, onClose: () => closed++, onAddToLibrary: async () => { throw new Error('Isolated failure'); } }, { language: 'en', states: { 0: 'price', 1: '4,50' } });
-  await ui.press('Confirm'); assert.equal(closed, 0);
+  const ui = await renderNative(modal, 'default', { visible: true, game, onClose: () => closed++, onAddToLibrary: async () => { throw new Error('Isolated failure'); } }, { language: 'en', states: { 0: 1, 1: '4,50' } });
+  await ui.press('Add'); assert.equal(closed, 0);
   assert.equal(ui.inputs[0].value, '4,50');
   await ui.press('Cancel'); assert.equal(closed, 0);
   ui.calls.find(c => c[0] === 'alert')[3][1].onPress(); assert.equal(closed, 1);
@@ -46,9 +46,9 @@ test('Addition failure keeps the entered price and cancel respects the discard g
 test('Catalogue screen passes zero and comma decimals through the real addition dialog', async () => {
   for (const [price, expected] of [['0', 0], ['8,50', 8.5], ['', undefined]]) {
     const ui = await renderNative('src/features/games/catalog/screens/GameSearchScreen.tsx', 'default', {}, {
-      language: 'en', stateModules: [modal], states: { 7: game, 8: true, 13: 'price', 14: price },
+      language: 'en', stateModules: [modal], states: { 7: game, 8: true, 13: 1, 14: price },
     });
-    await ui.press('Confirm');
+    await ui.press('Add');
     assert.equal(ui.calls.find(c => c[0] === 'addGame')[3], expected);
     assert.ok(ui.calls.some(c => c[0] === 'toast' && c[1].text1 === 'You now own Fixture game'));
   }

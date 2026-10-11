@@ -14,7 +14,10 @@ import {
   TouchableOpacity, Image,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { Segmented } from "@/src/ui/components";
+import { colors as ui } from "@/src/ui/theme";
+import { formatRating } from "@/src/ui/format";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -30,7 +33,7 @@ const PAGE_SIZE = 20;
 type Tab = "geral" | "minha";
 
 export default function RankingsScreen() {
-  const { t } = useTranslation("games");
+  const { t, i18n } = useTranslation("games");
   const router = useRouter();
   const { t: tn } = useTranslation("navigation");
   const { t: tc } = useTranslation("common");
@@ -98,29 +101,9 @@ export default function RankingsScreen() {
         />
       </View>
 
-      <View style={styles.tabsRow}>
-        <TouchableOpacity
-          style={[styles.tabBtn, tab === "geral" && styles.tabBtnActive]}
-          accessibilityRole="tab"
-          accessibilityState={{ selected: tab === "geral" }}
-          onPress={() => setTab("geral")}
-          activeOpacity={0.8}
-        >
-          <Text style={[styles.tabText, tab === "geral" && styles.tabTextActive]}>
-            {t("rankings.tabGeneral", { defaultValue: "Geral" })}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tabBtn, tab === "minha" && styles.tabBtnActive]}
-          accessibilityRole="tab"
-          accessibilityState={{ selected: tab === "minha" }}
-          onPress={() => setTab("minha")}
-          activeOpacity={0.8}
-        >
-          <Text style={[styles.tabText, tab === "minha" && styles.tabTextActive]}>
-            {t("rankings.tabMine", { defaultValue: "Minha" })}
-          </Text>
-        </TouchableOpacity>
+      <View style={styles.segment}>
+        <Segmented items={[{ key: "geral", label: t("rankings.tabGeneral", { defaultValue: "Geral" }) }, { key: "minha", label: t("rankings.tabMine", { defaultValue: "Minha" }) }]}
+          value={tab} onChange={setTab} />
       </View>
 
       {loading ? (
@@ -171,38 +154,18 @@ export default function RankingsScreen() {
               <Image source={{ uri: item.imageUrl }} style={styles.thumb} />
             ) : (
               <View style={[styles.thumb, styles.thumbPlaceholder]}>
-                <MaterialIcons name="sports-esports" size={20} color={COLORS.primary} />
+                <MaterialCommunityIcons name="dice-5" size={22} color={ui.icon} />
               </View>
             )}
 
-            <View style={{ flex: 1, minWidth: 0 }}>
+            <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
               <Text style={styles.gameName}>{item.name}</Text>
-              <View style={styles.chipsRow}>
-                {tab === "minha" ? (
-                  item.personalAverageRating != null && (
-                    <View style={[styles.chip, styles.chipPersonal]}>
-                      <Text style={[styles.chipText, { color: COLORS.primary }]}>
-                        ⭐ {item.personalAverageRating.toFixed(1)}
-                      </Text>
-                    </View>
-                  )
-                ) : (
-                  <>
-                    {item.meepleBoardScore != null && (
-                      <View style={[styles.chip, styles.chipMeeple]}>
-                        <Text style={[styles.chipText, { color: COLORS.secondary }]}>
-                          MB ⭐ {(item.meepleBoardScore / 10).toFixed(1)}
-                        </Text>
-                      </View>
-                    )}
-                    {item.averageRating != null && (
-                      <View style={styles.chip}>
-                        <Text style={styles.chipText}>BGG ⭐ {item.averageRating.toFixed(1)}</Text>
-                      </View>
-                    )}
-                  </>
-                )}
-              </View>
+              <Text style={styles.ratings}>
+                {tab === "minha"
+                  ? item.personalAverageRating != null ? t("rankings.yourRating", { value: formatRating(item.personalAverageRating, i18n.language) }) : ""
+                  : [item.meepleBoardScore != null ? t("listItem.meepleBoardRating", { value: formatRating(item.meepleBoardScore / 10, i18n.language) }) : null,
+                    item.averageRating != null ? t("listItem.bggRating", { value: formatRating(item.averageRating, i18n.language) }) : null].filter(Boolean).join(" · ")}
+              </Text>
             </View>
 
             <MaterialIcons name="chevron-right" size={22} color={COLORS.textMuted} />
@@ -218,23 +181,15 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: COLORS.background },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   headerWrap: { paddingHorizontal: 16, paddingTop: 8 },
-  tabsRow: { ...UI_STYLES.card, flexDirection: "row", marginHorizontal: 16, marginTop: 8, padding: 4, gap: 4 },
-  tabBtn: { ...UI_STYLES.control, flex: 1, padding: 12, alignItems: "center" },
-  tabBtnActive: { backgroundColor: COLORS.primary },
-  tabText: { ...UI_STYLES.body, fontWeight: "700", color: COLORS.textMuted, textAlign: "center" },
-  tabTextActive: { color: COLORS.onPrimary },
+  segment: { paddingHorizontal: 16, paddingTop: 4 },
   listContent: { padding: 16, paddingBottom: 24, flexGrow: 1 },
-  row: { ...UI_STYLES.card, flexDirection: "row", alignItems: "center", gap: 8, padding: 12, minHeight: 80, marginBottom: 12 },
+  row: { ...UI_STYLES.card, flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 10, paddingHorizontal: 16, minHeight: 72, marginBottom: 8 },
   rankBadge: { minWidth: 28, minHeight: 28, padding: 4, borderRadius: 14, backgroundColor: COLORS.primarySoft, alignItems: "center", justifyContent: "center" },
   rankBadgeText: { ...UI_STYLES.caption, fontWeight: "800", color: COLORS.primary },
-  thumb: { width: 44, height: 44, borderRadius: 12, backgroundColor: COLORS.primarySoft },
+  thumb: { width: 44, height: 44, borderRadius: 10, backgroundColor: ui.hero },
   thumbPlaceholder: { alignItems: "center", justifyContent: "center" },
-  gameName: { ...UI_STYLES.body, fontWeight: "700", color: COLORS.onBackground, marginBottom: 4 },
-  chipsRow: { flexDirection: "row", gap: 6, flexWrap: "wrap" },
-  chip: { backgroundColor: COLORS.sessionSoft, borderRadius: 12, paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: COLORS.border },
-  chipMeeple: { backgroundColor: COLORS.sessionSoft },
-  chipPersonal: { backgroundColor: COLORS.primarySoft },
-  chipText: { ...UI_STYLES.caption, fontWeight: "700", color: COLORS.session },
+  gameName: { ...UI_STYLES.body, fontWeight: "600", color: COLORS.onBackground },
+  ratings: { ...UI_STYLES.caption, color: ui.muted },
   emptyWrap: { alignItems: "center", paddingVertical: 32, gap: 16 },
   emptyText: { ...UI_STYLES.empty, paddingHorizontal: 16 },
 });

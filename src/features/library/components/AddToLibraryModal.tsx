@@ -1,186 +1,71 @@
-import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
-import DialogSurface from "@/src/components/ui/DialogSurface";
 import React, { useState } from "react";
-import {
-  Modal,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  ActivityIndicator,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import { useTranslation } from "react-i18next";
-
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
+import Toast from "react-native-toast-message";
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
+import Sheet from "@/src/ui/Sheet";
+import { Segmented } from "@/src/ui/components";
+import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
 import { Game } from "@/src/features/games/catalog/types/Game";
 import { GameSuggestion } from "@/src/features/games/catalog/types/GameSuggestion";
-import Toast from "react-native-toast-message";
+import { GameLibraryStatus } from "../types/GameLibraryStatus";
 import { parsePurchasePrice } from "../utils/purchasePrice";
 
 type Props = {
   visible: boolean;
   onClose: () => void;
   game: Game | GameSuggestion;
-  onAddToLibrary: (pricePaid?: number) => void | Promise<void>;
+  onAddToLibrary: (pricePaid?: number, status?: GameLibraryStatus) => void | Promise<void>;
 };
 
-export default function AddToLibraryModal({
-  visible,
-  onClose,
-  game,
-  onAddToLibrary,
-}: Props) {
+// One step: choose Tenho or Quero; Tenho may record the price paid (empty = not stated, 0 = free).
+// "Já joguei" is not offered: that filter is derived from recorded matches, not from this status.
+export default function AddToLibraryModal({ visible, onClose, game, onAddToLibrary }: Props) {
   const { t } = useTranslation("library");
-  const [step, setStep] = useState<"options" | "price">("options");
+  const [status, setStatus] = useState<GameLibraryStatus>(GameLibraryStatus.Owned);
   const [price, setPrice] = useState("");
   const [saving, setSaving] = useState(false);
+  const owned = status === GameLibraryStatus.Owned;
 
   const navigationGuard = useUnsavedChanges(visible && !!price, saving);
   const requestClose = () => navigationGuard.discard(handleClose);
 
-  async function save(value?: number) {
-    if (saving) return;
-    setSaving(true);
-    try {
-      await onAddToLibrary(value);
-      handleClose();
-    } catch {
-      Toast.show({ type: "error", text1: t("ui.addError") });
-    } finally { setSaving(false); }
-  }
+  function handleClose() { setPrice(""); setStatus(GameLibraryStatus.Owned); onClose(); }
 
   async function handleConfirm() {
-    let value: number | null;
-    try { value = parsePurchasePrice(price); } catch {
-      Toast.show({ type: "error", text1: t("ui.invalidPrice") });
-      return;
+    if (saving) return;
+    let value: number | null = null;
+    if (owned) {
+      try { value = parsePurchasePrice(price); } catch { Toast.show({ type: "error", text1: t("ui.invalidPrice") }); return; }
     }
-    await save(value ?? undefined);
+    setSaving(true);
+    try { await onAddToLibrary(value ?? undefined, status); handleClose(); }
+    catch { Toast.show({ type: "error", text1: t("ui.addError") }); }
+    finally { setSaving(false); }
   }
 
-  async function handleSkip() {
-    await save();
-  }
-
-  function handleClose() {
-    setPrice("");
-    setStep("options");
-    onClose();
-  }
-
-  return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={requestClose}
-    >
-      <DialogSurface>
-        {step === "price" && (
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() => setStep("options")} disabled={saving}
-            accessibilityRole="button"
-            accessibilityLabel={t("addModal.backAccessibility")}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={COLORS.primary}
-            />
-          </TouchableOpacity>
-        )}
-
-        <Text style={styles.title}>
-          {t("addModal.title", { name: game.name })}
-        </Text>
-
-        {step === "options" ? (
-          <>
-            <TouchableOpacity
-              style={styles.primaryBtn}
-              onPress={() => setStep("price")} accessibilityRole="button" accessibilityLabel={t("addModal.addLibrary")}
-            >
-              <Text style={styles.primaryBtnText}>
-                {t("addModal.addLibrary")}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.disabledBtn} disabled>
-              <Text style={styles.disabledText}>
-                {t("addModal.addWishlistSoon")}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.cancelBtn} onPress={requestClose} accessibilityRole="button" accessibilityLabel={t("addModal.cancel")}>
-              <Text style={styles.cancelText}>
-                {t("addModal.cancel")}
-              </Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <>
-            <Text style={styles.label}>
-              {t("addModal.priceLabel")}
-            </Text>
-
-            <TextInput
-              style={styles.input} accessibilityLabel={t("addModal.priceLabel")}
-              placeholder={t("addModal.pricePlaceholder")}
-              value={price}
-              onChangeText={setPrice}
-              keyboardType="decimal-pad"
-              editable={!saving}
-              placeholderTextColor={COLORS.textMuted}
-            />
-
-            <Text style={styles.note}>
-              {t("ui.priceHelp")}
-            </Text>
-
-            <TouchableOpacity
-              style={styles.primaryBtn}
-              disabled={saving} accessibilityState={{ disabled: saving, busy: saving }}
-              onPress={handleConfirm} accessibilityRole="button" accessibilityLabel={t("addModal.confirm")}
-            >
-              {saving ? <ActivityIndicator color="#FFFFFF" accessibilityLabel={t("common:loading")} /> : <Text style={styles.primaryBtnText}>
-                {t("addModal.confirm")}
-              </Text>}
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.skipBtn} disabled={saving} onPress={handleSkip} accessibilityRole="button" accessibilityLabel={t("addModal.skip")}>
-              <Text style={styles.skipText}>
-                {t("addModal.skip", { defaultValue: "Skip" })}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.cancelBtn} onPress={requestClose} accessibilityRole="button" accessibilityLabel={t("addModal.cancel")}>
-              <Text style={styles.cancelText}>
-                {t("addModal.cancel")}
-              </Text>
-            </TouchableOpacity>
-          </>
-        )}
-      </DialogSurface>
-    </Modal>
-  );
+  return <Sheet visible={visible} title={t("addModal.sheetTitle")} closeLabel={t("addModal.cancel")} onClose={requestClose}
+    left={{ label: t("addModal.cancel"), onPress: requestClose }}
+    right={{ label: saving ? t("addModal.adding") : t("addModal.add"), bold: true, onPress: () => { void handleConfirm(); } }}>
+    <Text style={[type.head, styles.name]}>{game.name}</Text>
+    <View style={styles.group}>
+      <Text style={[type.caption, strong, styles.label]}>{t("addModal.statusLabel")}</Text>
+      <Segmented role="button" items={[{ key: String(GameLibraryStatus.Owned), label: t("ui.owned") }, { key: String(GameLibraryStatus.Wishlist), label: t("ui.wanted") }]}
+        value={String(status)} onChange={key => setStatus(Number(key) as GameLibraryStatus)} />
+    </View>
+    {owned && <View style={styles.group}>
+      <Text style={[type.caption, strong, styles.label]}>{t("addModal.priceLabel")}</Text>
+      <TextInput style={[type.body, styles.input]} accessibilityLabel={t("addModal.priceLabel")} placeholder={t("addModal.pricePlaceholder")} value={price}
+        onChangeText={setPrice} keyboardType="decimal-pad" editable={!saving} placeholderTextColor={colors.muted} />
+      <Text style={type.caption}>{t("ui.priceHelp")}</Text>
+    </View>}
+    <Text style={type.caption}>{t("addModal.laterNote")}</Text>
+  </Sheet>;
 }
 
 const styles = StyleSheet.create({
-  backBtn: { ...UI_STYLES.iconButton, marginBottom: 8 },
-  title: { ...UI_STYLES.section, textAlign: "center", marginBottom: 20 },
-  label: { ...UI_STYLES.body, fontWeight: "500", color: COLORS.onBackground, marginBottom: 8 },
-  input: { ...UI_STYLES.field, marginBottom: 8 },
-  note: { ...UI_STYLES.muted, marginBottom: 16, textAlign: "center" },
-  primaryBtn: { ...UI_STYLES.button, backgroundColor: COLORS.primary, marginTop: 8 },
-  primaryBtnText: { ...UI_STYLES.body, color: "#FFFFFF", fontWeight: "600" },
-  disabledBtn: { backgroundColor: "#E0E0E0", paddingVertical: 12, borderRadius: 8, alignItems: "center", marginTop: 8 },
-  disabledText: { color: "#999999" },
-  cancelBtn: { ...UI_STYLES.button, backgroundColor: COLORS.background, marginTop: 8 },
-  cancelText: { ...UI_STYLES.body, color: COLORS.onBackground },
-  skipBtn: { ...UI_STYLES.button, marginTop: 4 },
-  skipText: { ...UI_STYLES.caption, color: COLORS.textMuted, fontWeight: "600" },
+  name: { textAlign: "center" },
+  group: { gap: space.xs },
+  label: { color: colors.text, marginLeft: space.xs },
+  input: { minHeight: touch, borderWidth: 1, borderColor: colors.field, borderRadius: radius.control, backgroundColor: colors.card, paddingHorizontal: space.md, color: colors.text },
 });

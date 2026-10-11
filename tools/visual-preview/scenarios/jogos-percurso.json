@@ -1,0 +1,7 @@
+{"name":"jogos-percurso","screens":[
+ {"id":"1-pesquisa","route":"/library","params":{"area":"discover"},"steps":[{"type":["Pesquisar um jogo de tabuleiro","Meeple"],"wait":1800}]},
+ {"id":"2-jogo","route":"/library","params":{"area":"discover"},"steps":[{"type":["Pesquisar um jogo de tabuleiro","Meeple"],"wait":1800},{"click":"Ver detalhes de Meeple Teste Cooperativo","wait":1200}]},
+ {"id":"3-adicionar","route":"/library","params":{"area":"discover"},"steps":[{"type":["Pesquisar um jogo de tabuleiro","Meeple"],"wait":1800},{"click":"Ver detalhes de Meeple Teste Cooperativo","wait":1200},{"click":"Adicionar à biblioteca","wait":500},{"click":"Quero"}]},
+ {"id":"4-registar","route":"/library","params":{"area":"discover"},"steps":[{"type":["Pesquisar um jogo de tabuleiro","Meeple"],"wait":1800},{"click":"Ver detalhes de Meeple Teste Cooperativo","wait":1200},{"click":"Registar partida","wait":1500}]},
+ {"id":"5-rankings","route":"/library","params":{"area":"discover"},"steps":[{"click":"Rankings","wait":1200}]}
+]}

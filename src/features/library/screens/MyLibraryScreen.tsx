@@ -119,9 +119,7 @@ export default function MyLibraryScreen() {
         return;
       }
 
-      // ⚠️ Dependência: registar partida ainda não aceita um jogo
-      // pré-selecionado por parâmetro — navega para o ecrã genérico.
-      router.push(ROUTES.REGISTER_MATCH as any);
+      router.push({ pathname: ROUTES.REGISTER_MATCH, params: { gameId: entry.gameId } } as never);
     },
     [updateGame, t]
   );

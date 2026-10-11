@@ -48,19 +48,14 @@
   },
   "details": {
     "notFound": "Game not found.",
-    "yourRating": "Yours",
-    "cooperative": "Co-op",
     "solo": "Solo",
     "tabs": {
-      "info": "Info",
-      "history": "History",
       "campaigns": "Campaigns"
     },
     "descriptionTitle": "Description",
     "descriptionEmpty": "No description is available.\nImport the game from BGG to see more details.",
     "historyEmpty": "You haven't registered any matches for this game yet.",
     "newCampaign": "New campaign",
-    "campaignsEmpty": "You don't have any campaigns for this game yet.\nCreate one to track your adventure!",
     "campaignStatus": {
       "active": "Active",
       "completed": "Completed",
@@ -70,7 +65,22 @@
     "members_other": "{{count}} members",
     "matches_one": "{{count}} match",
     "matches_other": "{{count}} matches",
-    "minutesShort": "{{count}} min"
+    "minutesShort": "{{count}} min",
+    "weight": "weight {{value}}",
+    "yourRatingValue": "Your rating ★ {{value}}",
+    "cooperativeMode": "Cooperative",
+    "soloMode": "Solo",
+    "manageLibrary": "Manage in library: {{status}}",
+    "inLibrary": "In your library · {{status}}",
+    "addToLibrary": "Add to library",
+    "registerMatch": "Record match",
+    "yourMatches": "Your matches",
+    "showAllMatches": "View all {{count}} matches",
+    "showFewer": "Show fewer",
+    "campaignsEmptyShort": "You have no campaigns for this game yet.",
+    "readMore": "Read more",
+    "readLess": "Read less",
+    "showAllCampaigns": "View all {{count}} campaigns"
   },
   "ui": {
     "searchTitle": "Search games",
@@ -130,6 +140,7 @@
     "tabMine": "Mine",
     "empty": "No games have been rated yet. Review a match in the journal!",
     "emptyMine": "You have not rated any games yet. Review a match in the journal!",
-    "loadError": "Unable to load the rankings."
+    "loadError": "Unable to load the rankings.",
+    "yourRating": "Your average ★ {{value}}"
   }
 }

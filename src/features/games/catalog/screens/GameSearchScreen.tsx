@@ -61,6 +61,7 @@ import {
   sortSearchResults,
 } from "../components/GameSearchSortSheet";
 import AddToLibraryModal from "@/src/features/library/components/AddToLibraryModal";
+import { GameLibraryStatus } from "@/src/features/library/types/GameLibraryStatus";
 import ManageLibraryEntryModal from "@/src/features/library/components/ManageLibraryEntryModal";
 
 import { Game } from "../types/Game";
@@ -1073,7 +1074,8 @@ export default function GameSearchScreen() {
 
   const handleAddToLibrary =
     async (
-      pricePaid?: number
+      pricePaid?: number,
+      status?: GameLibraryStatus
     ) => {
       if (!selectedGame) {
         return;
@@ -1093,11 +1095,7 @@ export default function GameSearchScreen() {
       );
 
       try {
-        await addGame(
-          normalized,
-          undefined,
-          pricePaid
-        );
+        await addGame(normalized, status, pricePaid);
 
         Haptics
           .notificationAsync(
@@ -1110,7 +1108,7 @@ export default function GameSearchScreen() {
         Toast.show({
           type: "success",
           text1:
-            t("library:ui.added", { name: normalized.name }),
+            t(status === GameLibraryStatus.Wishlist ? "library:ui.addedWanted" : "library:ui.added", { name: normalized.name }),
         });
       } catch (error) {
         logError(
@@ -1971,37 +1969,9 @@ const styles =
       marginBottom: 12,
     },
 
-    toolbarBtn: {
-      ...UI_STYLES.control,
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 5,
-      backgroundColor: COLORS.surface,
-      borderWidth: 1,
-      borderColor: COLORS.border,
-      paddingHorizontal: 10,
-      paddingVertical: 8,
-    },
-
-    toolbarBtnFlex: {
-      minWidth: 160,
-      ...UI_STYLES.control,
-      flex: 1,
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 4,
-      backgroundColor: COLORS.surface,
-      borderWidth: 1,
-      borderColor: COLORS.border,
-      paddingHorizontal: 10,
-      paddingVertical: 8,
-    },
-
-    toolbarBtnText: {
-      ...UI_STYLES.caption, fontWeight: "700", color:
-        COLORS.onBackground
-    },
-
+    toolbarBtn: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 6, paddingRight: 8 },
+    toolbarBtnFlex: { minHeight: 44, minWidth: 140, flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 4 },
+    toolbarBtnText: { fontSize: 15, lineHeight: 20, fontWeight: "600", color: ui.primary },
     badge: {
       backgroundColor: COLORS.primary,
       borderRadius: 999,

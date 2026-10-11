@@ -12,10 +12,13 @@ test('Library retains real entry navigation, wishlist action and view preference
   for (const language of ['pt', 'en']) {
     const r = await renderNative(libraryScreen, 'default', {}, { language, library });
     assert.ok(r.html.includes('Test-only game'));
-    assert.ok(r.html.includes(language === 'pt' ? '1 jogo' : '1 game'));
-    await r.press(r.i18n.t('ui.add', { ns: 'library' }));
+    assert.ok(r.html.includes(`${r.i18n.t('ui.all', { ns: 'library' })} 1`));
     await r.press(r.i18n.t('ui.viewPage', { ns: 'library' }) + ': Test-only game');
-    assert.deepEqual(r.routes, ['/games/search', { pathname: '/games/details/[id]', params: { id: 'game-id' } }]);
+    assert.deepEqual(r.routes, [{ pathname: '/games/details/[id]', params: { id: 'game-id' } }]);
+    // Adding a game now starts from the Jogos hub, which opens "Descobrir jogos".
+    const hub = await renderNative('src/features/library/screens/GamesScreen.tsx', 'default', {}, { language, library });
+    await hub.press(r.i18n.t('ui.add', { ns: 'library' }));
+    assert.ok(hub.updates.some(([, value]) => value === 'discover'));
     await r.press(r.i18n.t('ui.addCollection', { ns: 'library' }));
     assert.ok(r.calls.some(c => c[0] === 'updateGame' && c[1] === 'game-id' && c[2] === 1 && c[3] === 0));
     await r.press(r.i18n.t('ui.list', { ns: 'library' }));
@@ -61,7 +64,8 @@ test('Collection secondary actions stop propagation and keep long-press support'
 test('Game details preserve data, zero MeepleBoard rating and back navigation in PT and EN', async () => {
   for (const language of ['pt', 'en']) {
     const r = await renderNative(detailsScreen, 'default', {}, { language, states: detailsStates('info') });
-    for (const text of ['Test-only game', 'Test-only description', '7.6', '0.0']) assert.ok(r.html.includes(text));
+    const decimal = language === 'pt' ? ',' : '.';
+    for (const text of ['Test-only game', 'Test-only description', `7${decimal}6`, `0${decimal}0`]) assert.ok(r.html.includes(text), text);
     await r.press(r.i18n.t('ui.back', { ns: 'games' }));
     assert.deepEqual(r.routes, ['back']);
   }
@@ -167,9 +171,14 @@ test('Add-to-library price dialog preserves confirmation and skipping without in
   const file = 'src/features/library/components/AddToLibraryModal.tsx';
   let values = [], closed = 0;
   const props = { visible: true, game, onAddToLibrary: value => values.push(value), onClose: () => closed++ };
-  const zero = await renderNative(file, 'default', props, { language: 'en', states: { 0: 'price', 1: '0' } });
-  await zero.press('Confirm');
-  const skip = await renderNative(file, 'default', props, { language: 'en', states: { 0: 'price' } });
-  await skip.press('Skip price');
+  // Status 1 = Tenho; an empty price means "not stated", never zero.
+  const zero = await renderNative(file, 'default', props, { language: 'en', states: { 0: 1, 1: '0' } });
+  await zero.press('Add');
+  const skip = await renderNative(file, 'default', props, { language: 'en', states: { 0: 1 } });
+  await skip.press('Add');
   assert.deepEqual(values, [0, undefined]); assert.equal(closed, 2);
+  const wanted = [];
+  const wish = await renderNative(file, 'default', { ...props, onAddToLibrary: (price, status) => wanted.push([price, status]) }, { language: 'en', states: { 0: 3, 1: '12' } });
+  assert.equal(wish.inputs.length, 0, 'a wishlist entry has no price');
+  await wish.press('Add'); assert.deepEqual(wanted, [[undefined, 3]]);
 });

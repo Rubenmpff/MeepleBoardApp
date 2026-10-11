@@ -37,17 +37,14 @@
     "unknown": "Unknown"
   },
   "addModal": {
-    "title": "Add \"{{name}}\"",
-    "addLibrary": "Add to library",
-    "addWishlistSoon": "Add to wishlist (coming soon)",
-    "addPlayedSoon": "Add to played games (coming soon)",
     "priceLabel": "Price paid (€)",
     "pricePlaceholder": "E.g. 35.50",
-    "giftNote": "Enter 0 if it was a gift",
-    "confirm": "Confirm",
     "cancel": "Cancel",
-    "backAccessibility": "Go back",
-    "skip": "Skip price"
+    "sheetTitle": "Add to library",
+    "statusLabel": "Status",
+    "add": "Add",
+    "adding": "Adding…",
+    "laterNote": "You can change the status and price later in your library."
   },
   "manageModal": {
     "title": "Manage entry: \"{{name}}\"",
@@ -166,7 +163,8 @@
       "stale_played": "Longest since last played",
       "price_high": "Highest price",
       "price_low": "Lowest price"
-    }
+    },
+    "addedWanted": "{{name}} is on your wishlist"
   },
   "hub": {
     "title": "Games",

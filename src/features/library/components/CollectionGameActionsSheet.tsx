@@ -81,8 +81,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
     label: entry.timesPlayed > 0 ? uiT("ui.register") : uiT("ui.registerFirst"),
     icon: "add-circle-outline",
     onPress: () => {
-      // ⚠️ Dependência: ainda não pré-seleciona o jogo (ver Fase 1)
-      router.push(ROUTES.REGISTER_MATCH as any);
+      router.push({ pathname: ROUTES.REGISTER_MATCH, params: { gameId: entry.gameId } } as never);
       onClose();
     },
   });

@@ -37,17 +37,14 @@
     "unknown": "Desconhecido"
   },
   "addModal": {
-    "title": "Adicionar \"{{name}}\"",
-    "addLibrary": "Adicionar à biblioteca",
-    "addWishlistSoon": "Adicionar à lista de desejos (em breve)",
-    "addPlayedSoon": "Adicionar aos jogos já jogados (em breve)",
     "priceLabel": "Preço pago (€)",
     "pricePlaceholder": "Ex.: 35,50",
-    "giftNote": "Introduz 0 caso tenha sido oferecido",
-    "confirm": "Confirmar",
     "cancel": "Cancelar",
-    "backAccessibility": "Voltar",
-    "skip": "Não indicar preço"
+    "sheetTitle": "Adicionar à biblioteca",
+    "statusLabel": "Estado",
+    "add": "Adicionar",
+    "adding": "A adicionar…",
+    "laterNote": "Podes mudar o estado e o preço mais tarde na biblioteca."
   },
   "manageModal": {
     "title": "Gerir entrada: \"{{name}}\"",
@@ -166,7 +163,8 @@
       "stale_played": "Não jogados há mais tempo",
       "price_high": "Preço mais alto",
       "price_low": "Preço mais baixo"
-    }
+    },
+    "addedWanted": "Quero jogar {{name}} — está na tua lista"
   },
   "hub": {
     "title": "Jogos",

@@ -49,11 +49,13 @@ type Props = {
   currentUser?: { id: string; userName: string };
   disableScroll?: boolean;
   onRegistered?: () => void;
+  /** Game chosen before opening the form (e.g. from a game page); the user can still change it. */
+  initialGame?: Game | null;
 };
 
 type Step = 0 | 1 | 2 | 3;
 
-export default function RegisterMatchForm({ sessionId, currentUser, disableScroll = false, onRegistered }: Props) {
+export default function RegisterMatchForm({ sessionId, currentUser, disableScroll = false, onRegistered, initialGame }: Props) {
   const { t, i18n } = useTranslation("matches");
   const scrollRef = useRef<ScrollView>(null);
   const isSessionMatch = !!sessionId;
@@ -94,8 +96,8 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, [step]);
 
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
-  const [editingGame, setEditingGame] = useState(true);
+  const [selectedGame, setSelectedGame] = useState<Game | null>(initialGame ?? null);
+  const [editingGame, setEditingGame] = useState(!initialGame);
   const [selectedExpansions, setSelectedExpansions] = useState<Game[]>([]);
   const [gameMode, setGameMode] = useState<GameMode>("multiplayer");
   const [soloResult, setSoloResult] = useState<SoloResult>("none");
@@ -117,7 +119,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   const submittedMatch = useRef<MatchDto | null>(savedMatch);
   const submitting = useRef(false);
   const photoBusy = useRef(false);
-  const navigationGuard = useUnsavedChanges(!savedMatch && (!!selectedGame || !!location || !!duration || !!comments || personalRating !== undefined || !!notes || !!tags || pendingPhotos.length > 0), loading || uploadingPhotos, sessionId ? `/games/sessions/${sessionId}` : undefined);
+  const navigationGuard = useUnsavedChanges(!savedMatch && ((!!selectedGame && selectedGame.id !== initialGame?.id) || !!location || !!duration || !!comments || personalRating !== undefined || !!notes || !!tags || pendingPhotos.length > 0), loading || uploadingPhotos, sessionId ? `/games/sessions/${sessionId}` : undefined);
 
   const [unofficialMode, setUnofficialMode] = useState<GameMode | null>(null);
   const [unofficialJustification, setUnofficialJustification] = useState("");
@@ -217,6 +219,10 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
         score: p.id === currentUser?.id ? prev.find(player => player.id === p.id)?.score ?? p.score : p.score })));
     }
   }, [isSolo, currentUser?.id, currentUser?.userName]);
+  // A game chosen before opening (e.g. from a game page) arrives asynchronously.
+  useEffect(() => {
+    if (initialGame && !selectedGame) { setSelectedGame(initialGame); setEditingGame(false); }
+  }, [initialGame?.id]);
 
   const handleModePress = (mode: GameMode) => {
     if (isSessionMatch && mode === "solo") return;
