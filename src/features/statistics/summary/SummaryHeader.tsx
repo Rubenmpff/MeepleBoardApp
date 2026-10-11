@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Image, Keyboard, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
-import { Glyph } from "../ui/components";
-import { colors, isLarge, type } from "../ui/theme";
+import { Glyph } from "@/src/ui/components";
+import { colors, isLarge, type } from "@/src/ui/theme";
 
 // Lavender band behind the status bar with the original logo; Back never takes space from the logo.
 export default function SummaryHeader({ backLabel, onBack, topInset = 0 }: { backLabel: string; onBack: () => void; topInset?: number }) {

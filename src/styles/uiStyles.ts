@@ -9,8 +9,8 @@ export const UI_STYLES = StyleSheet.create({
   caption: { ...theme.text.caption },
   muted: { ...theme.text.caption, color: theme.colors.muted },
   empty: { ...theme.text.body, color: theme.colors.muted, textAlign: "center" },
-  button: { minHeight: 52, borderRadius: theme.radius.small, paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md, alignItems: "center", justifyContent: "center" },
+  button: { minHeight: 48, borderRadius: theme.radius.small, paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md, alignItems: "center", justifyContent: "center" },
   control: { minHeight: 44, borderRadius: theme.radius.small, justifyContent: "center" },
   iconButton: { width: 44, height: 44, borderRadius: theme.radius.small, alignItems: "center", justifyContent: "center" },
-  field: { ...theme.text.body, minHeight: 52, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radius.small, backgroundColor: theme.colors.card, color: theme.colors.text, paddingHorizontal: theme.space.md, paddingVertical: theme.space.md },
+  field: { ...theme.text.body, minHeight: 48, borderWidth: 1, borderColor: "#E1DBE7", borderRadius: theme.radius.small, backgroundColor: theme.colors.card, color: theme.colors.text, paddingHorizontal: theme.space.md, paddingVertical: theme.space.md },
 });

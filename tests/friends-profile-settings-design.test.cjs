@@ -108,10 +108,10 @@ test('Shared history retry retains friend and game identifiers', async () => {
   const r = await renderNative(historyScreen, 'default', {}, { states: { 2: false, 4: 'Falha de rede' }, params: { id: 'friend-a', gameId: 'game-a' }, services: { getSharedMatchesForGame: [match] } });
   await r.press('Tentar novamente'); assert.deepEqual(r.calls.find(x => x[0] === 'getSharedMatchesForGame'), ['getSharedMatchesForGame', 'friend-a', 'game-a']);
 });
-test('Personal profile keeps only the working settings destination, in both languages', async () => {
-  for (const [language, label] of [['pt', 'Abrir definições'], ['en', 'Open settings']]) {
-    const r = await renderNative('src/features/users/screens/UserProfileScreen.tsx', 'default', {}, { language });
-    await r.press(label); assert.equal(r.routes[0], '/settings'); assert.doesNotMatch(r.html, /Your Profile|will appear here/);
+test('Personal profile opens settings, statistics and friends, in both languages', async () => {
+  for (const language of ['pt', 'en']) {
+    const r = await renderNative('src/features/users/screens/ProfileHomeScreen.tsx', 'default', {}, { language });
+    await r.press(r.i18n.t('settings', { ns: 'navigation' })); assert.equal(r.routes[0], '/settings'); assert.doesNotMatch(r.html, /Your Profile|will appear here|settings-outline/);
   }
 });
 test('Settings preserve privacy enums, selected state and language requests', async () => {

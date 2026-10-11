@@ -99,10 +99,10 @@ test('Selectors and calculation notes stay collapsed until requested, while filt
  const sheet=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query,4:true},stateModules:['src/features/statistics/ExploreFilters.tsx']});
  await sheet.press('Modo de jogo: Todos os modos');
  assert.ok(sheet.updates.some(([i,v])=>i===10&&v==='mode'));
- const disclosure=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query},stateModules:['src/features/statistics/ui/components.tsx']});
+ const disclosure=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query},stateModules:['src/ui/components.tsx']});
  await disclosure.press('Como calculamos');
  assert.ok(disclosure.updates.some(([i,v])=>i===6&&v===true));
- const notes=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query,6:true},stateModules:['src/features/statistics/ui/components.tsx']});
+ const notes=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query,6:true},stateModules:['src/ui/components.tsx']});
  assert.match(notes.html,/Europe\/Lisbon/);assert.match(notes.html,/Vitórias ÷/);
  assert.match(notes.html,/Zero é uma avaliação/);
  const noDuration=await renderNative(source,'default',{}, {statisticsSummary:{...summary,recordedMinutes:null,matchesWithDuration:0,matchesWithoutDuration:3},states:{0:'Europe/Lisbon',3:query}});

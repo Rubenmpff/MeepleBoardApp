@@ -17,7 +17,7 @@ export default function DialogSurface({ children }: { children: ReactNode }) {
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
+  overlay: { flex: 1, backgroundColor: "rgba(35,25,45,0.36)" },
   content: { flexGrow: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: theme.space.lg },
   card: { width: "100%", maxWidth: 420, backgroundColor: theme.colors.card, borderRadius: theme.radius.card, padding: theme.space.xl },
 });

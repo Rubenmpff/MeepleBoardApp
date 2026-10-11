@@ -27,7 +27,11 @@
     "home": "Início",
     "register": "Registar",
     "library": "Biblioteca",
-    "friends": "Amigos"
+    "friends": "Amigos",
+    "games": "Jogos",
+    "new": "Novo",
+    "play": "Jogar",
+    "me": "Perfil"
   },
   "startup": {
     "loading": "A preparar o MeepleBoard…",
@@ -47,5 +51,42 @@
     "busyTitle": "Operação em curso",
     "busyMessage": "Aguarda que a operação termine antes de sair."
   },
-  "statistics": "Estatísticas"
+  "statistics": "Estatísticas",
+  "newSheet": {
+    "title": "Novo",
+    "close": "Fechar",
+    "registerMatch": "Registar partida",
+    "registerMatchHint": "Jogo, jogadores e resultado",
+    "newSession": "Nova sessão",
+    "newSessionHint": "Combina quando e com quem jogar",
+    "addGame": "Adicionar jogo",
+    "addGameHint": "Procurar no catálogo",
+    "newCampaign": "Nova campanha",
+    "newCampaignHint": "Para jogos jogados em várias sessões"
+  },
+  "me": {
+    "title": "Perfil",
+    "year": "O teu ano à mesa",
+    "yearToDate": "{{year}} · até à data",
+    "matches": "partidas",
+    "games": "jogos",
+    "wins": "vitórias",
+    "viewStatistics": "Ver estatísticas",
+    "friends": "Amigos",
+    "friendsCount_one": "{{count}} amigo",
+    "friendsCount_other": "{{count}} amigos",
+    "requests_one": "{{count}} pedido de amizade",
+    "requests_other": "{{count}} pedidos de amizade",
+    "requestsHint": "Responde em Pedidos de amizade",
+    "allFriends": "Ver todos e procurar pessoas",
+    "findPeople": "Procurar pessoas",
+    "noFriends": "Ainda não tens amigos na MeepleBoard.",
+    "sharedMatches_one": "{{count}} partida juntos",
+    "sharedMatches_other": "{{count}} partidas juntos",
+    "account": "Conta",
+    "settingsHint": "Idioma e privacidade da coleção",
+    "pendingJournal": "Avaliações pendentes",
+    "loadError": "Não foi possível carregar.",
+    "retry": "Tentar novamente"
+  }
 }

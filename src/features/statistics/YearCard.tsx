@@ -5,7 +5,7 @@ import YearDecoration from './YearDecoration';
 import {publicYearCard,YearCardId} from './yearCards';
 import {formatDuration} from './utils/presentation';
 import {YearReport} from './types';
-import {colors,isLarge,type} from './ui/theme';
+import {colors,isLarge,type} from '@/src/ui/theme';
 // The same card is read in the app and captured for sharing; it never includes friends' identities.
 // variant is kept for callers: reader and share render identically.
 export default function YearCard({report,id}:{report:YearReport;id:YearCardId;variant?:'reader'|'share'}){

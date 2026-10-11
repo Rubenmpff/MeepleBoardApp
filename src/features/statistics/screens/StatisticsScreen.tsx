@@ -12,9 +12,9 @@ import useStatistics from "../hooks/useStatistics";
 import { Metric, Mode, Period, Query } from "../types";
 import { localISO, periodQuery } from "../utils/period";
 import { formatDuration, formatPeriodLabel } from "../utils/presentation";
-import ScreenScroll from "../ui/Screen";
-import { Button, Card, Disclosure, EmptyState, Glyph, Hero, PendingNotice, ProportionBar, RankBar, ResultsTrio, Row, Section } from "../ui/components";
-import { colors, space, strong, touch, type } from "../ui/theme";
+import ScreenScroll from "@/src/ui/Screen";
+import { Button, Card, Disclosure, EmptyState, Glyph, Hero, PendingNotice, ProportionBar, RankBar, ResultsTrio, Row, Section } from "@/src/ui/components";
+import { colors, space, strong, touch, type } from "@/src/ui/theme";
 
 export default function StatisticsScreen() {
  const { t, i18n } = useTranslation("statistics");

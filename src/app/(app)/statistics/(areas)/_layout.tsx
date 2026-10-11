@@ -6,7 +6,7 @@ import {useTranslation} from 'react-i18next';
 import SummaryHeader from '@/src/features/statistics/summary/SummaryHeader';
 import AreaNavigation,{Area} from '@/src/features/statistics/summary/AreaNavigation';
 import {useStatisticsWorkspace} from '@/src/features/statistics/Workspace';
-import {colors} from '@/src/features/statistics/ui/theme';
+import {colors} from '@/src/ui/theme';
 export default function AreasLayout(){
  const {width,height,scale,fontScale}=useWindowDimensions();
  useEffect(()=>{

@@ -1,20 +1,24 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { APP_THEME as theme } from "@/src/styles/appTheme";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { colors, space, type } from "@/src/ui/theme";
 import PrimaryButton from "./PrimaryButton";
 
 type Props = { message: string; loading?: boolean; error?: boolean; onRetry?: () => void; retryLabel?: string };
 
+// Loading, error and empty states share one calm layout; errors always offer a retry when one exists.
 export default function ScreenState({ message, loading, error, onRetry, retryLabel }: Props) {
   return (
     <View style={styles.container} accessibilityState={{ busy: !!loading }}>
-      {loading && <ActivityIndicator color={theme.colors.primary} size="large" />}
+      {loading ? <ActivityIndicator color={colors.primary} size="large" /> :
+        <MaterialCommunityIcons name={error ? "cloud-alert-outline" : "dice-multiple-outline"} size={36} color={error ? colors.muted : colors.icon} accessible={false} />}
       <Text style={styles.message} accessibilityRole={error ? "alert" : undefined}>{message}</Text>
-      {onRetry && retryLabel && <PrimaryButton title={retryLabel} onPress={onRetry} variant="secondary" />}
+      {onRetry && retryLabel && <View style={styles.action}><PrimaryButton title={retryLabel} onPress={onRetry} variant="secondary" /></View>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: theme.space.xl, gap: theme.space.lg, width: "100%", alignItems: "stretch" },
-  message: { ...theme.text.body, color: theme.colors.muted, textAlign: "center" },
+  container: { paddingVertical: 40, paddingHorizontal: space.xl, gap: space.md, width: "100%", alignItems: "center" },
+  message: { ...type.body, color: colors.muted, textAlign: "center" },
+  action: { alignSelf: "stretch", marginTop: space.sm },
 });

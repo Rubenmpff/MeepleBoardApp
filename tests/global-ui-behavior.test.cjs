@@ -2,7 +2,9 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { renderNative } = require('./helpers/renderNative.cjs');
 const rankings = 'src/features/games/catalog/screens/RankingsScreen.tsx';
-const more = 'src/features/navigation/screens/MoreScreen.tsx';
+const profile = 'src/features/users/screens/ProfileHomeScreen.tsx';
+const newSheet = 'src/features/navigation/components/NewSheet.tsx';
+const play = 'src/features/navigation/screens/PlayScreen.tsx';
 const tabs = 'src/app/(app)/(tabs)/_layout.tsx';
 const game = { id: 'ranked-game', name: 'Ranked fixture', meepleBoardScore: 80, averageRating: 7.2, personalAverageRating: 0 };
 const flush = () => new Promise(resolve => setImmediate(resolve));
@@ -37,9 +39,11 @@ test('Rankings failure records the page and retry clears the visible error', asy
   assert.ok(ui.updates.some(([index, value]) => index === 4 && value === false));
 });
 
-test('More opens the existing campaigns destination', async () => {
-  const ui = await renderNative(more, 'default', {}, { isolateAuth: true });
-  await ui.press('Campanhas'); assert.deepEqual(ui.routes, ['/(app)/games/campaigns']);
+test('Jogar shows sessions and campaigns; the new sheet opens campaign creation', async () => {
+  const ui = await renderNative(play, 'default', {}, {});
+  await ui.press('Campanhas'); assert.ok(ui.updates.some(([i, v]) => i === 0 && v === 'campaigns'));
+  const sheet = await renderNative(newSheet, 'default', { visible: true, onClose() {} });
+  await sheet.press('Nova campanha'); assert.deepEqual(sheet.routes, ['/(app)/games/campaigns/create']);
 });
 
 for (const language of ['pt', 'en']) {
@@ -57,16 +61,21 @@ for (const language of ['pt', 'en']) {
     assert.deepEqual(more.calls, [['getRankings', 1, 20, 'meepleboard']]);
     assert.match(more.html, /Ranked fixture/);
   });
-  test(`More keeps pending count, destinations and logout (${language})`, async () => {
-    const ui = await renderNative(more, 'default', {}, { language, isolateAuth: true, pendingJournalCount: 4 });
-    assert.match(ui.html, />4</);
-    const keys = ['sessions', 'campaigns', 'pendingJournal', 'rankings', 'profile', 'settings'];
-    for (const key of keys) await ui.press(ui.i18n.t(key, { ns: 'navigation' }));
-    assert.deepEqual(ui.routes, ['/games/sessions', '/(app)/games/campaigns', '/games/pending-journal', '/games/rankings', '/profile', '/settings']);
-    await ui.press(ui.i18n.t('logout', { ns: 'navigation' }));
-    assert.deepEqual(ui.calls, [['dispatch', { type: 'auth/logout' }]]);
-    assert.deepEqual(ui.routes.at(-1), ['replace', '/(auth)/signin']);
-    assert.equal(ui.controls.some(c => c.accessibilityLabel === ui.i18n.t('back', { ns: 'navigation' })), false);
+  test(`Perfil keeps the pending count and every former More destination (${language})`, async () => {
+    const ui = await renderNative(profile, 'default', {}, { language, pendingJournalCount: 4, statisticsSummary: { matches: 158, distinctGames: 3, results: { wins: 29 } },
+      friends: [{ id: 'friend-a', userName: 'Amigo A', sharedMatchesCount: 12 }] });
+    assert.match(ui.html, />4</); assert.match(ui.html, />158</); assert.match(ui.html, /Amigo A/);
+    const t = (key) => ui.i18n.t(key, { ns: 'navigation' });
+    for (const label of [t('me.viewStatistics'), t('me.allFriends'), t('settings'), `${t('me.pendingJournal')}: 4`]) await ui.press(label);
+    assert.deepEqual(ui.routes, ['/statistics', '/(app)/(tabs)/(friends)/people', '/settings', '/games/pending-journal']);
+    await ui.press('Amigo A'); assert.deepEqual(ui.routes.at(-1), { pathname: '/friends/[id]', params: { id: 'friend-a' } });
+    assert.equal(ui.controls.some(c => c.accessibilityLabel === t('back')), false);
+    const sheet = await renderNative(newSheet, 'default', { visible: true, onClose() {} }, { language });
+    for (const key of ['registerMatch', 'newSession', 'addGame']) await sheet.press(t('newSheet.' + key));
+    assert.deepEqual(sheet.routes, ['/games/register-match', '/games/sessions/create', '/games/search']);
+    const settings = await renderNative('src/features/settings/screens/SettingsScreen.tsx', 'default', {}, { language });
+    await settings.press(ui.i18n.t('logout.button', { ns: 'settings' }));
+    assert.equal(settings.calls.find(c => c[0] === 'alert')[1], ui.i18n.t('logout.title', { ns: 'settings' }));
   });
   test(`Startup reuses logo and translates both loading stages (${language})`, async () => {
     for (const redirecting of [false, true]) {
@@ -76,20 +85,22 @@ for (const language of ['pt', 'en']) {
       assert.ok(ui.nativeViews.some(([kind]) => kind === 'safeArea'));
     }
   });
-  test(`Tabs use four destinations and a registration action in the approved order (${language})`, async () => {
-    const names = ['(home)', '(library)', '(friends)', '(more)'], events = [], destinations = [];
-    const navigation = { emit: e => { events.push(e); return { defaultPrevented: e.target === '(friends)-key' }; }, navigate: n => destinations.push(n) };
-    const ui = await renderNative(tabs, 'default', {}, { language, tabProps: { state: { index: 1, routes: names.map(name => ({ name, key: name + '-key' })) }, navigation } });
+  test(`Tabs offer four places and the new sheet in the approved order (${language})`, async () => {
+    const names = ['(home)', '(library)', '(play)', '(me)', '(friends)'], events = [], destinations = [];
+    const navigation = { emit: e => { events.push(e); return { defaultPrevented: false }; }, navigate: n => destinations.push(n) };
+    const ui = await renderNative(tabs, 'default', {}, { language, stateModules: [tabs], tabProps: { state: { index: 1, routes: names.map(name => ({ name, key: name + '-key' })) }, navigation } });
     const config = ui.calls.find(c => c[0] === 'tabs')[1];
     assert.equal(config.initialRouteName, '(home)');
-    const labels = ['home', 'library', 'register', 'friends', 'more'].map(key => ui.i18n.t('tabs.' + key, { ns: 'navigation' }));
+    const labels = ['home', 'games', 'new', 'play', 'me'].map(key => ui.i18n.t('tabs.' + key, { ns: 'navigation' }));
     assert.deepEqual(ui.controls.map(c => c.accessibilityLabel), labels);
     for (const label of labels) await ui.press(label);
-    assert.deepEqual(destinations, ['(home)', '(library)', '(more)']);
-    assert.deepEqual(ui.routes, ['/games/register-match']);
+    assert.deepEqual(destinations, ['(home)', '(library)', '(play)', '(me)']);
+    assert.ok(ui.updates.some(([, v]) => v === true), 'the new sheet opens');
     assert.equal(events.length, 4); assert.ok(events.every(e => e.type === 'tabPress' && e.canPreventDefault));
     const selected = ui.controls.filter(c => c.accessibilityState?.selected);
     assert.equal(selected.length, 1); assert.equal(selected[0].accessibilityLabel, labels[1]);
+    const friends = await renderNative(tabs, 'default', {}, { language, tabProps: { state: { index: 4, routes: names.map(name => ({ name, key: name + '-key' })) }, navigation } });
+    assert.equal(friends.controls.find(c => c.accessibilityState?.selected).accessibilityLabel, labels[4]);
   });
 }
 

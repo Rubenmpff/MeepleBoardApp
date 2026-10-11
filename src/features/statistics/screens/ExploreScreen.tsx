@@ -12,11 +12,11 @@ import useStatistics from '../hooks/useStatistics';
 import service from '../services/statisticsService';
 import {ExploreGame,ExploreReport,Metric,Mode,Period} from '../types';
 import GameCover from '@/src/components/ui/GameCover';
-import ScreenScroll from '../ui/Screen';
+import ScreenScroll from '@/src/ui/Screen';
 import {formatBucket} from '../utils/presentation';
-import Sheet from '../ui/Sheet';
-import {Button,Card,Disclosure,Glyph,Hero,Note,ResultsTrio,Row,Section,Segmented} from '../ui/components';
-import {colors,space,strong,touch,type} from '../ui/theme';
+import Sheet from '@/src/ui/Sheet';
+import {Button,Card,Disclosure,Glyph,Hero,Note,ResultsTrio,Row,Section,Segmented} from '@/src/ui/components';
+import {colors,space,strong,touch,type} from '@/src/ui/theme';
 type Tab='games'|'ratings'|'collection';
 export default function ExploreScreen(){
  const workspace=useStatisticsWorkspace();

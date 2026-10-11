@@ -31,7 +31,7 @@ export default function PrimaryButton({ title, description, icon, onPress, varia
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 52, padding: theme.space.lg, borderRadius: theme.radius.card,
+    minHeight: 48, paddingVertical: 12, paddingHorizontal: theme.space.lg, borderRadius: theme.radius.small,
     backgroundColor: theme.colors.primary, flexDirection: "row", alignItems: "center", gap: theme.space.md,
   },
   compact: { minHeight: 44, padding: 8, borderRadius: 8 },
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.8 },
   disabled: { opacity: 0.45 },
   content: { flex: 1, minWidth: 0 },
-  title: { fontSize: 17, lineHeight: 24, fontWeight: "700", color: theme.colors.onPrimary },
+  title: { fontSize: 15, lineHeight: 20, fontWeight: "600", color: theme.colors.onPrimary },
   secondaryText: { color: theme.colors.primary },
   description: { ...theme.text.caption, color: theme.colors.onPrimary, marginTop: theme.space.xs },
 });

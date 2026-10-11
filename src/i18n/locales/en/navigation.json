@@ -27,7 +27,11 @@
     "home": "Home",
     "register": "Register",
     "library": "Library",
-    "friends": "Friends"
+    "friends": "Friends",
+    "games": "Games",
+    "new": "New",
+    "play": "Play",
+    "me": "Profile"
   },
   "startup": {
     "loading": "Preparing MeepleBoard…",
@@ -47,5 +51,42 @@
     "busyTitle": "Operation in progress",
     "busyMessage": "Wait for the operation to finish before leaving."
   },
-  "statistics": "Statistics"
+  "statistics": "Statistics",
+  "newSheet": {
+    "title": "New",
+    "close": "Close",
+    "registerMatch": "Record match",
+    "registerMatchHint": "Game, players and result",
+    "newSession": "New session",
+    "newSessionHint": "Agree when and with whom to play",
+    "addGame": "Add game",
+    "addGameHint": "Search the catalogue",
+    "newCampaign": "New campaign",
+    "newCampaignHint": "For games played over several sessions"
+  },
+  "me": {
+    "title": "Profile",
+    "year": "Your year at the table",
+    "yearToDate": "{{year}} · to date",
+    "matches": "matches",
+    "games": "games",
+    "wins": "wins",
+    "viewStatistics": "View statistics",
+    "friends": "Friends",
+    "friendsCount_one": "{{count}} friend",
+    "friendsCount_other": "{{count}} friends",
+    "requests_one": "{{count}} friend request",
+    "requests_other": "{{count}} friend requests",
+    "requestsHint": "Answer in Friend requests",
+    "allFriends": "See all and find people",
+    "findPeople": "Find people",
+    "noFriends": "You have no friends on MeepleBoard yet.",
+    "sharedMatches_one": "{{count}} match together",
+    "sharedMatches_other": "{{count}} matches together",
+    "account": "Account",
+    "settingsHint": "Language and collection privacy",
+    "pendingJournal": "Pending ratings",
+    "loadError": "Could not load.",
+    "retry": "Try again"
+  }
 }

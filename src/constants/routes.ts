@@ -19,6 +19,12 @@ export const ROUTES = {
 
   SESSION_DETAIL: "/games/sessions/[id]",
 
+  SESSION_CREATE: "/games/sessions/create",
+
+  PLAY: "/(app)/(tabs)/(play)/play",
+
+  ME: "/(app)/(tabs)/(me)/me",
+
   MATCH_DETAILS: "/games/matches/[id]",
 
   MATCH_JOURNAL: "/games/matches/[id]/journal",
@@ -45,7 +51,7 @@ export const ROUTES = {
 
   SETTINGS: "/settings",
 
-  PROFILE: "/profile",
+  PROFILE: "/(app)/(tabs)/(me)/me",
 
   SIGN_IN: "/(auth)/signin",
 } as const;

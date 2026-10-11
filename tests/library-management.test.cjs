@@ -4,10 +4,10 @@ const { renderNative } = require('./helpers/renderNative.cjs');
 const modal = 'src/features/library/components/AddToLibraryModal.tsx';
 const game = { id: 'game-id', name: 'Fixture game', bggId: 42 };
 
-for (const language of ['pt', 'en']) test(`Catalogue access in More and explicit collection action (${language})`, async () => {
-  const more = await renderNative('src/features/navigation/screens/MoreScreen.tsx', 'default', {}, { language, isolateAuth: true });
-  await more.press(more.i18n.t('gameSearch', { ns: 'navigation' }));
-  assert.deepEqual(more.routes, ['/games/search']);
+for (const language of ['pt', 'en']) test(`Catalogue access in the new sheet and explicit collection action (${language})`, async () => {
+  const sheet = await renderNative('src/features/navigation/components/NewSheet.tsx', 'default', { visible: true, onClose() {} }, { language });
+  await sheet.press(sheet.i18n.t('newSheet.addGame', { ns: 'navigation' }));
+  assert.deepEqual(sheet.routes, ['/games/search']);
   const library = await renderNative('src/features/library/screens/MyLibraryScreen.tsx', 'default', {}, { language });
   assert.ok(library.html.includes(library.i18n.t('ui.catalogHint', { ns: 'library' })));
   assert.equal(library.inputs[0].placeholder, library.i18n.t('ui.searchPlaceholder', { ns: 'library' }));

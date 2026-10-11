@@ -1,12 +1,11 @@
 import { StyleSheet } from "react-native";
-import { APP_THEME } from "@/src/styles/clubTheme";
 
-// One set of tokens for every Statistics area and sheet. Colour carries meaning:
-// green = you, actions and selection; violet = the friend; lavender = the page highlight only;
-// soft gold = "awaiting confirmation" only; coral/grey-violet = losses/draws.
+// Root of the MeepleBoard palette: src/constants/colors, styles/appTheme and styles/clubTheme derive from it.
+// Colour carries meaning: green = you, actions and selection; violet = the friend; lavender = the page highlight;
+// soft gold = something waiting for you (to rate, answer, confirm); coral/grey-violet = losses/draws; red = risky actions only.
 export const colors = {
- background: APP_THEME.colors.background, card: APP_THEME.colors.card, hero: APP_THEME.colors.hero, band: "#F6F2FA",
- text: APP_THEME.colors.text, muted: APP_THEME.colors.muted, primary: APP_THEME.colors.primary, primarySoft: APP_THEME.colors.primarySoft,
+ background: "#FBFBF8", card: "#FFFFFF", hero: "#F1EBFA", band: "#F6F2FA",
+ text: "#30283D", muted: "#58616A", primary: "#27594B", primarySoft: "#E7F0E7", field: "#E1DBE7", danger: "#B3261E", dangerSoft: "#FBEAE9",
  onPrimary: "#FFFFFF", line: "#EAE5EF", hair: "#EFEAF2", heroLine: "#E3DAF0", track: "#EFEDF1", tint: "#FAF8FC",
  friend: "#7A5AAE", shared: "#A89BC4", loss: "#E46B71", draw: "#9C93AE", icon: "#9C86C9", chevron: "#8C9096", placeholder: "#6B7280",
  pendingSoft: "#FFF7DE", pendingLine: "#F1E3B5", pendingText: "#6E4D00", pendingIcon: "#8A6200", gold: "#DCA52B", scrim: "rgba(35,25,45,0.36)",

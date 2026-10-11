@@ -2,8 +2,8 @@ import { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Summary } from "./types";
-import { Card, Row } from "./ui/components";
-import { colors, space, type } from "./ui/theme";
+import { Card, Row } from "@/src/ui/components";
+import { colors, space, type } from "@/src/ui/theme";
 
 type Props = { compact?: boolean; buckets: Summary["evolution"]; unit: Summary["bucketUnit"]; language: string;
  title: string; countLabel: (count: number) => string; onSelect: (bucket: string) => void };

@@ -1,0 +1,19 @@
+{
+ "name": "foundation",
+ "screens": [
+  {"id": "01-inicio", "route": "/dashboard"},
+  {"id": "02-novo", "route": "/dashboard", "steps": [{"click": "Novo"}]},
+  {"id": "03-jogos", "route": "/library"},
+  {"id": "04-jogar", "route": "/play"},
+  {"id": "05-jogar-campanhas", "route": "/play", "steps": [{"click": "Campanhas"}]},
+  {"id": "06-perfil", "route": "/me"},
+  {"id": "07-perfil-fim", "route": "/me", "scroll": "end"},
+  {"id": "08-mais-redireciona", "route": "/more"},
+  {"id": "09-amigos", "route": "/people"},
+  {"id": "10-partida", "route": "/games/matches/{{match}}"},
+  {"id": "11-rankings", "route": "/games/rankings"},
+  {"id": "12-definicoes", "route": "/settings", "scroll": "end"},
+  {"id": "13-perfil-ampliado", "route": "/me", "fontScale": 1.3},
+  {"id": "14-entrar", "route": "/signin"}
+ ]
+}

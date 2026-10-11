@@ -1,24 +1,27 @@
+import { colors } from "@/src/ui/theme";
+
+// Legacy names kept for existing screens; values come from the single palette in src/ui/theme.
 export const COLORS = {
-  primary: "#1E88E5",
-  secondary: "#FF9800",
+  primary: colors.primary,
+  secondary: colors.pendingText,
 
-  background: "#FAFAFA",
-  surface: "#ECEFF1",
-  card: "#FFFFFF",
+  background: colors.background,
+  surface: colors.track,
+  card: colors.card,
 
-  onSurface: "#1E88E5",
-  onBackground: "#263238",
-  textMuted: "#90A4AE",
+  onSurface: colors.primary,
+  onBackground: colors.text,
+  textMuted: colors.muted,
 
-  error: "#D32F2F",
-  success: "#388E3C",
+  error: colors.danger,
+  success: colors.primary,
 
-  active: "#1E88E5",
-  inactive: "#999999",
+  active: colors.primary,
+  inactive: colors.chevron,
 
-  star: "#F9A825",
-  campaign: "#7B1FA2",
-  journal: "#00897B",
+  star: colors.gold,
+  campaign: colors.friend,
+  journal: colors.pendingIcon,
 
-  border: "#E0E0E0",
+  border: colors.line,
 } as const;

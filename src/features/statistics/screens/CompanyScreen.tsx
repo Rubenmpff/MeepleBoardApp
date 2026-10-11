@@ -12,11 +12,11 @@ import useStatistics from '../hooks/useStatistics';
 import service from '../services/statisticsService';
 import {Companion,CompanyReport,Metric,Mode,Period,GroupContext} from '../types';
 import GameCover from '@/src/components/ui/GameCover';
-import ScreenScroll from '../ui/Screen';
+import ScreenScroll from '@/src/ui/Screen';
 import {formatBucket} from '../utils/presentation';
-import Sheet from '../ui/Sheet';
-import {Avatar,Button,Card,Disclosure,Glyph,Hero,Note,PendingNotice,ProportionBar,RankBar,ResultsTrio,Row,SearchField,Section,Segmented} from '../ui/components';
-import {colors,isLarge,space,strong,touch,type} from '../ui/theme';
+import Sheet from '@/src/ui/Sheet';
+import {Avatar,Button,Card,Disclosure,Glyph,Hero,Note,PendingNotice,ProportionBar,RankBar,ResultsTrio,Row,SearchField,Section,Segmented} from '@/src/ui/components';
+import {colors,isLarge,space,strong,touch,type} from '@/src/ui/theme';
 export default function CompanyScreen(){
  const workspace=useStatisticsWorkspace();
  const {query,setQuery,period,value}=useRouteQuery();const router=useRouter();const {t,i18n}=useTranslation('statistics');const {width,height,fontScale}=useWindowDimensions();const large=isLarge(width,fontScale);

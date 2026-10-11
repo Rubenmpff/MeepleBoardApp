@@ -1,19 +1,9 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import {
-  useRouter,
-} from "expo-router";
-
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
+import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { APP_THEME } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
+import { colors, isLarge, space, touch, type } from "@/src/ui/theme";
 
 type HeaderMode = "back" | "root" | "cancel";
 
@@ -24,153 +14,67 @@ type Props = {
   rightIcon?: keyof typeof Ionicons.glyphMap;
   onRightPress?: () => void;
   onLeftPress?: () => void;
+  /** Kept for existing callers; every header now uses the same appearance. */
   appearance?: "default" | "refresh";
   leftAccessibilityLabel?: string;
   rightAccessibilityLabel?: string;
 };
 
-export default function ScreenHeader({
-  title,
-  subtitle,
-  mode = "back",
-  rightIcon,
-  onRightPress,
-  onLeftPress,
-  appearance = "default",
-  leftAccessibilityLabel,
-  rightAccessibilityLabel,
-}: Props) {
+// Page header shared by every screen: ‹ Voltar or Cancelar on the left, centred title, optional action.
+// "root" is for top-level pages: large title on the left and the action on the right.
+export default function ScreenHeader({ title, subtitle, mode = "back", rightIcon, onRightPress, onLeftPress, leftAccessibilityLabel, rightAccessibilityLabel }: Props) {
   const { t } = useTranslation("navigation");
   const router = useRouter();
-
+  const { width, fontScale } = useWindowDimensions();
+  const large = isLarge(width, fontScale);
 
   function handleLeftPress() {
-    if (onLeftPress) {
-      onLeftPress();
-      return;
-    }
-
+    if (onLeftPress) { onLeftPress(); return; }
     if (router.canGoBack()) router.back();
     else router.replace("/dashboard");
   }
 
-  return (
-    <View style={styles.container}>
-      {mode !== "root" && <TouchableOpacity
-        style={[styles.leftButton, appearance === "refresh" && refreshed.button, mode === "cancel" && styles.cancelButton]}
-        onPress={handleLeftPress}
-        activeOpacity={0.82}
-        accessibilityRole="button"
-        accessibilityLabel={
-          leftAccessibilityLabel ?? t(mode === "cancel" ? "cancel" : "back")
-        }
-      >
-        {mode === "cancel" ? <Text style={styles.cancelLabel}>{t("cancel")}</Text> : <Ionicons
-          name="chevron-back"
-          size={22}
-          color={COLORS.onBackground}
-        />}
-      </TouchableOpacity>}
+  const right = rightIcon && onRightPress
+    ? <TouchableOpacity style={styles.iconAction} onPress={onRightPress} accessibilityRole="button" accessibilityLabel={rightAccessibilityLabel}>
+      <Ionicons name={rightIcon} size={24} color={colors.primary} />
+    </TouchableOpacity>
+    : null;
 
-      <View style={[styles.textBlock, mode === "root" && { paddingLeft: 0 }]}>
-        <Text
-          style={[styles.title, appearance === "refresh" && UI_STYLES.title]}
-          numberOfLines={appearance === "refresh" ? undefined : 1}
-          accessibilityRole="header"
-        >
-          {title}
-        </Text>
-
-        {!!subtitle && (
-          <Text
-            style={[styles.subtitle, appearance === "refresh" && UI_STYLES.muted]}
-            numberOfLines={appearance === "refresh" ? undefined : 2}
-          >
-            {subtitle}
-          </Text>
-        )}
-      </View>
-
-      {rightIcon && onRightPress ? (
-        <TouchableOpacity
-          style={[styles.rightButton, appearance === "refresh" && refreshed.button]}
-          onPress={onRightPress}
-          accessibilityLabel={rightAccessibilityLabel}
-          activeOpacity={0.82}
-          accessibilityRole="button"
-        >
-          <Ionicons
-            name={rightIcon}
-            size={20}
-            color={COLORS.onBackground}
-          />
-        </TouchableOpacity>
-      ) : (
-        <View style={[styles.rightSpacer, appearance === "refresh" && { width: 44 }]} />
-      )}
+  if (mode === "root") return <View style={styles.root}>
+    <View style={styles.rootText}>
+      <Text style={styles.rootTitle} accessibilityRole="header">{title}</Text>
+      {!!subtitle && <Text style={type.caption}>{subtitle}</Text>}
     </View>
-  );
+    {right}
+  </View>;
+
+  return <View style={styles.bar}>
+    <View style={[styles.side, large && styles.sideLarge]}>
+      <TouchableOpacity style={styles.leftAction} onPress={handleLeftPress} accessibilityRole="button" accessibilityLabel={leftAccessibilityLabel ?? t(mode === "cancel" ? "cancel" : "back")}>
+        {mode === "back" && <MaterialCommunityIcons name="chevron-left" size={26} color={colors.primary} />}
+        <Text style={[type.body, styles.leftLabel]} numberOfLines={1}>{t(mode === "cancel" ? "cancel" : "back")}</Text>
+      </TouchableOpacity>
+    </View>
+    <View style={styles.center}>
+      <Text style={[type.head, styles.title]} numberOfLines={large ? 3 : 2} accessibilityRole="header">{title}</Text>
+      {!!subtitle && <Text style={[type.caption, styles.centerText]} numberOfLines={2}>{subtitle}</Text>}
+    </View>
+    <View style={[styles.side, styles.sideRight, large && styles.sideLarge]}>{right}</View>
+  </View>;
 }
 
-const refreshed = StyleSheet.create({
-  button: { ...UI_STYLES.iconButton, backgroundColor: APP_THEME.colors.card, borderColor: APP_THEME.colors.border },
-});
-
 const styles = StyleSheet.create({
-  cancelButton: { width: "auto", minWidth: 44, maxWidth: "40%", height: "auto", minHeight: 44, paddingHorizontal: 10, paddingVertical: 10 },
-  cancelLabel: { ...UI_STYLES.body, color: COLORS.primary, fontWeight: "700", textAlign: "center" },
-  container: {
-    minHeight: 64,
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 14,
-  },
-
-  leftButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-
-  textBlock: {
-    flex: 1,
-    paddingHorizontal: 12,
-    justifyContent: "center",
-  },
-
-  title: {
-    fontSize: 21,
-    lineHeight: 24,
-    fontWeight: "800",
-    color: COLORS.onBackground,
-    letterSpacing: -0.2,
-  },
-
-  subtitle: {
-    marginTop: 3,
-    fontSize: 12,
-    lineHeight: 16,
-    color: COLORS.textMuted,
-  },
-
-  rightButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-
-  rightSpacer: {
-    width: 42,
-    height: 42,
-  },
+  bar: { flexDirection: "row", alignItems: "center", minHeight: 48, marginBottom: space.sm, marginHorizontal: -space.sm },
+  side: { flex: 1, minWidth: 0, alignItems: "flex-start" },
+  sideRight: { alignItems: "flex-end" },
+  sideLarge: { flex: 0, minWidth: 96 },
+  leftAction: { minHeight: touch, minWidth: touch, flexDirection: "row", alignItems: "center", paddingRight: space.sm },
+  leftLabel: { color: colors.primary, flexShrink: 1 },
+  center: { flexShrink: 1, maxWidth: "60%", alignItems: "center", paddingVertical: space.xs },
+  title: { textAlign: "center" },
+  centerText: { textAlign: "center" },
+  iconAction: { minWidth: touch, minHeight: touch, alignItems: "center", justifyContent: "center" },
+  root: { flexDirection: "row", alignItems: "flex-end", gap: space.md, minHeight: 48, marginBottom: space.sm },
+  rootText: { flex: 1, minWidth: 0, gap: 2 },
+  rootTitle: { fontSize: 28, lineHeight: 34, fontWeight: "700", color: colors.text, letterSpacing: -0.3 },
 });

@@ -16,9 +16,9 @@ import {Metric,Period,YearReport} from '../types';
 import YearCard from '../YearCard';
 import {YEAR_CARDS,publicYearCard} from '../yearCards';
 import GameCover from '@/src/components/ui/GameCover';
-import ScreenScroll from '../ui/Screen';
-import {Button,Card,Disclosure,EmptyState,Glyph,Note,Row,Section} from '../ui/components';
-import {colors,space,touch,type} from '../ui/theme';
+import ScreenScroll from '@/src/ui/Screen';
+import {Button,Card,Disclosure,EmptyState,Glyph,Note,Row,Section} from '@/src/ui/components';
+import {colors,space,touch,type} from '@/src/ui/theme';
 export default function YearScreen(){
  const workspace=useStatisticsWorkspace();
  const {query,setQuery,value}=useRouteQuery();const insets=useSafeAreaInsets();const {t,i18n}=useTranslation('statistics');const router=useRouter();

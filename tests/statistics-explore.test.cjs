@@ -9,7 +9,7 @@ const explore={games:[{...game,mode:'COMPETITIVE',results:known,scored:2,minimum
 const summary={...query,matches:5,distinctGames:1,recordedMinutes:0,matchesWithDuration:1,matchesWithoutDuration:4,averagePersonalRating:0,ratedMatches:1,results:known,modes:[],bucketUnit:'month',evolution:[],games:[game],gameOptions:[game]};
 const year={year:2024,timeZone:query.timeZone,summary,mostPlayed:[{...game,wins:0,known:0}],mostWins:[{...game,wins:2,known:4,mode:'COMPETITIVE'}],bestWinRate:[],rateMinimumSample:5,mostFrequentCompanyMatches:5,mostFrequentCompanyTies:1,activeMonths:[{key:'2024-10',matches:5}],firstRecordedGames:[]};
 test('Company comparison drills down with friend, period, game and mode, preserving zero and negative paired scores',async()=>{
- const r=await renderNative('src/features/statistics/screens/CompanyScreen.tsx','default',{}, {params:{...query,friendId:'friend-id'},states:{0:'friend-id',9:true},stateModules:['src/features/statistics/ui/components.tsx'],statisticsReport:company,statisticsSummary:summary,width:320,fontScale:2});
+ const r=await renderNative('src/features/statistics/screens/CompanyScreen.tsx','default',{}, {params:{...query,friendId:'friend-id'},states:{0:'friend-id',9:true},stateModules:['src/ui/components.tsx'],statisticsReport:company,statisticsSummary:summary,width:320,fontScale:2});
  assert.match(r.html,/Eu: 0/);assert.match(r.html,/-5/);assert.match(r.html,/não uma classificação/);
  await r.press('Vitórias partilhadas entre nós: 1');
  const route=r.routes.at(-1);assert.equal(route.pathname,'/statistics/matches');assert.equal(route.params.friendId,'friend-id');assert.equal(route.params.metric,'shared-win');assert.equal(route.params.mode,'COMPETITIVE');assert.equal(route.params.start,query.start);assert.equal(route.params.gameId,query.gameId);
@@ -92,13 +92,13 @@ test('Friend search pins placeholder contrast to the actual white field in light
  for(const colorScheme of ['light','dark']){
   const r=await renderNative('src/features/statistics/screens/CompanyScreen.tsx','default',{}, {statisticsReport:company,colorScheme});
   const search=r.inputs.find(i=>i.accessibilityLabel==='Procurar amigo');assert.equal(search.placeholderTextColor,'#58616A');assert.equal(search.style[1].color,'#30283D');assert.equal(search.keyboardAppearance,'light');
-  assert.equal(r.load('src/features/statistics/ui/theme.ts').colors.card,'#FFFFFF');
+  assert.equal(r.load('src/ui/theme.ts').colors.card,'#FFFFFF');
  }
 });
 test('Annual cards retain relevant coverage and put extensive explanations outside the captured image',async()=>{
  const card=await renderNative('src/features/statistics/YearCard.tsx','default',{report:year,id:'time'});
  assert.match(card.html,/Duração em 1 de 5/);assert.match(card.html,/4 resultados conhecidos/);assert.doesNotMatch(card.html,/Fuso horário|Segundo o teu histórico/);
- const reader=await renderNative('src/features/statistics/screens/YearScreen.tsx','default',{}, {params:{...query,year:'2024'},statisticsReport:year,states:{6:true},stateModules:['src/features/statistics/ui/components.tsx']});
+ const reader=await renderNative('src/features/statistics/screens/YearScreen.tsx','default',{}, {params:{...query,year:'2024'},statisticsReport:year,states:{6:true},stateModules:['src/ui/components.tsx']});
  assert.match(reader.html,/Fuso horário: Europe\/Lisbon/);assert.match(reader.html,/Segundo o teu histórico/);
 });
 test('Statistics uses mounted native tabs without animation and one shared header outside the scenes',async()=>{
@@ -177,7 +177,7 @@ test('Persistent workspace header returns from friend to Company list instead of
 
 test('Company clarifies competitive draws and retains their distinct evidence and team results',async()=>{
  const file='src/features/statistics/screens/CompanyScreen.tsx',report={...company,results:{...results,draws:3,drawsTogether:1}};
- const r=await renderNative(file,'default',{}, {params:{...query,mode:undefined,friendId:'friend-id'},statisticsSummary:summary,statisticsReport:report,states:{6:true},stateModules:['src/features/statistics/ui/components.tsx'],width:320,fontScale:2});
+ const r=await renderNative(file,'default',{}, {params:{...query,mode:undefined,friendId:'friend-id'},statisticsSummary:summary,statisticsReport:report,states:{6:true},stateModules:['src/ui/components.tsx'],width:320,fontScale:2});
  assert.match(r.html,/Não inclui empates apenas entre outros participantes/);
  assert.ok(r.controls.some(c=>c.accessibilityLabel==='Empates e vitórias partilhadas'));
  await r.press('Empates com um de nós em primeiro: 3');assert.equal(r.routes.at(-1).params.metric,'pair-draw');assert.equal(r.routes.at(-1).params.mode,'COMPETITIVE');
