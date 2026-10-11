@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getLastMatch } from "@/src/features/games/matches/services/matchService";
 import { LastMatch } from "../../games/matches/types/MatchForm";
 
@@ -7,8 +7,9 @@ export const useLastMatch = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchLastMatch = async () => {
-    setLoading(true);
+  // A silent refetch keeps the current card while new data arrives.
+  const fetchLastMatch = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const result = await getLastMatch();
       setData(result);
@@ -21,11 +22,11 @@ export const useLastMatch = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchLastMatch();
-  }, []);
+  }, [fetchLastMatch]);
 
   return {
     data,

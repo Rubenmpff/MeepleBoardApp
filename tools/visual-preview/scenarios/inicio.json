@@ -1,5 +1,9 @@
 {"name":"inicio","screens":[
  {"id":"1-inicio","route":"/dashboard"},
- {"id":"2-inicio-meio","route":"/dashboard","steps":[{"scroll":700}]},
- {"id":"3-inicio-fim","route":"/dashboard","scroll":"end"}
+ {"id":"2-inicio-fim","route":"/dashboard","scroll":"end"},
+ {"id":"3-inicio-texto-grande","route":"/dashboard","fontScale":1.3},
+ {"id":"4-inicio-texto-grande-fim","route":"/dashboard","fontScale":1.3,"scroll":"end"},
+ {"id":"5-registar-na-sessao","route":"/dashboard","steps":[{"click":"Registar partida aqui"}]},
+ {"id":"6-abrir-sessao","route":"/dashboard","steps":[{"click":"Abrir"}]},
+ {"id":"7-ver-estatisticas","route":"/dashboard","steps":[{"scrollTo":"Ver estatísticas","offset":200},{"click":"Ver estatísticas"}]}
 ]}

@@ -1,67 +1,58 @@
 {
-  "header": {
-    "greeting": "Olá, {{username}}",
-    "welcomeBack": "Bem-vindo de volta!"
-  },
   "player": "Jogador",
   "greetings": {
     "morning": "Bom dia",
     "afternoon": "Boa tarde",
     "evening": "Boa noite"
   },
-  "stats": {
-    "activeSession_one": "{{count}} sessão ativa",
-    "activeSession_other": "{{count}} sessões ativas",
-    "pendingInvite_one": "{{count}} convite pendente",
-    "pendingInvite_other": "{{count}} convites pendentes",
-    "upcomingSession_one": "{{count}} sessão agendada",
-    "upcomingSession_other": "{{count}} sessões agendadas",
-    "pendingReview_one": "{{count}} avaliação pendente",
-    "pendingReview_other": "{{count}} avaliações pendentes"
+  "register": {
+    "title": "Registar partida"
+  },
+  "now": {
+    "label": "A decorrer",
+    "sinceToday": "desde as {{time}}",
+    "since": "desde {{date}}",
+    "confirmed_one": "{{count}} confirmado",
+    "confirmed_other": "{{count}} confirmados",
+    "matches_one": "{{count}} partida",
+    "matches_other": "{{count}} partidas",
+    "registerHere": "Registar partida aqui",
+    "open": "Abrir",
+    "openAccessibility": "Abrir a sessão {{name}}"
+  },
+  "todo": {
+    "title": "Por fazer",
+    "invite": "Convite: {{name}}",
+    "from": "de {{name}}",
+    "allInvites_one": "Ver {{count}} convite",
+    "allInvites_other": "Ver os {{count}} convites",
+    "ratings_one": "{{count}} partida por avaliar",
+    "ratings_other": "{{count}} partidas por avaliar",
+    "ratingsHint": "Deixa a tua avaliação e notas.",
+    "requests_one": "{{count}} pedido de amizade",
+    "requests_other": "{{count}} pedidos de amizade",
+    "requestsHint": "Aceita ou recusa."
+  },
+  "upcoming": {
+    "title": "Próximas sessões",
+    "noDate": "Data por definir",
+    "all": "Ver todas as sessões",
+    "create": "Combinar uma sessão",
+    "createHint": "Escolhe quando e convida amigos."
   },
   "lastMatch": {
     "title": "Última partida",
-    "playAgain": "Registar outra partida",
     "empty": "Ainda não tens partidas registadas.",
-    "registerFirst": "Registar primeira partida",
-    "playAgainAccessibility": "Registar outra partida",
     "loading": "A carregar a última partida…",
     "loadError": "Não foi possível carregar a última partida.",
     "retry": "Tentar novamente"
   },
-  "pendingJournal": {
-    "title_one": "{{count}} partida à espera da tua avaliação",
-    "title_other": "{{count}} partidas à espera da tua avaliação",
-    "description": "Partilha a tua avaliação da partida."
-  },
-  "quickActions": {
-    "title": "Ações rápidas",
-    "registerMatch": {
-      "title": "Registar partida",
-      "description": "Regista uma partida rápida"
-    },
-    "sessions": {
-      "title": "Sessões",
-      "description": "Gerir sessões de jogo"
-    },
-    "library": {
-      "title": "Biblioteca",
-      "description": "A tua coleção de jogos"
-    },
-    "campaigns": {
-      "title": "Campanhas",
-      "description": "Acompanhar campanhas"
-    },
-    "lastMatch": {
-      "title": "Última partida",
-      "playAgain": "Jogar\nde novo",
-      "playAgainAccessibility": "Registar outra partida",
-      "empty": "Ainda não tens partidas registadas.",
-      "registerFirst": "Registar primeira partida"
-    }
-  },
-  "pending": {
-    "title": "Por tratar",
-    "invitesDescription": "Consulta os convites para sessões de jogo."
+  "year": {
+    "title": "O teu ano",
+    "note": "{{year}} · até à data",
+    "matches": "Partidas",
+    "games": "Jogos",
+    "wins": "Vitórias",
+    "statistics": "Ver estatísticas"
   }
 }

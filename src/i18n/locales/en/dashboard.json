@@ -1,67 +1,58 @@
 {
-  "header": {
-    "greeting": "Hi, {{username}}",
-    "welcomeBack": "Welcome back!"
-  },
   "player": "Player",
   "greetings": {
     "morning": "Good morning",
     "afternoon": "Good afternoon",
     "evening": "Good evening"
   },
-  "stats": {
-    "activeSession_one": "{{count}} active session",
-    "activeSession_other": "{{count}} active sessions",
-    "pendingInvite_one": "{{count}} pending invitation",
-    "pendingInvite_other": "{{count}} pending invitations",
-    "upcomingSession_one": "{{count}} scheduled session",
-    "upcomingSession_other": "{{count}} scheduled sessions",
-    "pendingReview_one": "{{count}} pending review",
-    "pendingReview_other": "{{count}} pending reviews"
+  "register": {
+    "title": "Register match"
+  },
+  "now": {
+    "label": "In progress",
+    "sinceToday": "since {{time}}",
+    "since": "since {{date}}",
+    "confirmed_one": "{{count}} confirmed",
+    "confirmed_other": "{{count}} confirmed",
+    "matches_one": "{{count}} match",
+    "matches_other": "{{count}} matches",
+    "registerHere": "Register match here",
+    "open": "Open",
+    "openAccessibility": "Open the session {{name}}"
+  },
+  "todo": {
+    "title": "To do",
+    "invite": "Invitation: {{name}}",
+    "from": "from {{name}}",
+    "allInvites_one": "See {{count}} invitation",
+    "allInvites_other": "See all {{count}} invitations",
+    "ratings_one": "{{count}} match to review",
+    "ratings_other": "{{count}} matches to review",
+    "ratingsHint": "Leave your rating and notes.",
+    "requests_one": "{{count}} friend request",
+    "requests_other": "{{count}} friend requests",
+    "requestsHint": "Accept or decline."
+  },
+  "upcoming": {
+    "title": "Upcoming sessions",
+    "noDate": "Date to be decided",
+    "all": "See all sessions",
+    "create": "Plan a session",
+    "createHint": "Choose when and invite friends."
   },
   "lastMatch": {
     "title": "Last match",
-    "playAgain": "Register another match",
     "empty": "You haven't registered any matches yet.",
-    "registerFirst": "Register first match",
-    "playAgainAccessibility": "Register another match",
     "loading": "Loading your last match…",
     "loadError": "Your last match could not be loaded.",
     "retry": "Try again"
   },
-  "pendingJournal": {
-    "title_one": "{{count}} match is waiting for your review",
-    "title_other": "{{count}} matches are waiting for your review",
-    "description": "Share your review of the match."
-  },
-  "quickActions": {
-    "title": "Quick actions",
-    "registerMatch": {
-      "title": "Register match",
-      "description": "Register a quick match"
-    },
-    "sessions": {
-      "title": "Sessions",
-      "description": "Manage game sessions"
-    },
-    "library": {
-      "title": "Library",
-      "description": "Your game collection"
-    },
-    "campaigns": {
-      "title": "Campaigns",
-      "description": "Track your campaigns"
-    },
-    "lastMatch": {
-      "title": "Last match",
-      "playAgain": "Play\nagain",
-      "playAgainAccessibility": "Register another match",
-      "empty": "You haven't registered any matches yet.",
-      "registerFirst": "Register first match"
-    }
-  },
-  "pending": {
-    "title": "Needs your attention",
-    "invitesDescription": "View your game session invitations."
+  "year": {
+    "title": "Your year",
+    "note": "{{year}} · to date",
+    "matches": "Matches",
+    "games": "Games",
+    "wins": "Wins",
+    "statistics": "See statistics"
   }
 }
