@@ -1,0 +1,18 @@
+[
+  {
+    "source": "/Users/rubenferreira/Downloads/IMG_3359.PNG",
+    "target": "captura-2024-topo.png",
+    "role": "topo",
+    "sha256": "1113d6a35de6633ed3b4f44384c62febe3dc9f66435bcbf86372b671d7785372",
+    "captureTime": "11:06",
+    "contentWidth": 370
+  },
+  {
+    "source": "/Users/rubenferreira/Downloads/IMG_3360.PNG",
+    "target": "captura-2024-scroll.png",
+    "role": "após scroll",
+    "sha256": "c7ee4fca7558d7c89e6be7d21976886cfcd03705c8375272bcc514d5031c7e4c",
+    "captureTime": "11:06",
+    "contentWidth": 370
+  }
+]

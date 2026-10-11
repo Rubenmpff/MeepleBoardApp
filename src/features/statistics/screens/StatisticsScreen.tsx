@@ -1,162 +1,137 @@
+import {useStatisticsWorkspace} from '../Workspace';
 import { useState } from "react";
-import { ActivityIndicator, Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
-import StatisticsHeader from "../StatisticsHeader";
+import AreaHeader from "../summary/AreaHeader";
+import ExploreFilters from "../ExploreFilters";
 import StatisticsEvolution from "../StatisticsEvolution";
 import GameCover from "@/src/components/ui/GameCover";
-import Button from "@/src/components/ui/ClubPrimaryButton";
-import { APP_THEME as theme } from "@/src/styles/clubTheme";
 import useStatistics from "../hooks/useStatistics";
 import { Metric, Mode, Period, Query } from "../types";
-import { customQuery, inclusiveEnd, localISO, periodQuery, shiftAnchor } from "../utils/period";
-import { styles } from "../styles";
+import { localISO, periodQuery } from "../utils/period";
+import { formatDuration, formatPeriodLabel } from "../utils/presentation";
+import ScreenScroll from "../ui/Screen";
+import { Button, Card, Disclosure, EmptyState, Glyph, Hero, PendingNotice, ProportionBar, RankBar, ResultsTrio, Row, Section } from "../ui/components";
+import { colors, space, strong, touch, type } from "../ui/theme";
 
-const MODES: Mode[] = ["COMPETITIVE", "SOLO", "COOPERATIVE", "UNKNOWN"];
 export default function StatisticsScreen() {
- const { width, fontScale } = useWindowDimensions();
  const { t, i18n } = useTranslation("statistics");
+ const workspace = useStatisticsWorkspace();
  const router = useRouter();
- const [timeZone] = useState(() => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
- const [anchor, setAnchor] = useState(() => localISO(new Date()));
- const [period, setPeriod] = useState<Period>("year");
- const [query, setQuery] = useState<Query>(() => periodQuery("year", localISO(new Date()), timeZone));
- const [customStart, setCustomStart] = useState(query.start);
- const [customEnd, setCustomEnd] = useState(inclusiveEnd(query.endExclusive));
- const [invalid, setInvalid] = useState(false);
- const [chooseGame, setChooseGame] = useState(false);
- const [chooseMode, setChooseMode] = useState(false);
- const [calculations, setCalculations] = useState(false);
+ const params = useLocalSearchParams();
+ const routeValue = (key: string) => { const value = params[key]; return Array.isArray(value) ? value[0] : value; };
+ const [timeZone] = useState(() => routeValue("timeZone") || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
+ const [anchor] = useState(() => routeValue("start") || localISO(new Date()));
+ const [localPeriod, setLocalPeriod] = useState<Period>((routeValue("period") as Period) || "year");
+ const [localQuery, setLocalQuery] = useState<Query>(() => ({ ...periodQuery("year", anchor, timeZone), ...(routeValue("start") ? { start: routeValue("start")!, endExclusive: routeValue("endExclusive")!, timeZone: routeValue("timeZone") || timeZone, gameId: routeValue("gameId"), mode: routeValue("mode") as Mode | undefined } : {}) }));
+ const period=workspace?.period??localPeriod, setPeriod=workspace?.setPeriod??setLocalPeriod;
+ const query=workspace?.query??localQuery, setQuery=workspace?.setQuery??setLocalQuery;
+ const [filtersOpen, setFiltersOpen] = useState(false);
+ const [allGames, setAllGames] = useState(false);
  const { data, loading, error, refetch } = useStatistics(query);
- const stacked = width < 360 || fontScale > 1.25;
  const number = (value: number | null) => value == null ? t("unavailable") : new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 2 }).format(value);
- const dateLabel = (iso: string, options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(i18n.language, { ...options, timeZone: "UTC" }).format(new Date(`${iso}T12:00:00Z`));
- const periodLabel = period === "year" ? query.start.slice(0, 4) : period === "month" ? dateLabel(query.start, { month: "long", year: "numeric" }) : `${dateLabel(query.start, { day: "numeric", month: "short", year: "numeric" })} — ${dateLabel(inclusiveEnd(query.endExclusive), { day: "numeric", month: "short", year: "numeric" })}`;
  const show = (metric: Metric, extra: Partial<Query> & { bucket?: string } = {}) => router.push({ pathname: "/statistics/matches", params: { ...query, ...extra, metric } } as never);
- const changePeriod = (next: Period) => {
-  setPeriod(next); setInvalid(false);
-  if (next === "custom") { setCustomStart(query.start); setCustomEnd(inclusiveEnd(query.endExclusive)); }
-  else setQuery(q => ({ ...q, ...periodQuery(next, anchor, timeZone) }));
- };
- const shift = (direction: number) => {
-  const next = shiftAnchor(anchor, period, direction); setAnchor(next);
-  if (period !== "custom") setQuery(q => ({ ...q, ...periodQuery(period, next, timeZone) }));
- };
- const modeLabel = query.mode ? t(`modes.${query.mode}`) : t("allModes");
- const gameLabel = query.gameId ? data?.gameOptions.find(g => g.gameId === query.gameId)?.name ?? t("selectedGame") : t("allGames");
- const metric = (label: string, value: string, action: () => void, columns = 2) => <TouchableOpacity key={label}
-  style={[styles.metric, { flexBasis: stacked ? "100%" : columns === 3 ? "30%" : "46%" }]}
-  accessibilityRole="button" accessibilityLabel={`${label}: ${value}`} accessibilityHint={t("viewSupporting")} onPress={action}>
-  <Text style={styles.value}>{value}</Text><Text style={styles.text}>{label}</Text>
- </TouchableOpacity>;
- const supporting = (label: string, action: () => void, displayLabel = label) => <TouchableOpacity style={styles.inlineAction} accessibilityRole="button" accessibilityLabel={label} accessibilityHint={t("viewSupporting")} onPress={action}>
-  <Text style={[styles.muted, styles.grow]}>{displayLabel}</Text><Text style={styles.link} importantForAccessibility="no">›</Text>
- </TouchableOpacity>;
+ const team = query.mode === "COOPERATIVE";
 
- return <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>
+ const notes = <Section title={t("moreDetails")}><Card>
+  {!!data && data.matches > 0 && <>
+   {data.matchesWithoutDuration > 0 && <Row first title={t("missingDurationRow")} value={number(data.matchesWithoutDuration)} accessibilityLabel={t("missingDuration", { count: data.matchesWithoutDuration })} accessibilityHint={t("viewSupporting")} onPress={() => show("missing-duration")} />}
+   {data.results.legacy > 0 && <Row first={data.matchesWithoutDuration === 0} title={t("legacyRow")} subtitle={t("legacyIncluded", { count: data.results.withoutResult })} value={number(data.results.legacy)} accessibilityLabel={t("legacy", { count: data.results.legacy })} accessibilityHint={t("viewSupporting")} onPress={() => show("legacy")} />}
+   <Row first={data.matchesWithoutDuration === 0 && data.results.legacy === 0} title={t("averageRating")} subtitle={t("ratingCoverage", { known: data.ratedMatches, total: data.matches })} value={data.averagePersonalRating == null ? "—" : number(data.averagePersonalRating)}
+    accessibilityLabel={`${t("averageRating")}: ${number(data.averagePersonalRating)}`} accessibilityHint={t("viewSupporting")} onPress={() => show("ratings")} />
+  </>}
+  <Disclosure first={!data || data.matches === 0} title={t("howCalculated")}>
+   <Text style={type.caption}>{t("timeZone", { zone: query.timeZone })}</Text>
+   {[t("rateRule"), t("legacyRule"), t("durationRule"), t("ratingRule"), t("teamRule")].map(rule => <Text key={rule} style={type.body}>{rule}</Text>)}
+   <Text style={type.caption}>{t("historyScope")}</Text>
+   {!!data && <TouchableOpacity style={s.link} accessibilityRole="button" onPress={refetch}><Text style={[type.body, strong, { color: colors.primary }]}>{t("refresh")}</Text></TouchableOpacity>}
+  </Disclosure>
+ </Card></Section>;
+
+ const visibleGames = data ? data.games.filter((g, index) => allGames || index < 3 || g.matches === data.games[2]?.matches) : [];
+ const topGame = Math.max(1, ...(data?.games.map(g => g.matches) ?? [1]));
+ return <SafeAreaView style={s.screen} edges={workspace?[]:["top", "left", "right"]}>
   <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-   <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={styles.content}>
-    <StatisticsHeader title={t("title")} backLabel={t("back")} onBack={() => router.canGoBack() ? router.back() : router.replace("/dashboard")} />
-    <View style={styles.stack}>
-     <View style={styles.periods}>{(["week", "month", "year", "custom"] as Period[]).map(p => <TouchableOpacity key={p}
-      accessibilityRole="button" accessibilityState={{ selected: p === period }} style={[styles.period, p === period && styles.selected]}
-      onPress={() => changePeriod(p)}><Text style={[styles.text, p === period && styles.selectedText]}>{t(`period.${p}`)}</Text></TouchableOpacity>)}</View>
-     <View style={styles.row}>
-      {period !== "custom" && <TouchableOpacity style={styles.periodArrow} accessibilityRole="button" accessibilityLabel={t("previousPeriod")} onPress={() => shift(-1)}><Text style={styles.link}>‹</Text></TouchableOpacity>}
-      <Text style={[styles.title, { flex: 1, textAlign: "center" }]}>{periodLabel}</Text>
-      {period !== "custom" && <TouchableOpacity style={styles.periodArrow} accessibilityRole="button" accessibilityLabel={t("nextPeriod")} onPress={() => shift(1)}><Text style={styles.link}>›</Text></TouchableOpacity>}
-     </View>
-     {period === "custom" && <View style={styles.stack}>
-      <Text style={styles.text}>{t("startDate")}</Text><TextInput style={styles.input} value={customStart} onChangeText={setCustomStart} accessibilityLabel={t("startDate")} placeholder="AAAA-MM-DD" autoCorrect={false} />
-      <Text style={styles.text}>{t("endDate")}</Text><TextInput style={styles.input} value={customEnd} onChangeText={setCustomEnd} accessibilityLabel={t("endDate")} placeholder="AAAA-MM-DD" autoCorrect={false} />
-      <Button title={t("apply")} onPress={() => { const bounds = customQuery(customStart, customEnd, timeZone); setInvalid(!bounds); if (bounds) { setQuery(q => ({ ...q, ...bounds })); Keyboard.dismiss(); } }} />
-      {invalid && <Text style={styles.text} accessibilityRole="alert">{t("invalidDates")}</Text>}
-     </View>}
-     <View style={styles.row}>
-      <TouchableOpacity style={[styles.selector, { flexBasis: stacked ? "100%" : "46%" }]} accessibilityRole="button" accessibilityLabel={`${t("game")}: ${gameLabel}`} accessibilityState={{ expanded: chooseGame }}
-       onPress={() => { setChooseGame(v => !v); setChooseMode(false); }}>
-       <Text style={[styles.selectorValue, styles.grow]}>{query.gameId ? gameLabel : t("game")}</Text><Text style={styles.link} importantForAccessibility="no">⌄</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.selector, { flexBasis: stacked ? "100%" : "46%" }]} accessibilityRole="button" accessibilityLabel={`${t("mode")}: ${modeLabel}`} accessibilityState={{ expanded: chooseMode }}
-       onPress={() => { setChooseMode(v => !v); setChooseGame(false); }}>
-       <Text style={[styles.selectorValue, styles.grow]}>{query.mode ? modeLabel : t("modeShort")}</Text><Text style={styles.link} importantForAccessibility="no">⌄</Text>
-      </TouchableOpacity>
-     </View>
-     {chooseGame && <View style={styles.options}>
-      <TouchableOpacity style={styles.option} accessibilityRole="button" accessibilityState={{ selected: !query.gameId }} onPress={() => { setQuery(q => ({ ...q, gameId: undefined })); setChooseGame(false); }}><Text style={styles.text}>{t("allGames")}{!query.gameId ? " ✓" : ""}</Text></TouchableOpacity>
-      {data?.gameOptions.map(game => <TouchableOpacity key={game.gameId} style={styles.option} accessibilityRole="button" accessibilityLabel={t("selectGame", { name: game.name })} accessibilityState={{ selected: query.gameId === game.gameId }} onPress={() => { setQuery(q => ({ ...q, gameId: game.gameId })); setChooseGame(false); }}><Text style={styles.text}>{game.name}{query.gameId === game.gameId ? " ✓" : ""}</Text></TouchableOpacity>)}
-     </View>}
-     {chooseMode && <View style={styles.options}>
-      {([undefined, ...MODES] as (Mode | undefined)[]).map(mode => <TouchableOpacity key={mode ?? "all"} style={styles.option} accessibilityRole="button" accessibilityState={{ selected: query.mode === mode }} onPress={() => { setQuery(q => ({ ...q, mode })); setChooseMode(false); }}>
-       <Text style={styles.text}>{mode ? t(`modes.${mode}`) : t("allModes")}{query.mode === mode ? " ✓" : ""}</Text>
-      </TouchableOpacity>)}
-     </View>}
+   <ScreenScroll>
+    <View>
+     <AreaHeader area="summary" query={query} period={period} />
+     <ExploreFilters query={query} onChange={setQuery} games={data?.gameOptions??[]} initialPeriod={period} onPeriodChange={setPeriod} visible={filtersOpen} onVisibilityChange={setFiltersOpen}/>
     </View>
-    {loading ? <View accessibilityState={{ busy: true }}><ActivityIndicator color={theme.colors.primary} /><Text style={styles.muted}>{t("loading")}</Text></View>
-     : error ? <View style={styles.stack}><Text style={styles.text} accessibilityRole="alert">{t("error")}</Text><Button title={t("retry")} onPress={refetch} /></View>
-     : data && <>
-      {data.matches === 0 && <Text style={styles.text}>{t("empty")}</Text>}
-      <View style={styles.summary}>
-       <View style={[styles.row, styles.metricsRow]}>
-        {metric(t("matches"), number(data.matches), () => show("all"))}
-        {metric(t("games"), number(data.distinctGames), () => show("games"))}
+    {loading ? <Card padded style={s.state} ><ActivityIndicator color={colors.primary} /><Text style={[type.body, { color: colors.muted }]} accessibilityState={{ busy: true }}>{t("loading")}</Text></Card>
+     : error ? <Card padded style={s.state}><Text style={type.body} accessibilityRole="alert">{t("error")}</Text><Button title={t("retry")} onPress={refetch} /></Card>
+     : data && (data.matches === 0 ? <EmptyState title={t("emptyTitle", { period: formatPeriodLabel(period, query, i18n.language) })} message={t("emptyHint")}
+       action={<Button title={t("changeFilters")} icon="tune-variant" onPress={() => setFiltersOpen(true)} />} /> : <>
+      <Hero>
+       <View style={s.pair}>
+        <TouchableOpacity style={s.stat} accessibilityRole="button" accessibilityLabel={`${t("matches")}: ${number(data.matches)}`} accessibilityHint={t("viewSupporting")} onPress={() => show("all")}>
+         <View style={s.label}><Glyph name="dice-5" size={16} color={colors.icon} /><Text style={type.caption}>{t("matches")}</Text></View>
+         <Text style={type.display}>{number(data.matches)}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={s.stat} accessibilityRole="button" accessibilityLabel={`${t("gamesLabel", { count: data.distinctGames })}: ${number(data.distinctGames)}`} accessibilityHint={t("viewSupporting")} onPress={() => show("games")}>
+         <View style={s.label}><Glyph name="chess-pawn" size={16} color={colors.icon} /><Text style={type.caption}>{t("gamesLabel", { count: data.distinctGames })}</Text></View>
+         <Text style={type.display}>{number(data.distinctGames)}</Text>
+        </TouchableOpacity>
        </View>
-       <TouchableOpacity style={styles.timeLine} accessibilityRole="button" accessibilityLabel={`${t("recordedTime")}: ${data.recordedMinutes == null ? t("noDuration") : `${number(data.recordedMinutes)} min`}`} accessibilityHint={t("viewSupporting")} onPress={() => show(data.recordedMinutes == null ? "missing-duration" : "duration")}>
-        {data.recordedMinutes != null && <Text style={styles.text}>{t("recordedTime")}</Text>}
-        <Text style={styles.text}>{data.recordedMinutes == null ? t("noDuration") : `${number(data.recordedMinutes)} min`}</Text>
-        <Text style={styles.muted}>{t("durationCoverage", { known: data.matchesWithDuration, total: data.matches })}</Text>
+       <TouchableOpacity style={s.heroFoot} accessibilityRole="button" accessibilityLabel={`${t("recordedTime")}: ${data.recordedMinutes == null ? t("noDuration") : formatDuration(data.recordedMinutes, i18n.language)}`} accessibilityHint={t("viewSupporting")} onPress={() => show(data.recordedMinutes == null ? "missing-duration" : "duration")}>
+        <Glyph name="clock-outline" size={18} color={colors.muted} />
+        <Text style={[type.body, s.flex]}>{data.recordedMinutes == null ? t("noDuration") : t("recordedSummary", { duration: formatDuration(data.recordedMinutes, i18n.language) })}</Text>
+        {data.recordedMinutes != null && <Text style={type.caption}>{t("durationShare", { known: data.matchesWithDuration, total: data.matches })}</Text>}
+        <Glyph name="chevron-right" />
        </TouchableOpacity>
-       {data.matchesWithoutDuration > 0 && data.matchesWithDuration > 0 && supporting(t("missingDuration", { count: data.matchesWithoutDuration }), () => show("missing-duration"))}
-      </View>
-      <StatisticsEvolution buckets={data.evolution} unit={data.bucketUnit} language={i18n.language} title={t("evolution")} countLabel={count => t("matchCount", { count })} onSelect={bucket => show("all", { bucket })} />
-      <View style={styles.section}>
-       <View style={styles.row}><Text style={[styles.title, styles.grow]} accessibilityRole="header">{t("results")}</Text><Text style={styles.muted}>{modeLabel}</Text></View>
-       {query.mode === "COOPERATIVE" && <Text style={styles.muted}>{t("teamResult")}</Text>}
-       <View style={[styles.row, styles.metricsRow]}>
-        {metric(t("wins"), number(data.results.wins), () => show("wins"), 3)}
-        {metric(t("losses"), number(data.results.losses), () => show("losses"), 3)}
-        {metric(t("draws"), number(data.results.draws), () => show("draws"), 3)}
-       </View>
-       <TouchableOpacity style={styles.rate} accessibilityRole="button" accessibilityLabel={`${t("winRate")}: ${data.results.winRate == null ? t("unavailable") : `${number(data.results.winRate)}%`}`} accessibilityHint={t("viewSupporting")} onPress={() => show("known")}>
-        <View style={styles.grow}><Text style={styles.text}>{t("winRate")}</Text><Text style={styles.muted}>{t("knownResults", { count: data.results.known })}</Text></View>
-        <Text style={styles.rateValue}>{data.results.winRate == null ? "—" : `${number(data.results.winRate)}%`}</Text>
-       </TouchableOpacity>
-       {data.results.withoutResult > 0 && supporting(t("withoutResult", { count: data.results.withoutResult }), () => show("undefined"), t("unknownCompact", { count: data.results.withoutResult }))}
-       {data.results.legacy > 0 && supporting(t("legacy", { count: data.results.legacy }), () => show("legacy"), t("olderCompact", { count: data.results.legacy }))}
-      </View>
-      <View style={styles.section}>
-       <Text style={styles.title} accessibilityRole="header">{t("personalRating")}</Text>
-       <TouchableOpacity style={styles.inlineAction} accessibilityRole="button" accessibilityLabel={`${t("averageRating")}: ${number(data.averagePersonalRating)}`} accessibilityHint={t("viewSupporting")} onPress={() => show("ratings")}>
-        <View style={styles.grow}><Text style={styles.text}>{t("averageRating")}</Text><Text style={styles.muted}>{t("ratingCoverage", { known: data.ratedMatches, total: data.matches })}</Text></View>
-        <Text style={styles.inlineValue}>{data.averagePersonalRating == null ? "—" : number(data.averagePersonalRating)}</Text>
-       </TouchableOpacity>
-      </View>
-      <View style={styles.section}>
-       <Text style={styles.title} accessibilityRole="header">{t("mostPlayed")}</Text>
-       {data.games.filter((g, index) => index < 5 || g.matches === data.games[4]?.matches).map(game => <TouchableOpacity key={game.gameId} style={styles.gameRow} accessibilityRole="button" accessibilityLabel={game.name} accessibilityHint={t("viewSupporting")} onPress={() => show("all", { gameId: game.gameId })}>
-        <GameCover uri={game.imageUrl} style={styles.cover} /><View style={styles.grow}><Text style={styles.gameName}>{game.name}</Text><Text style={styles.muted}>{t("matchCount", { count: game.matches })}</Text></View><Text style={styles.link} importantForAccessibility="no">›</Text>
-       </TouchableOpacity>)}
-      </View>
-     </>}
-    <View style={styles.section}>
-     <Text style={styles.title} accessibilityRole="header">{t("explore")}</Text>
-     {(["company","games","ratings","collection"] as const).map(section=><TouchableOpacity key={section} style={styles.inlineAction} accessibilityRole="button" onPress={()=>router.push({pathname:section==="company"?"/statistics/company":"/statistics/explore",params:{...query,period,section}} as never)}><Text style={[styles.link,styles.grow]}>{t(section==="company"?"company":section==="games"?"gamesRecords":section==="ratings"?"ratingsSection":"collectionSection")}</Text><Text style={styles.link}>›</Text></TouchableOpacity>)}
-     <Button title={t("yearAtTable")} onPress={()=>router.push({pathname:"/statistics/year",params:{...query,year:query.start.slice(0,4)}} as never)}/>
-    </View>
-    <View style={styles.section}>
-     <TouchableOpacity style={styles.inlineAction} accessibilityRole="button" accessibilityLabel={t("howCalculated")} accessibilityState={{ expanded: calculations }} onPress={() => setCalculations(v => !v)}>
-      <Text style={[styles.link, styles.grow]}>{t("howCalculated")}</Text><Text style={styles.link} importantForAccessibility="no">{calculations ? "⌃" : "⌄"}</Text>
-     </TouchableOpacity>
-     {calculations && <View style={styles.stack}>
-      <Text style={styles.muted}>{t("timeZone", { zone: timeZone })}</Text><Text style={styles.text}>{t("rateRule")}</Text>
-      <Text style={styles.text}>{t("legacyRule")}</Text><Text style={styles.text}>{t("durationRule")}</Text>
-      <Text style={styles.text}>{t("ratingRule")}</Text><Text style={styles.text}>{t("teamRule")}</Text>
-      <Text style={styles.muted}>{t("historyScope")}</Text>
-     </View>}
-     {!!data && <TouchableOpacity style={styles.inlineAction} accessibilityRole="button" onPress={refetch}><Text style={styles.link}>{t("refresh")}</Text></TouchableOpacity>}
-    </View>
-   </ScrollView>
+      </Hero>
+
+      <Section title={t(data.bucketUnit === "month" ? "monthlyMatches" : "dailyMatches")}>
+       <StatisticsEvolution compact buckets={data.evolution} unit={data.bucketUnit} language={i18n.language} title={t(data.bucketUnit === "month" ? "monthlyMatches" : "dailyMatches")} countLabel={count => t("matchCount", { count })} onSelect={bucket => show("all", { bucket })}/>
+      </Section>
+
+      <Section title={t("personalResults")} note={team ? t("teamResultShort") : t("knownCompact", { count: data.results.known })}>
+       <Card>
+        {data.results.known > 0 ? <View style={s.results}>
+         <ResultsTrio items={[
+          { icon: "trophy", color: colors.primary, value: number(data.results.wins), label: t("wins"), accessibilityLabel: `${t("wins")}: ${number(data.results.wins)}`, onPress: () => show("wins") },
+          { icon: "close-thick", color: colors.loss, value: number(data.results.losses), label: t("losses"), accessibilityLabel: `${t("losses")}: ${number(data.results.losses)}`, onPress: () => show("losses") },
+          { icon: "handshake", color: colors.draw, value: number(data.results.draws), label: t("draws"), accessibilityLabel: `${t("draws")}: ${number(data.results.draws)}`, onPress: () => show("draws") },
+         ]} />
+         <ProportionBar parts={[{ value: data.results.wins, color: colors.primary }, { value: data.results.losses, color: colors.loss }, { value: data.results.draws, color: colors.draw }]} />
+         <TouchableOpacity style={s.rate} accessibilityRole="button" accessibilityLabel={`${t("winRate")}: ${data.results.winRate == null ? t("unavailable") : `${number(data.results.winRate)}%`}`} accessibilityHint={t("viewSupporting")} onPress={() => show("known")}>
+          <Text style={[type.body, s.flex]}>{t("winRate")}</Text>
+          <Text style={[type.head, s.numeric]}>{data.results.winRate == null ? "—" : `${number(data.results.winRate)}%`}</Text>
+          <Glyph name="chevron-right" />
+         </TouchableOpacity>
+        </View> : <View style={s.results}><Text style={[type.body, { color: colors.muted }]}>{t("noConfirmedResults")}</Text></View>}
+        {data.results.withoutResult > 0 && <PendingNotice style={s.inCard} label={t("unknownCompact", { count: data.results.withoutResult })} accessibilityLabel={t("withoutResult", { count: data.results.withoutResult })} onPress={() => show("undefined")} />}
+       </Card>
+      </Section>
+
+      <Section title={t("mostPlayed")}>
+       <Card>
+        {visibleGames.map((game, index) => <Row key={game.gameId} first={index === 0} inset={72} lead={<GameCover uri={game.imageUrl} style={s.cover} iconSize={22} />} title={game.name} strongTitle
+         detail={<RankBar value={game.matches} max={topGame} />}
+         value={number(game.matches)} accessibilityLabel={game.name} accessibilityHint={t("viewSupporting")} onPress={() => show("all", { gameId: game.gameId })} />)}
+        {data.games.some((g, index) => index >= 3 && g.matches !== data.games[2]?.matches) && <Row title={t(allGames ? "showLessGames" : "showAllGames")} tone="link" end={allGames ? "collapse" : "expand"} onPress={() => setAllGames(v => !v)} />}
+       </Card>
+      </Section>
+     </>)}
+    {!loading && !error && notes}
+   </ScreenScroll>
   </KeyboardAvoidingView>
  </SafeAreaView>;
 }
+
+const s = StyleSheet.create({
+ screen: { flex: 1, backgroundColor: colors.background },
+ flex: { flex: 1, minWidth: 0 },
+ numeric: { fontVariant: ["tabular-nums"] },
+ state: { gap: space.md, alignItems: "flex-start" },
+ pair: { flexDirection: "row", gap: space.md, flexWrap: "wrap" },
+ stat: { flex: 1, minWidth: 120, minHeight: touch, gap: 2 },
+ label: { flexDirection: "row", alignItems: "center", gap: 6 },
+ heroFoot: { flexDirection: "row", alignItems: "center", gap: space.sm, minHeight: touch, borderTopWidth: 1, borderTopColor: colors.heroLine, paddingTop: 10, marginBottom: -4, flexWrap: "wrap" },
+ results: { padding: space.lg, gap: space.md },
+ rate: { flexDirection: "row", alignItems: "center", gap: space.sm, minHeight: touch, marginBottom: -space.sm },
+ inCard: { marginHorizontal: space.lg, marginBottom: space.lg },
+ cover: { width: 44, height: 44, borderRadius: 10 },
+ link: { minHeight: touch, justifyContent: "center", alignSelf: "flex-start" },
+});

@@ -16,7 +16,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
   const i18n = i18next.createInstance();
   await i18n.init({ lng: options.language || 'pt', resources, interpolation: { escapeValue: false } });
   const controls = [], lists = [], routes = [], calls = [], inputs = [], updates = [], datePickers = [], effects = [], nativeViews = [], switches = [], images = [], guards = [], redirects = [], cache = new Map();
-  let stateIndex = 0;
+  let stateIndex = 0, refIndex = 0;
   const host = ({ children }) => React.createElement('div', null, children);
   const button = p => { controls.push(p); return React.createElement('button', null, p.children); };
   const native = {
@@ -27,7 +27,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     Switch: p => { switches.push(p); return null; },
     Linking: { openURL: async url => calls.push(['openURL', url]) },
     BackHandler: { addEventListener: (name, callback) => { calls.push(['backHandler', name, callback]); return { remove: () => calls.push(['removeBackHandler']) }; } },
-    Modal: p => p.visible ? React.createElement(host, p) : null,
+    Modal: p => { nativeViews.push(['modal', p]); return p.visible ? React.createElement(host, p) : null; },
     TextInput: p => { inputs.push(p); return null; }, TouchableOpacity: button, Pressable: button,
     RefreshControl: () => null, Alert: { alert: (...args) => calls.push(['alert', ...args]) },
     Keyboard: { dismiss: () => calls.push(['dismissKeyboard']), addListener: (name, callback) => { calls.push(['keyboardListener', name, callback]); return { remove: () => calls.push(['removeKeyboardListener', name]) }; } },
@@ -108,6 +108,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     module.require = id => {
       if (id.endsWith('.png')) return 1;
       if (id === 'react' && [source, ...(options.stateModules || [])].some(file => filename === path.join(root, file))) return { ...React,
+        useRef: options.refs ? (initial => { const index=refIndex++; return options.refs[index]??(options.refs[index]={current:initial}); }) : React.useRef,
         useEffect: options.captureEffects ? (callback => { effects.push(callback); }) : React.useEffect,
         useState: initial => {
         const index = stateIndex++;

@@ -1,0 +1,12 @@
+<!doctype html><html lang="pt"><meta charset="utf-8"><title>Resumo · comparação normalizada</title>
+<style>body{font:16px system-ui;background:#faf9f6;color:#30263f;margin:24px} main{display:flex;gap:24px;flex-wrap:wrap}section{width:370px}canvas{width:370px;max-width:100%;background:white;border:1px solid #ded7e8}p{max-width:780px;line-height:1.5}label{display:block;margin:12px 0}input{padding:8px}h2{font-size:18px}</style>
+<h1>Resumo · referência A e captura real</h1><p>Cada coluna normaliza a largura do conteúdo para 370 unidades. Recortamos apenas o primeiro painel da A; não comparamos o quadro de seis telemóveis com uma captura individual. Não existe aqui uma renderização nova da app.</p>
+<label>Captura do Resumo, escolhida localmente: <input type="file" accept="image/*" id="file"></label><p>A imagem fica apenas neste navegador, sem envio. O recorte inicial exclui a barra de estado e as margens das capturas recebidas. Ajusta o início se necessário.</p>
+<label>Início vertical da captura (%): <input type="number" id="top" value="7.32" step="0.1" min="0" max="50"></label>
+<main><section><h2>Referência A · Resumo</h2><canvas id="reference"></canvas></section><section><h2>Captura real selecionada</h2><canvas id="actual"></canvas><p id="status">Pendente: selecionar uma captura real. Esta coluna não é um mockup nem uma captura simulada.</p></section></main>
+<script>
+function draw(canvas,img,x,y,w,h){canvas.width=740;canvas.height=Math.round(h/w*740);canvas.getContext('2d').drawImage(img,x,y,w,h,0,0,canvas.width,canvas.height)}
+const ref=new Image();ref.onload=()=>draw(document.getElementById('reference'),ref,38,146,290,667);ref.src='a-areas.png';let actual,url;
+function update(){if(!actual)return;const x=actual.width*.04,y=actual.height*Number(document.getElementById('top').value)/100;draw(document.getElementById('actual'),actual,x,y,actual.width*.92,actual.height-y);document.getElementById('status').textContent='Captura local: '+actual.width+' × '+actual.height+'. Aprovação visual pendente.'}
+document.getElementById('top').oninput=update;document.getElementById('file').onchange=e=>{if(!e.target.files[0])return;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(e.target.files[0]);actual=new Image();actual.onload=update;actual.src=url};
+</script></html>

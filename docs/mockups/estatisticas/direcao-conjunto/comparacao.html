@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estatísticas: proposta e implementação</title>
+<style>
+:root{--bg:#F3F1F5;--ink:#2A2433;--muted:#5E6570;--card:#FFFFFF;--line:#E2DDE7;--accent:#27594B;--soft:#E7F0E7;--warn:#FFF7DE;--warn-ink:#6E4D00;
+ --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17141B;--ink:#ECE8F0;--muted:#A9A3B2;--card:#221E28;--line:#37303F;--accent:#8CC4AE;--soft:#233A32;--warn:#3A3220;--warn-ink:#F1D79A}}
+:root[data-theme="dark"]{--bg:#17141B;--ink:#ECE8F0;--muted:#A9A3B2;--card:#221E28;--line:#37303F;--accent:#8CC4AE;--soft:#233A32;--warn:#3A3220;--warn-ink:#F1D79A}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--font);padding:0 16px 64px}
+.doc{max-width:1180px;margin:0 auto}
+.prose{max-width:700px}
+h1{font-size:32px;line-height:1.15;margin:40px 0 12px;letter-spacing:-.3px}
+h2{font-size:23px;line-height:1.25;margin:0 0 8px}
+h3{font-size:17px;margin:0 0 6px}
+p{margin:0 0 12px}
+.muted{color:var(--muted)}
+section{margin-top:48px;padding-top:28px;border-top:1px solid var(--line)}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:16px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.box.ok h3{color:var(--accent)}
+.box.pending{background:var(--warn);border-color:transparent}.box.pending h3,.box.pending li{color:var(--warn-ink)}
+ul{margin:0;padding-left:20px}li{margin:4px 0}
+table.spec{width:100%;border-collapse:collapse;font-size:15px}
+.spec td{padding:6px 0;border-top:1px solid var(--line);vertical-align:baseline}
+.spec td:last-child{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;padding-left:12px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(220px,300px);gap:20px;align-items:start;margin:28px 0}
+.pair figure,.extra figure{margin:0;display:flex;flex-direction:column;gap:8px}
+.pair img,.extra img{width:100%;max-width:402px;height:auto;display:block;border-radius:22px;border:1px solid var(--line);background:#fff}
+.tag{font-size:13px;font-weight:600;color:var(--muted);text-transform:none}
+.note h3{margin-top:2px}
+.note p,.note li{font-size:15px}
+.extra{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;margin-top:20px}
+.extra figcaption{font-size:14px;line-height:20px}
+.extra figcaption b{display:block}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+nav.toc a{font-size:14px;padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--ink);text-decoration:none;min-height:36px;display:inline-flex;align-items:center}
+nav.toc a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (max-width:860px){.pair{grid-template-columns:1fr 1fr}.pair .note{grid-column:1/-1}}
+@media (max-width:520px){.pair{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="doc">
+<header class="prose">
+ <h1>Estatísticas: proposta e implementação</h1>
+ <p>Cada linha compara o ecrã da proposta (<code>proposta.html</code>) com os componentes reais implementados, no mesmo estado e posição de scroll, a 402 × 874 pt.</p>
+ <p class="muted">As capturas da implementação foram feitas no WebKit do Mac com os ficheiros TSX reais e respostas gravadas da API DeviceTests (5099, base MeepleBoard_DeviceTests, só pedidos GET). Não são capturas do iPhone. O calendário inline do iOS aparece como substituto visual.</p>
+ <nav class="toc" aria-label="Secções">
+  <a href="#estado">Validação</a><a href="#regras">Regras</a><a href="#resumo">Resumo</a><a href="#filtros">Filtros</a><a href="#companhia">Companhia</a><a href="#explorar">Explorar</a><a href="#ano">Ano</a><a href="#ampliado">Texto ampliado</a><a href="#extra">Outros estados</a>
+ </nav>
+</header>
+
+<section id="estado">
+ <h2>O que está validado</h2>
+ <div class="status">
+  <div class="box ok"><h3>Validado localmente</h3><ul>
+   <li>TypeScript sem erros e 286 testes aprovados, incluindo os 46 das Estatísticas.</li>
+   <li>O Metro 8082 compila o bundle iOS com estas alterações (HTTP 200).</li>
+   <li>27 estados renderizados com os componentes reais e verificados automaticamente: nenhuma área de toque abaixo de 44 pt, nenhum texto a transbordar e nenhum ícone em falta.</li>
+   <li>Nomes com 34 caracteres e texto a 130 %: as linhas crescem e passam a coluna, sem cortes.</li>
+   <li>Regresso à lista com pesquisa e scroll, troca de amigo sem perder filtros e contexto, e rascunho dos filtros até Aplicar: tudo coberto pelos testes.</li>
+  </ul></div>
+  <div class="box pending"><h3>Falta confirmar no iPhone</h3><ul>
+   <li>A geometria nativa (Yoga e o texto do iOS) face ao WebKit, em particular alturas de linha, separadores finos e a sombra do segmentado.</li>
+   <li>O calendário inline nativo dentro da folha de filtros, e a folha de troca de amigo com o teclado aberto.</li>
+   <li>Dynamic Type acima de 130 %, a ordem de leitura no VoiceOver e as áreas seguras do modelo concreto.</li>
+   <li>A captura e partilha do cartão anual. Nenhuma partilha externa foi feita.</li>
+   <li>O iPhone aparece ligado ao Metro, mas o inspetor recusou a ligação. Não houve captura do dispositivo.</li>
+  </ul></div>
+ </div>
+</section>
+
+<section id="regras">
+ <h2>Regras comuns aplicadas</h2>
+ <p class="muted">Ficam em <code>src/features/statistics/ui/</code>: <code>theme.ts</code> (tokens), <code>components.tsx</code> (secção, cartão, linha, destaque, segmentado, trio, barras, aviso por confirmar, estado vazio, botão, pesquisa), <code>Sheet.tsx</code> e <code>Screen.tsx</code>.</p>
+ <div class="status">
+  <div class="box"><h3>Texto</h3><table class="spec">
+   <tr><td>Destaque</td><td>34/40 bold</td></tr><tr><td>Título (cartão anual, contagens do trio)</td><td>22/28 bold</td></tr><tr><td>Secção</td><td>17/22 semibold</td></tr><tr><td>Corpo e linhas</td><td>15/20</td></tr><tr><td>Apoio e cobertura</td><td>13/18</td></tr><tr><td>Eixos do gráfico</td><td>12/16</td></tr></table></div>
+  <div class="box"><h3>Espaço</h3><table class="spec">
+   <tr><td>Margem lateral, padding dos cartões</td><td>16</td></tr><tr><td>Título de secção → cartão</td><td>8</td></tr><tr><td>Entre secções</td><td>24</td></tr><tr><td>Elementos agrupados (amigo + âmbito)</td><td>12</td></tr><tr><td>Linhas de lista</td><td>≥ 52</td></tr><tr><td>Qualquer ação</td><td>≥ 44 × 44</td></tr><tr><td>Raios: cartão / controlo / destaque / folha</td><td>14 / 12 / 16 / 22</td></tr></table></div>
+  <div class="box"><h3>Cor e gestos</h3><ul>
+   <li>Verde: tu, ações e seleção. Violeta: o amigo. Lavanda: só o destaque da página e o cartão anual.</li>
+   <li>Dourado suave só para “por confirmar”. O cartão anual partilhado deixou de usar dourado.</li>
+   <li>› abre as partidas que sustentam o número. ⌄ expande no próprio cartão. As escolhas abrem numa folha por cima.</li>
+   <li>Nenhum cartão tem altura fixa. Os valores de texto nas linhas usam corpo neutro e os números usam semibold.</li>
+  </ul></div>
+ </div>
+</section>
+
+<section id="resumo"><h2>Resumo</h2>
+ <div class="pair"><figure><span class="tag">Proposta · topo</span><img src="proposta-ecras/00-resumo-topo.jpg" alt="Proposta: Resumo, topo"></figure><figure><span class="tag">Implementação · topo</span><img src="implementacao/00-resumo-topo.jpg" alt="Implementação: Resumo, topo"></figure>
+  <div class="note"><h3>Igual na estrutura</h3><p>Âmbito, destaque com tempo e cobertura, gráfico mensal e resultados com barra proporcional. “Consultar meses” expande no cartão (⌄) porque abre a lista de meses no próprio cartão, e não outra página.</p></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · continuação</span><img src="proposta-ecras/01-resumo-continuacao.jpg" alt="Proposta: Resumo, continuação"></figure><figure><span class="tag">Implementação · continuação</span><img src="implementacao/01-resumo-continuacao.jpg" alt="Implementação: Resumo, continuação"></figure>
+  <div class="note"><h3>Diferenças deliberadas</h3><ul><li>Em “Mais detalhes” acrescentei “Antigos por confirmar”, com a nota “Já contados nos 3 sem resultado”. Assim não parecem um quarto grupo nem se somam duas vezes.</li><li>A avaliação média mostra o valor real (3,75 em 14 de 14). Na proposta aparecia “—”, que era ilustrativo.</li></ul></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · sem dados</span><img src="proposta-ecras/02-resumo-vazio.jpg" alt="Proposta: Resumo sem dados"></figure><figure><span class="tag">Implementação · sem dados</span><img src="implementacao/02-resumo-vazio.jpg" alt="Implementação: Resumo sem dados"></figure>
+  <div class="note"><p>Usa o mesmo componente de estado vazio do Ano. A proposta tinha um filtro ativo, com um 1 no botão. Aqui não há filtro, por isso o botão não mostra contagem.</p></div></div>
+</section>
+
+<section id="filtros"><h2>Filtros</h2>
+ <div class="pair"><figure><span class="tag">Proposta</span><img src="proposta-ecras/03-filtros.jpg" alt="Proposta: folha de filtros"></figure><figure><span class="tag">Implementação</span><img src="implementacao/03-filtros.jpg" alt="Implementação: folha de filtros"></figure>
+  <div class="note"><p>Cancelar · Filtros · Aplicar. Tudo fica em rascunho até Aplicar. O fuso horário passa a estar sempre visível numa linha discreta, em vez de ficar atrás de ⓘ.</p></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · escolher jogo</span><img src="proposta-ecras/04-filtros-jogo.jpg" alt="Proposta: escolher jogo"></figure><figure><span class="tag">Implementação · escolher jogo</span><img src="implementacao/04-filtros-jogo.jpg" alt="Implementação: escolher jogo"></figure>
+  <div class="note"><p>Subpágina dentro da mesma folha, com ✓. Escolher volta aos filtros.</p></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · intervalo</span><img src="proposta-ecras/05-filtros-intervalo.jpg" alt="Proposta: intervalo"></figure><figure><span class="tag">Implementação · intervalo</span><img src="implementacao/05-filtros-intervalo.jpg" alt="Implementação: intervalo"></figure>
+  <div class="note"><h3>Confirmar no iPhone</h3><p>O calendário mostrado é um substituto do WebKit. No iPhone abre o calendário inline nativo já usado, por baixo da data em edição.</p></div></div>
+</section>
+
+<section id="companhia"><h2>Companhia e detalhe do amigo</h2>
+ <div class="pair"><figure><span class="tag">Proposta · lista</span><img src="proposta-ecras/06-companhia-lista.jpg" alt="Proposta: lista de amigos"></figure><figure><span class="tag">Implementação · lista</span><img src="implementacao/06-companhia-lista.jpg" alt="Implementação: lista de amigos"></figure>
+  <div class="note"><p>Pesquisa, linhas compactas e uma barra relativa ao amigo mais frequente. A pesquisa e o scroll mantêm-se ao voltar do detalhe.</p></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · detalhe, topo</span><img src="proposta-ecras/07-companhia-topo.jpg" alt="Proposta: detalhe do amigo, topo"></figure><figure><span class="tag">Implementação · detalhe, topo</span><img src="implementacao/07-companhia-topo.jpg" alt="Implementação: detalhe do amigo, topo"></figure>
+  <div class="note"><h3>Duas mudanças por clareza</h3><ul><li>O anel passou a barra linear, com “39 de 129 com resultado confirmado”. Lê-se melhor, segue as outras barras e não precisa de uma biblioteca de SVG.</li><li>A barra do frente a frente tem três partes: só tuas, partilhadas e só do amigo. Uma barra 14 : 8 sugeria 22 vitórias distintas, quando 8 são as mesmas. A legenda diz “6 só tuas · 8 partilhadas · 0 só de …”.</li></ul></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · continuação</span><img src="proposta-ecras/08-companhia-continuacao.jpg" alt="Proposta: detalhe, continuação"></figure><figure><span class="tag">Implementação · continuação</span><img src="implementacao/08-companhia-continuacao.jpg" alt="Implementação: detalhe, continuação"></figure>
+  <div class="note"><p>Cooperativo com o resultado da equipa. “Mais sobre vocês” junta a consulta e os quatro acordeões. Jogos, evolução, pontuações e cálculos mantêm-se.</p></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · por confirmar</span><img src="proposta-ecras/09-companhia-por-confirmar.jpg" alt="Proposta: por confirmar"></figure><figure><span class="tag">Implementação · por confirmar</span><img src="implementacao/09-companhia-por-confirmar.jpg" alt="Implementação: por confirmar"></figure>
+  <div class="note"><p>Em “Só vocês” (76 partidas, 0 confirmadas) não aparece nenhuma grelha de zeros. O total diz “Nenhum resultado confirmado” e o aviso dourado dá acesso às 76 partidas.</p></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · trocar amigo</span><img src="proposta-ecras/10-trocar-amigo.jpg" alt="Proposta: trocar amigo"></figure><figure><span class="tag">Implementação · trocar amigo</span><img src="implementacao/10-trocar-amigo.jpg" alt="Implementação: trocar amigo"></figure>
+  <div class="note"><p>A folha fica por cima e a página não se desloca. Tem pesquisa própria, o amigo atual aparece com ✓ e “Selecionado”, e escolher outro fecha logo a folha. A altura mínima é estável, por isso a folha não salta quando a pesquisa filtra.</p></div></div>
+</section>
+
+<section id="explorar"><h2>Explorar</h2>
+ <div class="pair"><figure><span class="tag">Proposta · jogos</span><img src="proposta-ecras/11-explorar-jogos.jpg" alt="Proposta: jogos"></figure><figure><span class="tag">Implementação · jogos</span><img src="implementacao/11-explorar-jogos.jpg" alt="Implementação: jogos"></figure>
+  <div class="note"><p>Uma lista única. Nos dados reais, o Competitivo tem dois modos (Competitivo e Modo não registado), por isso cada modo tem o seu bloco com trio, quatro indicadores, amostra e consulta.</p></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · sem avaliações</span><img src="proposta-ecras/12-explorar-sem-avaliacoes.jpg" alt="Proposta: sem avaliações"></figure><figure><span class="tag">Implementação · sem avaliações</span><img src="implementacao/12-explorar-sem-avaliacoes.jpg" alt="Implementação: sem avaliações"></figure>
+  <div class="note"><p>Os dados de 2024 têm avaliações. Para mostrar este estado, retirei-as da resposta só no renderizador (com avaliações, ver “Outros estados”). A ausência aparece como “—”, nunca como zero.</p></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · coleção</span><img src="proposta-ecras/13-explorar-colecao.jpg" alt="Proposta: coleção"></figure><figure><span class="tag">Implementação · coleção (2026)</span><img src="implementacao/13-explorar-colecao.jpg" alt="Implementação: coleção"></figure>
+  <div class="note"><p>Os três números, uma etiqueta de estado e o preço 0,00 com “moeda não indicada”. O nome abre o jogo e o número à direita abre as partidas do período (são dois toques separados).</p></div></div>
+</section>
+
+<section id="ano"><h2>Ano</h2>
+ <div class="pair"><figure><span class="tag">Proposta · cartão</span><img src="proposta-ecras/14-ano-cartao.jpg" alt="Proposta: cartão anual"></figure><figure><span class="tag">Implementação · cartão</span><img src="implementacao/14-ano-cartao.jpg" alt="Implementação: cartão anual"></figure>
+  <div class="note"><p>Os líderes empatados aparecem lado a lado e Anterior e Seguinte ficam juntos. O Ano passa a ter Filtros de jogo e modo, sem período, porque o ano escolhe-se pelas setas.</p></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · continuação</span><img src="proposta-ecras/15-ano-continuacao.jpg" alt="Proposta: Ano, continuação"></figure><figure><span class="tag">Implementação · continuação</span><img src="implementacao/15-ano-continuacao.jpg" alt="Implementação: Ano, continuação"></figure>
+  <div class="note"><p>“Neste cartão” e “Partilhar”, com a nota de privacidade junto ao botão.</p></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · ano vazio</span><img src="proposta-ecras/16-ano-vazio.jpg" alt="Proposta: ano vazio"></figure><figure><span class="tag">Implementação · ano vazio</span><img src="implementacao/16-ano-vazio.jpg" alt="Implementação: ano vazio"></figure>
+  <div class="note"><p>A mensagem atual, com regresso ao ano anterior.</p></div></div>
+</section>
+
+<section id="ampliado"><h2>Texto a 130 % e nome longo</h2>
+ <div class="pair"><figure><span class="tag">Proposta · topo</span><img src="proposta-ecras/17-ampliado-topo.jpg" alt="Proposta: texto ampliado, topo"></figure><figure><span class="tag">Implementação · topo</span><img src="implementacao/17-ampliado-topo.jpg" alt="Implementação: texto ampliado, topo"></figure>
+  <div class="note"><p>As áreas passam a uma faixa deslizante e o âmbito põe Filtros por baixo. Voltar mantém a regra atual: passa para uma linha própria acima do logótipo, para não lhe tocar.</p></div></div>
+ <div class="pair"><figure><span class="tag">Proposta · continuação</span><img src="proposta-ecras/18-ampliado-continuacao.jpg" alt="Proposta: texto ampliado, continuação"></figure><figure><span class="tag">Implementação · continuação</span><img src="implementacao/18-ampliado-continuacao.jpg" alt="Implementação: texto ampliado, continuação"></figure>
+  <div class="note"><p>O frente a frente passa a coluna e o nome completo quebra sem reduzir a letra.</p></div></div>
+</section>
+
+<section id="extra"><h2>Outros estados verificados</h2>
+ <div class="extra">
+  <figure><img src="implementacao/x1-trocar-pesquisa.jpg" alt="Troca de amigo com pesquisa"><figcaption><b>Troca com pesquisa</b>A altura da folha mantém-se.</figcaption></figure>
+  <figure><img src="implementacao/x2-trocar-nome-longo.jpg" alt="Troca com nome longo"><figcaption><b>Nome longo na troca</b>Completo, sem cortes.</figcaption></figure>
+  <figure><img src="implementacao/x3-companhia-empates.jpg" alt="Empates expandidos"><figcaption><b>Empates e vitórias partilhadas</b>A explicação e a divisão ficam no próprio cartão.</figcaption></figure>
+  <figure><img src="implementacao/x4-explorar-avaliacoes-reais.jpg" alt="Avaliações com dados"><figcaption><b>Avaliações com dados reais</b>Com vários modos, a média aparece por modo ao expandir.</figcaption></figure>
+  <figure><img src="implementacao/x5-explorar-ordenar.jpg" alt="Folha de ordenação"><figcaption><b>Ordenação</b>A mesma folha, com ✓.</figcaption></figure>
+  <figure><img src="implementacao/x6-ano-pre-visualizacao.jpg" alt="Pré-visualização da partilha"><figcaption><b>Pré-visualização</b>O mesmo cartão, sem identidades de amigos.</figcaption></figure>
+  <figure><img src="implementacao/x7-resumo-ampliado.jpg" alt="Resumo com texto ampliado"><figcaption><b>Resumo a 130 %</b>Gráfico com três rótulos de mês.</figcaption></figure>
+  <figure><img src="implementacao/x8-filtros-ano.jpg" alt="Filtros no Ano"><figcaption><b>Filtros no Ano</b>Só jogo e modo.</figcaption></figure>
+ </div>
+</section>
+</div>
+</body>
+</html>

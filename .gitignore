@@ -57,3 +57,5 @@ Thumbs.db
 
 # Temporary/example project
 app-example/
+# Visual preview output (screenshots, bundle, local test session)
+tools/visual-preview/out/

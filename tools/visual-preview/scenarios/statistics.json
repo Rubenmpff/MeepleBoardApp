@@ -1,0 +1,22 @@
+{
+ "name": "statistics",
+ "defaults": {"params": {"start": "2024-01-01", "endExclusive": "2025-01-01", "timeZone": "Europe/Lisbon", "period": "year"}},
+ "screens": [
+  {"id": "00-resumo-topo", "route": "/statistics"},
+  {"id": "01-resumo-continuacao", "route": "/statistics", "scroll": "end"},
+  {"id": "02-resumo-vazio", "route": "/statistics", "params": {"start": "2025-01-01", "endExclusive": "2026-01-01", "timeZone": "Europe/Lisbon", "period": "year"}},
+  {"id": "03-filtros", "route": "/statistics", "steps": [{"click": "Filtros"}]},
+  {"id": "04-filtros-jogo", "route": "/statistics", "steps": [{"click": "Filtros"}, {"click": "Jogo: Todos os jogos"}]},
+  {"id": "05-filtros-intervalo", "route": "/statistics", "steps": [{"click": "Filtros"}, {"click": "Intervalo"}, {"click": "Data inicial"}]},
+  {"id": "06-companhia-lista", "route": "/statistics/company", "params": {"start": "2026-01-01", "endExclusive": "2027-01-01", "timeZone": "Europe/Lisbon", "period": "year"}},
+  {"id": "07-companhia-topo", "route": "/statistics/company", "params": {"start": "2026-01-01", "endExclusive": "2027-01-01", "timeZone": "Europe/Lisbon", "period": "year", "friendId": "{{user:participante}}"}},
+  {"id": "08-companhia-continuacao", "route": "/statistics/company", "params": {"start": "2026-01-01", "endExclusive": "2027-01-01", "timeZone": "Europe/Lisbon", "period": "year", "friendId": "{{user:participante}}"}, "scroll": "end"},
+  {"id": "09-companhia-por-confirmar", "route": "/statistics/company", "params": {"start": "2026-01-01", "endExclusive": "2027-01-01", "timeZone": "Europe/Lisbon", "period": "year", "friendId": "{{user:participante}}", "groupContext": "only-two"}},
+  {"id": "10-trocar-amigo", "route": "/statistics/company", "params": {"start": "2026-01-01", "endExclusive": "2027-01-01", "timeZone": "Europe/Lisbon", "period": "year", "friendId": "{{user:participante}}"}, "steps": [{"click": "Trocar amigo"}]},
+  {"id": "11-explorar-jogos", "route": "/statistics/explore", "steps": [{"click": "Meeple Teste Competitivo"}]},
+  {"id": "13-explorar-colecao", "route": "/statistics/explore", "params": {"start": "2026-01-01", "endExclusive": "2027-01-01", "timeZone": "Europe/Lisbon", "period": "year"}, "steps": [{"click": "Coleção"}]},
+  {"id": "14-ano-cartao", "route": "/statistics/year", "steps": [{"click": "Seguinte"}]},
+  {"id": "15-ano-continuacao", "route": "/statistics/year", "steps": [{"click": "Seguinte"}], "scroll": "end"},
+  {"id": "17-ampliado-topo", "route": "/statistics/company", "fontScale": 1.3, "params": {"start": "2026-01-01", "endExclusive": "2027-01-01", "timeZone": "Europe/Lisbon", "period": "year", "friendId": "{{user:participante}}"}}
+ ]
+}

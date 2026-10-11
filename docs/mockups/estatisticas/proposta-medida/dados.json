@@ -1,0 +1,64 @@
+{
+  "source": "Capturas do utilizador: Resumo Ano 2024 e Companhia 13:41",
+  "summary": {
+    "matches": 14,
+    "games": 3,
+    "minutes": 288,
+    "durationKnown": 7,
+    "wins": 5,
+    "losses": 3,
+    "draws": 3,
+    "known": 11,
+    "unknown": 3,
+    "rate": "45,45%",
+    "months": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      14,
+      0,
+      0
+    ],
+    "gamesList": [
+      [
+        "Meeple Teste Competitivo",
+        5
+      ],
+      [
+        "Meeple Teste Solo",
+        5
+      ],
+      [
+        "Meeple Teste Cooperativo",
+        4
+      ]
+    ]
+  },
+  "company": {
+    "friend": "Teste-participante",
+    "all": 129,
+    "onlyTwo": 76,
+    "group": 53,
+    "myWins": 14,
+    "friendWins": 8,
+    "sharedWins": 8,
+    "draws": 7,
+    "otherWins": 0,
+    "teamWins": 6,
+    "teamLosses": 6,
+    "teamDraws": 6,
+    "confirmed": 39,
+    "pending": 90,
+    "onlyTwoConfirmed": 0,
+    "onlyTwoPending": 76,
+    "groupConfirmed": 39,
+    "groupPending": 14
+  },
+  "notVisible": "Confirmados/por confirmar de Companhia fornecidos pelo utilizador nesta revisão; jogos conjuntos, evolução e pontuações sem valores inventados."
+}

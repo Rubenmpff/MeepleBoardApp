@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direção da app MeepleBoard</title>
+<style>
+:root{--doc-bg:#F3F1F5;--doc-ink:#2A2433;--doc-muted:#5E6570;--doc-card:#FFFFFF;--doc-line:#E2DDE7;--doc-accent:#27594B;--doc-warn:#FFF7DE;--doc-warn-ink:#6E4D00;
+ --doc-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--doc-bg:#17141B;--doc-ink:#ECE8F0;--doc-muted:#A9A3B2;--doc-card:#221E28;--doc-line:#37303F;--doc-accent:#8CC4AE;--doc-warn:#3A3220;--doc-warn-ink:#F1D79A}}
+:root[data-theme="dark"]{color-scheme:dark;--doc-bg:#17141B;--doc-ink:#ECE8F0;--doc-muted:#A9A3B2;--doc-card:#221E28;--doc-line:#37303F;--doc-accent:#8CC4AE;--doc-warn:#3A3220;--doc-warn-ink:#F1D79A}
+@font-face{font-family:"MCI";src:url(../../../../node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf) format("truetype");font-display:block}
+*{box-sizing:border-box}
+body{margin:0;background:var(--doc-bg);color:var(--doc-ink);font:16px/1.55 var(--doc-font);padding:0 20px 72px}
+.doc{max-width:1240px;margin:0 auto}
+.prose{max-width:720px}
+h1{font-size:34px;line-height:1.15;letter-spacing:-.4px;margin:44px 0 12px}
+h2{font-size:24px;line-height:1.25;margin:0 0 8px}
+h3{font-size:17px;margin:0 0 6px}
+p{margin:0 0 12px}
+.lede{font-size:18px}
+.muted{color:var(--doc-muted)}
+code{font-size:.9em}
+section.block{margin-top:56px;padding-top:32px;border-top:1px solid var(--doc-line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:16px}
+.box{background:var(--doc-card);border:1px solid var(--doc-line);border-radius:14px;padding:18px 20px}
+.box.warn{background:var(--doc-warn);border-color:transparent}.box.warn h3,.box.warn li,.box.warn p{color:var(--doc-warn-ink)}
+ul,ol{margin:0;padding-left:20px}li{margin:4px 0}
+table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--doc-card);border:1px solid var(--doc-line);border-radius:14px;overflow:hidden}
+.map th,.map td{text-align:left;padding:9px 12px;border-top:1px solid var(--doc-line);vertical-align:top}
+.map th{background:transparent;color:var(--doc-muted);font-weight:600;border-top:0}
+.spec{width:100%;border-collapse:collapse;font-size:14px}
+.spec td{padding:5px 0;border-top:1px solid var(--doc-line)}.spec td:last-child{text-align:right;color:var(--doc-muted);padding-left:8px;white-space:nowrap}
+.strip{display:flex;gap:28px;overflow-x:auto;padding:20px 4px 12px;scroll-snap-type:x proximity}
+.shot{flex:none;display:flex;flex-direction:column;gap:10px;margin:0;scroll-snap-align:start;max-width:402px}
+.shot figcaption{font-size:14px;line-height:20px}.shot figcaption b{display:block;font-size:15px}.shot figcaption span{color:var(--doc-muted)}
+.before{width:402px;height:874px;border-radius:40px;border:1px solid var(--doc-line);display:block;object-fit:cover;background:#fff}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--doc-muted)}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0 0;font-size:15px}
+.flow span{background:var(--doc-card);border:1px solid var(--doc-line);border-radius:999px;padding:4px 12px}
+.flow i{font-style:normal;color:var(--doc-muted)}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+nav.toc a{font-size:14px;padding:6px 12px;border-radius:999px;background:var(--doc-card);border:1px solid var(--doc-line);color:var(--doc-ink);text-decoration:none;min-height:36px;display:inline-flex;align-items:center}
+nav.toc a:focus-visible{outline:3px solid var(--doc-accent);outline-offset:2px}
+
+/* ---------- Telemóvel 402 × 874 pt; tokens = src/features/statistics/ui/theme.ts estendidos à app ---------- */
+.phone{--s:1;--bg:#FBFBF8;--card:#FFFFFF;--hero:#F1EBFA;--band:#F6F2FA;--ink:#30283D;--mut:#58616A;--pri:#27594B;--pri-soft:#E7F0E7;--line:#EAE5EF;--hair:#EFEAF2;--track:#EFEDF1;--tint:#FAF8FC;
+ --gold-soft:#FFF7DE;--gold-ink:#6E4D00;--gold:#DCA52B;--friend:#7A5AAE;--loss:#E46B71;--draw:#9C93AE;--lav:#9C86C9;--chev:#8C9096;--danger:#B3261E;
+ width:402px;height:874px;position:relative;overflow:hidden;border-radius:44px;background:var(--bg);color:var(--ink);flex:none;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;font-size:15px;line-height:20px;
+ box-shadow:0 0 0 1px rgba(30,20,40,.10),0 30px 60px -30px rgba(40,20,60,.45)}
+.phone *{box-sizing:border-box}
+.mdi{font-family:"MCI";font-style:normal;line-height:1;display:inline-block;flex:none;font-size:calc(var(--sz)*var(--s))}
+.t-display{font-size:calc(34px*var(--s));line-height:calc(40px*var(--s));font-weight:700;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.t-large{font-size:calc(28px*var(--s));line-height:calc(34px*var(--s));font-weight:700;letter-spacing:-.3px}
+.t-title{font-size:calc(22px*var(--s));line-height:calc(28px*var(--s));font-weight:700}
+.t-head{font-size:calc(17px*var(--s));line-height:calc(22px*var(--s));font-weight:600}
+.t-body{font-size:calc(15px*var(--s));line-height:calc(20px*var(--s))}
+.t-cap{font-size:calc(13px*var(--s));line-height:calc(18px*var(--s));color:var(--mut)}
+.t-micro{font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut)}
+.b{font-weight:600}.grow{flex:1;min-width:0}.num{font-variant-numeric:tabular-nums}.link{color:var(--pri);font-weight:600}
+.status{position:absolute;top:0;left:0;right:0;height:54px;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:16px 34px 0 54px;font-weight:600;font-size:17px;pointer-events:none}
+.island{position:absolute;top:11px;left:50%;width:124px;height:36px;margin-left:-62px;border-radius:20px;background:#0E0C10;z-index:31}
+.batt{width:26px;height:12px;border:1.5px solid var(--ink);border-radius:4px;padding:1.5px}.batt i{display:block;height:100%;width:80%;background:var(--ink);border-radius:1.5px}
+.homebar{position:absolute;bottom:8px;left:50%;width:138px;height:5px;margin-left:-69px;border-radius:3px;background:#17131B;z-index:40}
+/* root header: band + logo, title row */
+.band{position:absolute;top:0;left:0;right:0;height:124px;background:var(--band);overflow:hidden;z-index:3}
+.band .logo{position:absolute;top:62px;left:50%;width:94px;height:62px;margin-left:-47px;overflow:hidden;z-index:2}
+.band .logo img{position:absolute;width:162px;height:162px;left:-36px;top:-49px;max-width:none}
+.band .curve{position:absolute;left:50%;bottom:-54px;width:620px;height:64px;margin-left:-310px;border-radius:50%;background:var(--bg)}
+.band .act{position:absolute;top:71px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;color:var(--pri);z-index:4}
+.band .act.l{left:8px}.band .act.r{right:8px}
+.badge{min-width:18px;height:18px;border-radius:9px;background:var(--pri);color:#fff;font:600 11px/18px -apple-system;text-align:center;padding:0 5px;position:absolute;top:6px;right:4px}
+.badge.gold{background:var(--gold);color:#3B2A00}
+/* sub-page header */
+.nav{position:absolute;top:54px;left:0;right:0;height:48px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 8px;z-index:3;background:var(--bg)}
+.nav.line{border-bottom:1px solid var(--line)}
+.nav>:last-child{justify-self:end}
+.nav .act{min-height:44px;min-width:44px;display:flex;align-items:center;gap:2px;color:var(--pri);padding:0 8px;font-size:calc(15px*var(--s))}
+.nav .ttl{font-size:calc(17px*var(--s));font-weight:600;text-align:center;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.viewport{position:absolute;left:0;right:0;bottom:0;overflow:hidden}
+.content{padding:16px 16px 120px;display:flex;flex-direction:column;gap:24px}
+.group{display:flex;flex-direction:column;gap:12px}
+.pagehead{display:flex;align-items:flex-end;gap:12px;margin-bottom:-8px}
+/* tab bar */
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:83px;background:rgba(251,251,248,.96);border-top:1px solid var(--line);display:flex;padding:6px 6px 0;z-index:20;backdrop-filter:blur(10px)}
+.tabbar .it{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--mut);font-size:11px;line-height:13px;font-weight:500;min-height:49px;position:relative}
+.tabbar .it.on{color:var(--pri);font-weight:600}
+.tabbar .plus{width:52px;height:40px;border-radius:14px;background:var(--pri);display:flex;align-items:center;justify-content:center;color:#fff;margin-top:1px}
+.tabbar .dot{position:absolute;top:0;left:50%;margin-left:6px;min-width:16px;height:16px;border-radius:8px;background:var(--gold);color:#3B2A00;font:700 10px/16px -apple-system;text-align:center;padding:0 4px}
+/* surfaces */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.pad{padding:16px}
+.hero{background:var(--hero);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.sec{display:flex;flex-direction:column;gap:8px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:0 16px}
+.row{display:flex;align-items:center;gap:12px;min-height:calc(52px*var(--s));padding:8px 16px;position:relative}
+.row+.row::before,.rtop::before{content:"";position:absolute;top:0;left:var(--inset,16px);right:0;border-top:1px solid var(--hair)}
+.rtop{position:relative}
+.row .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row .val{font-size:calc(17px*var(--s));line-height:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.chev{color:var(--chev)}
+.cover{width:44px;height:44px;border-radius:10px;background:var(--hero);display:flex;align-items:center;justify-content:center;flex:none}
+.cover.lg{width:96px;height:96px;border-radius:16px}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--pri-soft);color:var(--pri);display:flex;align-items:center;justify-content:center;font-weight:600;flex:none;font-size:16px}
+.avatar.sm{width:28px;height:28px;font-size:13px;border:2px solid var(--card)}
+.stack{display:flex}.stack .avatar+.avatar{margin-left:-8px}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 9px;font-size:calc(12px*var(--s));line-height:18px;font-weight:600;white-space:nowrap}
+.p-green{background:var(--pri-soft);color:var(--pri)}.p-lav{background:#EEE9F6;color:#5B4A80}.p-gold{background:var(--gold-soft);color:var(--gold-ink)}.p-grey{background:var(--track);color:var(--mut)}
+.btn{min-height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:calc(15px*var(--s));font-weight:600;padding:10px 16px;text-align:center}
+.btn.primary{background:var(--pri);color:#fff}.btn.secondary{background:var(--pri-soft);color:var(--pri)}.btn.off{opacity:.4}.btn.danger{color:var(--danger);background:transparent}
+.btns{display:flex;gap:12px}.btns .btn{flex:1}
+.field{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border:1px solid #E1DBE7;border-radius:12px;background:var(--card);color:var(--mut);font-size:calc(15px*var(--s))}
+.field.focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(39,89,75,.15);color:var(--ink)}
+.label{font-size:13px;line-height:18px;font-weight:600;color:var(--ink);margin:0 4px 6px}
+.seg{display:flex;padding:3px;background:var(--track);border-radius:12px;gap:2px}
+.seg>div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:9px;min-height:38px;font-size:calc(15px*var(--s));font-weight:500}
+.seg>div.on{background:var(--card);font-weight:600;box-shadow:0 1px 2px rgba(48,40,61,.16)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{min-height:36px;display:inline-flex;align-items:center;gap:6px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:14px}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:600}
+.pending{display:flex;align-items:center;gap:10px;min-height:44px;padding:10px 12px;border-radius:12px;background:var(--gold-soft);color:var(--gold-ink)}
+.bar{display:flex;gap:2px;height:8px;border-radius:4px;overflow:hidden}.bar i{display:block;height:100%}
+.stepper{display:flex;gap:4px}.stepper i{flex:1;height:4px;border-radius:2px;background:#DCD6E2}.stepper i.on{background:var(--pri)}
+.actionbar{position:absolute;left:0;right:0;bottom:0;padding:12px 16px 34px;background:linear-gradient(180deg,rgba(251,251,248,0),var(--bg) 22%);z-index:15;display:flex;flex-direction:column;gap:8px}
+.scrim{position:absolute;inset:0;background:rgba(35,25,45,.36);z-index:24}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:25;background:var(--bg);border-radius:22px 22px 0 0;padding:6px 16px 42px;display:flex;flex-direction:column;gap:16px}
+.grab{width:36px;height:5px;border-radius:3px;background:#D6D1DC;align-self:center}
+.sheet-h{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:44px}
+.sheet-h>:last-child{justify-self:end}
+.sheet-h .act{min-height:44px;display:flex;align-items:center;color:var(--pri)}
+.kbd{position:absolute;left:0;right:0;bottom:0;height:336px;background:#D1D3D9;z-index:22;display:flex;flex-direction:column;gap:11px;padding:8px 3px 0;font:20px -apple-system}
+.kbd div{display:flex;gap:6px;justify-content:center}.kbd span{background:#fff;border-radius:5px;height:42px;flex:0 0 34px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 0 #898A8D}
+.kbd .wide{flex:0 0 190px;font-size:15px}.kbd .fn{background:#ABB0BA;flex:0 0 46px;font-size:15px}
+.tile{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.tri{display:flex}.tri>div{flex:1;display:flex;flex-direction:column;gap:2px;padding:0 12px}.tri>div:first-child{padding-left:0}.tri>div+div{border-left:1px solid var(--hair)}
+.large .tabbar .it{font-size:13px}
+.show-hits .hit{outline:1.5px dashed #E0464F;outline-offset:-1.5px}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="doc">
+<header class="prose">
+ <h1>Direção da app MeepleBoard</h1>
+ <p class="lede">Uma proposta de navegação, linguagem visual e componentes para toda a app, a partir do trabalho já feito nas Estatísticas. Cada telemóvel é um ecrã a 402 × 874 pt com dados do ambiente de testes.</p>
+ <p class="muted">Os ecrãs “Hoje” são capturas dos componentes reais, renderizados com a ferramenta guardada em <code>tools/visual-preview</code> e respostas GET da API DeviceTests. Os ecrãs “Proposta” são maquetas. Nada foi alterado na app nesta etapa.</p>
+ <nav class="toc" aria-label="Secções">
+  <a href="#diagnostico">Diagnóstico</a><a href="#navegacao">Navegação</a><a href="#decisoes">Decisões a aprovar</a><a href="#linguagem">Linguagem visual</a><a href="#inicio">Início</a><a href="#jogos">Jogos</a><a href="#partidas">Partidas</a><a href="#jogar">Sessões</a><a href="#perfil">Perfil e amigos</a><a href="#acessibilidade">Texto ampliado e teclado</a><a href="#sequencia">Sequência</a>
+ </nav>
+</header>
+
+<section class="block" id="diagnostico">
+ <div class="prose">
+  <h2>O que encontrei ao percorrer a app</h2>
+  <p>Percorri 41 ecrãs e passos com a conta de testes <code>autor</code>: Início, Biblioteca, pesquisa e detalhe de jogos, registo em quatro passos, detalhe de partida e diário, avaliações pendentes, sessões, criação e convites, campanhas, amigos, pedidos, Rankings, Mais, Perfil, Definições, Estatísticas e autenticação. Também revi a documentação de pendências (<code>pendencias-funcionais.md</code>) e de próximas etapas.</p>
+ </div>
+ <div class="grid">
+  <div class="box"><h3>Dois sistemas visuais</h3><ul>
+   <li>Início, Biblioteca, autenticação e Estatísticas usam o verde do Clube Meeple. Sessões, campanhas, registo, pesquisa, partidas, Rankings, Mais e Definições ainda usam o azul anterior, e a barra inferior também.</li>
+   <li>Há quatro cabeçalhos diferentes: faixa com logótipo, botão de voltar dentro de uma caixa, “Cancelar” dentro de uma caixa e o cabeçalho das Estatísticas.</li>
+   <li>Coexistem três temas em código (<code>appTheme</code>, <code>uiStyles</code>, <code>clubTheme</code>) e duas famílias de ícones. Os jogos aparecem com comando de consola em vez de dados ou peões.</li>
+  </ul></div>
+  <div class="box"><h3>Ações difíceis de encontrar</h3><ul>
+   <li>O detalhe do jogo não tem ações: não deixa adicionar à coleção nem registar uma partida. Esses acessos existem só na lista de pesquisa e na Biblioteca.</li>
+   <li>Sessões, que são o percurso de jogar com amigos, ficam em Mais. O mesmo acontece com a pesquisa de jogos, as Estatísticas, as avaliações pendentes e os Rankings.</li>
+   <li>“Registar” aparece duas vezes no Início (no cartão verde e no separador). Criar uma sessão não tem acesso direto.</li>
+   <li>Perfil é uma página vazia que só abre Definições. Terminar sessão aparece em Mais e em Definições.</li>
+  </ul></div>
+  <div class="box"><h3>Informação que confunde</h3><ul>
+   <li>A nota do catálogo aparece como “3.6 MB”, que parece megabytes. Na última partida há um troféu ao lado de “Derrota”.</li>
+   <li>As datas aparecem em três formatos: “2026-10-07”, “6/10/2026” e “7/10”.</li>
+   <li>Na lista de sessões, os cartões mostram “0 partidas” quando o detalhe tem 13 (pendência S-LIST02).</li>
+   <li>No diário, a avaliação é uma grelha de 10 estrelas com números soltos por baixo. No registo, Solo e Multiplayer mostram ambos “Confirmado”.</li>
+   <li>Em campanhas, Concluir e Abandonar são os primeiros botões, a vermelho e verde sólidos, antes do conteúdo.</li>
+  </ul></div>
+  <div class="box warn"><h3>Defeitos visíveis a corrigir na implementação</h3><ul>
+   <li>Perfil: o botão mostra o nome do ícone como texto (“settings-outline”).</li>
+   <li>Detalhe da sessão: o nome do vencedor aparece numa coluna estreita, uma letra por linha. Observado no renderizador; a confirmar no iPhone.</li>
+   <li>Os interruptores da autenticação medem 51 × 31 pt. O rótulo ao lado deve também ativá-los, para chegar a 44 pt.</li>
+   <li>Os campos de pesquisa começam com emoji (“🔍 Pesquisar…”), que o VoiceOver lê.</li>
+  </ul></div>
+ </div>
+ <div class="strip" aria-label="Capturas atuais">
+  <figure class="shot"><img class="before" src="antes/01-inicio.jpg" alt="Hoje: Início"><figcaption><b>Hoje · Início</b><span>Registar duplicado; troféu ao lado de “Derrota”; data ISO; barra azul.</span></figcaption></figure>
+  <figure class="shot"><img class="before" src="antes/06-jogo.jpg" alt="Hoje: detalhe do jogo"><figcaption><b>Hoje · Detalhe do jogo</b><span>Sem ações; um bloco de capa vazio ocupa um quarto do ecrã.</span></figcaption></figure>
+  <figure class="shot"><img class="before" src="antes/05-pesquisa-resultados.jpg" alt="Hoje: pesquisa"><figcaption><b>Hoje · Pesquisa</b><span>“3.6 MB”; um “+” azul e um “…” no mesmo sítio, com significados diferentes.</span></figcaption></figure>
+  <figure class="shot"><img class="before" src="antes/b2-registar-escolhido.jpg" alt="Hoje: registar"><figcaption><b>Hoje · Registar, passo 1</b><span>O passo repete-se no cabeçalho; os dois modos aparecem “Confirmado”.</span></figcaption></figure>
+  <figure class="shot"><img class="before" src="antes/c1-sessao-topo.jpg" alt="Hoje: sessão"><figcaption><b>Hoje · Sessão</b><span>Nome numa coluna de uma letra; estado, presenças e ação ao mesmo nível.</span></figcaption></figure>
+  <figure class="shot"><img class="before" src="antes/19-campanha.jpg" alt="Hoje: campanha"><figcaption><b>Hoje · Campanha</b><span>Concluir e Abandonar antes de tudo o resto.</span></figcaption></figure>
+  <figure class="shot"><img class="before" src="antes/11-diario.jpg" alt="Hoje: diário"><figcaption><b>Hoje · Diário</b><span>Grelha de estrelas difícil de ler.</span></figcaption></figure>
+  <figure class="shot"><img class="before" src="antes/26-mais.jpg" alt="Hoje: Mais"><figcaption><b>Hoje · Mais</b><span>Sessões, Estatísticas e pesquisa escondidas aqui.</span></figcaption></figure>
+  <figure class="shot"><img class="before" src="antes/27-perfil.jpg" alt="Hoje: Perfil"><figcaption><b>Hoje · Perfil</b><span>Página vazia com o nome do ícone como texto.</span></figcaption></figure>
+ </div>
+</section>
+
+<section class="block" id="navegacao">
+ <div class="prose">
+  <h2>Navegação: cinco lugares, cada um com uma pergunta</h2>
+  <p>A barra inferior passa a corresponder ao que a pessoa quer fazer. <b>Início</b>: o que há para fazer agora. <b>Jogos</b>: o que tenho e o que procuro. <b>＋</b>: registar algo novo. <b>Jogar</b>: com quem e quando. <b>Perfil</b>: eu, os meus amigos e os meus números. “Mais” deixa de existir, porque tudo o que lá estava passa a ter um lugar com significado.</p>
+ </div>
+ <table class="map" style="margin-top:16px">
+  <tr><th>Funcionalidade</th><th>Hoje</th><th>Proposta</th></tr>
+  <tr><td>Registar partida</td><td>Separador “Registar” e cartão no Início</td><td>＋ → Registar partida (primeira opção). No Início, só quando há contexto (sessão ativa).</td></tr>
+  <tr><td>Criar sessão</td><td>Mais → Sessões → Criar</td><td>＋ → Nova sessão, e botão em Jogar</td></tr>
+  <tr><td>Adicionar jogo</td><td>Biblioteca → Adicionar jogo → pesquisa</td><td>＋ → Adicionar jogo; pesquisa no topo de Jogos; ação principal no detalhe do jogo</td></tr>
+  <tr><td>Biblioteca e pesquisa no catálogo</td><td>Separador Biblioteca; Mais → Pesquisar jogos</td><td>Jogos: um só campo procura na coleção e no catálogo</td></tr>
+  <tr><td>Rankings</td><td>Mais → Partidas → Rankings</td><td>Jogos → Catálogo, ordenado por avaliação, com a mesma escolha Geral/Minha</td></tr>
+  <tr><td>Sessões, convites e campanhas</td><td>Mais → Jogar em conjunto</td><td>Separador Jogar: Sessões (ativas, agendadas, convites, encerradas) e Campanhas</td></tr>
+  <tr><td>Avaliações pendentes</td><td>Mais → Partidas; cartão no Início</td><td>Início (“Por fazer”) e Jogar → Partidas → por avaliar, com contagem no separador</td></tr>
+  <tr><td>Histórico das tuas partidas</td><td>Não há lista geral; só pelas Estatísticas ou por jogo</td><td>Jogar → Partidas, a lista que já serve as Estatísticas, sem novo contrato</td></tr>
+  <tr><td>Amigos e pedidos</td><td>Separador Amigos</td><td>Perfil → Amigos (com os pedidos assinalados no separador). Ver a alternativa abaixo.</td></tr>
+  <tr><td>Estatísticas</td><td>Mais → Partidas → Estatísticas</td><td>Perfil → cartão “O teu ano” e Estatísticas completas; resumo no Início</td></tr>
+  <tr><td>Perfil, Definições e Terminar sessão</td><td>Mais (dois sítios para sair)</td><td>Perfil → Definições; Terminar sessão só no fim de Definições</td></tr>
+ </table>
+</section>
+
+<section class="block" id="decisoes">
+ <div class="prose"><h2>Decisões que precisam da tua aprovação</h2><p>Nenhuma funcionalidade se perde e nenhum contrato muda. Estas cinco mudanças alteram onde as coisas estão, ou ativam opções que hoje aparecem como “em breve”.</p></div>
+ <div class="grid">
+  <div class="box"><h3>1. ＋ abre uma folha com três ações</h3><p>Registar partida fica a um toque a mais (dois em vez de um), em troca de Nova sessão e Adicionar jogo ficarem igualmente à mão. A folha abre já focada em Registar partida.</p><p class="muted">Alternativa: ＋ regista diretamente, e Nova sessão fica só em Jogar.</p></div>
+  <div class="box"><h3>2. Amigos passa para Perfil</h3><p>Liberta o separador para Jogar, que hoje está escondido. Os pedidos novos aparecem como contagem em Perfil e em “Por fazer” no Início.</p><p class="muted">Alternativa: manter Amigos como separador e abrir o Perfil pelo avatar no topo do Início.</p></div>
+  <div class="box"><h3>3. Biblioteca, pesquisa e Rankings juntam-se em Jogos</h3><p>Os Rankings passam a ser uma ordenação do catálogo (“Mais bem avaliados”, Geral ou Minha), com os mesmos dados.</p></div>
+  <div class="box"><h3>4. Adicionar à coleção com estado</h3><p>O hook atual já envia o estado (Tenho, Quero, Já joguei), mas o modal mostra “Quero” e “Já joguei” como “em breve”. Proponho ativá-los se o servidor de testes os aceitar na criação. Se não aceitar, fica Tenho e o resto continua a mudar-se depois, como hoje.</p></div>
+  <div class="box"><h3>5. Ações de risco no fim e com confirmação</h3><p>Abandonar campanha, encerrar ou cancelar sessão, remover da coleção, remover amigo e terminar sessão passam para o fim das páginas ou para menus, em texto vermelho e com a confirmação que já existe. Deixam de ser botões sólidos no topo.</p></div>
+ </div>
+</section>
+
+<section class="block" id="linguagem">
+ <div class="prose"><h2>Linguagem visual comum</h2><p>Estendo à app inteira os tokens e componentes das Estatísticas (<code>src/features/statistics/ui</code>), que passam para <code>src/ui</code>. A autenticação, já aprovada, adota apenas os mesmos tokens. Os três temas atuais são substituídos por um.</p></div>
+ <div class="grid">
+  <div class="box"><h3>Texto</h3><table class="spec">
+   <tr><td style="font-size:22px;font-weight:700">Destaque</td><td>34/40 bold</td></tr><tr><td style="font-size:20px;font-weight:700">Título de página</td><td>28/34 bold</td></tr><tr><td style="font-size:18px;font-weight:700">Título de cartão</td><td>22/28 bold</td></tr><tr><td style="font-weight:600">Secção, navegação</td><td>17/22 semibold</td></tr><tr><td>Corpo, linhas, campos</td><td>15/20</td></tr><tr><td style="font-size:13px">Apoio, rótulos</td><td>13/18</td></tr><tr><td style="font-size:12px">Etiquetas, eixos</td><td>12/16</td></tr></table></div>
+  <div class="box"><h3>Espaço e forma</h3><table class="spec">
+   <tr><td>Margem lateral, padding</td><td>16</td></tr><tr><td>Entre secções / dentro de um grupo</td><td>24 / 12</td></tr><tr><td>Linhas de lista</td><td>≥ 52</td></tr><tr><td>Toque mínimo</td><td>44 × 44</td></tr><tr><td>Raios: cartão, controlo, destaque, folha</td><td>14, 12, 16, 22</td></tr><tr><td>Capas: lista, cabeçalho</td><td>44, 96</td></tr></table></div>
+  <div class="box"><h3>Cor com significado</h3><ul>
+   <li><b>Verde</b> (#27594B): ações, seleção e “tu”. Deixa de haver azul.</li>
+   <li><b>Lavanda</b>: faixa do logótipo e o destaque de cada página.</li>
+   <li><b>Dourado suave</b>: só o que espera por ti (avaliar, responder, confirmar).</li>
+   <li><b>Violeta</b>: o amigo nas comparações. <b>Coral</b> e <b>cinza violeta</b>: derrotas e empates.</li>
+   <li><b>Vermelho</b> (#B3261E): só texto de ações de risco.</li>
+  </ul></div>
+  <div class="box"><h3>Três cabeçalhos</h3><ul>
+   <li><b>Raiz</b> (separadores): faixa lavanda com o logótipo original, título de página 28 pt e ações à direita.</li>
+   <li><b>Página</b>: ‹ Voltar a verde, título centrado e uma ação opcional. Sem caixas à volta dos botões.</li>
+   <li><b>Formulário</b>: Cancelar, título e passo. A ação principal fica numa barra fixa no fundo, que sobe com o teclado.</li>
+  </ul></div>
+  <div class="box"><h3>Componentes</h3><p>Secção, Cartão, Linha, Destaque, Segmentado, Trio de resultados, Barras, Aviso “por fazer”, Estado vazio, Erro com Tentar novamente, Carregamento em esqueleto, Botão (principal, secundário, risco), Campo com rótulo, Pesquisa, Chip, Etiqueta de estado, Folha inferior, Barra de ação, Avatares sobrepostos e Capa.</p></div>
+  <div class="box"><h3>Formatos e ícones</h3><ul>
+   <li>Datas sempre localizadas: “qua., 7 out. · 09:49”; “hoje”, “ontem” e “há 4 dias” em listas.</li>
+   <li>Notas: “★ 3,6 · MeepleBoard” e “Sem nota BGG”, nunca “MB”.</li>
+   <li>Só ícones MaterialCommunityIcons: dados e peões para jogos, troféu só em vitórias.</li>
+   <li>Sem emoji em campos e títulos.</li>
+  </ul></div>
+ </div>
+</section>
+
+<section class="block" id="inicio"><div class="prose"><h2>Início e ＋</h2><p>O Início responde a “o que faço agora?”. Mostra primeiro o que está a acontecer (uma sessão ativa ou próxima, convites), depois o que espera por ti e por fim a última partida e um resumo do ano. As ações rápidas desaparecem, porque passam a estar no ＋ e nos separadores.</p></div><div class="strip" data-strip="inicio"></div></section>
+<section class="block" id="jogos"><div class="prose"><h2>Jogos: procurar, consultar, adicionar</h2><p>Um campo procura ao mesmo tempo na coleção e no catálogo. Cada resultado diz se já é teu. O detalhe do jogo passa a ter a ação principal (Adicionar ou o estado atual) e Registar partida, logo por baixo do nome. A folha de adição pede o estado e, para “Tenho”, o preço opcional.</p>
+ <div class="flow"><span>Jogos</span><i>→</i><span>escrever “Meeple”</span><i>→</i><span>abrir o jogo</span><i>→</i><span>Adicionar à coleção</span><i>→</i><span>Tenho · 35,50</span><i>→</i><span>Adicionar</span></div></div><div class="strip" data-strip="jogos"></div></section>
+<section class="block" id="partidas"><div class="prose"><h2>Partidas: registar, indicar resultados, consultar</h2><p>O registo mantém os quatro passos e as regras atuais (participantes, modos, resultados explícitos, partilhados e por definir, pontuações com sinal, avaliação própria). Muda a apresentação: um passo por ecrã, a barra de progresso no topo, a ação fixa no fundo e o resultado escolhido junto de cada jogador. Depois de guardar, abre o detalhe da partida com “Avaliar agora”.</p>
+ <div class="flow"><span>＋</span><i>→</i><span>Registar partida</span><i>→</i><span>Jogo</span><i>→</i><span>Jogadores</span><i>→</i><span>Resultado</span><i>→</i><span>Rever e guardar</span><i>→</i><span>Partida</span><i>→</i><span>Avaliar</span></div></div><div class="strip" data-strip="partidas"></div></section>
+<section class="block" id="jogar"><div class="prose"><h2>Jogar: criar sessão, convidar, acompanhar</h2><p>Jogar reúne sessões, convites, campanhas e partidas. No detalhe da sessão, o topo diz o estado e o que fazer a seguir, por esta ordem: responder ao convite, registar uma partida ou encerrar. As presenças aparecem agrupadas e a gestão fica no fim. Criar uma sessão é um formulário de uma página, com os amigos escolhidos em chips e o botão fixo no fundo.</p>
+ <div class="flow"><span>＋</span><i>→</i><span>Nova sessão</span><i>→</i><span>nome, quando, onde</span><i>→</i><span>amigos</span><i>→</i><span>Criar e convidar</span><i>→</i><span>Sessão</span><i>→</i><span>respostas</span><i>→</i><span>Registar partida aqui</span></div></div><div class="strip" data-strip="jogar"></div></section>
+<section class="block" id="perfil"><div class="prose"><h2>Perfil, amigos e definições</h2><p>O Perfil passa a ser útil: a identidade, “O teu ano” com acesso às Estatísticas completas, os amigos com os pedidos e as Definições. O perfil de um amigo começa pelo que fazem juntos, usa as mesmas regras de “por confirmar” das Estatísticas e põe as ações (convidar para sessão, o que podemos jogar, remover) num menu.</p></div><div class="strip" data-strip="perfil"></div></section>
+<section class="block" id="acessibilidade"><div class="prose"><h2>Texto ampliado e teclado aberto</h2><p>A 130 %, a barra inferior mantém os rótulos e cresce em altura. Linhas e cabeçalhos passam a coluna sem cortar nomes. Com o teclado aberto, a barra de ação sobe com ele e o conteúdo continua a deslizar.</p></div><div class="strip" data-strip="ampliado"></div></section>
+
+<section class="block" id="sequencia">
+ <div class="prose"><h2>Sequência de implementação por percursos</h2><p>Cada etapa termina com TypeScript, testes e capturas reais renderizadas pela ferramenta de comparação. A validação nativa no iPhone fica indicada à parte, numa ronda por etapa.</p></div>
+ <table class="map" style="margin-top:16px">
+  <tr><th>Etapa</th><th>Conteúdo</th><th>Validação no iPhone</th></tr>
+  <tr><td><b>0. Fundação</b></td><td>Tema único em <code>src/ui</code> (a partir de <code>statistics/ui</code>); cabeçalhos raiz, página e formulário; barra de ação; estados de carregamento, vazio e erro; formatação de datas e notas; nova barra inferior e folha ＋ com os destinos atuais; Mais redireciona para os novos lugares. Antigos caminhos preservados como aliases.</td><td>Separadores, ＋, voltar e gestos; áreas seguras</td></tr>
+  <tr><td><b>1. Jogos</b></td><td>Coleção, pesquisa conjunta, catálogo com ordenação (Rankings), detalhe com ações, folha de adicionar e gerir. Corrigir “MB” e a capa vazia.</td><td>Procurar → consultar → adicionar → ver na coleção</td></tr>
+  <tr><td><b>2. Partidas</b></td><td>Registo (quatro passos), detalhe da partida, diário com avaliação legível (meios pontos e zero), avaliações pendentes e a lista de partidas em Jogar.</td><td>Registar competitivo, solo e cooperativo; partilhada e por definir; teclado; avaliar</td></tr>
+  <tr><td><b>3. Jogar</b></td><td>Lista de sessões, criação, convites, detalhe (corrigir o nome vertical), registo na sessão e campanhas com as ações de risco no fim.</td><td>Criar → convidar → responder com a segunda conta → registar → encerrar</td></tr>
+  <tr><td><b>4. Perfil e pessoas</b></td><td>Perfil, amigos, pedidos, procurar pessoas, perfil do amigo, histórico conjunto, Definições e Terminar sessão. Estatísticas ligadas a partir do Perfil, sem mudanças.</td><td>Pedidos entre contas, privacidade, idioma, sair</td></tr>
+  <tr><td><b>5. Início</b></td><td>Composição contextual com dados que já existem: sessões, avaliações pendentes, pedidos, última partida e resumo do ano.</td><td>Estados com e sem sessão ativa, sem dados, texto ampliado</td></tr>
+  <tr><td><b>6. Autenticação</b></td><td>Só tokens comuns, rótulos que ativam os interruptores e pesquisa sem emoji. Direção já aprovada, sem redesenho.</td><td>Entrar, criar conta, recuperar palavra-passe</td></tr>
+ </table>
+ <div class="grid">
+  <div class="box"><h3>Preservado em todas as etapas</h3><ul><li>Todos os pedidos, contratos, cálculos, permissões e regras de resultados, pontuações e avaliações.</li><li>Rascunhos protegidos ao sair, Cancelar/Anterior, privacidade da coleção e anonimato na partilha.</li><li>Todos os caminhos atuais, mantidos como aliases.</li><li>Logótipo original e direção da autenticação.</li></ul></div>
+  <div class="box"><h3>Fora do âmbito, registado</h3><ul><li>As pendências funcionais (S01–S04, C01–C10, M01–M03, F01–F06, A01–A08, N01) não são corrigidas por redesenho. Corrijo só o que for visual: nome vertical, texto do ícone, toques &lt; 44, formatos.</li><li>“0 partidas” na lista de sessões depende do contrato da lista (S-LIST02). Até lá, não mostro o número.</li></ul></div>
+ </div>
+</section>
+</div>
+
+<script>
+const I={home:"home-variant",homeO:"home-variant-outline",dice:"dice-multiple",diceO:"dice-multiple-outline",dice5:"dice-5",pawn:"chess-pawn",plus:"plus",table:"calendar-star",user:"account-circle",userO:"account-circle-outline",chevR:"chevron-right",chevL:"chevron-left",chevD:"chevron-down",search:"magnify",bell:"bell-outline",star:"star",starO:"star-outline",starH:"star-half-full",trophy:"trophy",close:"close-thick",hand:"handshake",clock:"clock-outline",cal:"calendar-month-outline",pin:"map-marker-outline",group:"account-group",groupO:"account-multiple-outline",check:"check",checkC:"check-circle",help:"help-circle-outline",heart:"heart-outline",cards:"cards-outline",sword:"sword-cross",shield:"shield-check",cog:"cog-outline",logout:"logout",tune:"tune-variant",sort:"sort-variant",dots:"dots-horizontal",addU:"account-plus-outline",mail:"email-outline",play:"play-circle-outline",flag:"flag-checkered",chart:"chart-bar",trash:"trash-can-outline",pencil:"pencil-outline",lock:"lock-outline",translate:"translate",eye:"eye-outline",note:"note-text-outline",book:"bookshelf",send:"send",x:"close"};
+let G={"home-variant":983774,"home-variant-outline":986023,"dice-multiple":984942,"dice-multiple-outline":987478,"dice-5":983502,"chess-pawn":985177,"plus":984085,"calendar-star":985555,"account-circle":983049,"account-circle-outline":985941,"chevron-right":983362,"chevron-left":983361,"chevron-down":983360,"magnify":983881,"bell-outline":983196,"star":984270,"star-outline":984274,"star-half-full":984272,"trophy":984376,"close-thick":988056,"handshake":987672,"clock-outline":983376,"calendar-month-outline":986648,"map-marker-outline":985049,"account-group":985161,"account-multiple-outline":983055,"check":983340,"check-circle":984544,"help-circle-outline":984613,"heart-outline":983765,"cards-outline":984633,"sword-cross":984967,"shield-check":984421,"cog-outline":985275,"logout":983875,"tune-variant":988482,"sort-variant":984255,"dots-horizontal":983512,"account-plus-outline":985089,"email-outline":983536,"play-circle-outline":984077,"flag-checkered":983612,"chart-bar":983336,"trash-can-outline":985722,"pencil-outline":986294,"lock-outline":983873,"translate":984522,"eye-outline":984784,"note-text-outline":987607,"bookshelf":987743,"send":984202,"close":983382};
+const ic=(n,s=20,c='currentColor')=>`<span class="mdi" style="--sz:${s}px;color:${c}" aria-hidden="true">${String.fromCodePoint(G[I[n]]||63)}</span>`;
+const P='var(--pri)',M='var(--mut)',CH=()=>ic('chevR',20,'var(--chev)');
+function band(left='',right=''){return `<div class="band"><div class="logo"><img src="../../../../assets/MeepleBoardLogo.png" alt="MeepleBoard"></div><div class="curve"></div>${left?`<div class="act l hit">${left}</div>`:''}${right?`<div class="act r hit">${right}</div>`:''}</div>`;}
+function nav(title,{left=`${ic('chevL',26,P)}<span>Voltar</span>`,right='',line=false}={}){return `<div class="nav${line?' line':''}"><div class="act hit">${left}</div><div class="ttl">${title}</div>${right?`<div class="act hit">${right}</div>`:'<div></div>'}</div>`;}
+function tabbar(on,{badgePerfil=0}={}){const t=[['home','Início'],['dice','Jogos'],['plus',''],['table','Jogar'],['user','Perfil']];
+ return `<div class="tabbar">${t.map(([k,l])=>k==='plus'?`<div class="it hit"><div class="plus">${ic('plus',28,'#fff')}</div><span style="margin-top:2px">Novo</span></div>`:`<div class="it hit ${k===on?'on':''}">${ic(k,26)}<span>${l}</span>${k==='user'&&badgePerfil?`<span class="dot">${badgePerfil}</span>`:''}</div>`).join('')}</div>`;}
+function phone({body,top='band',offset=0,overlay='',tabs=null,scale=1,cls='',actionbar='',head=''}){
+ const topH=top==='band'?124:top==='nav'?102:54;
+ return `<div class="phone ${cls}" style="--s:${scale}"><div class="island"></div><div class="status"><span>9:41</span><span class="batt"><i></i></span></div>${head}
+ <div class="viewport" style="top:${topH}px"><div class="content" data-offset="${offset}">${body}</div></div>${actionbar}${tabs||''}${overlay}<div class="homebar"></div></div>`;}
+const sec=(t,trail,b)=>`<section class="sec"><div class="sec-h"><span class="t-head">${t}</span>${trail?`<span class="t-cap">${trail}</span>`:''}</div>${b}</section>`;
+const row=({lead='',title,sub='',val='',end,cls='',b=false})=>`<div class="row hit ${cls}">${lead}<div class="main"><div class="t-body${b?' b':''}">${title}</div>${sub}</div>${val?`<div class="val">${val}</div>`:''}${end===undefined?CH():end}</div>`;
+const cap=t=>`<div class="t-cap">${t}</div>`;
+const cover=(s=22,lg=false)=>`<div class="cover${lg?' lg':''}">${ic('dice5',s,'var(--lav)')}</div>`;
+const av=(n,cls='')=>`<div class="avatar ${cls}">${n[0]}</div>`;
+const pill=(t,c)=>`<span class="pill ${c}">${t}</span>`;
+const stars=(v)=>{let h='';for(let i=1;i<=5;i++){const x=v/2-i+1;h+=ic(x>=1?'star':x>=.5?'starH':'starO',30,'var(--gold)');}return h;};
+
+/* ---------- Início ---------- */
+const homeBody=`<div class="pagehead"><div class="grow"><div class="t-cap">domingo, 11 de outubro</div><div class="t-large">Boa tarde, Teste-autor</div></div></div>
+ <div class="hero" style="gap:10px"><div style="display:flex;align-items:center;gap:8px">${pill(ic('play',14)+' Agora','p-green')}<span class="t-cap">desde as 09:49</span></div>
+  <div class="t-title">Sessão fictícia SQL</div>
+  <div style="display:flex;align-items:center;gap:10px"><div class="stack">${av('A','sm')}${av('P','sm')}${av('M','sm')}</div><span class="t-cap">3 confirmados · 13 partidas</span></div>
+  <div class="btns"><div class="btn primary hit">${ic('plus',20,'#fff')}Registar partida aqui</div><div class="btn secondary hit" style="flex:0 0 auto">Abrir</div></div></div>
+ ${sec('Por fazer','',`<div class="card" style="--inset:72px">${row({lead:`<div class="cover" style="background:var(--gold-soft)">${ic('starO',22,'var(--gold-ink)')}</div>`,title:'10 partidas por avaliar',sub:cap('A mais recente é de 7 out.'),b:true})}${row({lead:`<div class="cover" style="background:var(--gold-soft)">${ic('mail',22,'var(--gold-ink)')}</div>`,title:'1 convite por responder',sub:cap('Noite de sexta · sex., 16 out. · 20:00'),b:true})}</div>`)}
+ ${sec('Última partida','',`<div class="card">${row({lead:cover(),title:'Meeple Teste Competitivo',sub:`<div style="display:flex;gap:8px;align-items:center">${pill(ic('close',12)+' Derrota','p-grey')}<span class="t-cap">qua., 7 out. · Solo</span></div>`,b:true})}</div>`)}
+ ${sec('O teu ano','2026 · até à data',`<div class="card"><div class="pad" style="display:flex;gap:12px"><div class="grow"><div class="t-cap">Partidas</div><div class="t-title num">158</div></div><div class="grow"><div class="t-cap">Jogos</div><div class="t-title num">3</div></div><div class="grow"><div class="t-cap">Vitórias</div><div class="t-title num">29</div></div></div><div class="rtop">${row({title:'Ver estatísticas'})}</div></div>`)}`;
+const plusSheet=`<div class="scrim"></div><div class="sheet"><div class="grab"></div><div class="sheet-h"><span></span><span class="t-head">Novo</span><div class="act hit">Fechar</div></div>
+ <div class="card" style="--inset:72px">${row({lead:`<div class="cover" style="background:var(--pri)">${ic('dice5',22,'#fff')}</div>`,title:'Registar partida',sub:cap('Jogo, jogadores e resultado'),b:true})}${row({lead:`<div class="cover" style="background:var(--pri-soft)">${ic('table',22,P)}</div>`,title:'Nova sessão',sub:cap('Combina quando e com quem jogar'),b:true})}${row({lead:`<div class="cover" style="background:var(--pri-soft)">${ic('book',22,P)}</div>`,title:'Adicionar jogo',sub:cap('À coleção ou à lista de desejos'),b:true})}${row({lead:`<div class="cover" style="background:var(--pri-soft)">${ic('sword',22,P)}</div>`,title:'Nova campanha',sub:cap('Para jogos jogados em várias sessões'),b:true})}</div>
+ <span class="t-cap" style="padding:0 16px">Dentro de uma sessão ativa, Registar partida liga-se a ela.</span></div>`;
+
+/* ---------- Jogos ---------- */
+const jogosBody=`<div class="pagehead"><div class="t-large grow">Jogos</div></div>
+ <div class="field hit">${ic('search',20,M)}Procurar na coleção e no catálogo</div>
+ <div class="seg"><div class="on hit">Coleção</div><div class="hit">Catálogo</div></div>
+ <div class="group"><div class="chips"><span class="chip on hit">Todos 3</span><span class="chip hit">Tenho 1</span><span class="chip hit">Quero 0</span><span class="chip hit">Já joguei 3</span></div>
+ <div style="display:flex;align-items:center;justify-content:space-between;margin:-4px 0 -8px;padding-left:16px"><span class="t-cap">3 jogos</span><div class="hit link t-body" style="display:flex;align-items:center;gap:6px;min-height:44px;padding:0 4px">${ic('sort',18,P)}Nome A–Z${ic('chevD',18,P)}</div></div>
+ <div class="card" style="--inset:72px">
+  ${row({lead:cover(),title:'Meeple Teste Competitivo',sub:`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${pill('Tenho','p-green')}<span class="t-cap">163 partidas · última há 4 dias</span></div>`,b:true,end:`<div class="hit" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center">${ic('dots',22,M)}</div>`})}
+  ${row({lead:cover(),title:'Meeple Teste Cooperativo',sub:`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${pill('Já joguei','p-lav')}<span class="t-cap">4 partidas</span></div>`,b:true,end:`<div class="hit" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center">${ic('dots',22,M)}</div>`})}
+  ${row({lead:cover(),title:'Meeple Teste Solo',sub:`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${pill('Já joguei','p-lav')}<span class="t-cap">5 partidas</span></div>`,b:true,end:`<div class="hit" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center">${ic('dots',22,M)}</div>`})}
+ </div></div>
+ ${sec('Valor da coleção','',`<div class="card">${row({title:'Preço registado em 1 de 1 jogos que tens',val:'0,00',end:''})}</div>`)}`;
+const searchBody=`<div class="field focus hit">${ic('search',20,P)}<span style="color:var(--ink)">Meeple</span><span class="grow"></span>${ic('x',18,M)}</div>
+ ${sec('Na tua coleção','1',`<div class="card" style="--inset:72px">${row({lead:cover(),title:'Meeple Teste Competitivo',sub:`<div style="display:flex;gap:8px;align-items:center">${pill('Tenho','p-green')}<span class="t-cap">163 partidas</span></div>`,b:true})}</div>`)}
+ ${sec('No catálogo','3 jogos',`<div class="card" style="--inset:72px">
+  ${row({lead:cover(),title:'Meeple Teste Cooperativo',sub:cap('Jogo base · 1–4 jogadores · ★ 0,0 MeepleBoard'),b:true,end:`<div class="hit" style="min-width:44px;min-height:44px;border-radius:22px;background:var(--pri-soft);display:flex;align-items:center;justify-content:center">${ic('plus',22,P)}</div>`})}
+  ${row({lead:cover(),title:'Meeple Teste Solo',sub:cap('Jogo base · 1–4 jogadores · ★ 5,8 MeepleBoard'),b:true,end:`<div class="hit" style="min-width:44px;min-height:44px;border-radius:22px;background:var(--pri-soft);display:flex;align-items:center;justify-content:center">${ic('plus',22,P)}</div>`})}
+  ${row({lead:cover(),title:'Meeple Teste Competitivo',sub:cap('Jogo base · 1–4 jogadores · ★ 3,6 MeepleBoard'),b:true,end:`<span class="pill p-green">${ic('check',12)} Tenho</span>`})}</div>`)}
+ <div class="t-cap" style="padding:0 16px">“+” adiciona logo como Tenho; tocar no nome abre o jogo.</div>`;
+const gameBody=`<div style="display:flex;gap:16px;align-items:center">${cover(44,true)}<div class="grow" style="display:flex;flex-direction:column;gap:4px"><div class="t-title">Meeple Teste Competitivo</div><div class="t-cap">Jogo base · 1–4 jogadores</div><div style="display:flex;gap:6px;flex-wrap:wrap">${pill('★ 3,6 MeepleBoard','p-gold')}${pill('Sem nota BGG','p-grey')}</div></div></div>
+ <div class="group"><div class="btn secondary hit" style="justify-content:space-between">${ic('checkC',20,P)}<span class="grow" style="text-align:left">Na tua coleção · Tenho</span>${ic('chevD',20,P)}</div><div class="btn primary hit">${ic('plus',20,'#fff')}Registar partida</div></div>
+ ${sec('As tuas partidas','163',`<div class="card"><div class="pad" style="display:flex;gap:12px"><div class="grow"><div class="t-cap">Vitórias</div><div class="t-title">14</div></div><div class="grow"><div class="t-cap">Última</div><div class="t-head" style="margin-top:3px">há 4 dias</div></div><div class="grow"><div class="t-cap">A tua nota</div><div class="t-head" style="margin-top:3px">4,4</div></div></div>
+  <div class="rtop">${row({title:'qua., 7 out. · Solo',sub:cap('Derrota · Teste-autor'),end:CH()})}</div>${row({title:'Ver as 163 partidas'})}</div>`)}
+ ${sec('Campanhas','1 ativa',`<div class="card">${row({lead:`<div class="cover">${ic('sword',22,'var(--lav)')}</div>`,title:'Campanha fictícia SQL',sub:cap('3 membros · 1 sessão'),b:true})}${row({title:'Nova campanha deste jogo'})}</div>`)}
+ ${sec('Descrição','',`<div class="card pad t-body">Jogo fictício exclusivo da base descartável.</div>`)}`;
+const addSheet=`<div class="scrim"></div><div class="sheet"><div class="grab"></div><div class="sheet-h"><div class="act hit">Cancelar</div><span class="t-head">Adicionar</span><div class="act hit b">Adicionar</div></div>
+ <div style="display:flex;gap:12px;align-items:center">${cover()}<div><div class="t-body b">Meeple Teste Cooperativo</div>${cap('Jogo base')}</div></div>
+ <div><div class="label">Estado</div><div class="seg"><div class="on hit">Tenho</div><div class="hit">Quero</div><div class="hit">Já joguei</div></div></div>
+ <div><div class="label">Preço pago (opcional)</div><div class="field hit" style="color:var(--ink)">35,50<span class="grow"></span><span class="t-cap">moeda não indicada</span></div></div>
+ <span class="t-cap" style="padding:0 4px">Podes mudar o estado e o preço mais tarde na coleção.</span></div>`;
+
+/* ---------- Partidas ---------- */
+const formHead=(t,step)=>`<div class="nav"><div class="act hit">Cancelar</div><div class="ttl">${t}</div><div class="t-cap" style="justify-self:end;padding-right:8px">${step}</div></div><div style="position:absolute;top:102px;left:16px;right:16px;z-index:3" class="stepper">${[1,2,3,4].map(i=>`<i class="${i<=Number(step[0])?'on':''}"></i>`).join('')}</div>`;
+const regPlayers=`<div style="display:flex;gap:12px;align-items:center">${cover()}<div class="grow"><div class="t-body b">Meeple Teste Competitivo</div>${cap('Competitivo · qua., 7 out. · 20:00')}</div><span class="link t-body hit" style="min-height:44px;display:flex;align-items:center">Mudar</span></div>
+ ${sec('Quem jogou','3',`<div class="card" style="--inset:68px">${row({lead:av('T'),title:'Teste-autor',sub:cap('Tu · obrigatório'),end:ic('lock',18,M)})}${row({lead:av('T'),title:'Teste-participante',sub:cap('138 partidas juntos'),end:`<div class="hit" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center">${ic('x',20,M)}</div>`})}${row({lead:av('T'),title:'Teste-membro',sub:cap('59 partidas juntos'),end:`<div class="hit" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center">${ic('x',20,M)}</div>`})}</div>`)}
+ <div class="group"><div class="field hit">${ic('search',20,M)}Adicionar amigo</div><div class="chips"><span class="chip hit">${ic('plus',16,P)} Teste-alheio</span></div></div>`;
+const regResult=`${sec('Resultado','Competitivo',`<div class="seg"><div class="on hit">Vencedores</div><div class="hit">Empate</div><div class="hit">Por definir</div></div>`)}
+ <div class="card" style="--inset:16px">
+  ${['Teste-autor','Teste-participante','Teste-membro'].map((n,i)=>`<div class="row hit" style="align-items:center"><div class="main"><div class="t-body b">${n}</div>${cap(i===1?'Venceu':'')}</div><div class="field" style="width:84px;min-height:40px;justify-content:flex-end;color:var(--ink)">${[-17,12,8][i]}</div><div class="hit" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:${i===1?'var(--pri)':'var(--track)'}">${ic('trophy',20,i===1?'#fff':M)}</div></div>`).join('')}
+ </div>
+ <span class="t-cap" style="padding:0 16px">Toca no troféu para marcar quem venceu. Mais de um vencedor é uma vitória partilhada. As pontuações aceitam zero e negativos.</span>
+ ${sec('Mais detalhes','opcional',`<div class="card">${row({title:'Duração',val:'',sub:'',end:`<span class="t-cap">Sem duração</span>${CH()}`})}${row({title:'Local, notas e fotografias',end:ic('chevD',22,'var(--chev)')})}</div>`)}`;
+const matchBody=`<div style="display:flex;gap:16px;align-items:center">${cover(32,true)}<div class="grow" style="display:flex;flex-direction:column;gap:4px"><div class="t-title">Meeple Teste Competitivo</div><div class="t-cap">qua., 7 out. · 09:49 · Competitivo</div><span class="link t-cap hit" style="min-height:24px">Sessão fictícia SQL ›</span></div></div>
+ <div class="hero" style="gap:8px"><div style="display:flex;align-items:center;gap:8px">${ic('trophy',22,P)}<span class="t-head">Venceu Teste-participante</span></div><span class="t-cap">Tu ficaste em 3.º · resultado confirmado</span></div>
+ ${sec('Jogadores','3',`<div class="card" style="--inset:68px">${[['Teste-participante','Vitória','12'],['Teste-membro','Derrota','8'],['Teste-autor · tu','Derrota','-17']].map(([n,r,s])=>row({lead:av(n),title:n,sub:cap(r),val:s,end:''})).join('')}</div>`)}
+ ${sec('A tua avaliação','',`<div class="card pad" style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;gap:4px;align-items:center">${stars(0)}</div><span class="t-cap">Ainda não avaliaste esta partida.</span><div class="btn primary hit">Avaliar agora</div></div>`)}
+ ${sec('Diário','1 de 3 avaliaram',`<div class="card">${row({lead:av('P'),title:'Teste-participante',sub:cap('★ 7,5 · “Partida renhida até ao fim.”'),end:''})}</div>`)}`;
+const journalBody=`<div style="display:flex;gap:12px;align-items:center">${cover()}<div class="grow"><div class="t-body b">Meeple Teste Competitivo</div>${cap('qua., 7 out. · diário aberto')}</div></div>
+ ${sec('A tua avaliação','obrigatória',`<div class="card pad" style="display:flex;flex-direction:column;gap:12px;align-items:center"><div class="t-display num" style="color:var(--pri)">7,5<span class="t-cap" style="font-size:15px"> / 10</span></div><div style="display:flex;gap:6px">${stars(7.5)}</div>
+  <div style="display:flex;gap:12px;width:100%"><div class="btn secondary hit" style="flex:1">− 0,5</div><div class="btn secondary hit" style="flex:1">+ 0,5</div></div><span class="t-cap" style="text-align:center">Toca numa estrela para a nota inteira ou na metade para meio ponto. Zero é uma avaliação válida.</span></div>`)}
+ ${sec('Notas','só tu vês',`<div class="field" style="min-height:96px;align-items:flex-start;padding-top:12px">Momentos épicos, estratégias…</div>`)}`;
+
+/* ---------- Jogar ---------- */
+const jogarBody=`<div class="pagehead"><div class="t-large grow">Jogar</div></div>
+ <div class="seg"><div class="on hit">Sessões</div><div class="hit">Campanhas</div><div class="hit">Partidas</div></div>
+ <div class="pending hit">${ic('mail',20)}<span class="grow t-body">1 convite por responder</span>${ic('chevR',20)}</div>
+ ${sec('A decorrer','',`<div class="card" style="--inset:16px">${row({title:'Sessão fictícia SQL',sub:`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${pill('Agora','p-green')}<span class="t-cap">desde 09:49 · organizas tu</span></div><div style="display:flex;align-items:center;gap:8px;margin-top:6px"><div class="stack">${av('A','sm')}${av('P','sm')}${av('M','sm')}</div><span class="t-cap">3 confirmados</span></div>`,b:true})}</div>`)}
+ ${sec('Agendadas','5',`<div class="card" style="--inset:16px">${row({title:'Noite de sexta',sub:`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${pill('sex., 16 out. · 20:00','p-lav')}<span class="t-cap">2 confirmados · 1 por responder</span></div>`,b:true})}${row({title:'Sessão fictícia SQL',sub:`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${pill('sáb., 17 out. · 15:00','p-lav')}<span class="t-cap">3 confirmados</span></div>`,b:true})}${row({title:'Ver todas as agendadas'})}</div>`)}
+ ${sec('Encerradas','',`<div class="card">${row({title:'Ver sessões encerradas'})}</div>`)}`;
+const sessionBody=`<div class="group"><div style="display:flex;gap:8px;align-items:center">${pill('Agora','p-green')}<span class="t-cap">organizas tu</span></div><div class="t-large">Sessão fictícia SQL</div>
+  <div class="t-body" style="display:flex;flex-direction:column;gap:4px"><span style="display:flex;gap:8px;align-items:center">${ic('clock',18,M)}qua., 7 out. · 09:49</span><span style="display:flex;gap:8px;align-items:center">${ic('pin',18,M)}Casa do Ruben</span></div></div>
+ <div class="btn primary hit">${ic('plus',20,'#fff')}Registar partida nesta sessão</div>
+ ${sec('Quem vem','3 de 3',`<div class="card" style="--inset:68px">${row({lead:av('A'),title:'Teste-autor',sub:cap('Organizador'),end:pill('Confirmado','p-green')})}${row({lead:av('M'),title:'Teste-membro',end:pill('Confirmado','p-green')})}${row({lead:av('P'),title:'Teste-participante',end:pill('Confirmado','p-green')})}${row({title:'Convidar mais amigos',lead:`<div class="avatar" style="background:var(--track)">${ic('addU',20,P)}</div>`})}</div>`)}
+ ${sec('Partidas','13',`<div class="card" style="--inset:72px">${row({lead:cover(),title:'Meeple Teste Competitivo',sub:cap('08:47 · Venceu Teste-autor · antigo por confirmar'),b:true})}${row({lead:cover(),title:'Meeple Teste Competitivo',sub:cap('08:46 · Empate da equipa'),b:true})}${row({title:'Ver as 13 partidas'})}</div>`)}
+ ${sec('Gerir','',`<div class="card">${row({title:'Editar data e local'})}<div class="row hit"><div class="main"><div class="t-body" style="color:var(--danger)">Encerrar sessão</div></div></div><div class="row hit"><div class="main"><div class="t-body" style="color:var(--danger)">Cancelar sessão</div></div></div></div>`)}`;
+const newSession=(kbd)=>`<div><div class="label">Nome</div><div class="field ${kbd?'focus':''} hit" style="color:var(--ink)">Noite de sexta${kbd?'<span style="width:1.5px;height:20px;background:var(--pri)"></span>':''}</div></div>
+ <div style="display:flex;gap:12px"><div style="flex:1.4"><div class="label">Dia</div><div class="field hit" style="color:var(--ink)">${ic('cal',20,P)}sex., 16 out.</div></div><div style="flex:1"><div class="label">Hora</div><div class="field hit" style="color:var(--ink)">${ic('clock',20,P)}20:00</div></div></div>
+ <div><div class="label">Local (opcional)</div><div class="field hit">Casa, café, loja…</div></div>
+ ${sec('Amigos','2 escolhidos',`<div class="chips"><span class="chip on hit">${ic('check',16,'#fff')} Teste-participante</span><span class="chip on hit">${ic('check',16,'#fff')} Teste-membro</span><span class="chip hit">Teste-alheio</span></div>`)}
+ ${sec('Resposta','',`<div class="card">${row({title:'Prazo para responder',end:`<span class="t-cap">Sem prazo</span>${CH()}`})}</div>`)}`;
+const sessionAction=`<div class="actionbar"><div class="btn primary hit">Criar e convidar 2 amigos</div></div>`;
+
+/* ---------- Perfil ---------- */
+const perfilBody=`<div style="display:flex;gap:16px;align-items:center"><div class="avatar" style="width:64px;height:64px;font-size:26px">T</div><div class="grow"><div class="t-title">Teste-autor</div><div class="t-cap">autor@meepleboard.test</div></div><div class="hit link t-body" style="min-height:44px;display:flex;align-items:center">Editar</div></div>
+ <div class="hero" style="gap:10px"><div style="display:flex;justify-content:space-between"><span class="t-head">O teu ano à mesa</span><span class="t-cap">2026 · até à data</span></div><div style="display:flex;gap:12px"><div class="grow"><div class="t-display num">158</div><div class="t-cap">partidas</div></div><div class="grow"><div class="t-display num">3</div><div class="t-cap">jogos</div></div><div class="grow"><div class="t-display num">29</div><div class="t-cap">vitórias</div></div></div><div class="btn secondary hit" style="background:#fff">${ic('chart',20,P)}Ver estatísticas</div></div>
+ ${sec('Amigos','3',`<div class="card" style="--inset:68px"><div class="row hit"><div class="avatar" style="background:var(--gold-soft);color:var(--gold-ink)">${ic('addU',20,'var(--gold-ink)')}</div><div class="main"><div class="t-body b">1 pedido de amizade</div>${cap('Teste-novo quer jogar contigo')}</div>${CH()}</div>${row({lead:av('P'),title:'Teste-participante',sub:cap('138 partidas juntos · há 4 dias'),b:true})}${row({lead:av('M'),title:'Teste-membro',sub:cap('59 partidas juntos'),b:true})}${row({title:'Ver todos e procurar pessoas'})}</div>`)}
+ ${sec('Conta','',`<div class="card">${row({lead:ic('cog',22,M),title:'Definições',sub:cap('Idioma, privacidade da coleção')})}${row({lead:ic('starO',22,M),title:'Avaliações pendentes',val:'10'})}</div>`)}`;
+const friendBody=`<div style="display:flex;gap:16px;align-items:center"><div class="avatar" style="width:64px;height:64px;font-size:26px">T</div><div class="grow"><div class="t-title">Teste-participante</div><div class="t-cap">@Teste-participante · amigos desde out. 2026</div></div></div>
+ <div class="btns"><div class="btn primary hit">${ic('table',20,'#fff')}Convidar para sessão</div><div class="btn secondary hit" style="flex:0 0 52px;padding:0">${ic('dots',22,P)}</div></div>
+ <div class="hero" style="gap:10px"><div class="t-cap">Partidas juntos</div><div class="t-display num">138</div><div class="t-cap">48 com resultado confirmado · 2 jogos · 1 h 15 min registados</div><div class="bar"><i style="flex:48;background:var(--pri)"></i><i style="flex:90;background:#DCD2EC"></i></div><div class="pending hit">${ic('help',20)}<span class="grow">90 por confirmar</span>${ic('chevR',20)}</div></div>
+ ${sec('O que jogam juntos','',`<div class="card" style="--inset:72px">${row({lead:cover(),title:'Meeple Teste Competitivo',val:'134',b:true})}${row({lead:cover(),title:'Meeple Teste Cooperativo',val:'4',b:true})}${row({title:'O que podemos jogar?',sub:cap('Jogos da tua coleção e da dele')})}</div>`)}
+ ${sec('Mais','',`<div class="card">${row({title:'Comparar nas Estatísticas'})}${row({title:'Coleção de Teste-participante',val:'0'})}${row({title:'Sessões juntos',val:'12'})}</div>`)}`;
+const settingsBody=`${sec('Idioma','',`<div class="card" style="--inset:16px">${row({title:'Idioma do dispositivo',sub:cap('Português'),end:ic('check',22,P)})}${row({title:'Português',end:'<span style="width:22px"></span>'})}${row({title:'English',end:'<span style="width:22px"></span>'})}</div>`)}
+ ${sec('Quem vê a tua coleção','',`<div class="card" style="--inset:16px">${row({title:'Só tu',end:'<span style="width:22px"></span>'})}${row({title:'Amigos aceites',end:'<span style="width:22px"></span>'})}${row({title:'Qualquer pessoa',sub:cap('Aparece no teu perfil público'),end:ic('check',22,P)})}</div>`)}
+ ${sec('Conta','',`<div class="card">${row({title:'Email',val:'',end:`<span class="t-cap">autor@meepleboard.test</span>`})}${row({title:'Termos e privacidade'})}</div>`)}
+ <div class="card"><div class="row hit"><div class="main"><div class="t-body" style="color:var(--danger)">Terminar sessão</div></div>${ic('logout',22,'var(--danger)')}</div></div>`;
+const kbd=`<div class="kbd"><div>${'qwertyuiop'.split('').map(k=>`<span>${k}</span>`).join('')}</div><div>${'asdfghjklç'.split('').map(k=>`<span>${k}</span>`).join('')}</div><div><span class="fn">⇧</span>${'zxcvbnm'.split('').map(k=>`<span>${k}</span>`).join('')}<span class="fn">⌫</span></div><div><span class="fn">123</span><span class="wide">espaço</span><span class="fn" style="flex:0 0 88px">seguinte</span></div></div>`;
+
+const strips={
+ inicio:[['Proposta · Início','Sessão a decorrer em destaque, “Por fazer”, última partida, o teu ano.',phone({head:band('',`${ic('bell',24,P)}<span class="badge gold">2</span>`),body:homeBody,tabs:tabbar('home',{badgePerfil:1})})],
+   ['Proposta · ＋ Novo','Quatro inícios, Registar partida primeiro.',phone({head:band(),body:homeBody,tabs:tabbar('home'),overlay:plusSheet})],
+   ['Proposta · Início, continuação','O resumo do ano liga às Estatísticas.',phone({head:band(),body:homeBody,offset:'end',tabs:tabbar('home')})]],
+ jogos:[['Proposta · Jogos, coleção','Estados como filtros com contagem; ações em “…”.',phone({head:band(),body:jogosBody,tabs:tabbar('dice')})],
+   ['Proposta · Pesquisa conjunta','Coleção e catálogo no mesmo resultado; nota legível.',phone({head:nav('Procurar',{left:`${ic('chevL',26,P)}<span>Jogos</span>`}),top:'nav',body:searchBody})],
+   ['Proposta · Detalhe do jogo','Estado na coleção e Registar logo após o nome.',phone({head:nav('',{right:ic('dots',24,P)}),top:'nav',body:gameBody})],
+   ['Proposta · Adicionar','Estado e preço opcional numa folha.',phone({head:nav('Procurar'),top:'nav',body:searchBody,overlay:addSheet})],
+   ['Hoje · Biblioteca','',`<img class="before" src="antes/03-biblioteca.jpg" alt="Hoje: Biblioteca">`],
+   ['Hoje · Rankings','',`<img class="before" src="antes/25-rankings.jpg" alt="Hoje: Rankings">`]],
+ partidas:[['Proposta · Registar, jogadores','Passo 2 de 4; tu fixo; amigos sugeridos em chips.',phone({head:formHead('Registar partida','2 de 4'),top:'nav',body:`<div style="height:6px"></div>${regPlayers}`,actionbar:`<div class="actionbar"><div class="btns"><div class="btn secondary hit" style="flex:0 0 120px">Anterior</div><div class="btn primary hit">Continuar</div></div></div>`})],
+   ['Proposta · Registar, resultado','Resultado junto de cada jogador; regras visíveis.',phone({head:formHead('Registar partida','3 de 4'),top:'nav',body:`<div style="height:6px"></div>${regResult}`,actionbar:`<div class="actionbar"><div class="btns"><div class="btn secondary hit" style="flex:0 0 120px">Anterior</div><div class="btn primary hit">Rever</div></div></div>`})],
+   ['Proposta · Partida','Quem venceu, jogadores e a tua avaliação.',phone({head:nav('',{right:ic('dots',24,P)}),top:'nav',body:matchBody})],
+   ['Proposta · Avaliar','Nota grande, estrelas com meio ponto e ±0,5.',phone({head:formHead('Avaliar partida','').replace('<div style="position:absolute;top:102px','<div style="display:none'),top:'nav',body:journalBody,actionbar:`<div class="actionbar"><div class="btn primary hit">Guardar avaliação</div></div>`})],
+   ['Hoje · Registar, passo 2','',`<img class="before" src="antes/b3-registar-jogadores.jpg" alt="Hoje: registar jogadores">`],
+   ['Hoje · Partida','',`<img class="before" src="antes/09-partida.jpg" alt="Hoje: partida">`]],
+ jogar:[['Proposta · Jogar','Convites primeiro; a decorrer, agendadas, encerradas.',phone({head:band(),body:jogarBody,tabs:tabbar('table')})],
+   ['Proposta · Sessão','Estado e próxima ação no topo; gestão no fim.',phone({head:nav('',{right:ic('dots',24,P)}),top:'nav',body:sessionBody})],
+   ['Proposta · Sessão, continuação','Encerrar e cancelar em texto vermelho, com confirmação.',phone({head:nav('',{right:ic('dots',24,P)}),top:'nav',body:sessionBody,offset:'end'})],
+   ['Proposta · Nova sessão','Uma página; amigos em chips; ação fixa.',phone({head:nav('Nova sessão',{left:'Cancelar'}),top:'nav',body:newSession(false),actionbar:sessionAction})],
+   ['Hoje · Sessões','',`<img class="before" src="antes/13-sessoes.jpg" alt="Hoje: sessões">`],
+   ['Hoje · Criar sessão','',`<img class="before" src="antes/16-criar-sessao.jpg" alt="Hoje: criar sessão">`]],
+ perfil:[['Proposta · Perfil','Identidade, o teu ano, amigos e conta.',phone({head:band(),body:perfilBody,tabs:tabbar('user',{badgePerfil:1})})],
+   ['Proposta · Amigo','O que fazem juntos, com as regras das Estatísticas.',phone({head:nav('',{right:ic('dots',24,P)}),top:'nav',body:friendBody})],
+   ['Proposta · Definições','Escolhas em listas com ✓; sair só aqui, no fim.',phone({head:nav('Definições'),top:'nav',body:settingsBody})],
+   ['Hoje · Amigos','',`<img class="before" src="antes/20-amigos.jpg" alt="Hoje: amigos">`],
+   ['Hoje · Amigo','',`<img class="before" src="antes/21-amigo.jpg" alt="Hoje: amigo">`],
+   ['Hoje · Definições','',`<img class="before" src="antes/28-definicoes.jpg" alt="Hoje: definições">`]],
+ ampliado:[['Texto a 130 % · Início','Rótulos mantidos, linhas mais altas, nada cortado.',phone({head:band(),body:homeBody,tabs:tabbar('home'),scale:1.3,cls:'large'})],
+   ['Teclado aberto · Nova sessão','A ação sobe com o teclado.',phone({head:nav('Nova sessão',{left:'Cancelar'}),top:'nav',body:newSession(true),overlay:`${kbd}<div class="actionbar" style="bottom:336px;padding-bottom:12px;z-index:23"><div class="btn primary hit">Criar e convidar 2 amigos</div></div>`})]],
+};
+render();
+function render(){
+ for(const [k,list] of Object.entries(strips))document.querySelector(`[data-strip="${k}"]`).innerHTML=list.map(([t,d,h])=>`<figure class="shot">${h}<figcaption><b>${t}</b>${d?`<span>${d}</span>`:''}</figcaption></figure>`).join('');
+ const place=()=>document.querySelectorAll('.content').forEach(c=>{const o=c.dataset.offset;const vp=c.parentElement.clientHeight-100;const y=o==='end'?Math.max(0,c.scrollHeight-vp):Math.min(Number(o)||0,Math.max(0,c.scrollHeight-vp));c.style.transform=`translateY(${-y}px)`;});
+ document.fonts.ready.then(place);place();
+}
+</script>
+</body>
+</html>
