@@ -44,7 +44,7 @@ Partilha tem pré-visualização e opção predefinida sem nomes/avatares de ami
 
 Sugestões a validar por ecrã antes de mudar código:
 
-- **Início:** ação contextual de continuar sessão/registar partida e hierarquia de novidades; resolver dificuldade em encontrar a próxima ação, mantendo os atalhos atuais.
+- **Início:** feito no redesenho da app (sessão a decorrer, «Por fazer», próximas sessões, última partida e o teu ano). Os atalhos que repetiam separadores saíram, porque Biblioteca, Sessões e Campanhas estão em Jogos, Jogar e ＋; ver [redesenho-app.md](redesenho-app.md).
 - **Sessões:** separar visualmente estado, participantes confirmados e ação disponível; resolver ambiguidades de sessão ativa/convites. Conservar gestão, acessos e contadores; corrigir S-LIST02 antes de destacar números.
 - **Biblioteca:** filtros com estado persistente, capas proporcionais e estados Owned/Wishlist claros; facilitar procurar um jogo e distinguir coleção de desejos. Ação principal não deve substituir editar/remover/privacidade.
 - **Pesquisa e detalhe do jogo:** melhorar estados sem resultados/carregamento, mostrar modo suportado com origem e limitar metadados iniciais; reduzir ruído sem confundir capacidade do catálogo com modo de uma partida.
