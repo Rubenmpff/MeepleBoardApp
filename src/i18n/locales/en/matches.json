@@ -425,5 +425,38 @@
     "loadedSample": "Based on {{count}} loaded matches (maximum 200 in this history)",
     "soloOne": "Solo requires exactly one participant.",
     "selectionMembersOnly": "Select only participants of this match."
+  },
+  "history": {
+    "filters": "Filters",
+    "done": "Done",
+    "close": "Close filters",
+    "period": "Period",
+    "allDates": "All dates",
+    "thisMonth": "This month",
+    "game": "Game",
+    "allGames": "All games",
+    "selectedGame": "Selected game",
+    "mode": "Mode",
+    "allModes": "All modes",
+    "clear": "Clear filters",
+    "results": {
+      "all": "All",
+      "wins": "Wins",
+      "losses": "Losses",
+      "draws": "Draws",
+      "undefined": "No result"
+    },
+    "count_one": "{{count}} match",
+    "count_other": "{{count}} matches",
+    "tenYears": "last 10 years",
+    "rating": "rating {{value}}",
+    "more": "Show more matches",
+    "loadingMore": "Loading…",
+    "error": "Matches could not be loaded.",
+    "emptyTitle": "No matches yet",
+    "emptyBody": "Matches you register appear here, from every game and session.",
+    "register": "Register match",
+    "noResultsTitle": "No matches",
+    "noResults": "No match fits these filters."
   }
 }

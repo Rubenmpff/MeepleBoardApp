@@ -425,5 +425,38 @@
     "loadedSample": "Base: {{count}} partidas carregadas (máximo 200 neste histórico)",
     "soloOne": "Solo exige exatamente um participante.",
     "selectionMembersOnly": "Seleciona apenas participantes desta partida."
+  },
+  "history": {
+    "filters": "Filtros",
+    "done": "OK",
+    "close": "Fechar filtros",
+    "period": "Período",
+    "allDates": "Todas as datas",
+    "thisMonth": "Este mês",
+    "game": "Jogo",
+    "allGames": "Todos os jogos",
+    "selectedGame": "Jogo escolhido",
+    "mode": "Modo",
+    "allModes": "Todos os modos",
+    "clear": "Limpar filtros",
+    "results": {
+      "all": "Todas",
+      "wins": "Vitórias",
+      "losses": "Derrotas",
+      "draws": "Empates",
+      "undefined": "Sem resultado"
+    },
+    "count_one": "{{count}} partida",
+    "count_other": "{{count}} partidas",
+    "tenYears": "últimos 10 anos",
+    "rating": "avaliação {{value}}",
+    "more": "Mostrar mais partidas",
+    "loadingMore": "A carregar…",
+    "error": "Não foi possível carregar as partidas.",
+    "emptyTitle": "Ainda não tens partidas",
+    "emptyBody": "As partidas que registares aparecem aqui, de todos os jogos e sessões.",
+    "register": "Registar partida",
+    "noResultsTitle": "Sem partidas",
+    "noResults": "Nenhuma partida corresponde a estes filtros."
   }
 }

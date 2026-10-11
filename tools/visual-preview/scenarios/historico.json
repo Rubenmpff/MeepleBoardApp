@@ -1,0 +1,11 @@
+{"name":"historico","screens":[
+ {"id":"1-partidas","route":"/play","steps":[{"click":"Partidas"}]},
+ {"id":"2-partidas-fim","route":"/play","steps":[{"click":"Partidas"},{"scrollTo":"Mostrar mais partidas","offset":300}]},
+ {"id":"3-filtros","route":"/play","steps":[{"click":"Partidas"},{"click":"Filtros"}]},
+ {"id":"4-filtro-periodo","route":"/play","steps":[{"click":"Partidas"},{"click":"Filtros"},{"click":"Período"}]},
+ {"id":"5-vitorias","route":"/play","steps":[{"click":"Partidas"},{"click":"Vitórias"}]},
+ {"id":"6-detalhe","route":"/play","steps":[{"click":"Partidas"},{"click":"Vitórias"},{"click":"Meeple Teste Competitivo, 7 out. 2026, Vitória","wait":1200}]},
+ {"id":"7-regresso","route":"/play","steps":[{"click":"Partidas"},{"click":"Vitórias"},{"click":"Meeple Teste Competitivo, 7 out. 2026, Vitória","wait":1200},{"back":true}]},
+ {"id":"8-texto-grande","route":"/play","fontScale":1.3,"steps":[{"click":"Partidas"}]},
+ {"id":"9-inicio-ver-todas","route":"/dashboard","steps":[{"scrollTo":"Ver todas as partidas","offset":200},{"click":"Ver todas as partidas"}]}
+]}
