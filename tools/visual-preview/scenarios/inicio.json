@@ -1,0 +1,5 @@
+{"name":"inicio","screens":[
+ {"id":"1-inicio","route":"/dashboard"},
+ {"id":"2-inicio-meio","route":"/dashboard","steps":[{"scroll":700}]},
+ {"id":"3-inicio-fim","route":"/dashboard","scroll":"end"}
+]}

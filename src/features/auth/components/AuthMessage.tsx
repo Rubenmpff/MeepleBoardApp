@@ -14,7 +14,7 @@ export default function AuthMessage({ children, variant = "error" }: { children:
 }
 
 const styles = StyleSheet.create({
-  box: { padding: 12, borderRadius: 12, borderWidth: 1, borderColor: UI_COLORS.error, backgroundColor: "#FFF1F1" },
+  box: { padding: 12, borderRadius: 12, borderWidth: 1, borderColor: UI_COLORS.error, backgroundColor: AUTH_COLORS.errorSoft },
   success: { borderColor: UI_COLORS.success, backgroundColor: UI_COLORS.librarySoft },
   text: { ...UI_STYLES.body, color: UI_COLORS.error, fontWeight: "600" },
   successText: { color: UI_COLORS.success },

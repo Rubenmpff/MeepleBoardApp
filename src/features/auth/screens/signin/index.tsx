@@ -181,10 +181,14 @@ export default function SignInScreen() {
           styles.rememberContainer
         }
       >
+        {/* The label toggles too; the switch carries the accessible control. */}
         <Text
           style={
             styles.rememberText
           }
+          onPress={() => setRememberMe(value => !value)}
+          accessible={false}
+          suppressHighlighting
         >
           {t(
             "signIn.rememberMe"

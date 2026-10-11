@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import GameCover from "@/src/components/ui/GameCover";
+import { formatDate } from "@/src/ui/format";
 
 import { ROUTES } from "@/src/constants/routes";
 import { RootState } from "@/src/store/store";
@@ -21,7 +22,7 @@ import { useLastMatch } from "../hooks/useLastMatch";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { t } = useTranslation("dashboard");
+  const { t, i18n } = useTranslation("dashboard");
   const { width, fontScale } = useWindowDimensions();
   const compact = width < 360 || fontScale > 1.25;
   const user = useSelector((state: RootState) => state.auth.user);
@@ -85,7 +86,7 @@ export default function DashboardScreen() {
                     )}
                     <View style={styles.metadata}>
                       <MaterialIcons name="event" size={18} color={theme.colors.muted} />
-                      <Text style={styles.metadataText}>{lastMatch.date}</Text>
+                      <Text style={styles.metadataText}>{displayDate(lastMatch.date, i18n?.language ?? "pt")}</Text>
                     </View>
                   </View>
                 </View>
@@ -143,6 +144,11 @@ export default function DashboardScreen() {
       </ScrollView>
     </SafeAreaView>
   );
+}
+
+// The API sends ISO dates ("2026-10-07"); anything else is shown as received.
+function displayDate(value: string, language: string) {
+  return /^\d{4}-\d{2}-\d{2}/.test(value) ? formatDate(value.slice(0, 10) + "T12:00:00", language) : value;
 }
 
 const styles = StyleSheet.create({

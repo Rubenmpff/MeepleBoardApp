@@ -204,8 +204,12 @@ export default function SignUpScreen() {
           }}
         />
 
+        {/* The sentence toggles too; the switch carries the accessible control. */}
         <Text
           style={styles.termsText}
+          onPress={() => setAcceptTerms(value => !value)}
+          accessible={false}
+          suppressHighlighting
         >
           <Text>
             {t(

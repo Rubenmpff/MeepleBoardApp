@@ -24,7 +24,7 @@ export default function AuthButton({ title, description, icon, onPress, variant 
 const styles = StyleSheet.create({
   button: { minHeight: 52, paddingHorizontal: 16, paddingVertical: 14, borderRadius: 14, backgroundColor: colors.primary, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12 },
   secondary: { backgroundColor: colors.mint, borderWidth: 1, borderColor: colors.primary },
-  pressed: { opacity: 0.85 }, inactive: { backgroundColor: "#E3E9E5", borderWidth: 1, borderColor: colors.border },
+  pressed: { opacity: 0.85 }, inactive: { backgroundColor: colors.inactive, borderWidth: 1, borderColor: colors.border },
   content: { flex: 1, minWidth: 0 },
   title: { fontSize: 17, lineHeight: 24, fontWeight: "700", textAlign: "center", color: colors.onPrimary },
   secondaryText: { color: colors.primary },
