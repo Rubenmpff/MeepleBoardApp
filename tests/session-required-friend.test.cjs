@@ -28,7 +28,7 @@ test('no friends explains solo route and has working Friends destination', async
   const view = await renderNative(create, 'default', {}, {});
   assert.match(view.html, /Registar partida → Solo/);
   await view.press('Ir para Amigos');
-  assert.equal(view.routes.at(-1), '/(app)/(tabs)/(friends)/people');
+  assert.equal(view.routes.at(-1), '/(app)/(tabs)/(me)/people');
 });
 
 test('all declined is explicit and the invitation action opens the contextual subpage', async () => {

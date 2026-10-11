@@ -5,12 +5,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
+import { Avatar, Button, Card, EmptyState, Glyph, Row, Segmented } from "@/src/ui/components";
+import { colors, radius, space, touch, type } from "@/src/ui/theme";
 import { ROUTES } from "@/src/constants/routes";
 import { useFriends } from "../hooks/useFriends";
 import { FriendLite } from "../services/friendshipService";
-import { avatarColors } from "../utils/avatarPalette";
 import OnlineDot from "../components/OnlineDot";
 import ScreenState from "@/src/components/ui/ScreenState";
 import ScreenHeader from "@/src/components/navigation/ScreenHeader";
@@ -34,153 +33,70 @@ export default function FriendsScreen() {
   }, [friends, query, sort]);
 
   async function refresh() { setRefreshing(true); try { await refetch(true); } finally { setRefreshing(false); } }
-  if (loading && friends.length === 0) return <SafeAreaView style={styles.screen}><ScreenHeader appearance="refresh" mode="root" leftAccessibilityLabel={t("card.menu")} title={t("screen.title")} /><ScreenState loading message={t("card.loading")} /></SafeAreaView>;
+  // Reached from Perfil: a back header, with "add friend" on the right.
+  const header = <ScreenHeader title={t("screen.title")} rightIcon="person-add-outline" rightAccessibilityLabel={t("screen.add")}
+    onRightPress={() => router.push(ROUTES.FRIEND_SEARCH as never)} />;
+  if (loading && friends.length === 0) return <SafeAreaView style={styles.screen}><View style={styles.pad}>{header}</View><ScreenState loading message={t("card.loading")} /></SafeAreaView>;
 
   return (
-    <SafeAreaView style={styles.screen} edges={["left", "right", "top", "bottom"]}>
+    <SafeAreaView style={styles.screen} edges={["left", "right", "top"]}>
+      <View style={styles.pad}>{header}</View>
       <FlatList keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" data={visibleFriends} keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <FriendCard friend={item} onPress={() => router.push({ pathname: ROUTES.USER_PROFILE, params: { id: item.id } } as never)} />}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={COLORS.primary} />}
-        contentContainerStyle={[styles.listContent, visibleFriends.length === 0 && styles.grow]}
-        ListHeaderComponent={<>
-          <ScreenHeader appearance="refresh"
-            mode="root" leftAccessibilityLabel={t("card.menu")}
-            title={t("screen.title")}
-            subtitle={t("screen.count", { count: friends.length })}
-            rightIcon="person-add-outline"
-            rightAccessibilityLabel={t("screen.add")}
-            onRightPress={() => router.push(ROUTES.FRIEND_SEARCH as never)}
-          />
-
-          <View style={styles.searchBox}>
-            <Ionicons name="search-outline" size={19} color={COLORS.textMuted} />
-            <TextInput value={query} onChangeText={setQuery} accessibilityLabel={t("screen.searchPlaceholder")} placeholder={t("screen.searchPlaceholder")} placeholderTextColor={COLORS.textMuted} style={styles.searchInput} autoCapitalize="none" />
-            {!!query && <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("card.clearSearch")} style={UI_STYLES.iconButton} onPress={() => setQuery("")}><Ionicons name="close-circle" size={18} color={COLORS.textMuted} /></TouchableOpacity>}
-          </View>
-
-          <TouchableOpacity style={styles.requestsRow} activeOpacity={0.85} onPress={() => router.push(ROUTES.FRIEND_REQUESTS as never)}>
-            <View style={styles.requestsIcon}><Ionicons name="people" size={18} color={COLORS.secondary} /></View>
-            <Text style={styles.requestsText}>{t("screen.requests")}</Text>
-            <Ionicons name="chevron-forward" size={18} color={COLORS.secondary} />
-          </TouchableOpacity>
-
-          <View style={styles.tabs}>
-            {(["all", "mostPlayed", "recent"] as SortMode[]).map((value) => (
-              <TouchableOpacity key={value} accessibilityRole="tab" accessibilityState={{ selected: sort === value }} onPress={() => setSort(value)} style={[styles.tab, sort === value && styles.activeTab]}>
-                <Text style={[styles.tabText, sort === value && styles.activeTabText]}>{t(`sort.${value}`)}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {!!error && <ScreenState error message={error} onRetry={() => refetch(true)} retryLabel={t("screen.retry")} />}
-        </>}
-        ListEmptyComponent={<View style={styles.emptyContainer}>
-          <View style={styles.emptyIconWrap}><Ionicons name={query ? "search-outline" : "people-outline"} size={44} color={COLORS.primary} /></View>
-          <Text style={styles.emptyTitle}>{t(query ? "screen.noResults" : "screen.emptyTitle")}</Text>
-          <Text style={styles.emptyDescription}>{t(query ? "screen.noResultsDescription" : "screen.emptyDescription")}</Text>
-          <TouchableOpacity style={styles.primaryButton} onPress={() => query ? setQuery("") : router.push(ROUTES.FRIEND_SEARCH as never)}>
-            <Text style={styles.primaryButtonText}>{t(query ? "screen.clearSearch" : "screen.findFriends")}</Text>
-          </TouchableOpacity>
+        renderItem={({ item, index }) => <View style={[styles.item, index === 0 && styles.itemFirst, index === visibleFriends.length - 1 && styles.itemLast]}>
+          <Row first={index === 0} inset={72} strongTitle title={item.userName} lead={<FriendAvatar friend={item} />}
+            subtitle={t("card.sharedMatches", { count: item.sharedMatchesCount })}
+            detail={<Text style={type.caption} numberOfLines={1}>{item.lastPlayedAt ? t("card.lastPlayed", { date: relativeDate(item.lastPlayedAt) }) : item.mostPlayedGame ? t("card.mostPlayed", { game: item.mostPlayedGame }) : t("card.noMatches")}</Text>}
+            accessibilityLabel={item.userName} onPress={() => router.push({ pathname: ROUTES.USER_PROFILE, params: { id: item.id } } as never)} />
         </View>}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} />}
+        contentContainerStyle={[styles.listContent, visibleFriends.length === 0 && styles.grow]}
+        ListHeaderComponent={<View style={styles.headerBlock}>
+          <View style={styles.searchBox}>
+            <Ionicons name="search-outline" size={19} color={colors.placeholder} />
+            <TextInput value={query} onChangeText={setQuery} accessibilityLabel={t("screen.searchPlaceholder")} placeholder={t("screen.searchPlaceholder")} placeholderTextColor={colors.placeholder} style={[type.body, styles.searchInput]} autoCapitalize="none" />
+            {!!query && <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("card.clearSearch")} style={styles.clear} onPress={() => setQuery("")}><Ionicons name="close-circle" size={18} color={colors.placeholder} /></TouchableOpacity>}
+          </View>
+          <Card>
+            <Row first inset={52} title={t("screen.requests")} lead={<Glyph name="account-multiple-outline" size={22} color={colors.friend} />}
+              onPress={() => router.push(ROUTES.FRIEND_REQUESTS as never)} />
+          </Card>
+          <View style={styles.sortRow}>
+            <Text style={[type.head, styles.flex]} accessibilityRole="header">{t("screen.count", { count: friends.length })}</Text>
+          </View>
+          <Segmented items={(["all", "mostPlayed", "recent"] as SortMode[]).map(value => ({ key: value, label: t(`sort.${value}`) }))} value={sort} onChange={setSort} />
+          {!!error && <ScreenState error message={error} onRetry={() => refetch(true)} retryLabel={t("screen.retry")} />}
+        </View>}
+        ListEmptyComponent={<EmptyState title={t(query ? "screen.noResults" : "screen.emptyTitle")} message={t(query ? "screen.noResultsDescription" : "screen.emptyDescription")}
+          action={<Button variant="primary" title={t(query ? "screen.clearSearch" : "screen.findFriends")} onPress={() => query ? setQuery("") : router.push(ROUTES.FRIEND_SEARCH as never)} />} />}
       />
     </SafeAreaView>
   );
 }
 
-function FriendCard({ friend, onPress }: { friend: FriendLite; onPress: () => void }) {
-  const { t } = useTranslation("friends");
-  const colors = avatarColors(friend.userName);
-  return (
-    <TouchableOpacity accessibilityRole="button" accessibilityLabel={friend.userName} style={styles.friendCard} onPress={onPress} activeOpacity={0.8}>
-      <View style={styles.avatarWrap}>
-        {friend.profilePictureUrl ? (
-          <Image source={{ uri: friend.profilePictureUrl }} style={styles.avatar} />
-        ) : (
-          <View style={[styles.avatar, { backgroundColor: colors.bg }]}>
-            <Text style={[styles.avatarText, { color: colors.fg }]}>{friend.userName.trim().charAt(0).toUpperCase() || "?"}</Text>
-          </View>
-        )}
-        {friend.isOnline && <OnlineDot />}
-      </View>
-      <View style={styles.friendInfo}>
-        <Text style={styles.friendName} numberOfLines={1}>{friend.userName}</Text>
-        <Text style={styles.meta}>{t("card.sharedMatches", { count: friend.sharedMatchesCount })}
-        </Text>
-        <Text style={styles.secondaryMeta} numberOfLines={1}>
-          {friend.lastPlayedAt ? t("card.lastPlayed", { date: relativeDate(friend.lastPlayedAt) }) : friend.mostPlayedGame ? t("card.mostPlayed", { game: friend.mostPlayedGame }) : t("card.noMatches")}
-        </Text>
-      </View>
-      <Ionicons name="chevron-forward" size={19} color={COLORS.textMuted} />
-    </TouchableOpacity>
-  );
+// Photo when there is one; otherwise the shared initial avatar. The online dot keeps its meaning.
+function FriendAvatar({ friend }: { friend: FriendLite }) {
+  return <View>
+    {friend.profilePictureUrl ? <Image source={{ uri: friend.profilePictureUrl }} style={styles.photo} accessible={false} /> : <Avatar name={friend.userName} />}
+    {friend.isOnline && <OnlineDot />}
+  </View>;
 }
 
 function relativeDate(value: string) { const days = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 86_400_000)); return days === 0 ? i18n.t("friends:card.today") : days === 1 ? i18n.t("friends:card.yesterday") : i18n.t("friends:card.daysAgo", { count: days }); }
 
-const cardShadow = {
-  shadowColor: "#0B1220",
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.06,
-  shadowRadius: 12,
-  elevation: 2,
-};
-
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background },
+  screen: { flex: 1, backgroundColor: colors.background },
+  pad: { paddingHorizontal: space.lg },
   grow: { flexGrow: 1 },
-  listContent: { paddingHorizontal: 16, paddingTop: 0, paddingBottom: 32 },
-
-
-  searchBox: { flexDirection: "row", alignItems: "center", backgroundColor: COLORS.card, borderWidth: 1, borderColor: COLORS.border, borderRadius: 12, paddingHorizontal: 12, minHeight: 52, ...cardShadow },
-  searchInput: {
-    ...UI_STYLES.body, flex: 1, marginLeft: 10, color: COLORS.onBackground, fontSize: 15
-  },
-
-  requestsRow: { flexDirection: "row", alignItems: "center", marginTop: 14, padding: 13, borderRadius: 16, backgroundColor: `${COLORS.secondary}14` },
-  requestsIcon: { width: 34, height: 34, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: `${COLORS.secondary}22` },
-  requestsText: {
-    ...UI_STYLES.caption, flex: 1, marginLeft: 11, fontWeight: "700", color: COLORS.onBackground, fontSize: 14
-  },
-
-  tabs: { flexWrap: "wrap", flexDirection: "row", marginTop: 20, marginBottom: 4, backgroundColor: COLORS.surface, padding: 4, borderRadius: 13 },
-  tab: {
-    ...UI_STYLES.control, flex: 1, alignItems: "center", paddingVertical: 9, borderRadius: 10
-  },
-  activeTab: { backgroundColor: COLORS.card, ...cardShadow, shadowOpacity: 0.08 },
-  tabText: {
-    ...UI_STYLES.caption, color: COLORS.textMuted, fontSize: 13, fontWeight: "700"
-  },
-  activeTabText: { color: COLORS.primary },
-
-  friendCard: {
-    ...UI_STYLES.card, flexDirection: "row", alignItems: "center", backgroundColor: COLORS.card, borderRadius: 20, padding: 14, marginTop: 12, ...cardShadow
-  },
-  avatarWrap: { marginRight: 13 },
-  avatar: { width: 50, height: 50, borderRadius: 25, alignItems: "center", justifyContent: "center" },
-  avatarText: {
-    ...UI_STYLES.section, fontSize: 18, fontWeight: "800"
-  },
-  friendInfo: { flex: 1 },
-  friendName: {
-    ...UI_STYLES.body, fontSize: 16, fontWeight: "800", color: COLORS.onBackground
-  },
-  meta: {
-    ...UI_STYLES.caption, marginTop: 3, fontSize: 13, color: COLORS.onBackground
-  },
-  secondaryMeta: {
-    ...UI_STYLES.caption, marginTop: 2, fontSize: 13, color: COLORS.textMuted
-  },
-  inlineError: { color: COLORS.error, marginTop: 14 },
-
-  emptyContainer: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 28, paddingVertical: 48 },
-  emptyIconWrap: { width: 88, height: 88, borderRadius: 44, alignItems: "center", justifyContent: "center", backgroundColor: `${COLORS.primary}12` },
-  emptyTitle: {
-    ...UI_STYLES.section, marginTop: 18, fontSize: 19, fontWeight: "800", color: COLORS.onBackground, textAlign: "center"
-  },
-  emptyDescription: { marginTop: 8, color: COLORS.textMuted, lineHeight: 20, textAlign: "center" },
-  primaryButton: {
-    ...UI_STYLES.control, marginTop: 20, backgroundColor: COLORS.primary, paddingVertical: 12, paddingHorizontal: 22, borderRadius: 13
-  },
-  primaryButtonText: { color: "#fff", fontWeight: "800" },
+  flex: { flex: 1, minWidth: 0 },
+  listContent: { paddingHorizontal: space.lg, paddingBottom: 32 },
+  headerBlock: { gap: space.lg, paddingTop: space.xs, paddingBottom: space.md },
+  searchBox: { flexDirection: "row", alignItems: "center", backgroundColor: colors.card, borderWidth: 1, borderColor: colors.field, borderRadius: radius.control, paddingLeft: space.md },
+  searchInput: { flex: 1, minHeight: touch, marginLeft: space.sm, color: colors.text },
+  clear: { width: touch, height: touch, alignItems: "center", justifyContent: "center" },
+  sortRow: { flexDirection: "row", alignItems: "center", marginTop: space.xs, paddingHorizontal: space.xs },
+  // Rows of one card, split across FlatList items.
+  item: { backgroundColor: colors.card, borderLeftWidth: 1, borderRightWidth: 1, borderColor: colors.line },
+  itemFirst: { borderTopWidth: 1, borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card },
+  itemLast: { borderBottomWidth: 1, borderBottomLeftRadius: radius.card, borderBottomRightRadius: radius.card },
+  photo: { width: 40, height: 40, borderRadius: 20 },
 });

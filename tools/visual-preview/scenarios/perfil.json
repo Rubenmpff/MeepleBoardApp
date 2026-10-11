@@ -1,0 +1,10 @@
+{"name":"perfil","screens":[
+ {"id":"1-perfil","route":"/me"},
+ {"id":"2-perfil-fim","route":"/me","scroll":"end"},
+ {"id":"3-amigos","route":"/friends"},
+ {"id":"4-pedidos","route":"/friends/requests"},
+ {"id":"5-pesquisa","route":"/friends/search"},
+ {"id":"6-amigo","route":"/friends/{{user:participante}}"},
+ {"id":"7-definicoes","route":"/settings"},
+ {"id":"8-definicoes-fim","route":"/settings","scroll":"end"}
+]}

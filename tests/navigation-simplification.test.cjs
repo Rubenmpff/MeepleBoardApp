@@ -6,8 +6,8 @@ test('Legacy entry points redirect to a single destination and preserve every pa
   const aliases = {
     'src/app/(app)/games/library/index.tsx': '/(app)/(tabs)/(library)/library',
     'src/app/(app)/(tabs)/(library)/index.tsx': '/(app)/(tabs)/(library)/library',
-    'src/app/(app)/friends/index.tsx': '/(app)/(tabs)/(friends)/people',
-    'src/app/(app)/(tabs)/(friends)/index.tsx': '/(app)/(tabs)/(friends)/people',
+    'src/app/(app)/friends/index.tsx': '/(app)/(tabs)/(me)/people',
+    'src/app/(app)/(tabs)/(friends)/index.tsx': '/(app)/(tabs)/(me)/people',
     'src/app/(app)/(tabs)/(register)/index.tsx': '/games/register-match',
   };
   const params = { id: 'fixture-id', gameId: 'game-id', gameName: 'A & B %', memberIds: ['one', 'two'], returnTo: '/games/sessions/fixture-id' };

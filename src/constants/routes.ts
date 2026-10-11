@@ -37,7 +37,7 @@ export const ROUTES = {
   CAMPAIGN_CREATE: "/(app)/games/campaigns/create",
 
   // ── Amigos
-  FRIENDS: "/(app)/(tabs)/(friends)/people",
+  FRIENDS: "/(app)/(tabs)/(me)/people",
 
   FRIEND_REQUESTS: "/friends/requests",
 

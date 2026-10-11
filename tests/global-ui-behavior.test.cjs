@@ -67,7 +67,7 @@ for (const language of ['pt', 'en']) {
     assert.match(ui.html, />4</); assert.match(ui.html, />158</); assert.match(ui.html, /Amigo A/);
     const t = (key) => ui.i18n.t(key, { ns: 'navigation' });
     for (const label of [t('me.viewStatistics'), t('me.allFriends'), t('settings'), `${t('me.pendingJournal')}: 4`]) await ui.press(label);
-    assert.deepEqual(ui.routes, ['/statistics', '/(app)/(tabs)/(friends)/people', '/settings', '/games/pending-journal']);
+    assert.deepEqual(ui.routes, ['/statistics', '/(app)/(tabs)/(me)/people', '/settings', '/games/pending-journal']);
     await ui.press('Amigo A'); assert.deepEqual(ui.routes.at(-1), { pathname: '/friends/[id]', params: { id: 'friend-a' } });
     assert.equal(ui.controls.some(c => c.accessibilityLabel === t('back')), false);
     const sheet = await renderNative(newSheet, 'default', { visible: true, onClose() {} }, { language });
