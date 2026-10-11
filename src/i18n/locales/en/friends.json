@@ -153,8 +153,7 @@
     "loading": "Loading…",
     "collectionOf": "{{name}}’s collection",
     "emptyCollection": "{{name}} has not added games to their collection yet.",
-    "back": "Back",
-    "menu": "Open menu"
+    "back": "Back"
   },
   "counts": {
     "matches_one": "{{count}} match",

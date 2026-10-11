@@ -44,9 +44,6 @@
   "list": {
     "title": "Campanhas",
     "new": "Nova",
-    "none": "Nenhuma campanha ainda",
-    "activeCount_one": "{{count}} campanha ativa",
-    "activeCount_other": "{{count}} campanhas ativas",
     "emptyTitle": "Sem campanhas ainda",
     "emptyMessage": "Cria uma campanha para acompanhar\nas tuas aventuras de jogo!",
     "createFirst": "Criar primeira campanha",
@@ -71,7 +68,6 @@
       "decline": "Recusar"
     },
     "actions": {
-      "complete": "Concluir",
       "completeTitle": "Concluir campanha",
       "completeConfirm": "Tens a certeza de que queres concluir esta campanha?",
       "abandon": "Abandonar",

@@ -63,7 +63,6 @@
     "loadErrorDescription": "Unable to load your game library."
   },
   "ui": {
-    "title": "My collection",
     "add": "Add game",
     "owned": "Owned",
     "wanted": "Wishlist",
@@ -125,7 +124,6 @@
     "status": "Status",
     "price": "Price paid (optional)",
     "priceHelp": "Leave blank for an unknown price; €0 means free. Use up to two decimal places.",
-    "catalogHint": "Search the catalogue to add a game",
     "save": "Save changes",
     "ownedOption": "I own this game",
     "wishlistOption": "I want to play",
@@ -133,8 +131,6 @@
     "updated": "Library updated!",
     "saveError": "Your changes could not be saved.",
     "history": "History",
-    "gamesCount_one": "{{count}} game",
-    "gamesCount_other": "{{count}} games",
     "matchesCount_one": "{{count}} match",
     "matchesCount_other": "{{count}} matches",
     "playersCount": "{{range}} players",

@@ -47,7 +47,6 @@
   "game": {
     "sectionTitle": "Choose the game",
     "change": "Change",
-    "expansionsOptional": "Expansions used (optional)",
     "changeGame": "Change game"
   },
   "modes": {
@@ -191,7 +190,6 @@
     "closedHint": "The journal is closed, but you can still leave your review!",
     "yourRating": "Your review",
     "leaveRating": "Leave your review",
-    "rating": "Rating (0–10) *",
     "notes": "Private notes (optional)",
     "notesPlaceholder": "Epic moments, strategies, what went well or wrong…",
     "tags": "Tags (optional, comma-separated)",
@@ -336,13 +334,11 @@
     "inviteHint": "{{count}} friend(s) will receive an invitation when you create the session.",
     "confirmed": "{{accepted}}/{{total}} confirmed",
     "matches": "{{count}} matches",
-    "matchesTitle": "Matches ({{count}})",
     "replyBy": "Reply by: {{date}}",
     "replyByStart": "Reply before the session starts: {{date}}",
     "organizer": "Organiser: {{name}}",
     "listError": "Could not load sessions.",
     "selectFriend": "Select {{name}} for invitation",
-    "registerMatch": "Register match",
     "gameNameUnavailable": "Game name unavailable",
     "playerNameUnavailable": "Player name unavailable",
     "winnerNamed": "Winner: {{name}}",

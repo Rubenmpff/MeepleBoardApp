@@ -58,13 +58,3 @@ export function getStatusLabel(status: GameSessionStatus): string {
     case "Cancelled":  return "Cancelada";
   }
 }
-
-/** Devolve a cor do status */
-export function getStatusColor(status: GameSessionStatus): string {
-  switch (status) {
-    case "Upcoming":   return "#f39c12";
-    case "Active":     return "#388E3C";
-    case "Closed":     return "#999";
-    case "Cancelled":  return "#D32F2F";
-  }
-}

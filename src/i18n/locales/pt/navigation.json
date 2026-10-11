@@ -1,12 +1,9 @@
 {
   "home": "Início",
-  "gameSearch": "Pesquisar jogos",
-  "inbox": "Caixa de entrada",
   "calendar": "Calendário",
   "library": "A minha biblioteca",
   "activity": "Atividade",
   "settings": "Definições",
-  "profile": "Perfil",
   "friends": "Amigos",
   "games": "Jogos",
   "sessions": "Sessões",
@@ -17,13 +14,9 @@
   "personal": "Pessoal",
   "travel": "Viagens",
   "business": "Negócios",
-  "logout": "Terminar sessão",
-  "rankings": "Rankings",
-  "pendingJournal": "Avaliações pendentes",
   "back": "Voltar",
   "openMenu": "Abrir menu",
   "tabs": {
-    "more": "Mais",
     "home": "Início",
     "register": "Registar",
     "library": "Biblioteca",
@@ -38,11 +31,6 @@
     "redirecting": "A verificar a sessão…"
   },
   "cancel": "Cancelar",
-  "more": {
-    "play": "Jogar em conjunto",
-    "reviews": "Partidas",
-    "account": "Conta"
-  },
   "leave": {
     "title": "Descartar alterações?",
     "message": "Existem alterações por guardar. Se saíres, serão perdidas.",

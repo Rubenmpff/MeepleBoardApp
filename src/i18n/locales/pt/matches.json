@@ -47,7 +47,6 @@
   "game": {
     "sectionTitle": "Escolhe o jogo",
     "change": "Mudar",
-    "expansionsOptional": "Expansões utilizadas (opcional)",
     "changeGame": "Mudar de jogo"
   },
   "modes": {
@@ -191,7 +190,6 @@
     "closedHint": "O diário foi fechado, mas ainda podes deixar a tua avaliação!",
     "yourRating": "A tua avaliação",
     "leaveRating": "Deixa a tua avaliação",
-    "rating": "Avaliação (0–10) *",
     "notes": "Notas privadas (opcional)",
     "notesPlaceholder": "Momentos épicos, estratégias, o que correu bem ou mal…",
     "tags": "Etiquetas (opcional, separadas por vírgulas)",
@@ -336,13 +334,11 @@
     "inviteHint": "{{count}} amigo(s) vão receber um convite quando criares a sessão.",
     "confirmed": "{{accepted}}/{{total}} confirmados",
     "matches": "{{count}} partidas",
-    "matchesTitle": "Partidas ({{count}})",
     "replyBy": "Prazo de resposta: {{date}}",
     "replyByStart": "Respostas até ao início: {{date}}",
     "organizer": "Organizador: {{name}}",
     "listError": "Não foi possível carregar as sessões.",
     "selectFriend": "Selecionar {{name}} para convite",
-    "registerMatch": "Registar partida",
     "gameNameUnavailable": "Nome do jogo indisponível",
     "playerNameUnavailable": "Nome do jogador indisponível",
     "winnerNamed": "Vencedor: {{name}}",

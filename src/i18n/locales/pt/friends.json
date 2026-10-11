@@ -153,8 +153,7 @@
     "loading": "A carregar…",
     "collectionOf": "Coleção de {{name}}",
     "emptyCollection": "{{name}} ainda não adicionou jogos à coleção.",
-    "back": "Voltar",
-    "menu": "Abrir menu"
+    "back": "Voltar"
   },
   "counts": {
     "matches_one": "{{count}} partida",

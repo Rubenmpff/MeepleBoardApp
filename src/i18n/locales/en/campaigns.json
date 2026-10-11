@@ -44,9 +44,6 @@
   "list": {
     "title": "Campaigns",
     "new": "New",
-    "none": "No campaigns yet",
-    "activeCount_one": "{{count}} active campaign",
-    "activeCount_other": "{{count}} active campaigns",
     "emptyTitle": "No campaigns yet",
     "emptyMessage": "Create a campaign to keep track of\nyour gaming adventures!",
     "createFirst": "Create first campaign",
@@ -71,7 +68,6 @@
       "decline": "Decline"
     },
     "actions": {
-      "complete": "Complete",
       "completeTitle": "Complete campaign",
       "completeConfirm": "Are you sure you want to complete this campaign?",
       "abandon": "Abandon",

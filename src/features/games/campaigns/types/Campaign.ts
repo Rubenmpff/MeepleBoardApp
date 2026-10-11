@@ -118,18 +118,3 @@ export function getCampaignMemberStatusKey(
       return "memberStatus.left";
   }
 }
-
-export function getStatusColor(
-  status: CampaignStatus
-): string {
-  switch (status) {
-    case "Active":
-      return "#388E3C";
-
-    case "Completed":
-      return "#1E88E5";
-
-    case "Abandoned":
-      return "#999999";
-  }
-}

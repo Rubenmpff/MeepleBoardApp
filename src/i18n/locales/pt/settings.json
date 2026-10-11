@@ -15,12 +15,6 @@
     "confirmation": "Tens a certeza de que pretendes terminar a sessão?",
     "error": "Não foi possível terminar a sessão."
   },
-  "profile": {
-    "title": "Perfil",
-    "preferences": "As tuas preferências",
-    "description": "Consulta o idioma e a privacidade da coleção nas Definições.",
-    "settings": "Abrir definições"
-  },
   "privacy": {
     "title": "Privacidade da coleção",
     "description": "Quem pode ver os jogos que tens na tua coleção.",

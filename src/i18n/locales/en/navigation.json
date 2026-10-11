@@ -1,12 +1,9 @@
 {
   "home": "Home",
-  "gameSearch": "Game Search",
-  "inbox": "Inbox",
   "calendar": "Calendar",
   "library": "My Library",
   "activity": "Activity",
   "settings": "Settings",
-  "profile": "Profile",
   "friends": "Friends",
   "games": "Games",
   "sessions": "Sessions",
@@ -17,13 +14,9 @@
   "personal": "Personal",
   "travel": "Travel",
   "business": "Business",
-  "logout": "Log out",
-  "rankings": "Rankings",
-  "pendingJournal": "Pending reviews",
   "back": "Back",
   "openMenu": "Open menu",
   "tabs": {
-    "more": "More",
     "home": "Home",
     "register": "Register",
     "library": "Library",
@@ -38,11 +31,6 @@
     "redirecting": "Checking your session…"
   },
   "cancel": "Cancel",
-  "more": {
-    "play": "Play together",
-    "reviews": "Matches",
-    "account": "Account"
-  },
   "leave": {
     "title": "Discard changes?",
     "message": "You have unsaved changes. Leaving will discard them.",

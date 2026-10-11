@@ -7,12 +7,12 @@ import { matchResultText } from "../../sessions/utils/matchResultKey";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 
-export default function MatchSummary({ match, compact = false }: { match: MatchDto; compact?: boolean }) {
+export default function MatchSummary({ match }: { match: MatchDto }) {
   const { t, i18n } = useTranslation("matches");
   const date = match.matchDate ? new Date(match.matchDate) : null;
   return <View style={styles.summary}>
     <View style={styles.heading}>
-      <GameCover uri={match.gameImageUrl} size={compact ? 64 : 100} />
+      <GameCover uri={match.gameImageUrl} size={100} />
       <View style={styles.info}>
         <Text style={styles.name}>{match.gameName?.trim() || t("sessions.gameNameUnavailable")}</Text>
         <Text style={styles.meta}>{matchResultText(match, t)}</Text>
