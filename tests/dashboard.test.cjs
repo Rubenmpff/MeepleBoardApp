@@ -178,7 +178,8 @@ test('last match data and the single registration action survive small screens a
     for (const text of ['Existing match', 'Existing winner', '5 out. 2026']) assert.ok(rendered.html.includes(text), rendered.html);
     assert.equal(rendered.buttons.filter(b => b.accessibilityLabel === 'Registar partida').length, 1);
     rendered.press('Registar partida');
-    assert.deepEqual(rendered.routes, ['/games/register-match']);
+    rendered.press('Ver todas as partidas');
+    assert.deepEqual(rendered.routes, ['/games/register-match', { pathname: '/(app)/(tabs)/(play)/play', params: { area: 'matches' } }]);
   }
 });
 

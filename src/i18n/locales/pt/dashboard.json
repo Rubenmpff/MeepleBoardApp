@@ -42,6 +42,7 @@
   },
   "lastMatch": {
     "title": "Última partida",
+    "all": "Ver todas as partidas",
     "empty": "Ainda não tens partidas registadas.",
     "loading": "A carregar a última partida…",
     "loadError": "Não foi possível carregar a última partida.",

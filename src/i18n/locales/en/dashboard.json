@@ -42,6 +42,7 @@
   },
   "lastMatch": {
     "title": "Last match",
+    "all": "See all matches",
     "empty": "You haven't registered any matches yet.",
     "loading": "Loading your last match…",
     "loadError": "Your last match could not be loaded.",

@@ -117,3 +117,13 @@ for (const token of [null, 'isolated-token-fixture']) test(`Redirect keeps exist
   assert.deepEqual(ui.routes, [['replace', token ? '/dashboard' : '/welcome']]);
   assert.deepEqual(ui.calls.map(c => c[0]), token ? ['getValidToken'] : ['getValidToken', 'clearAll']);
 });
+
+test('Perfil shows pending friend requests above the friends and opens them', async () => {
+  // ProfileHomeScreen state order: year query, request count.
+  const ui = await renderNative(profile, 'default', {}, { states: { 1: 2 } });
+  assert.match(ui.html, /2 pedidos de amizade/);
+  await ui.press('2 pedidos de amizade');
+  assert.deepEqual(ui.routes, ['/friends/requests']);
+  const none = await renderNative(profile, 'default', {}, { states: { 1: 0 } });
+  assert.doesNotMatch(none.html, /pedidos? de amizade/);
+});

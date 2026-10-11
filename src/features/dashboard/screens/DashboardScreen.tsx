@@ -174,8 +174,11 @@ export default function DashboardScreen() {
                 <Button title={t("lastMatch.retry")} onPress={() => { void refetchLastMatch(); }} />
               </View>
             ) : lastMatch ? (
-              <Row first inset={76} strongTitle title={lastMatch.name} lead={<GameCover uri={lastMatch.imageUrl} size={48} />}
-                subtitle={[outcome(lastMatch, t), displayDate(lastMatch.date, language)].join(" · ")} />
+              <>
+                <Row first inset={76} strongTitle title={lastMatch.name} lead={<GameCover uri={lastMatch.imageUrl} size={48} />}
+                  subtitle={[outcome(lastMatch, t), displayDate(lastMatch.date, language)].join(" · ")} />
+                <Row title={t("lastMatch.all")} tone="link" onPress={() => router.push({ pathname: ROUTES.PLAY, params: { area: "matches" } } as never)} />
+              </>
             ) : (
               <View style={styles.message}>
                 <LottieView source={require("@/assets/animations/ghost.json")} autoPlay loop style={styles.lottie} />
