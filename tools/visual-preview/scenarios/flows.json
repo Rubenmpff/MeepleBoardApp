@@ -1,12 +1,12 @@
 {
  "name": "flows",
  "screens": [
-  {"id": "a1-pesquisa-adicionar", "route": "/games/search", "steps": [{"type": ["🔍 Pesquisar um jogo de tabuleiro…", "Meeple"], "wait": 1800}, {"click": "Adicionar Meeple Teste Cooperativo à tua biblioteca", "wait": 600}]},
+  {"id": "a1-pesquisa-adicionar", "route": "/games/search", "steps": [{"type": ["Pesquisar um jogo de tabuleiro", "Meeple"], "wait": 1800}, {"click": "Adicionar Meeple Teste Cooperativo à tua biblioteca", "wait": 600}]},
   {"id": "a2-biblioteca-lista", "route": "/library", "steps": [{"scroll": 420}]},
   {"id": "a3-biblioteca-acoes", "route": "/library", "steps": [{"scroll": 420}, {"click": "Ações para Meeple Teste Competitivo", "wait": 600}]},
-  {"id": "b1-registar-jogo", "route": "/games/register-match", "steps": [{"type": ["🔎 Pesquisar um jogo base…", "Meeple"], "wait": 1800}]},
-  {"id": "b2-registar-escolhido", "route": "/games/register-match", "steps": [{"type": ["🔎 Pesquisar um jogo base…", "Meeple"], "wait": 1800}, {"click": "Meeple Teste Competitivo", "wait": 800}]},
-  {"id": "b3-registar-jogadores", "route": "/games/register-match", "steps": [{"type": ["🔎 Pesquisar um jogo base…", "Meeple"], "wait": 1800}, {"click": "Meeple Teste Competitivo", "wait": 800}, {"click": "Continuar", "wait": 800}]},
+  {"id": "b1-registar-jogo", "route": "/games/register-match", "steps": [{"type": ["Pesquisar um jogo base", "Meeple"], "wait": 1800}]},
+  {"id": "b2-registar-escolhido", "route": "/games/register-match", "steps": [{"type": ["Pesquisar um jogo base", "Meeple"], "wait": 1800}, {"click": "Meeple Teste Competitivo", "wait": 800}]},
+  {"id": "b3-registar-jogadores", "route": "/games/register-match", "steps": [{"type": ["Pesquisar um jogo base", "Meeple"], "wait": 1800}, {"click": "Meeple Teste Competitivo", "wait": 800}, {"click": "Continuar", "wait": 800}]},
   {"id": "c1-sessao-topo", "route": "/games/sessions/{{activeSession}}", "steps": [{"scroll": 0}]},
   {"id": "c2-amigo-acoes", "route": "/friends/{{user:participante}}", "steps": [{"click": "Mais opções", "wait": 600}]}
  ]

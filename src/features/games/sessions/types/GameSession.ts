@@ -48,13 +48,3 @@ export const gameSessionGuards = {
   isClosed:    (s: GameSession) => s.status === "Closed",
   isCancelled: (s: GameSession) => s.status === "Cancelled",
 };
-
-/** Devolve a label human-friendly do status */
-export function getStatusLabel(status: GameSessionStatus): string {
-  switch (status) {
-    case "Upcoming":   return "Agendada";
-    case "Active":     return "Ativa";
-    case "Closed":     return "Encerrada";
-    case "Cancelled":  return "Cancelada";
-  }
-}

@@ -5,7 +5,7 @@
   {"id": "02-inicio-fim", "route": "/dashboard", "scroll": "end"},
   {"id": "03-biblioteca", "route": "/library"},
   {"id": "04-pesquisa", "route": "/games/search"},
-  {"id": "05-pesquisa-resultados", "route": "/games/search", "steps": [{"type": ["🔍 Pesquisar um jogo de tabuleiro…", "Meeple"], "wait": 1800}]},
+  {"id": "05-pesquisa-resultados", "route": "/games/search", "steps": [{"type": ["Pesquisar um jogo de tabuleiro", "Meeple"], "wait": 1800}]},
   {"id": "06-jogo", "route": "/games/details/{{game}}"},
   {"id": "07-jogo-fim", "route": "/games/details/{{game}}", "scroll": "end"},
   {"id": "08-registar", "route": "/games/register-match"},
