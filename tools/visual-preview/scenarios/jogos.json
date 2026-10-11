@@ -1,6 +1,6 @@
 {"name":"jogos","screens":[
  {"id":"01-biblioteca","route":"/library"},
- {"id":"02-biblioteca-lista","route":"/library","steps":[{"click":"Lista"},{"click":"Tenho"}]},
+ {"id":"02-biblioteca-lista","route":"/library","steps":[{"click":"Vista em lista"},{"click":"Tenho"}]},
  {"id":"03-descobrir","route":"/library","params":{"area":"discover"}},
  {"id":"04-descobrir-resultados","route":"/library","params":{"area":"discover"},"steps":[{"type":["Pesquisar um jogo de tabuleiro","Meeple"],"wait":1800}]},
  {"id":"05-rankings","route":"/games/rankings"},

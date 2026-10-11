@@ -7,7 +7,7 @@ export const AUTH_STYLES = StyleSheet.create({
   subtitle: { ...body, color: colors.muted, textAlign: "left" },
   forgotPassword: { ...body, color: colors.primary, textDecorationLine: "underline", flexShrink: 1 },
   rememberContainer: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 12 },
-  rememberText: { ...body, color: colors.text, flex: 1 },
+  rememberText: { ...body, color: colors.text, flex: 1, paddingVertical: 12 },
   termsContainer: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 12 },
   termsText: { ...body, color: colors.text, flex: 1 },
   link: { color: colors.primary, textDecorationLine: "underline" },
