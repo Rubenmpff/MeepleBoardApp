@@ -4,13 +4,11 @@ As observações sobre Comentários/Notas abaixo descrevem a auditoria anterior.
 
 ## Estrutura
 
-A barra inferior apresenta Início, Biblioteca, Registar, Amigos e Mais. Registar é uma ação: abre `/games/register-match` no stack exterior aos separadores. Cancelar usa o histórico do router para regressar ao contexto de origem; uma abertura sem histórico regressa ao Início. O Início conserva a organização anterior.
+Atualizado com o redesenho da app (ver [redesenho-app.md](redesenho-app.md)). A barra inferior apresenta Início, Jogos, ＋, Jogar e Perfil. ＋ é uma ação: abre uma folha com Registar partida, Nova sessão, Adicionar jogo e Nova campanha. Jogos reúne «A minha biblioteca» e «Descobrir jogos» (pesquisa e Rankings); Jogar reúne Sessões e Campanhas; Perfil reúne estatísticas, Amigos, Definições e Avaliações pendentes. «Registar partida» continua direto no Início, na página de cada jogo e nas ações da biblioteca.
 
-Mais substitui o menu lateral: Sessões e Campanhas em «Jogar em conjunto»; Avaliações pendentes e Rankings em «Partidas»; Perfil e Definições em «Conta», com a identidade real e a ação de terminar sessão existentes. Não existe swipe entre separadores nem botão hambúrguer.
+Início, Jogos, Jogar e Perfil não apresentam seta de retorno. A lista de Amigos é uma subpágina de Perfil (caminho público `/people`) e regressa a Perfil. Pesquisa, detalhes e restantes subpáginas regressam ao contexto anterior; sem histórico, o cabeçalho de retorno regressa ao Início. Formulários apresentam Cancelar; no registo de partidas, Anterior muda apenas a etapa e conserva o rascunho.
 
-Início, Biblioteca, Amigos e Mais não apresentam seta de retorno. Pesquisa, detalhes e restantes subpáginas regressam ao contexto anterior; sem histórico, o cabeçalho de retorno regressa ao Início. Formulários apresentam Cancelar; no registo de partidas, Anterior muda apenas a etapa e conserva o rascunho.
-
-Os antigos acessos à biblioteca (`/games/library` e o index do grupo da biblioteca), aos amigos (`/friends` e o index do respetivo grupo) e ao index do registo são aliases com `Redirect` e transmissão de todos os parâmetros. As implementações únicas da biblioteca e dos amigos têm os caminhos públicos `/library` e `/people`. Os restantes destinos e links mantêm os caminhos existentes, incluindo os grupos das campanhas.
+Os antigos acessos (`/games/library`, `/friends`, o index do grupo de amigos, `/more`, `/profile` e o index do registo) são aliases com `Redirect` e transmissão de todos os parâmetros. Os restantes destinos e links mantêm os caminhos existentes, incluindo os grupos das campanhas.
 
 ## Alterações por guardar
 
