@@ -8,7 +8,7 @@ import { colors, space, type } from "@/src/ui/theme";
 type Props = { compact?: boolean; buckets: Summary["evolution"]; unit: Summary["bucketUnit"]; language: string;
  title: string; countLabel: (count: number) => string; onSelect: (bucket: string) => void };
 
-const PLOT = 104, RESERVE = 18, AXIS = 24;
+const PLOT = 104, RESERVE = 18, AXIS = 24, DIGIT = 7;
 
 // The chart card: every bucket returned by the API, zeros included; no minimum bar for zero.
 export default function StatisticsEvolution({ buckets, unit, language, title, countLabel, onSelect }: Props) {
@@ -23,17 +23,19 @@ export default function StatisticsEvolution({ buckets, unit, language, title, co
  const label = (key: string) => new Intl.DateTimeFormat(language, unit === "month" ? { month: "short", timeZone: "UTC" } : { day: "numeric", month: "short", timeZone: "UTC" }).format(date(key));
  const accessibleDate = (key: string) => new Intl.DateTimeFormat(language, unit === "month" ? { month: "long", year: "numeric", timeZone: "UTC" } : { dateStyle: "long", timeZone: "UTC" }).format(date(key));
  const height = (n: number) => ceiling ? PLOT * n / ceiling : 0;
+ // The axis column grows with the widest label so three-digit years do not wrap.
+ const axis = Math.max(AXIS, Math.ceil((String(ceiling).length * DIGIT + 6) * fontScale));
  const showValues = fontScale <= 1.25 && buckets.length <= 12;
  const every = Math.ceil(buckets.length / (fontScale > 1.25 ? 3 : 6));
- const grid = <>{[ceiling, ceiling / 2, 0].map((value, index) => <View key={index} style={[c.grid, { top: RESERVE + PLOT * index / 2 }, index === 2 && c.baseline]}>
-  <Text style={[type.micro, c.axis]}>{Number.isInteger(value) ? value : ""}</Text>
+ const grid = <>{[ceiling, ceiling / 2, 0].map((value, index) => <View key={index} style={[c.grid, { left: axis, top: RESERVE + PLOT * index / 2 }, index === 2 && c.baseline]}>
+  <Text style={[type.micro, c.axis, { left: -axis, width: axis - 6 }]} numberOfLines={1}>{Number.isInteger(value) ? value : ""}</Text>
  </View>)}</>;
- const columnWidth = Math.max(44, Math.ceil(44 * fontScale), (Math.min(width, 680) - 64 - AXIS) / Math.max(1, buckets.length));
+ const columnWidth = Math.max(44, Math.ceil(44 * fontScale), (Math.min(width, 680) - 64 - axis) / Math.max(1, buckets.length));
  return <Card>
   {peak === 0 && <Text style={[type.body, { color: colors.muted, padding: space.lg }]}>{t("chartEmpty")}</Text>}
   {peak > 0 && overview && <TouchableOpacity style={c.pad} accessibilityRole="button" accessibilityLabel={`${title}. ${buckets.map(bucket => `${accessibleDate(bucket.key)}: ${countLabel(bucket.matches)}`).join("; ")}`}
    accessibilityHint={t("consultMonths")} onPress={() => setDetails(v => !v)}>
-   <View style={c.chart} accessible={false} importantForAccessibility="no-hide-descendants" accessibilityElementsHidden>
+   <View style={{ paddingLeft: axis }} accessible={false} importantForAccessibility="no-hide-descendants" accessibilityElementsHidden>
     {grid}
     <View style={[c.plot, { height: PLOT + RESERVE }]}>
      {buckets.map(bucket => <View key={bucket.key} style={c.column}>
@@ -60,10 +62,9 @@ export default function StatisticsEvolution({ buckets, unit, language, title, co
 
 const c = StyleSheet.create({
  pad: { padding: space.lg, paddingBottom: space.sm },
- chart: { paddingLeft: AXIS },
- grid: { position: "absolute", left: AXIS, right: 0, borderTopWidth: 1, borderColor: "#F0ECF4" },
+ grid: { position: "absolute", right: 0, borderTopWidth: 1, borderColor: "#F0ECF4" },
  baseline: { borderColor: "#E6E0EC" },
- axis: { position: "absolute", left: -AXIS, top: -8, width: AXIS - 6, textAlign: "right" },
+ axis: { position: "absolute", top: -8, textAlign: "right" },
  plot: { flexDirection: "row", alignItems: "flex-end" },
  column: { flex: 1, minWidth: 0, alignItems: "center", justifyContent: "flex-end", gap: 2 },
  value: { color: colors.text, textAlign: "center" },
