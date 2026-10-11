@@ -135,7 +135,6 @@ test('creation keeps three ordered sections, selected friends and keyboard dismi
     assert.ok(html.indexOf(labels[0]) < html.indexOf(labels[1]));
     assert.ok(html.indexOf(labels[1]) < html.indexOf(labels[2]));
     assert.ok(view.html.includes(language === 'pt' ? '1 amigo selecionado' : '1 friend selected'));
-    assert.ok(view.images.length);
     const date = view.controls.find(c => c.accessibilityLabel?.startsWith(language === 'pt' ? 'Data:' : 'Date:'));
     assert.ok(date);
     await date.onPress();

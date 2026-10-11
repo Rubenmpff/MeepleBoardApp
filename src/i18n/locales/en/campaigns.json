@@ -57,7 +57,9 @@
     },
     "matches_one": "{{count}} match",
     "matches_other": "{{count}} matches",
-    "loadError": "The campaigns could not be loaded."
+    "loadError": "The campaigns could not be loaded.",
+    "members_one": "{{count}} member",
+    "members_other": "{{count}} members"
   },
   "detail": {
     "notFound": "Campaign not found.",
@@ -74,7 +76,9 @@
       "completeConfirm": "Are you sure you want to complete this campaign?",
       "abandon": "Abandon",
       "abandonTitle": "Abandon campaign",
-      "abandonConfirm": "This action cannot be undone."
+      "abandonConfirm": "This action cannot be undone.",
+      "manage": "Manage campaign",
+      "manageHint": "We always ask for confirmation before completing, abandoning or leaving."
     },
     "tabs": {
       "sessions": "Sessions ({{count}})",
@@ -111,7 +115,8 @@
       "removeConfirm": "Remove {{name}} from the campaign?",
       "leave": "Leave campaign",
       "leaveTitle": "Leave campaign",
-      "leaveConfirm": "Are you sure you want to leave this campaign?"
+      "leaveConfirm": "Are you sure you want to leave this campaign?",
+      "creator": "Creator"
     },
     "notes": {
       "placeholder": "World state, characters, objectives, secrets...",

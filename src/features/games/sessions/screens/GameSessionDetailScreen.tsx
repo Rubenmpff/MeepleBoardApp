@@ -185,8 +185,8 @@ export default function GameSessionDetailScreen() {
             {matches.map((m, index) => <Row key={m.id} first={index === 0} inset={72} strongTitle title={m.gameName}
               lead={<GameCover uri={m.gameImageUrl} size={44} />}
               subtitle={[matchTime(m.matchDate, i18n.language), matchResultText(m, t)].filter(Boolean).join(" · ")}
-              detail={m.players?.length ? <View style={styles.scores}>{m.players.map(p => <Text key={p.userId} style={type.caption}>
-                {(p.userName?.trim() || t("sessions.playerNameUnavailable")) + ": " + (p.score == null ? t("sessions.scoreUndefined") : String(p.score))}</Text>)}</View> : undefined}
+              detail={m.players?.length ? <Text style={[type.caption, styles.scores]}>{m.players.map(p =>
+                (p.userName?.trim() || t("sessions.playerNameUnavailable")) + ": " + (p.score == null ? t("sessions.scoreUndefined") : String(p.score))).join(" · ")}</Text> : undefined}
               accessibilityLabel={t("success.viewMatch") + ": " + m.gameName}
               onPress={() => router.push({ pathname: "/games/matches/[id]", params: { id: m.id, originSessionId: session.id } })} />)}
           </Card>}

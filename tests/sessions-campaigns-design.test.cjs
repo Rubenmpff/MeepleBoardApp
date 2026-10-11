@@ -209,7 +209,7 @@ test('campaign new encounter retains accepted member parameters on narrow screen
 });
 
 test('campaign completion, abandonment and leaving retain confirmation and existing service calls', async () => {
-  for (const [label, method] of [['Concluir', 'complete'], ['Abandonar', 'abandon']]) {
+  for (const [label, method] of [['Concluir campanha', 'complete'], ['Abandonar campanha', 'abandon']]) {
     const view = await render(campaignDetail, { states: { 0: campaign, 1: false }, services: { [method]: undefined, getById: campaign } });
     await view.press(label);
     assert.equal(view.calls.some(c => c[0] === method), false);

@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import ScreenLayout from "@/src/components/ui/ScreenLayout";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, Keyboard, ScrollView, Platform } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Keyboard, ScrollView, Platform, Switch } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -132,6 +132,7 @@ export default function CreateSessionScreen() {
       setSaving(false);
     }
   };
+  const toggleDeadline = () => { navigationGuard.markUnsaved(); setUseDeadline((v) => !v); };
   const friendList = useMemo(() => friends ?? [], [friends]);
   const currentPickerMode = pickerTarget?.includes("time") ? "time" : "date";
   const currentPickerValue = pickerTarget?.startsWith("session") ? sessionDate : deadlineDate;
@@ -140,13 +141,7 @@ export default function CreateSessionScreen() {
     <ScreenLayout title={t("sessions.createTitle")} keyboard mode="cancel" onCancel={navigationGuard.cancel}>
       <ScrollView keyboardDismissMode="on-drag" contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         {createError && <Text accessibilityRole="alert" style={{ color: COLORS.error }}>{createError}</Text>}
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={{ width: 84, height: 56, overflow: "hidden" }}>
-            <Image source={require("@/assets/MeepleBoardLogo.png")} resizeMode="contain" style={{ width: 147, height: 147, position: "absolute", left: -31.5, top: -44.8 }} accessible={false} />
-          </View>
-          <Text style={styles.headerSub}>{t("sessions.createWarmIntro")}</Text>
-        </View>
+        <Text style={styles.headerSub}>{t("sessions.createWarmIntro")}</Text>
         {/* ── Card: Detalhes ── */}
         <View style={styles.card}>
           <CardTitle icon="event" label={t("sessions.about")} />
@@ -210,17 +205,16 @@ export default function CreateSessionScreen() {
           )}
         {/* Prazo integrado na secção Quando */}
         <View style={{ marginTop: 16, gap: 12 }}>
-          <View style={styles.deadlineHeader}>
-            <CardTitle icon="timer" label={t("sessions.deadline")} />
-            <TouchableOpacity
-              style={[styles.toggle, useDeadline && styles.toggleActive]}
-              onPress={() => { navigationGuard.markUnsaved(); setUseDeadline((v) => !v); }} accessibilityRole="switch" accessibilityLabel={t("sessions.deadline")} accessibilityState={{ checked: useDeadline }}
-            >
-              <Text style={[styles.toggleText, useDeadline && styles.toggleTextActive]}>
-                {useDeadline ? t("sessions.enabled") : t("sessions.disabled")}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          {/* The whole row toggles, not only the switch. */}
+          <TouchableOpacity style={styles.deadlineHeader} activeOpacity={0.7}
+            onPress={toggleDeadline} accessibilityRole="switch" accessibilityLabel={t("sessions.deadline")} accessibilityState={{ checked: useDeadline }}>
+            <MaterialIcons name="timer" size={18} color={COLORS.primary} />
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text style={styles.cardTitleText}>{t("sessions.deadline")}</Text>
+              <Text style={styles.deadlineHint}>{useDeadline ? t("sessions.enabled") : t("sessions.disabled")}</Text>
+            </View>
+            <Switch value={useDeadline} onValueChange={toggleDeadline} accessible={false} trackColor={{ true: COLORS.primary }} />
+          </TouchableOpacity>
           <Text style={styles.deadlineHint}>
             {t("sessions.deadlineHint")}
           </Text>
@@ -281,7 +275,7 @@ export default function CreateSessionScreen() {
             <Text accessibilityRole="alert" style={styles.fieldError}>{t("sessions.friendRequired")}</Text>
           )}
           <Text style={[UI_STYLES.body, { fontWeight: "700", marginBottom: 8 }]}>{t("sessions.organizerYou")}</Text>
-          <Text style={[UI_STYLES.caption, { marginBottom: 12 }]}>{t("sessions.friendRequired")}</Text>
+          {!(inviteValidation && selectedIds.length === 0) && <Text style={[UI_STYLES.caption, { marginBottom: 12 }]}>{t("sessions.friendRequired")}</Text>}
           <FriendSelector friends={friendList} loading={friendsLoading} error={friendsError}
             selectedIds={selectedIds} onChange={ids => { navigationGuard.markUnsaved(); setSelectedIds(ids); }} onRetry={() => void refetchFriends(true)}
             emptyMessage={t("sessions.noFriends")}
@@ -356,8 +350,7 @@ function InlinePicker({ value, mode, onChange, onDone, minimumDate, maximumDate 
 /* ── Styles ── */
 const styles = StyleSheet.create({
   scroll: { padding: 16, paddingBottom: 20 },
-  header: { marginBottom: 20, flexDirection: "row", alignItems: "center", gap: 12 },
-  headerSub: { ...UI_STYLES.body, color: COLORS.textMuted, flex: 1 },
+  headerSub: { ...UI_STYLES.body, color: COLORS.textMuted, marginBottom: 16 },
   card: { ...UI_STYLES.card, padding: 16, marginBottom: 16 },
   cardTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 },
   cardTitleText: { ...UI_STYLES.section, flexShrink: 1 },
@@ -372,11 +365,7 @@ const styles = StyleSheet.create({
   dateBtnLabel: { ...UI_STYLES.caption, color: COLORS.textMuted },
   dateBtnValue: { ...UI_STYLES.body, color: COLORS.onBackground, fontWeight: "700" },
   // Deadline toggle
-  deadlineHeader: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 12 },
-  toggle: { ...UI_STYLES.control, paddingHorizontal: 12, backgroundColor: COLORS.border },
-  toggleActive: { backgroundColor: COLORS.primary + "18", borderColor: COLORS.primary },
-  toggleText: { ...UI_STYLES.caption, fontWeight: "700", color: COLORS.textMuted },
-  toggleTextActive: { color: COLORS.primary },
+  deadlineHeader: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44 },
   deadlineHint: { ...UI_STYLES.caption, color: COLORS.textMuted },
   iosPickerWrap: {
     marginTop: 12, borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 8, backgroundColor: COLORS.card,

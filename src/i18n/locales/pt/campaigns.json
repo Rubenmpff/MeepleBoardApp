@@ -57,7 +57,9 @@
     },
     "matches_one": "{{count}} partida",
     "matches_other": "{{count}} partidas",
-    "loadError": "Não foi possível carregar as campanhas."
+    "loadError": "Não foi possível carregar as campanhas.",
+    "members_one": "{{count}} membro",
+    "members_other": "{{count}} membros"
   },
   "detail": {
     "notFound": "Campanha não encontrada.",
@@ -74,7 +76,9 @@
       "completeConfirm": "Tens a certeza de que queres concluir esta campanha?",
       "abandon": "Abandonar",
       "abandonTitle": "Abandonar campanha",
-      "abandonConfirm": "Esta ação não pode ser desfeita."
+      "abandonConfirm": "Esta ação não pode ser desfeita.",
+      "manage": "Gerir campanha",
+      "manageHint": "Pedimos sempre confirmação antes de concluir, abandonar ou sair."
     },
     "tabs": {
       "sessions": "Sessões ({{count}})",
@@ -111,7 +115,8 @@
       "removeConfirm": "Remover {{name}} da campanha?",
       "leave": "Sair da campanha",
       "leaveTitle": "Sair da campanha",
-      "leaveConfirm": "Tens a certeza de que queres sair desta campanha?"
+      "leaveConfirm": "Tens a certeza de que queres sair desta campanha?",
+      "creator": "Criador"
     },
     "notes": {
       "placeholder": "Estado do mundo, personagens, objetivos, segredos...",
