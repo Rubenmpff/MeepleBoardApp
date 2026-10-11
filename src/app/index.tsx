@@ -11,11 +11,11 @@ export default function IndexPage() {
 
   useEffect(() => {
     const bootstrap = async () => {
-      console.log("🚀 Bootstrapping...");
+      if (__DEV__) console.log("🚀 Bootstrapping...");
 
       try {
         const validToken = await tokenService.getValidToken();
-        console.log("🔐 Token valid?", !!validToken);
+        if (__DEV__) console.log("🔐 Token valid?", !!validToken);
 
         if (validToken) {
           // ✅ entra no grupo (app) onde está o Drawer

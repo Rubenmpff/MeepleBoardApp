@@ -121,7 +121,7 @@ test('compact winner controls remain manual with zero/negative input; larger tex
 });
 
 test('required rating is compact and preserves half points, explicit zero and an omitted value', async () => {
-  const component = 'src/features/games/matches/components/MatchRatingField.tsx';
+  const component = 'src/shared/components/RatingField.tsx';
   for (const [value, direction, expected] of [[7.5, 'Aumentar avaliação', 8], [0, 'Aumentar avaliação', .5], [10, 'Diminuir avaliação', 9.5], [undefined, 'Diminuir avaliação', 0]]) {
     const changes = [];
     const view = await renderNative(component, 'default', { value, onChange: v => changes.push(v) });

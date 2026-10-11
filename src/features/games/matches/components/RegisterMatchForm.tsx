@@ -8,7 +8,7 @@ import {
   ActivityIndicator, Image, Platform, StyleSheet, ScrollView, Modal,
   KeyboardAvoidingView, Keyboard,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import * as ImagePicker from "expo-image-picker";
 
@@ -19,12 +19,12 @@ import { toMatchPlayerDto } from "../../../users/utils/playerMappers";
 import { GameSelector } from "../../catalog/components/GameSelector";
 import { ExpansionSelector } from "../../catalog/components/ExpansionSelector";
 import PlayerSelector from "../../../users/components/PlayerSelector";
-import MatchRatingField from "./MatchRatingField";
+import RatingField from "@/src/shared/components/RatingField";
 
 import { Game } from "../../catalog/types/Game";
 import { useRouter } from "expo-router";
 import MatchSummary from "./MatchSummary";
-import GameCover from "./GameCover";
+import GameCover from "@/src/components/ui/GameCover";
 import MatchResultFields from "./MatchResultFields";
 import { hasCompleteScores } from "../utils/registrationScores";
 import MatchDateFields from "./MatchDateFields";
@@ -492,50 +492,45 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
   const content = (
     <View style={{ backgroundColor: COLORS.background }}>
-      {!disableScroll && <ScreenHeader mode="cancel" appearance="refresh" title={t("header.registerMatch")} subtitle={session?.name} onLeftPress={navigationGuard.cancel} />}
+      {!disableScroll && <ScreenHeader mode="cancel" title={t("header.registerMatch")} subtitle={session?.name ?? t("header.quickSubtitle")} onLeftPress={navigationGuard.cancel} />}
       {/* Header */}
       <View style={styles.header}>
         {disableScroll && <PrimaryButton title={i18n.t("navigation:cancel")} variant="secondary" onPress={() => navigationGuard.discard(clearAll)} />}
         {disableScroll && <Text style={styles.title}>
           {isSessionMatch ? t("header.addMatch") : t("header.registerMatch")}
         </Text>}
-        <View style={styles.badgeRow}>
-          <View style={[styles.badge, isSessionMatch ? styles.badgeSession : styles.badgeQuick]}>
-            <Text style={[styles.badgeText, isSessionMatch ? styles.badgeSessionText : styles.badgeQuickText]}>
-              {isSessionMatch ? t("header.sessionBadge") : t("header.quickBadge")}
-            </Text>
+        {disableScroll && <Text style={styles.hint}>{isSessionMatch ? t("header.sessionBadge") : t("header.quickBadge")}</Text>}
+        {isUnofficial && (
+          <View style={styles.unofficialBadge}>
+            <Text style={styles.unofficialBadgeText}>{t("header.unofficialBadge")}</Text>
           </View>
-          {isUnofficial && (
-            <View style={styles.unofficialBadge}>
-              <Text style={styles.unofficialBadgeText}>{t("header.unofficialBadge")}</Text>
-            </View>
-          )}
-        </View>
+        )}
       </View>
 
       {selectedGame && <View style={styles.gameRow}>
         <GameCover uri={selectedGame.imageUrl} size={64} />
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={styles.gameName}>{selectedGame.name}</Text>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("form.edit", { section: t("summary.mode") })} onPress={() => setStep(0)} style={styles.modeLink}>
-            <Text style={styles.gameMeta}>{getModeLabel(gameMode)} · {t("game.change")}</Text>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("form.edit", { section: t("summary.mode") })} onPress={() => setStep(0)} style={styles.modeEdit}>
+            <Text style={styles.gameMeta}>{getModeLabel(gameMode)}</Text>
           </TouchableOpacity>
         </View>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("game.changeGame")} onPress={() => { setStep(0); setEditingGame(true); }} style={styles.modeLink}>
+          <Text style={styles.changeLink}>{t("game.change")}</Text>
+        </TouchableOpacity>
       </View>}
       <ProgressBar current={step} total={steps.length} labels={steps} />
 
       {/* ══ STEP 0: Jogo ══ */}
       {step === 0 && (
         <View style={styles.card}>
-          <SectionTitle icon="sports-esports" label={t("game.sectionTitle")} />
+          {editingGame && <SectionTitle icon="casino" label={t("game.sectionTitle")} />}
           {editingGame ? (
             <GameSelector appearance="refresh" onSelect={(game) => { setSelectedGame(game); setSelectedExpansions([]); setEditingGame(false); }} />
           ) : (
             <View>
-              <PrimaryButton title={t("game.change")} variant="secondary" onPress={() => setEditingGame(true)} />
               {selectedGame && (
-                <View style={{ marginTop: 16 }}>
-                  <Text style={styles.subLabel}>{t("game.expansionsOptional")}</Text>
+                <View>
                   <ExpansionSelector appearance="refresh" baseGameId={selectedGame.id} selectedExpansions={selectedExpansions} onChange={setSelectedExpansions} />
                 </View>
               )}
@@ -551,9 +546,9 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
           {isSessionMatch && <Text style={styles.hint}>{t("form.sessionNoSolo")}</Text>}
           <View style={styles.modeRow}>
             {([
-              { mode: "solo" as GameMode,        icon: "person",   label: t("modes.solo"),        color: COLORS.success   },
-              { mode: "multiplayer" as GameMode, icon: "people",   label: t("modes.multiplayer"), color: COLORS.primary   },
-              { mode: "cooperative" as GameMode, icon: "favorite", label: t("modes.cooperative"), color: COLORS.secondary },
+              { mode: "solo" as GameMode,        icon: "person",    label: t("modes.solo"),        color: COLORS.primary },
+              { mode: "multiplayer" as GameMode, icon: "people",    label: t("modes.multiplayer"), color: COLORS.primary },
+              { mode: "cooperative" as GameMode, icon: "handshake", label: t("modes.cooperative"), color: COLORS.primary },
             ]).map(({ mode, icon, label, color }) => {
               const info = availableModes[mode];
               const blockedSolo = isSessionMatch && mode === "solo";
@@ -571,13 +566,13 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
                   <Text style={[styles.modeBtnLabel, isActive && { color }, (!info.available || blockedSolo) && { color: COLORS.textMuted }]}>{label}</Text>
                   {!blockedSolo && info.available && info.source && (
                     <View style={[styles.sourceBadge, info.source === "bgg_official" && styles.sourceBadgeOfficial, info.source === "expansion" && styles.sourceBadgeExpansion]}>
-                      <Text style={[styles.sourceBadgeText, info.source === "bgg_official" && { color: COLORS.success }, info.source === "expansion" && { color: "#1E88E5" }]}>
+                      <Text style={[styles.sourceBadgeText, info.source === "bgg_official" && { color: COLORS.success }, info.source === "expansion" && { color: COLORS.secondary }]}>
                         {info.source === "bgg_official" ? t("modes.confirmed") : t("modes.expansionShort")}
                       </Text>
                     </View>
                   )}
                   {!blockedSolo && !info.available && <View style={styles.forceBadge}><Text style={styles.forceBadgeText}>{t("modes.force")}</Text></View>}
-                  {isActiveUnofficial && <View style={styles.unofficialSmallBadge}><Text style={styles.unofficialSmallBadgeText}>⚠️</Text></View>}
+                  {isActiveUnofficial && <View style={styles.unofficialSmallBadge}><MaterialIcons name="warning-amber" size={14} color={COLORS.secondary} /></View>}
                 </TouchableOpacity>
               );
             })}
@@ -658,7 +653,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
           <View style={styles.card}>
             <SectionTitle icon="emoji-events" label={t("steps.result")} />
             <View style={styles.resultRow}>
-              {(isSolo || isCooperative ? ["Win", "Loss", "Draw", "Undefined"] : ["Win", "Draw", "Undefined"]).map(value => <ResultButton key={value} emoji={value === "Win" ? "🏆" : value === "Loss" ? "—" : value === "Draw" ? "=" : "?"}
+              {(isSolo || isCooperative ? ["Win", "Loss", "Draw", "Undefined"] : ["Win", "Draw", "Undefined"]).map(value => <ResultButton key={value} icon={value === "Win" ? "trophy" : value === "Loss" ? "close-thick" : value === "Draw" ? "handshake" : "help-circle-outline"}
                 label={t(isCooperative ? `outcomes.team${value}` : `outcomes.${value}`)} active={result === value} activeColor={COLORS.primary}
                 onPress={() => {
                   if (isSolo) setSoloResult(value === "Win" ? "player_win" : value === "Loss" ? "game_win" : value === "Draw" ? "draw" : "none");
@@ -680,7 +675,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
           </View>
           <View style={styles.card}>
-            <MatchRatingField value={personalRating} onChange={setPersonalRating} />
+            <RatingField value={personalRating} onChange={setPersonalRating} />
             {showResultErrors && personalRating === undefined && <Text style={styles.hint}>{t("form.ratingRequired")}</Text>}
             <MatchDateFields value={matchDate} locale={locale} picker={datePicker} onPickerChange={setDatePicker}
               onChange={date => { matchDateEdited.current = true; setMatchDate(date); }} />
@@ -814,23 +809,12 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 /* ── Sub-components ── */
 
 function ProgressBar({ current, total, labels }: { current: number; total: number; labels: readonly string[] }) {
+  const { t } = useTranslation("matches");
+  const caption = t("form.stepOf", { current: current + 1, total, label: labels[current] });
   return (
-    <View style={styles.progressContainer}>
-      {labels.map((label, i) => {
-        const isDone = i < current;
-        const isActive = i === current;
-        return (
-          <React.Fragment key={label}>
-            <View style={styles.progressStep}>
-              <View style={[styles.progressDot, isDone && styles.progressDotDone, isActive && styles.progressDotActive]}>
-                {isDone ? <MaterialIcons name="check" size={14} color="#fff" /> : <Text style={[styles.progressDotText, isActive && styles.progressDotTextActive]}>{i + 1}</Text>}
-              </View>
-              <Text style={[styles.progressLabel, isActive && styles.progressLabelActive, isDone && styles.progressLabelDone]}>{label}</Text>
-            </View>
-            {i < total - 1 && <View style={[styles.progressLine, isDone && styles.progressLineDone]} />}
-          </React.Fragment>
-        );
-      })}
+    <View style={styles.progressContainer} accessible accessibilityRole="progressbar" accessibilityLabel={caption} accessibilityValue={{ min: 1, max: total, now: current + 1 }}>
+      <View style={styles.progressTrack}>{labels.map((label, i) => <View key={label} style={[styles.progressSegment, i <= current && styles.progressSegmentDone]} />)}</View>
+      <Text style={styles.progressCaption}>{caption}</Text>
     </View>
   );
 }
@@ -844,12 +828,12 @@ function SectionTitle({ icon, label }: { icon: string; label: string }) {
   );
 }
 
-function ResultButton({ emoji, label, active, activeColor, onPress }: {
-  emoji: string; label: string; active: boolean; activeColor: string; onPress: () => void;
+function ResultButton({ icon, label, active, activeColor, onPress }: {
+  icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string; active: boolean; activeColor: string; onPress: () => void;
 }) {
   return (
     <TouchableOpacity style={[styles.resultBtn, active && { borderColor: activeColor, backgroundColor: activeColor + "18" }]} onPress={onPress} activeOpacity={0.8} accessibilityRole="radio" accessibilityState={{ selected: active }} accessibilityLabel={label}>
-      <Text style={styles.resultEmoji}>{emoji}</Text>
+      <MaterialCommunityIcons name={icon} size={20} color={active ? activeColor : COLORS.textMuted} />
       <Text style={[styles.resultLabel, active && { color: activeColor, fontWeight: "700" }]}>{label}</Text>
     </TouchableOpacity>
   );
@@ -894,35 +878,23 @@ const styles = StyleSheet.create({
 
   header: { marginBottom: 8 },
   title: { ...UI_STYLES.title },
-  badgeRow: { flexDirection: "row", marginTop: 6, gap: 8, flexWrap: "wrap" },
-  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
-  badgeQuick: { backgroundColor: COLORS.primary + "18" },
-  badgeSession: { backgroundColor: COLORS.secondary + "18" },
-  badgeText: { fontSize: 11, fontWeight: "800" },
-  badgeQuickText: { color: COLORS.primary },
-  badgeSessionText: { color: COLORS.secondary },
   unofficialBadge: { backgroundColor: "#fff8e1", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, borderWidth: 1, borderColor: "#ffe082" },
   unofficialBadgeText: { fontSize: 11, fontWeight: "700", color: "#f39c12" },
 
-  progressContainer: { flexDirection: "row", alignItems: "flex-start", marginBottom: 12 },
-  progressStep: { flex: 1, minWidth: 0, alignItems: "center", gap: 4 },
-  progressDot: { width: 32, height: 32, borderRadius: 16, backgroundColor: COLORS.border, alignItems: "center", justifyContent: "center" },
-  progressDotDone: { backgroundColor: COLORS.success },
-  progressDotActive: { backgroundColor: COLORS.primary },
-  progressDotText: { fontSize: 12, fontWeight: "700", color: COLORS.textMuted },
-  progressDotTextActive: { color: "#fff" },
-  progressLabel: { ...UI_STYLES.caption, color: COLORS.textMuted, textAlign: "center" },
-  progressLabelActive: { color: COLORS.primary, fontWeight: "700" },
-  progressLabelDone: { color: COLORS.success },
-  progressLine: { width: 8, height: 2, backgroundColor: COLORS.border, marginTop: 15 },
-  progressLineDone: { backgroundColor: COLORS.success },
+  progressContainer: { gap: 6, marginBottom: 16 },
+  progressTrack: { flexDirection: "row", gap: 4 },
+  progressSegment: { flex: 1, height: 4, borderRadius: 2, backgroundColor: "#DCD6E2" },
+  progressSegmentDone: { backgroundColor: COLORS.primary },
+  progressCaption: { ...UI_STYLES.caption, color: COLORS.textMuted },
 
   card: { paddingVertical: 8, marginBottom: 4, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   sectionTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
   sectionTitleText: { ...UI_STYLES.section },
 
   gameRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 8 },
-  modeLink: { minHeight: 44, justifyContent: "center" },
+  modeLink: { minHeight: 44, minWidth: 44, justifyContent: "center", alignItems: "flex-end" },
+  modeEdit: { minHeight: 44, marginVertical: -10, justifyContent: "center", alignSelf: "flex-start" },
+  changeLink: { ...UI_STYLES.body, color: COLORS.primary, fontWeight: "600" },
   detailsToggle: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, paddingVertical: 8 },
   detailsToggleText: { ...UI_STYLES.body, color: COLORS.primary, fontWeight: "700", flexShrink: 1 },
   gameName: { ...UI_STYLES.section },
@@ -935,8 +907,8 @@ const styles = StyleSheet.create({
   modeBtnUnavailable: { backgroundColor: "#f5f5f5", borderColor: "#eee", borderStyle: "dashed" },
   modeBtnLabel: { ...UI_STYLES.body, fontWeight: "700", color: COLORS.textMuted, textAlign: "center" },
   sourceBadge: { paddingHorizontal: 5, paddingVertical: 2, borderRadius: 999, marginTop: 2 },
-  sourceBadgeOfficial: { backgroundColor: "#E8F5E9" },
-  sourceBadgeExpansion: { backgroundColor: "#E3F2FD" },
+  sourceBadgeOfficial: { backgroundColor: COLORS.primarySoft },
+  sourceBadgeExpansion: { backgroundColor: "#FFF7DE" },
   sourceBadgeText: { ...UI_STYLES.caption, fontWeight: "700" },
   forceBadge: { backgroundColor: "#f0f0f0", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 999, marginTop: 2 },
   forceBadgeText: { ...UI_STYLES.caption, color: COLORS.textMuted },
@@ -947,7 +919,6 @@ const styles = StyleSheet.create({
 
   resultRow: { gap: 8 },
   resultBtn: { ...UI_STYLES.control, padding: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, flexDirection: "row", gap: 8 },
-  resultEmoji: { fontSize: 22 },
   resultLabel: { ...UI_STYLES.body, color: COLORS.textMuted, flexShrink: 1 },
 
   soloPlayerRow: { gap: 8, paddingVertical: 12 },

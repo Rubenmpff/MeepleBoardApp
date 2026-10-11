@@ -90,8 +90,9 @@ test('session player selection permits removal; suggestions exclude selected pla
 
 test('match details display zero, omit absent scores and preserve game navigation', async () => {
   const view = await renderNative(detail, 'default', {}, { states: { 0: match, 1: false } });
-  assert.match(view.html, /0 pts/);
-  assert.equal((view.html.match(/ pts/g) || []).length, 1);
+  // Zero is shown as a score; a player without a score shows none (no invented 0).
+  assert.match(view.html, /Test player · tu<\/span><span>[^<]+<\/span><\/div><span>0<\/span>/);
+  assert.match(view.html, /Other player<\/span><span>[^<]+<\/span><\/div><\/div>/);
   await view.press('Ver jogo');
   assert.equal(view.routes[0].params.id, game.id);
   await view.press('Voltar');

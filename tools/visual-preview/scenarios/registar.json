@@ -1,0 +1,9 @@
+{"name":"registar","defaults":{"route":"/games/register-match","params":{"gameId":"{{game}}"},"wait":1600},"screens":[
+ {"id":"1-jogo"},
+ {"id":"2-jogadores","steps":[{"click":"Continuar","wait":700}]},
+ {"id":"3-jogadores-amigo","steps":[{"click":"Continuar","wait":700},{"click":"Adicionar","wait":500}]},
+ {"id":"4-resultado","steps":[{"click":"Continuar","wait":700},{"click":"Adicionar","wait":500},{"click":"Continuar","wait":700}]},
+ {"id":"5-resultado-fim","steps":[{"click":"Continuar","wait":700},{"click":"Adicionar","wait":500},{"click":"Continuar","wait":700},{"scroll":"end"}]},
+ {"id":"6-rever","steps":[{"click":"Continuar","wait":700},{"click":"Adicionar","wait":500},{"click":"Continuar","wait":700},{"click":"Rever","wait":700}]},
+ {"id":"7-vazio","params":{}}
+]}

@@ -1,0 +1,7 @@
+{"name":"partidas","screens":[
+ {"id":"1-partida","route":"/games/matches/{{match}}"},
+ {"id":"2-diario","route":"/games/matches/{{match}}/journal"},
+ {"id":"3-diario-fim","route":"/games/matches/{{match}}/journal","scroll":"end"},
+ {"id":"4-pendentes","route":"/games/pending-journal"},
+ {"id":"5-partida-para-diario","route":"/games/matches/{{match}}","steps":[{"click":"Avaliar e escrever notas","wait":1500}]}
+]}

@@ -12,7 +12,8 @@
     "registerMatch": "Register match",
     "sessionBadge": "SESSION",
     "quickBadge": "QUICK",
-    "unofficialBadge": "Unofficial"
+    "unofficialBadge": "Unofficial",
+    "quickSubtitle": "Quick record"
   },
   "validation": {
     "errorTitle": "Error",
@@ -46,7 +47,8 @@
   "game": {
     "sectionTitle": "Choose the game",
     "change": "Change",
-    "expansionsOptional": "Expansions used (optional)"
+    "expansionsOptional": "Expansions used (optional)",
+    "changeGame": "Change game"
   },
   "modes": {
     "sectionTitle": "Game mode",
@@ -57,8 +59,8 @@
     "withExpansion": "With expansion: {{name}}",
     "soloUnlocked": " → Solo unlocked!",
     "coopUnlocked": " → Co-op unlocked!",
-    "confirmed": "Confirmed",
-    "expansionShort": "Exp",
+    "confirmed": "In catalogue",
+    "expansionShort": "Expansion",
     "force": "+ Force",
     "unofficialWarning": "Unofficial mode — this match will not count towards rankings or ratings.\nReason: \"{{justification}}\"",
     "result": "Result",
@@ -83,7 +85,8 @@
     "players": "Players",
     "you": "You",
     "finalScoreOptional": "Final score (optional)",
-    "resultLabel": "Result:"
+    "resultLabel": "Result:",
+    "youNamed": "{{name}} · you"
   },
   "details": {
     "optionalTitle": "Optional details",
@@ -138,7 +141,10 @@
     "emptyTitle": "All caught up!",
     "emptyBody": "You have no matches awaiting a review.",
     "pendingCount": "Matches waiting for your review: {{count}}.",
-    "evaluate": "Review this match"
+    "evaluate": "Review this match",
+    "yourJournal": "Your journal",
+    "openJournal": "Rate and write notes",
+    "openJournalHint": "Your rating, notes and photos for this match"
   },
   "selector": {
     "addPlayers": "Add players",
@@ -381,7 +387,9 @@
     "ratingTitle": "Your rating · required",
     "ratingHint": "Each person rates their own experience.",
     "notRated": "Not rated",
-    "starRating": "Rate {{value}} out of 10"
+    "starRating": "Rate {{value}} out of 10",
+    "stepOf": "Step {{current}} of {{total}} · {{label}}",
+    "ratingValue": "Rating {{value}} out of 10"
   },
   "outcomes": {
     "Win": "Win",

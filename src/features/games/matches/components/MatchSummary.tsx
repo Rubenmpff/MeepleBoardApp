@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { MatchDto } from "../types/MatchForm";
-import GameCover from "./GameCover";
+import GameCover from "@/src/components/ui/GameCover";
 import { matchResultText } from "../../sessions/utils/matchResultKey";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";

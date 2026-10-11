@@ -12,7 +12,7 @@ const render = (overrides = {}, options = {}, props = {}) => renderNative(form, 
 
 test('four steps keep cover and mode accessible, and review lists names/zero/negatives with correction links', async () => {
   const view = await render({ 2: 3, 9: 'Table', 10: '45', 13: 'Private notes', 14: 'test', 15: ['fixture://photo'] });
-  assert.match(view.html, /Jogo.*Jogadores.*Resultado.*Rever/);
+  assert.match(view.html, /Passo 4 de 4 · Rever/);
   assert.match(view.html, /Fixture game/); assert.match(view.html, /Author.*-17/); assert.match(view.html, /Peer.*0/);
   assert.equal(view.images[0].resizeMode, 'contain');
   for (const [label, step] of [['Corrigir Jogo', 0], ['Corrigir Jogadores', 1], ['Corrigir Resultado', 2], ['Corrigir Detalhes', 2], ['Corrigir Modo', 0]]) {

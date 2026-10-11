@@ -36,7 +36,9 @@ type RowProps = {
  onPress?: () => void; accessibilityLabel?: string; accessibilityHint?: string; selected?: boolean; first?: boolean; inset?: number; strongTitle?: boolean; tone?: "default" | "link";
 };
 // List row: ≥ 52 pt, hairline separator inset to the text column.
-export function Row({ title, subtitle, detail, lead, value, end = "chevron", onPress, accessibilityLabel, accessibilityHint, selected, first, inset = space.lg, strongTitle, tone = "default" }: RowProps) {
+export function Row({ title, subtitle, detail, lead, value, end: endProp, onPress, accessibilityLabel, accessibilityHint, selected, first, inset = space.lg, strongTitle, tone = "default" }: RowProps) {
+ // Only rows that do something show a chevron by default.
+ const end = endProp ?? (onPress ? "chevron" : "none");
  const content = <>
   {!first && <View style={[s.separator, { left: inset }]} />}
   {lead}

@@ -23,6 +23,7 @@ import matchService from "@/src/features/games/matches/services/matchService";
 import { MatchDto } from "@/src/features/games/matches/types/MatchForm";
 import { JournalEntry } from "@/src/features/games/campaigns/types/Campaign";
 import { StarRating } from "@/src/shared/components/StarRating";
+import RatingField from "@/src/shared/components/RatingField";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import { RootState } from "@/src/store/store";
@@ -154,15 +155,15 @@ export default function MatchJournalScreen() {
     ]);
   };
 
-  if (loading) return <SafeAreaView style={styles.screen}><ScreenHeader mode="cancel" title={t("ui.journalTitle")} appearance="refresh" onLeftPress={navigationGuard.cancel} /><ScreenState loading message={t("ui.loading")} /></SafeAreaView>;
-  if (!match || loadError) return <SafeAreaView style={styles.screen}><ScreenHeader mode="cancel" title={t("ui.journalTitle")} appearance="refresh" onLeftPress={navigationGuard.cancel} /><ScreenState error={loadError} message={t(loadError ? "ui.loadError" : "ui.notFound")} onRetry={load} retryLabel={t("ui.retry")} /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={styles.screen}><View style={styles.header}><ScreenHeader mode="cancel" title={t("ui.journalTitle")} onLeftPress={navigationGuard.cancel} /></View><ScreenState loading message={t("ui.loading")} /></SafeAreaView>;
+  if (!match || loadError) return <SafeAreaView style={styles.screen}><View style={styles.header}><ScreenHeader mode="cancel" title={t("ui.journalTitle")} onLeftPress={navigationGuard.cancel} /></View><ScreenState error={loadError} message={t(loadError ? "ui.loadError" : "ui.notFound")} onRetry={load} retryLabel={t("ui.retry")} /></SafeAreaView>;
 
   const submittedCount = entries.filter(e => e.personalRating != null).length;
   const totalPlayers = match.players?.length ?? 0;
 
   return (
     <SafeAreaView style={styles.screen}>
-    <ScreenHeader mode="cancel" title={t("ui.journalTitle")} appearance="refresh" onLeftPress={navigationGuard.cancel} />
+    <View style={styles.header}><ScreenHeader mode="cancel" title={t("ui.journalTitle")} onLeftPress={navigationGuard.cancel} /></View>
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
     <ScrollView keyboardDismissMode="on-drag" style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
@@ -250,8 +251,7 @@ export default function MatchJournalScreen() {
           <Text style={styles.cardTitle}>{alreadySubmitted ? t("journal.yourRating") : t("journal.leaveRating")}</Text>
         </View>
 
-        <Text style={styles.fieldLabel}>{t("journal.rating")}</Text>
-        <StarRating appearance="refresh" value={personalRating} onChange={setPersonalRating} size={32} />
+        <RatingField showTitle={false} value={personalRating} onChange={setPersonalRating} />
 
         <Text style={[styles.fieldLabel, { marginTop: 16 }]}>{t("journal.notes")}</Text>
         <TextInput
@@ -324,6 +324,7 @@ export default function MatchJournalScreen() {
 }
 
 const styles = StyleSheet.create({
+  header: { paddingHorizontal: 16 },
   screen: { flex: 1, backgroundColor: COLORS.background },
   content: { padding: 16, paddingBottom: 40 },
 

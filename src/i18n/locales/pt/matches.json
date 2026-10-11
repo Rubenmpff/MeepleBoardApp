@@ -12,7 +12,8 @@
     "registerMatch": "Registar partida",
     "sessionBadge": "SESSÃO",
     "quickBadge": "RÁPIDA",
-    "unofficialBadge": "Não oficial"
+    "unofficialBadge": "Não oficial",
+    "quickSubtitle": "Registo rápido"
   },
   "validation": {
     "errorTitle": "Erro",
@@ -46,7 +47,8 @@
   "game": {
     "sectionTitle": "Escolhe o jogo",
     "change": "Mudar",
-    "expansionsOptional": "Expansões utilizadas (opcional)"
+    "expansionsOptional": "Expansões utilizadas (opcional)",
+    "changeGame": "Mudar de jogo"
   },
   "modes": {
     "sectionTitle": "Modo de jogo",
@@ -57,8 +59,8 @@
     "withExpansion": "Com expansão: {{name}}",
     "soloUnlocked": " → Solo desbloqueado!",
     "coopUnlocked": " → Coop desbloqueado!",
-    "confirmed": "Confirmado",
-    "expansionShort": "Exp",
+    "confirmed": "No catálogo",
+    "expansionShort": "Expansão",
     "force": "+ Forçar",
     "unofficialWarning": "Modo não oficial — esta partida não vai contar para rankings ou ratings.\nJustificação: \"{{justification}}\"",
     "result": "Resultado",
@@ -83,7 +85,8 @@
     "players": "Jogadores",
     "you": "Tu",
     "finalScoreOptional": "Pontuação final (opcional)",
-    "resultLabel": "Resultado:"
+    "resultLabel": "Resultado:",
+    "youNamed": "{{name}} · tu"
   },
   "details": {
     "optionalTitle": "Detalhes opcionais",
@@ -138,7 +141,10 @@
     "emptyTitle": "Tudo em dia!",
     "emptyBody": "Não tens partidas pendentes de avaliação.",
     "pendingCount": "Partidas à espera da tua avaliação: {{count}}.",
-    "evaluate": "Avaliar esta partida"
+    "evaluate": "Avaliar esta partida",
+    "yourJournal": "O teu diário",
+    "openJournal": "Avaliar e escrever notas",
+    "openJournalHint": "A tua avaliação, notas e fotografias desta partida"
   },
   "selector": {
     "addPlayers": "Adicionar jogadores",
@@ -381,7 +387,9 @@
     "ratingTitle": "A tua avaliação · obrigatória",
     "ratingHint": "Cada pessoa avalia a sua própria experiência.",
     "notRated": "Não avaliado",
-    "starRating": "Avaliar com {{value}} de 10"
+    "starRating": "Avaliar com {{value}} de 10",
+    "stepOf": "Passo {{current}} de {{total}} · {{label}}",
+    "ratingValue": "Avaliação {{value}} de 10"
   },
   "outcomes": {
     "Win": "Vitória",
