@@ -33,7 +33,7 @@ export function Hero({ children, style }: { children: ReactNode; style?: StylePr
 
 type RowProps = {
  title: string; subtitle?: string; detail?: ReactNode; lead?: ReactNode; value?: string; end?: "chevron" | "expand" | "collapse" | "check" | "none";
- onPress?: () => void; accessibilityLabel?: string; accessibilityHint?: string; selected?: boolean; first?: boolean; inset?: number; strongTitle?: boolean; tone?: "default" | "link";
+ onPress?: () => void; accessibilityLabel?: string; accessibilityHint?: string; selected?: boolean; first?: boolean; inset?: number; strongTitle?: boolean; tone?: "default" | "link" | "danger";
 };
 // List row: ≥ 52 pt, hairline separator inset to the text column.
 export function Row({ title, subtitle, detail, lead, value, end: endProp, onPress, accessibilityLabel, accessibilityHint, selected, first, inset = space.lg, strongTitle, tone = "default" }: RowProps) {
@@ -43,7 +43,7 @@ export function Row({ title, subtitle, detail, lead, value, end: endProp, onPres
   {!first && <View style={[s.separator, { left: inset }]} />}
   {lead}
   <View style={s.rowMain}>
-   <Text style={[type.body, strongTitle && strong, tone === "link" && { color: colors.primary, fontWeight: "600" }]}>{title}</Text>
+   <Text style={[type.body, strongTitle && strong, tone === "link" && { color: colors.primary, fontWeight: "600" }, tone === "danger" && { color: colors.danger }]}>{title}</Text>
    {!!subtitle && <Text style={type.caption}>{subtitle}</Text>}
    {detail}
   </View>
@@ -85,6 +85,18 @@ export function Segmented<T extends string>({ items, value, onChange, role = "ta
      <Text style={[type.body, s.center, on && strong]}>{item.label}</Text>
      {item.count != null && <Text style={[type.caption, s.center]}>{item.count}</Text>}
     </View>
+   </TouchableOpacity>;
+  })}
+ </View>;
+}
+
+// Filter chips with optional counts; wrap onto a second line instead of scrolling sideways.
+export function FilterChips<T extends string>({ items, value, onChange }: { items: { key: T; label: string; count?: number }[]; value: T; onChange: (key: T) => void }) {
+ return <View style={s.chips}>
+  {items.map(item => {
+   const on = item.key === value;
+   return <TouchableOpacity key={item.key} style={s.chipTouch} accessibilityRole="tab" accessibilityLabel={item.count != null ? `${item.label}, ${item.count}` : item.label} accessibilityState={{ selected: on }} onPress={() => onChange(item.key)}>
+    <Text style={[s.chip, on && s.chipOn]}>{item.label}{item.count != null ? ` ${item.count}` : ""}</Text>
    </TouchableOpacity>;
   })}
  </View>;
@@ -190,5 +202,9 @@ export const s = StyleSheet.create({
  emptyAction: { alignSelf: "stretch", marginTop: space.sm },
  search: { flexDirection: "row", alignItems: "center", gap: space.sm, minHeight: touch, paddingLeft: space.md, borderWidth: 1, borderColor: "#E1DBE7", borderRadius: radius.control, backgroundColor: colors.card },
  searchInput: { flex: 1, minWidth: 0, minHeight: touch, paddingVertical: 10, paddingRight: space.md, color: colors.text },
+ chips: { flexDirection: "row", flexWrap: "wrap", columnGap: space.sm },
+ chipTouch: { minHeight: touch, justifyContent: "center" },
+ chip: { minHeight: 36, paddingHorizontal: space.md, paddingVertical: space.sm, borderRadius: 18, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, color: colors.text, fontSize: 15, lineHeight: 20, overflow: "hidden" },
+ chipOn: { backgroundColor: colors.primary, borderColor: colors.primary, color: colors.onPrimary, fontWeight: "600" },
  avatar: { backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center", flexShrink: 0 },
 });

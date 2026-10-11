@@ -350,7 +350,12 @@
     "resultUndefined": "Result not defined",
     "scoreUndefined": "Not defined",
     "durationMinutes": "{{count}} min",
-    "organizerRole": "Organizer"
+    "organizerRole": "Organizer",
+    "youOrganize": "You organise",
+    "registerMatchHere": "Record a match in this session",
+    "matchesHeading": "Matches",
+    "manage": "Manage session",
+    "manageHint": "We always ask for confirmation before closing or cancelling."
   },
   "form": {
     "withScores": "With scores",

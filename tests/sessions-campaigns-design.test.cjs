@@ -30,7 +30,7 @@ test('session tabs preserve filters, numeric pending statuses and destinations i
     assert.equal(view.routes[0], '/(app)/games/sessions/invited');
     await view.press(language === 'pt' ? 'Criar' : 'Create');
     assert.equal(view.routes[1], '/(app)/games/sessions/create');
-    await view.press(language === 'pt' ? 'Ativas' : 'Active');
+    await view.press(language === 'pt' ? 'Ativas, 1' : 'Active, 1');
     assert.deepEqual(view.updates.find(c => c[0] === 2), [2, 'Active']);
   }
 });
@@ -128,11 +128,11 @@ test('organiser cancel/close actions require confirmation and remain status-spec
 test('active accepted members open standalone registration; closed and unaccepted sessions hide it', async () => {
   const active = await render(detail, { states: { 0: { ...session, status: 'Active' }, 1: false }, params: { id: session.id }, stubRegisterForm: true });
   assert.equal(active.calls.some(c => c[0] === 'registerForm'), false);
-  await active.press('Registar partida');
+  await active.press('Registar partida nesta sessão');
   assert.deepEqual(active.routes[0], { pathname: '/games/sessions/register', params: { sessionId: session.id } });
   for (const data of [{ ...session, status: 'Closed' }, { ...session, status: 'Active', players: [{ userId: 'me', userName: 'Me', status: 'Pending' }] }]) {
     const view = await render(detail, { states: { 0: data, 1: false } });
-    assert.equal(view.controls.some(c => c.accessibilityLabel === 'Registar partida'), false);
+    assert.equal(view.controls.some(c => c.accessibilityLabel === 'Registar partida nesta sessão'), false);
   }
 });
 
@@ -144,9 +144,9 @@ test('match rows associate named players with zero and absent scores, and distin
   ];
   const view = await render(detail, { states: { 0: { ...session, matches }, 1: false } });
   assert.match(view.html, /Vencedor registado: Test player/);
-  assert.match(view.html, /Test player<\/span><\/div>.*?<span>17/);
-  assert.match(view.html, /Other player<\/span><\/div>.*?<span>0/);
-  assert.match(view.html, /Other player<\/span><\/div>.*?<span>Não definida/);
+  assert.match(view.html, /Test player: 17/);
+  assert.match(view.html, /Other player: 0/);
+  assert.match(view.html, /Other player: Não definida/);
   assert.match(view.html, /Nome do vencedor indisponível/);
   assert.match(view.html, /Resultado antigo sem informação suficiente/);
   assert.doesNotMatch(view.html, /Sem vencedor/);

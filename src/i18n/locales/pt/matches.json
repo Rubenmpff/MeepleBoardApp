@@ -350,7 +350,12 @@
     "resultUndefined": "Resultado não definido",
     "scoreUndefined": "Não definida",
     "durationMinutes": "{{count}} min",
-    "organizerRole": "Organizador"
+    "organizerRole": "Organizador",
+    "youOrganize": "Organizas tu",
+    "registerMatchHere": "Registar partida nesta sessão",
+    "matchesHeading": "Partidas",
+    "manage": "Gerir sessão",
+    "manageHint": "Pedimos sempre confirmação antes de encerrar ou cancelar."
   },
   "form": {
     "withScores": "Com pontuação",

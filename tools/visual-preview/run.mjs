@@ -32,7 +32,7 @@ execFileSync(process.execPath, [path.join(here, 'bundle.cjs')], { stdio: 'inheri
 const get = async route => { const r = await fetch(base + '/MeepleBoard' + route, { headers: { Authorization: `Bearer ${token}` } }); return r.ok ? r.json() : null; };
 const recent = (await get('/statistics/me/matches?start=2020-01-01&endExclusive=2029-01-01&timeZone=Europe%2FLisbon&metric=all&offset=0&limit=1'))?.items?.[0], sessions = await get('/session/mine') || [], campaigns = await get('/campaigns/mine') || [];
 const vars = { ...Object.fromEntries(accounts.map(a => [`user:${a.Email.split('@')[0]}`, a.Id])), match: recent?.id ?? '', game: recent?.gameId ?? '',
-  session: sessions[0]?.id ?? '', activeSession: (sessions.find(s => /active|ongoing|progress/i.test(String(s.status))) ?? sessions[0])?.id ?? '', campaign: campaigns[0]?.id ?? '' };
+  session: sessions[0]?.id ?? '', activeSession: (sessions.find(s => /active|ongoing|progress/i.test(String(s.status))) ?? sessions[0])?.id ?? '', upcomingSession: sessions.find(s => s.status === 'Upcoming')?.id ?? '', campaign: campaigns[0]?.id ?? '' };
 const file = path.resolve(args[0]);
 const spec = JSON.parse(fs.readFileSync(file, 'utf8').replace(/\{\{([^}]+)\}\}/g, (_, k) => vars[k] ?? ''));
 const only = flag('--only')?.split(',');

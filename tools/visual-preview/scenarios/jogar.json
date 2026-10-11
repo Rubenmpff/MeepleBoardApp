@@ -1,0 +1,12 @@
+{"name":"jogar","screens":[
+ {"id":"1-jogar","route":"/play"},
+ {"id":"2-sessao-ativa","route":"/games/sessions/{{activeSession}}"},
+ {"id":"3-sessao-ativa-fim","route":"/games/sessions/{{activeSession}}","scroll":"end"},
+ {"id":"4-sessao-agendada","route":"/games/sessions/{{upcomingSession}}"},
+ {"id":"5-sessao-agendada-fim","route":"/games/sessions/{{upcomingSession}}","scroll":"end"},
+ {"id":"6-criar","route":"/games/sessions/create"},
+ {"id":"7-criar-fim","route":"/games/sessions/create","scroll":"end"},
+ {"id":"8-campanhas","route":"/play","steps":[{"click":"Campanhas"}]},
+ {"id":"9-campanha","route":"/games/campaigns/{{campaign}}"},
+ {"id":"10-campanha-fim","route":"/games/campaigns/{{campaign}}","scroll":"end"}
+]}

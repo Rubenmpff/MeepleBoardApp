@@ -14,22 +14,24 @@ import ScreenLayout from "@/src/components/ui/ScreenLayout";
 import ScreenState from "@/src/components/ui/ScreenState";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useMemo, useState, useCallback } from "react";
-import { View, Text, RefreshControl, StyleSheet, Alert, ScrollView, Pressable } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { View, Text, RefreshControl, StyleSheet, Alert, ScrollView, } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import GameCover from "@/src/components/ui/GameCover";
+import { Avatar, Card, Note, Row, Section } from "@/src/ui/components";
+import { colors, space, strong, type } from "@/src/ui/theme";
+import { formatDateTime } from "@/src/ui/format";
+import { matchResultText } from "../utils/matchResultKey";
 import { useSelector } from "react-redux";
 import sessionService from "@/src/features/games/sessions/services/sessionService";
 import { GameSession } from "@/src/features/games/sessions/types/GameSession";
 import { normalizeInviteStatus } from "@/src/features/games/sessions/types/GameSessionPlayer";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
-import MatchSummary from "../../matches/components/MatchSummary";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
 import { RootState } from "@/src/store/store";
 import SessionAttendance from "../components/SessionAttendance";
 import SessionInvitations from "../components/SessionInvitations";
 export default function GameSessionDetailScreen() {
   const { t, i18n } = useTranslation("matches");
-  const locale = i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB";
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -64,17 +66,8 @@ export default function GameSessionDetailScreen() {
   );
   const myStatus  = myLink ? normalizeInviteStatus(myLink.status) : null;
   const isPending = myStatus === "Pending" && !isOrganizer;
-  const scheduledLabel = session?.scheduledStartDate
-    ? new Date(session.scheduledStartDate).toLocaleString(locale, {
-        weekday: "long", day: "numeric", month: "long",
-        hour: "2-digit", minute: "2-digit",
-      })
-    : null;
-  const deadlineLabel = session?.effectiveDeadline
-    ? new Date(session.effectiveDeadline).toLocaleString(locale, {
-        day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
-      })
-    : null;
+  const scheduledLabel = session?.scheduledStartDate ? formatDateTime(session.scheduledStartDate, i18n.language) : null;
+  const deadlineLabel = session?.effectiveDeadline ? formatDateTime(session.effectiveDeadline, i18n.language) : null;
   const matches = useMemo(() => session?.matches ?? [], [session]);
   /* ── Actions ── */
   const handleRespondInvite = async (accept: boolean) => {
@@ -145,83 +138,92 @@ export default function GameSessionDetailScreen() {
   };
   if (loading) return <ScreenLayout title={t("sessions.details")}><ScreenState loading message={t("ui.loading")} /></ScreenLayout>;
   if (!session || loadError) return <ScreenLayout title={t("sessions.details")}><ScreenState error={loadError} message={t(loadError ? "sessions.loadError" : "sessions.notFound")} onRetry={() => fetchSession()} retryLabel={t("ui.retry")} /></ScreenLayout>;
+  const tone = SESSION_STATUS_COLORS[session.status];
+  const statusOf = (raw: Parameters<typeof normalizeInviteStatus>[0]) => normalizeInviteStatus(raw);
   return (
     <ScreenLayout title={t("sessions.details")}>
       <ScrollView style={styles.screen} contentContainerStyle={styles.scroll}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void fetchSession({ silent: true }); }} />}>
+        refreshControl={<RefreshControl refreshing={refreshing} tintColor={COLORS.primary} onRefresh={() => { setRefreshing(true); void fetchSession({ silent: true }); }} />}>
         <View style={styles.summary}>
-          <View style={styles.titleRow}>
-            <Text style={styles.title}>{session.name}</Text>
-            <Text style={[styles.statusText, { color: SESSION_STATUS_COLORS[session.status] }]}>{t("sessions.status." + session.status)}</Text>
+          <View style={styles.statusRow}>
+            <Text style={[styles.pill, { color: tone, backgroundColor: tone + "1F" }]}>{t("sessions.status." + session.status)}</Text>
+            <Text style={type.caption}>{isOrganizer ? t("sessions.youOrganize") : t("sessions.organizer", { name: session.organizerUserName })}</Text>
           </View>
-          {!!scheduledLabel && <InfoRow icon="schedule" text={scheduledLabel} />}
-          {!!session.location && <InfoRow icon="place" text={session.location} />}
-          <InfoRow icon="person" text={t("sessions.organizer", { name: session.organizerUserName })} />
-          {!!deadlineLabel && isUpcoming && <InfoRow icon="timer" text={t(session.responseDeadline ? "sessions.replyBy" : "sessions.replyByStart", { date: deadlineLabel })} />}
+          <Text style={styles.title} accessibilityRole="header">{session.name}</Text>
+          {!!scheduledLabel && <InfoRow icon="clock-outline" text={scheduledLabel} />}
+          {!!session.location && <InfoRow icon="map-marker-outline" text={session.location} />}
           <SessionAttendance players={session.players ?? []} compact />
+          {!!deadlineLabel && isUpcoming && <InfoRow icon="timer-sand" text={t(session.responseDeadline ? "sessions.replyBy" : "sessions.replyByStart", { date: deadlineLabel })} />}
         </View>
-        {isActive && myStatus === "Accepted" && <PrimaryButton title={t("sessions.registerMatch")}
-          disabled={actionLoading} onPress={() => router.push({ pathname: "/games/sessions/register", params: { sessionId: session.id } })} />}
-        {isPending && <View style={styles.section}>
-          <Text style={styles.body}>{t("sessions.inviteQuestion")}</Text>
+
+        {isPending && <View style={styles.invite}>
+          <Text style={[type.body, strong, { color: colors.pendingText }]}>{t("sessions.inviteQuestion")}</Text>
           <View style={styles.actions}>
-            <PrimaryButton title={t("sessions.accept")} loading={actionLoading} onPress={() => handleRespondInvite(true)} />
-            <PrimaryButton title={t("sessions.decline")} variant="secondary" disabled={actionLoading} onPress={() => handleRespondInvite(false)} />
+            <View style={styles.flex}><PrimaryButton title={t("sessions.accept")} loading={actionLoading} onPress={() => handleRespondInvite(true)} /></View>
+            <View style={styles.flex}><PrimaryButton title={t("sessions.decline")} variant="secondary" disabled={actionLoading} onPress={() => handleRespondInvite(false)} /></View>
           </View>
         </View>}
-        {isUpcoming && <Text style={styles.hint}>{t("sessions.upcomingHint")}</Text>}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t("sessions.matchesTitle", { count: matches.length })}</Text>
-          {matches.length === 0 ? <Text style={styles.hint}>{t("sessions.noMatches")}</Text> : matches.map(m => (
-            <Pressable key={m.id} style={styles.matchRow} accessibilityRole="button" accessibilityLabel={t("success.viewMatch") + ": " + m.gameName}
-              onPress={() => router.push({ pathname: "/games/matches/[id]", params: { id: m.id, originSessionId: session.id } })}>
-              <MatchSummary match={m} compact />
-              <View style={styles.detailLink}><Text style={styles.hint}>{t("success.viewMatch")}</Text><MaterialIcons name="chevron-right" size={18} color={COLORS.textMuted} /></View>
-            </Pressable>
-          ))}
-        </View>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t("sessions.who")}</Text>
+        {isActive && myStatus === "Accepted" && <PrimaryButton title={t("sessions.registerMatchHere")} icon={<MaterialCommunityIcons name="plus" size={20} color={COLORS.onPrimary} />}
+          disabled={actionLoading} onPress={() => router.push({ pathname: "/games/sessions/register", params: { sessionId: session.id } })} />}
+        {isUpcoming && <Note inset>{t("sessions.upcomingHint")}</Note>}
+
+        <Section title={t("sessions.who")} note={String(session.players?.length ?? 0)}>
+          <Card>
+            {session.players?.map((p, index) => {
+              const status = statusOf(p.status);
+              return <Row key={p.userId} first={index === 0} inset={68} strongTitle lead={<Avatar name={p.userName || "?"} />}
+                title={p.userName || t("sessions.playerNameUnavailable")} subtitle={p.isOrganizer ? t("sessions.organizerRole") : undefined}
+                detail={<Text style={[styles.pill, styles.pillStart, status === "Accepted" ? styles.accepted : status === "Declined" ? styles.declined : styles.pending]}>
+                  {t(status === "Accepted" ? "sessions.accepted" : status === "Declined" ? "sessions.declined" : "sessions.pending")}</Text>} />;
+            })}
+          </Card>
           {isOrganizer && isUpcoming && <SessionInvitations session={session} />}
-          {session.players?.map(p => {
-            const status = normalizeInviteStatus(p.status);
-            return <View key={p.userId} style={styles.playerRow}>
-              <Text style={styles.playerName}>{p.userName || t("sessions.playerNameUnavailable")}{p.isOrganizer ? ` · ${t("sessions.organizerRole")}` : ""}</Text>
-              <Text style={[styles.playerStatus, { color: status === "Accepted" ? COLORS.success : status === "Declined" ? COLORS.error : COLORS.secondary }]}>
-                {t(status === "Accepted" ? "sessions.accepted" : status === "Declined" ? "sessions.declined" : "sessions.pending")}
-              </Text>
-            </View>;
-          })}
-        </View>
-        {isOrganizer && isActive && <PrimaryButton title={t("sessions.closeTitle")} variant="secondary" disabled={actionLoading} onPress={handleClose} />}
-        {isOrganizer && isUpcoming && <PrimaryButton title={t("sessions.cancelTitle")} variant="secondary" disabled={actionLoading} onPress={handleCancel} />}
+        </Section>
+
+        <Section title={t("sessions.matchesHeading")} note={String(matches.length)}>
+          {matches.length === 0 ? <Card padded><Text style={[type.body, { color: colors.muted }]}>{t("sessions.noMatches")}</Text></Card> : <Card>
+            {matches.map((m, index) => <Row key={m.id} first={index === 0} inset={72} strongTitle title={m.gameName}
+              lead={<GameCover uri={m.gameImageUrl} size={44} />}
+              subtitle={[matchTime(m.matchDate, i18n.language), matchResultText(m, t)].filter(Boolean).join(" · ")}
+              detail={m.players?.length ? <View style={styles.scores}>{m.players.map(p => <Text key={p.userId} style={type.caption}>
+                {(p.userName?.trim() || t("sessions.playerNameUnavailable")) + ": " + (p.score == null ? t("sessions.scoreUndefined") : String(p.score))}</Text>)}</View> : undefined}
+              accessibilityLabel={t("success.viewMatch") + ": " + m.gameName}
+              onPress={() => router.push({ pathname: "/games/matches/[id]", params: { id: m.id, originSessionId: session.id } })} />)}
+          </Card>}
+        </Section>
+
+        {isOrganizer && (isActive || isUpcoming) && <Section title={t("sessions.manage")}>
+          <Card>
+            {isActive && <Row first title={t("sessions.closeTitle")} tone="danger" end="none" onPress={handleClose} accessibilityLabel={t("sessions.closeTitle")} />}
+            {isUpcoming && <Row first title={t("sessions.cancelTitle")} tone="danger" end="none" onPress={handleCancel} accessibilityLabel={t("sessions.cancelTitle")} />}
+          </Card>
+          <Note inset>{t("sessions.manageHint")}</Note>
+        </Section>}
       </ScrollView>
     </ScreenLayout>
   );
 }
-function InfoRow({ icon, text }: { icon: React.ComponentProps<typeof MaterialIcons>["name"]; text: string }) {
-  return <View style={styles.infoRow}><MaterialIcons name={icon} size={16} color={COLORS.textMuted} /><Text style={styles.body}>{text}</Text></View>;
+function matchTime(value: string | undefined, language: string) {
+  const date = value ? new Date(value) : null;
+  return date && !Number.isNaN(date.getTime()) ? new Intl.DateTimeFormat(language, { hour: "2-digit", minute: "2-digit" }).format(date) : null;
+}
+function InfoRow({ icon, text }: { icon: React.ComponentProps<typeof MaterialCommunityIcons>["name"]; text: string }) {
+  return <View style={styles.infoRow}><MaterialCommunityIcons name={icon} size={18} color={COLORS.textMuted} /><Text style={[type.body, styles.flex]}>{text}</Text></View>;
 }
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: COLORS.background },
-  scroll: { padding: 16, paddingBottom: 24, gap: 16 },
-  summary: { gap: 6 },
-  titleRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 },
-  title: { ...UI_STYLES.title, flexGrow: 1, flexShrink: 1 },
-  statusText: { ...UI_STYLES.caption, fontWeight: "700" },
-  infoRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  body: { ...UI_STYLES.body, color: COLORS.textMuted, flexShrink: 1 },
-  hint: { ...UI_STYLES.caption, color: COLORS.textMuted },
-  section: { gap: 8 },
-  sectionTitle: { ...UI_STYLES.section },
-  actions: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  detailLink: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 4 },
-  matchRow: { minHeight: 44, paddingVertical: 10, gap: 6, borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  matchGame: { ...UI_STYLES.section },
-  scoreRow: { flexDirection: "row", alignItems: "baseline", gap: 12 },
-  scoreName: { ...UI_STYLES.body, flex: 1 },
-  score: { ...UI_STYLES.body, fontWeight: "700" },
-  playerRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  playerName: { ...UI_STYLES.body, flexGrow: 1, flexShrink: 1 },
-  playerStatus: { ...UI_STYLES.caption, fontWeight: "700" },
+  scroll: { padding: space.lg, paddingBottom: 32, gap: space.xl },
+  flex: { flex: 1, minWidth: 0 },
+  summary: { gap: space.sm },
+  statusRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: space.sm },
+  title: { fontSize: 28, lineHeight: 34, fontWeight: "700", color: COLORS.onBackground },
+  infoRow: { flexDirection: "row", alignItems: "center", gap: space.sm },
+  scores: { marginTop: 2 },
+  pill: { fontSize: 12, lineHeight: 18, fontWeight: "600", paddingHorizontal: 9, paddingVertical: 1, borderRadius: 999, overflow: "hidden" },
+  pillStart: { alignSelf: "flex-start", marginTop: 2 },
+  accepted: { color: colors.primary, backgroundColor: colors.primarySoft },
+  declined: { color: colors.danger, backgroundColor: colors.dangerSoft },
+  pending: { color: colors.pendingText, backgroundColor: colors.pendingSoft },
+  invite: { gap: space.md, padding: space.lg, borderRadius: 14, backgroundColor: colors.pendingSoft },
+  actions: { flexDirection: "row", gap: space.md },
 });
