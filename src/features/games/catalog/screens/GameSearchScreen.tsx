@@ -28,6 +28,11 @@ import * as Haptics from "expo-haptics";
 import Toast from "react-native-toast-message";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { EmbeddedScreen } from "@/src/components/ui/ScreenLayout";
+import { Card, Row } from "@/src/ui/components";
+import { colors as ui } from "@/src/ui/theme";
+import { ROUTES as APP_ROUTES } from "@/src/constants/routes";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ScreenHeader from "@/src/components/navigation/ScreenHeader";
 import ScreenState from "@/src/components/ui/ScreenState";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
@@ -106,6 +111,8 @@ const isValidLocalId = (
   !!id && id !== EMPTY_GUID;
 
 export default function GameSearchScreen() {
+  // Inside Jogos the hub owns the header; standalone (/games/search) keeps its own.
+  const embedded = React.useContext(EmbeddedScreen);
   const { t } =
     useTranslation("games");
 
@@ -1163,12 +1170,11 @@ export default function GameSearchScreen() {
     isOnline;
 
   const listHeader = (<View>
-    <ScreenHeader
-      mode="back" appearance="refresh" leftAccessibilityLabel={t("ui.back")}
-      title={t("ui.searchTitle")}
-    />
+    {!embedded && <ScreenHeader mode="back" leftAccessibilityLabel={t("ui.back")} title={t("ui.searchTitle")} />}
 
-    <TextInput
+    <View style={styles.searchBox}>
+      <MaterialCommunityIcons name="magnify" size={20} color={ui.muted} />
+      <TextInput
       placeholder={t(
         "search.placeholder"
       )}
@@ -1178,11 +1184,13 @@ export default function GameSearchScreen() {
       }
       autoCapitalize="sentences"
       style={styles.input}
+      returnKeyType="search"
       accessibilityLabel={t("search.placeholder")}
       placeholderTextColor={
         COLORS.textMuted
       }
     />
+    </View>
 
     {!isOnline && (
       <View
@@ -1296,7 +1304,7 @@ export default function GameSearchScreen() {
               name="tune"
               size={15}
               color={
-                COLORS.onBackground
+                ui.primary
               }
             />
 
@@ -1347,7 +1355,7 @@ export default function GameSearchScreen() {
               }
               numberOfLines={2}
             >
-              Ordenar:{" "}
+              {t("ui.sortPrefix")}{" "}
               {
                 t(`ui.sort.${sort}`)
               }
@@ -1357,13 +1365,21 @@ export default function GameSearchScreen() {
               name="expand-more"
               size={16}
               color={
-                COLORS.onBackground
+                ui.primary
               }
             />
           </TouchableOpacity>
         </View>
       </>
     )}
+    {showInitialContent && (
+      <Card style={styles.rankings}>
+        <Row first strongTitle title={t("ui.rankingsTitle")} subtitle={t("ui.rankingsHint")}
+          lead={<View style={styles.rankIcon}><MaterialCommunityIcons name="podium" size={22} color={ui.primary} /></View>} inset={72}
+          onPress={() => router.push(APP_ROUTES.RANKINGS as never)} />
+      </Card>
+    )}
+
 
     {showInitialContent &&
       recentSearches.length >
@@ -1455,13 +1471,7 @@ export default function GameSearchScreen() {
                       ]}
                     >
                       <MaterialIcons
-                        name="sports-esports"
-                        size={
-                          26
-                        }
-                        color={
-                          COLORS.primary
-                        }
+                        name="casino" size={26} color={ui.icon}
                       />
                     </View>
                   )}
@@ -1552,13 +1562,7 @@ export default function GameSearchScreen() {
                         ]}
                       >
                         <MaterialIcons
-                          name="sports-esports"
-                          size={
-                            26
-                          }
-                          color={
-                            COLORS.primary
-                          }
+                          name="casino" size={26} color={ui.icon}
                         />
                       </View>
                     )}
@@ -1592,12 +1596,7 @@ export default function GameSearchScreen() {
       style={
         styles.container
       }
-      edges={[
-        "top",
-        "left",
-        "right",
-        "bottom",
-      ]}
+      edges={embedded ? [] : ["top", "left", "right", "bottom"]}
     >
       <FlatList
         ListHeaderComponent={listHeader}
@@ -1915,7 +1914,10 @@ const styles =
 
     },
 
-    input: { ...UI_STYLES.field, marginBottom: 12 },
+    searchBox: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44, paddingLeft: 12, borderWidth: 1, borderColor: ui.field, borderRadius: 12, backgroundColor: ui.card, marginBottom: 12 },
+ input: { flex: 1, minHeight: 44, paddingVertical: 10, fontSize: 15, color: ui.text },
+ rankings: { marginBottom: 20 },
+ rankIcon: { width: 44, height: 44, borderRadius: 10, backgroundColor: ui.primarySoft, alignItems: "center", justifyContent: "center" },
 
     offlineBanner: {
       flexDirection: "row",
@@ -1955,10 +1957,7 @@ const styles =
         COLORS.primary,
     },
 
-    typeFilterText: {
-      ...UI_STYLES.caption, fontWeight: "700", color:
-        COLORS.onBackground
-    },
+    typeFilterText: { fontSize: 15, lineHeight: 20, color: ui.text },
 
     typeFilterTextActive: {
       color: "#fff",
@@ -2040,7 +2039,7 @@ const styles =
       marginBottom: 10,
     },
 
-    recentHeader: { ...UI_STYLES.section, marginBottom: 10 },
+    recentHeader: { fontSize: 17, lineHeight: 22, fontWeight: "600", color: ui.text, marginBottom: 8 },
 
     recentClear: {
       minHeight: 44, paddingVertical: 12, ...UI_STYLES.caption, fontWeight: "700", color: COLORS.primary

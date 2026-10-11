@@ -109,7 +109,7 @@ test('session invitations still call respondInvite with true or false', async ()
   const invited = { ...session, organizerId: 'other', players: [{ userId: 'me', userName: 'Test player', status: 0 }] };
   for (const accept of [true, false]) {
     const view = await render(detail, { states: { 0: invited, 1: false }, services: { respondInvite: undefined, getById: invited } });
-    await view.press(accept ? '✅ Aceitar' : '❌ Recusar');
+    await view.press(accept ? 'Aceitar' : 'Recusar');
     assert.deepEqual(view.calls.find(c => c[0] === 'respondInvite'), ['respondInvite', 'game-id', accept]);
   }
 });

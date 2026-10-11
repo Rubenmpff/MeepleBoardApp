@@ -1,39 +1,27 @@
-import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionSearchBar.tsx
-import React from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
-import { UI_STYLES } from "@/src/styles/clubTheme";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
+import { colors, radius, space, touch, type } from "@/src/ui/theme";
 
-type Props = {
-  value: string;
-  onChangeText: (text: string) => void;
-};
+type Props = { value: string; onChangeText: (text: string) => void };
 
 export function CollectionSearchBar({ value, onChangeText }: Props) {
   const { t: uiT } = useTranslation("library");
   return (
     <View style={styles.wrap}>
-      <Ionicons name="search" size={17} color={COLORS.textMuted} />
-      <TextInput
-        style={styles.input}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={uiT("ui.searchPlaceholder")}
-        accessibilityLabel={uiT("ui.searchPlaceholder")}
-        placeholderTextColor={COLORS.textMuted}
-      />
-      {value.length > 0 && (
-        <TouchableOpacity onPress={() => onChangeText("")} style={UI_STYLES.iconButton} accessibilityRole="button" accessibilityLabel={uiT("ui.clearSearch")}>
-          <Ionicons name="close-circle" size={18} color={COLORS.textMuted} />
-        </TouchableOpacity>
-      )}
+      <MaterialCommunityIcons name="magnify" size={20} color={colors.muted} />
+      <TextInput style={[type.body, styles.input]} value={value} onChangeText={onChangeText} placeholder={uiT("ui.searchPlaceholder")}
+        accessibilityLabel={uiT("ui.searchPlaceholder")} placeholderTextColor={colors.muted} returnKeyType="search" autoCorrect={false} />
+      {value.length > 0 && <TouchableOpacity onPress={() => onChangeText("")} style={styles.clear} accessibilityRole="button" accessibilityLabel={uiT("ui.clearSearch")}>
+        <MaterialCommunityIcons name="close-circle" size={18} color={colors.muted} />
+      </TouchableOpacity>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { ...UI_STYLES.field, paddingVertical: 0, flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 },
-  input: { ...UI_STYLES.body, flex: 1, minHeight: 50, color: COLORS.onBackground, padding: 0 },
+  wrap: { flexDirection: "row", alignItems: "center", gap: space.sm, minHeight: touch, paddingLeft: space.md, borderWidth: 1, borderColor: colors.field, borderRadius: radius.control, backgroundColor: colors.card, marginBottom: space.sm },
+  input: { flex: 1, minHeight: touch, paddingVertical: 10, color: colors.text },
+  clear: { width: touch, height: touch, alignItems: "center", justifyContent: "center" },
 });

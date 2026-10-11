@@ -1,11 +1,11 @@
 {
   "screen": {
-    "title": "🎲 A minha biblioteca",
+    "title": "A minha biblioteca",
     "addGame": "Adicionar jogo",
     "inCollection": "Na coleção",
     "wishlist": "Lista de desejos",
     "played": "Jogados",
-    "totalSpent": "💰 Total gasto:",
+    "totalSpent": "Total gasto:",
     "empty": "Não foram encontrados jogos para este filtro.",
     "retry": "Tentar novamente",
     "invalidEntry": "Entrada de jogo inválida",
@@ -21,12 +21,12 @@
     "played": "Jogados"
   },
   "card": {
-    "notLoaded": "⚠️ Jogo não carregado",
+    "notLoaded": "Jogo não carregado",
     "status": "Estado: {{status}}",
     "year": "Ano: {{year}}",
     "pricePaid": "Preço pago: {{price}} €",
     "gifted": "Oferecido (0 €)",
-    "remove": "🗑 Remover",
+    "remove": "Remover",
     "removeTitle": "Remover jogo",
     "removeConfirm": "Queres remover \"{{name}}\" da tua biblioteca?"
   },
@@ -167,5 +167,10 @@
       "price_high": "Preço mais alto",
       "price_low": "Preço mais baixo"
     }
+  },
+  "hub": {
+    "title": "Jogos",
+    "library": "A minha biblioteca",
+    "discover": "Descobrir jogos"
   }
 }

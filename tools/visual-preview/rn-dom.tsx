@@ -100,7 +100,14 @@ export const Modal = (p: any) => {
   return root ? createPortal(node, root) : node;
 };
 const element = (c: any) => typeof c === 'function' ? React.createElement(c) : c;
-export const FlatList = (p: any) => <ScrollView {...p} style={p.horizontal ? p.style : p.style}>{element(p.ListHeaderComponent)}{(p.data || []).length ? <div style={{ ...viewBase, ...(p.numColumns > 1 ? { flexDirection: 'row', flexWrap: 'wrap' } : {}), ...(p.horizontal ? { flexDirection: 'row' } : {}), ...css(p.columnWrapperStyle) }}>{p.data.map((item: any, index: number) => <React.Fragment key={p.keyExtractor ? p.keyExtractor(item, index) : index}>{index > 0 && element(p.ItemSeparatorComponent)}{p.numColumns > 1 ? <div style={{ ...viewBase, width: `${100 / p.numColumns}%` }}>{p.renderItem({ item, index })}</div> : p.renderItem({ item, index })}</React.Fragment>)}</div> : element(p.ListEmptyComponent)}{element(p.ListFooterComponent)}</ScrollView>;
+export const FlatList = (p: any) => {
+  // Like React Native: numColumns groups items into rows, each row styled by columnWrapperStyle.
+  const items = (p.data || []).map((item: any, index: number) => <React.Fragment key={p.keyExtractor ? p.keyExtractor(item, index) : index}>{index > 0 && p.numColumns <= 1 ? element(p.ItemSeparatorComponent) : null}{p.renderItem({ item, index })}</React.Fragment>);
+  const n = p.numColumns > 1 ? p.numColumns : 1;
+  const rows: any[] = [];
+  if (n > 1) for (let i = 0; i < items.length; i += n) rows.push(<div key={i} style={{ ...viewBase, flexDirection: 'row', ...css(p.columnWrapperStyle) }}>{items.slice(i, i + n)}</div>);
+  return <ScrollView {...p}>{element(p.ListHeaderComponent)}{items.length ? (n > 1 ? rows : <div style={{ ...viewBase, ...(p.horizontal ? { flexDirection: 'row' } : {}) }}>{items}</div>) : element(p.ListEmptyComponent)}{element(p.ListFooterComponent)}</ScrollView>;
+};
 export const StyleSheet = { create: (v: any) => v, hairlineWidth: 1 / 3, absoluteFill: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }, absoluteFillObject: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }, flatten };
 export const Platform = { OS: 'ios', select: (o: any) => o.ios ?? o.default };
 export const Keyboard = { dismiss() { }, addListener: () => ({ remove() { } }) };

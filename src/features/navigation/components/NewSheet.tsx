@@ -10,17 +10,17 @@ import { ROUTES } from "@/src/constants/routes";
 export default function NewSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { t } = useTranslation("navigation");
   const router = useRouter();
-  const items: { key: string; icon: Icon; route: string; primary?: boolean }[] = [
+  const items: { key: string; icon: Icon; route: string; params?: Record<string, string>; primary?: boolean }[] = [
     { key: "registerMatch", icon: "dice-5", route: ROUTES.REGISTER_MATCH, primary: true },
     { key: "newSession", icon: "calendar-star", route: ROUTES.SESSION_CREATE },
-    { key: "addGame", icon: "bookshelf", route: ROUTES.SEARCH_GAMES },
+    { key: "addGame", icon: "bookshelf", route: ROUTES.LIBRARY, params: { area: "discover" } },
     { key: "newCampaign", icon: "sword-cross", route: ROUTES.CAMPAIGN_CREATE },
   ];
   return <Sheet visible={visible} title={t("newSheet.title")} closeLabel={t("newSheet.close")} onClose={onClose} right={{ label: t("newSheet.close"), onPress: onClose }}>
     <Card>
       {items.map((item, index) => <Row key={item.key} first={index === 0} inset={72} strongTitle title={t(`newSheet.${item.key}`)} subtitle={t(`newSheet.${item.key}Hint`)}
         lead={<View style={[styles.icon, item.primary && styles.primary]}><Glyph name={item.icon} size={22} color={item.primary ? colors.onPrimary : colors.primary} /></View>}
-        onPress={() => { onClose(); router.push(item.route as never); }} />)}
+        onPress={() => { onClose(); router.push((item.params ? { pathname: item.route, params: item.params } : item.route) as never); }} />)}
     </Card>
   </Sheet>;
 }

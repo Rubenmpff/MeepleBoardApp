@@ -10,9 +10,6 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { router } from "expo-router";
-import {
-  SafeAreaView,
-} from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { useTranslation } from "react-i18next";
 import { APP_THEME as theme } from "@/src/styles/clubTheme";
@@ -21,7 +18,6 @@ import SectionCard from "@/src/components/ui/ClubSectionCard";
 
 import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
 
-import { CollectionHeader } from "../components/CollectionHeader";
 import { CollectionSearchBar } from "../components/CollectionSearchBar";
 import { CollectionTabs, CollectionTab } from "../components/CollectionTabs";
 import { CollectionToolbar } from "../components/CollectionToolbar";
@@ -50,7 +46,7 @@ import {
 import { ROUTES } from "@/src/constants/routes";
 
 export default function MyLibraryScreen() {
-  const { t } = useTranslation("library");
+  const { t, i18n } = useTranslation("library");
   const { width, fontScale } = useWindowDimensions();
   const { library = [], loading, error, refetch } = useUserLibrary();
   const { playedGames, loading: playedLoading, error: playedError, refetch: refetchPlayed } = usePlayedGames();
@@ -168,16 +164,6 @@ export default function MyLibraryScreen() {
   const columns = viewMode === "grid" && width >= 360 && fontScale <= 1.25 ? 2 : 1;
   const listHeader = (
     <View>
-      <CollectionHeader
-        totalCount={counts.total}
-        ownedCount={counts.owned}
-        wishlistCount={counts.wishlist}
-        playedCount={counts.played}
-        totalSpent={counts.totalSpent}
-        activeFilter={activeTab}
-        onAddPress={() => router.push(ROUTES.SEARCH_GAMES)}
-      />
-
       <CollectionSearchBar value={search} onChangeText={setSearch} />
       {(error || playedError) && (
         <SectionCard>
@@ -186,7 +172,10 @@ export default function MyLibraryScreen() {
         </SectionCard>
       )}
 
-      <CollectionTabs active={activeTab} onChange={setActiveTab} />
+      <CollectionTabs active={activeTab} onChange={setActiveTab} counts={{ total: counts.total, owned: counts.owned, wishlist: counts.wishlist, played: counts.played }} />
+      {activeTab === GameLibraryStatus.Owned && (
+        <Text style={styles.spent}>{t("ui.spent")} <Text style={styles.spentValue}>{new Intl.NumberFormat(i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB", { style: "currency", currency: "EUR" }).format(counts.totalSpent)}</Text></Text>
+      )}
 
       <CollectionToolbar
         viewMode={viewMode}
@@ -215,7 +204,7 @@ export default function MyLibraryScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right", "bottom"]}>
+    <View style={styles.container}>
       <KeyboardAvoidingView style={styles.content} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <FlatList
           key={`${viewMode}-${columns}`}
@@ -302,7 +291,7 @@ export default function MyLibraryScreen() {
         onSelect={setSort}
         onClose={() => setSortVisible(false)}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -311,6 +300,8 @@ const styles = StyleSheet.create({
   content: { flex: 1, width: "100%", maxWidth: 680, alignSelf: "center" },
   gridColumnWrap: { gap: theme.space.md },
   gridItemWrap: { flex: 1, marginBottom: theme.space.md },
-  listContent: { padding: theme.space.lg, paddingBottom: theme.space.xxl },
+  listContent: { paddingHorizontal: theme.space.lg, paddingTop: theme.space.sm, paddingBottom: theme.space.xxl },
+  spent: { ...theme.text.caption, color: theme.colors.muted, marginBottom: theme.space.sm },
+  spentValue: { fontWeight: "600", color: theme.colors.text },
   errorText: { ...theme.text.body, color: theme.colors.muted, marginBottom: theme.space.lg },
 });

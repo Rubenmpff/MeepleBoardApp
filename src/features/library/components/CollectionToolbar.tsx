@@ -1,222 +1,54 @@
-import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionToolbar.tsx
-
-import React from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-
-import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
-import { UI_STYLES } from "@/src/styles/clubTheme";
-
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { ViewMode } from "../hooks/useViewModePreference";
-import {
-  SortOption,
-} from "../utils/collectionHelpers";
+import { SortOption } from "../utils/collectionHelpers";
+import { colors, radius, space, touch, type } from "@/src/ui/theme";
 
 type Props = {
-  viewMode: ViewMode;
-  onChangeViewMode: (mode: ViewMode) => void;
-  activeFilterCount: number;
-  onFiltersPress: () => void;
-  sort: SortOption;
-  onSortPress: () => void;
+  viewMode: ViewMode; onChangeViewMode: (mode: ViewMode) => void;
+  activeFilterCount: number; onFiltersPress: () => void;
+  sort: SortOption; onSortPress: () => void;
 };
 
-export function CollectionToolbar({
-  viewMode,
-  onChangeViewMode,
-  activeFilterCount,
-  onFiltersPress,
-  sort,
-  onSortPress,
-}: Props) {
+// Filters on the left, sort as a green text action, grid/list as a compact two-way switch.
+export function CollectionToolbar({ viewMode, onChangeViewMode, activeFilterCount, onFiltersPress, sort, onSortPress }: Props) {
   const { t: uiT } = useTranslation("library");
+  const mode = (value: ViewMode, icon: keyof typeof MaterialCommunityIcons.glyphMap, label: string) =>
+    <TouchableOpacity style={styles.modeTouch} onPress={() => onChangeViewMode(value)} accessibilityRole="radio" accessibilityState={{ checked: viewMode === value }} accessibilityLabel={label}>
+      <View style={[styles.mode, viewMode === value && styles.modeOn]}><MaterialCommunityIcons name={icon} size={20} color={viewMode === value ? colors.primary : colors.muted} /></View>
+    </TouchableOpacity>;
   return (
     <View style={styles.row}>
-      <TouchableOpacity
-        style={styles.filtersBtn}
-        onPress={onFiltersPress}
-        activeOpacity={0.8}
-        accessibilityRole="button"
-        accessibilityLabel={uiT("ui.openFilters")}
-      >
-        <MaterialIcons
-          name="tune"
-          size={16}
-          color={COLORS.onBackground}
-        />
-
-        <Text style={styles.filtersText}>
-          {uiT("ui.filters")}
-        </Text>
-
-        {activeFilterCount > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>
-              {activeFilterCount}
-            </Text>
-          </View>
-        )}
+      <TouchableOpacity style={styles.action} onPress={onFiltersPress} accessibilityRole="button" accessibilityLabel={uiT("ui.openFilters")}>
+        <MaterialCommunityIcons name="tune-variant" size={20} color={colors.primary} />
+        <Text style={[type.body, styles.link]}>{uiT("ui.filters")}</Text>
+        {activeFilterCount > 0 && <View style={styles.badge}><Text style={styles.badgeText}>{activeFilterCount}</Text></View>}
       </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.sortBtn}
-        onPress={onSortPress}
-        activeOpacity={0.8}
-        accessibilityRole="button"
-        accessibilityLabel={uiT("ui.changeSort")}
-      >
-        <Text
-          style={styles.sortText}
-          numberOfLines={2}
-        >
-          {uiT(`ui.sort.${sort}`)}
-        </Text>
-
-        <MaterialIcons
-          name="expand-more"
-          size={18}
-          color={COLORS.onBackground}
-        />
+      <TouchableOpacity style={[styles.action, styles.sort]} onPress={onSortPress} accessibilityRole="button" accessibilityLabel={uiT("ui.changeSort")}>
+        <MaterialCommunityIcons name="sort-variant" size={20} color={colors.primary} />
+        <Text style={[type.body, styles.link, styles.shrink]} numberOfLines={1}>{uiT(`ui.sort.${sort}`)}</Text>
+        <MaterialCommunityIcons name="chevron-down" size={18} color={colors.primary} />
       </TouchableOpacity>
-
-      <View
-        style={styles.viewToggle}
-        accessibilityRole="radiogroup"
-      >
-        <TouchableOpacity
-          style={[
-            styles.viewBtn,
-            viewMode === "grid" &&
-            styles.viewBtnActive,
-          ]}
-          onPress={() =>
-            onChangeViewMode("grid")
-          }
-          activeOpacity={0.8}
-          accessibilityRole="radio"
-          accessibilityState={{
-            checked:
-              viewMode === "grid",
-          }}
-          accessibilityLabel={uiT("ui.grid")}
-        >
-          <MaterialIcons
-            name="view-module"
-            size={21}
-            color={
-              viewMode === "grid"
-                ? "#FFFFFF"
-                : COLORS.onBackground
-            }
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.viewBtn,
-            viewMode === "list" &&
-            styles.viewBtnActive,
-          ]}
-          onPress={() =>
-            onChangeViewMode("list")
-          }
-          activeOpacity={0.8}
-          accessibilityRole="radio"
-          accessibilityState={{
-            checked:
-              viewMode === "list",
-          }}
-          accessibilityLabel={uiT("ui.list")}
-        >
-          <MaterialIcons
-            name="view-list"
-            size={22}
-            color={
-              viewMode === "list"
-                ? "#FFFFFF"
-                : COLORS.onBackground
-            }
-          />
-        </TouchableOpacity>
+      <View style={styles.modes} accessibilityRole="radiogroup">
+        {mode("grid", "view-grid-outline", uiT("ui.grid"))}
+        {mode("list", "view-list", uiT("ui.list"))}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexWrap: "wrap",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 12,
-  },
-
-  filtersBtn: {
-    ...UI_STYLES.control,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-
-  filtersText: { ...UI_STYLES.caption, fontWeight: "700", color: COLORS.onBackground },
-
-  badge: {
-    minWidth: 17,
-    height: 17,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 4,
-    backgroundColor: COLORS.primary,
-    borderRadius: 999,
-  },
-
-  badgeText: {
-    fontSize: 10,
-    fontWeight: "800",
-    color: "#FFFFFF",
-  },
-
-  sortBtn: {
-    minWidth: 140,
-    ...UI_STYLES.control,
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-
-  sortText: { ...UI_STYLES.caption, flexShrink: 1, fontWeight: "700", color: COLORS.onBackground },
-
-  viewToggle: {
-    minHeight: 44,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    padding: 3,
-    gap: 3,
-  },
-
-  viewBtn: { ...UI_STYLES.iconButton },
-
-  viewBtnActive: {
-    backgroundColor: COLORS.primary,
-  },
+  row: { flexDirection: "row", alignItems: "center", gap: space.xs, marginBottom: space.sm, flexWrap: "wrap" },
+  action: { minHeight: touch, flexDirection: "row", alignItems: "center", gap: 6, paddingRight: space.sm },
+  sort: { flex: 1, minWidth: 120 },
+  link: { color: colors.primary, fontWeight: "600" },
+  shrink: { flexShrink: 1 },
+  badge: { minWidth: 20, height: 20, borderRadius: 10, paddingHorizontal: 6, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
+  badgeText: { fontSize: 12, lineHeight: 16, fontWeight: "600", color: colors.onPrimary },
+  modes: { flexDirection: "row", backgroundColor: colors.track, borderRadius: radius.control, paddingHorizontal: 2 },
+  modeTouch: { minWidth: touch, minHeight: touch, justifyContent: "center", alignItems: "center" },
+  mode: { width: 40, height: 36, borderRadius: 9, alignItems: "center", justifyContent: "center" },
+  modeOn: { backgroundColor: colors.card },
 });

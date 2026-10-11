@@ -1,8 +1,8 @@
 {
   "search": {
     "communicationError": "Unable to communicate with the catalogue. Check your connection and try again.",
-    "placeholder": "🔍 Search for a board game…",
-    "searching": "🔍 Searching…",
+    "placeholder": "Search for a board game",
+    "searching": "Searching…",
     "empty": "No games found for this search.",
     "openDetailsErrorTitle": "Unable to open game",
     "openDetailsErrorDescription": "The game details could not be opened.",
@@ -10,8 +10,8 @@
     "importErrorDescription": "The game could not be imported."
   },
   "selector": {
-    "placeholder": "🔎 Search for a base game…",
-    "notFound": "🚫 This game is not yet available in MeepleBoard."
+    "placeholder": "Search for a base game",
+    "notFound": "This game is not yet available in MeepleBoard."
   },
   "expansions": {
     "title": "Expansions used",
@@ -24,20 +24,23 @@
     "unknownGame": "Unknown game",
     "viewDetailsAccessibility": "View details for {{name}}",
     "manageAccessibility": "Manage {{name}} in your library",
-    "addAccessibility": "Add {{name}} to your library"
+    "addAccessibility": "Add {{name}} to your library",
+    "meepleBoardRating": "★ {{value}} MeepleBoard",
+    "bggRating": "★ {{value}} BGG",
+    "fromBgg": "not imported yet"
   },
   "rating": {
     "none": "No rating",
-    "terrible": "😞 Terrible",
-    "veryWeak": "😟 Very weak",
-    "weak": "😕 Weak",
-    "belowExpected": "😐 Below expectations",
-    "ok": "🙂 OK",
-    "fair": "😊 Fair",
-    "good": "😄 Good",
-    "veryGood": "😁 Very good",
-    "excellent": "🤩 Excellent!",
-    "masterpiece": "💯 Masterpiece!",
+    "terrible": "Terrible",
+    "veryWeak": "Very weak",
+    "weak": "Weak",
+    "belowExpected": "Below expectations",
+    "ok": "OK",
+    "fair": "Fair",
+    "good": "Good",
+    "veryGood": "Very good",
+    "excellent": "Excellent!",
+    "masterpiece": "Masterpiece!",
     "tapToRate": "Tap the stars to rate",
     "setHalfAccessibility": "Set rating to {{value}} out of 10",
     "setFullAccessibility": "Set rating to {{value}} out of 10",
@@ -114,7 +117,10 @@
       "relevance": "Relevance",
       "most_known": "Most known",
       "year_desc": "Newest year"
-    }
+    },
+    "rankingsTitle": "Rankings",
+    "rankingsHint": "Top rated on MeepleBoard and by you",
+    "sortPrefix": "Sort:"
   },
   "rankings": {
     "title": "Game rankings",

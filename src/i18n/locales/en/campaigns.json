@@ -155,19 +155,19 @@
     },
     "details": {
       "title": "Optional details",
-      "duration": "⏱ Duration (minutes)",
+      "duration": "Duration (minutes)",
       "durationPlaceholder": "E.g. 120",
-      "location": "📍 Location",
+      "location": "Location",
       "locationPlaceholder": "E.g. John's house",
-      "score": "📝 Score summary",
+      "score": "Score summary",
       "scorePlaceholder": "E.g. Ruben 45, Miguel 38..."
     },
     "rating": {
       "title": "Your rating for this encounter",
       "value": "Rating (0–10)",
-      "notes": "📖 Private notes",
+      "notes": "Private notes",
       "notesPlaceholder": "Epic moments, what went well or badly...",
-      "tags": "🏷️ Tags (comma-separated)",
+      "tags": "Tags (comma-separated)",
       "tagsPlaceholder": "epic, plot twist, difficult..."
     },
     "submit": "Register encounter",

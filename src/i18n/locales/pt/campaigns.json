@@ -155,19 +155,19 @@
     },
     "details": {
       "title": "Detalhes opcionais",
-      "duration": "⏱ Duração (minutos)",
+      "duration": "Duração (minutos)",
       "durationPlaceholder": "Ex.: 120",
-      "location": "📍 Local",
+      "location": "Local",
       "locationPlaceholder": "Ex.: Casa do João",
-      "score": "📝 Resumo de pontuação",
+      "score": "Resumo de pontuação",
       "scorePlaceholder": "Ex.: Ruben 45, Miguel 38..."
     },
     "rating": {
       "title": "A tua avaliação deste encontro",
       "value": "Avaliação (0–10)",
-      "notes": "📖 Notas privadas",
+      "notes": "Notas privadas",
       "notesPlaceholder": "Momentos épicos, o que correu bem ou mal...",
-      "tags": "🏷️ Tags (separadas por vírgula)",
+      "tags": "Tags (separadas por vírgula)",
       "tagsPlaceholder": "épico, reviravolta, difícil..."
     },
     "submit": "Registar encontro",

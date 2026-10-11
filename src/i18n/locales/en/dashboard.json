@@ -1,6 +1,6 @@
 {
   "header": {
-    "greeting": "Hi, {{username}} 👋",
+    "greeting": "Hi, {{username}}",
     "welcomeBack": "Welcome back!"
   },
   "player": "Player",

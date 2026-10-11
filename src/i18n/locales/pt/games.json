@@ -1,8 +1,8 @@
 {
   "search": {
     "communicationError": "Não foi possível comunicar com o catálogo. Verifica a ligação e tenta novamente.",
-    "placeholder": "🔍 Pesquisar um jogo de tabuleiro…",
-    "searching": "🔍 A procurar…",
+    "placeholder": "Pesquisar um jogo de tabuleiro",
+    "searching": "A procurar…",
     "empty": "Não foram encontrados jogos para esta pesquisa.",
     "openDetailsErrorTitle": "Não foi possível abrir o jogo",
     "openDetailsErrorDescription": "Não foi possível abrir os detalhes do jogo.",
@@ -10,8 +10,8 @@
     "importErrorDescription": "Não foi possível importar o jogo."
   },
   "selector": {
-    "placeholder": "🔎 Pesquisar um jogo base…",
-    "notFound": "🚫 Este jogo ainda não está disponível na MeepleBoard."
+    "placeholder": "Pesquisar um jogo base",
+    "notFound": "Este jogo ainda não está disponível na MeepleBoard."
   },
   "expansions": {
     "title": "Expansões utilizadas",
@@ -24,20 +24,23 @@
     "unknownGame": "Jogo desconhecido",
     "viewDetailsAccessibility": "Ver detalhes de {{name}}",
     "manageAccessibility": "Gerir {{name}} na tua biblioteca",
-    "addAccessibility": "Adicionar {{name}} à tua biblioteca"
+    "addAccessibility": "Adicionar {{name}} à tua biblioteca",
+    "meepleBoardRating": "★ {{value}} MeepleBoard",
+    "bggRating": "★ {{value}} BGG",
+    "fromBgg": "ainda não importado"
   },
   "rating": {
     "none": "Sem avaliação",
-    "terrible": "😞 Terrível",
-    "veryWeak": "😟 Muito fraco",
-    "weak": "😕 Fraco",
-    "belowExpected": "😐 Abaixo do esperado",
-    "ok": "🙂 Ok",
-    "fair": "😊 Razoável",
-    "good": "😄 Bom",
-    "veryGood": "😁 Muito bom",
-    "excellent": "🤩 Excelente!",
-    "masterpiece": "💯 Obra-prima!",
+    "terrible": "Terrível",
+    "veryWeak": "Muito fraco",
+    "weak": "Fraco",
+    "belowExpected": "Abaixo do esperado",
+    "ok": "Ok",
+    "fair": "Razoável",
+    "good": "Bom",
+    "veryGood": "Muito bom",
+    "excellent": "Excelente!",
+    "masterpiece": "Obra-prima!",
     "tapToRate": "Toca nas estrelas para avaliar",
     "setHalfAccessibility": "Definir avaliação como {{value}} em 10",
     "setFullAccessibility": "Definir avaliação como {{value}} em 10",
@@ -97,7 +100,7 @@
     "shortQuery": "Escreve mais uma letra para pesquisar o catálogo completo.",
     "recentSearches": "Pesquisas recentes",
     "clear": "Limpar",
-    "hotGames": "🔥 Em destaque no BGG",
+    "hotGames": "Em destaque no BGG",
     "history": "Histórico",
     "matchesCount_one": "{{count}} partida",
     "matchesCount_other": "{{count}} partidas",
@@ -114,7 +117,10 @@
       "relevance": "Relevância",
       "most_known": "Mais conhecidos",
       "year_desc": "Ano mais recente"
-    }
+    },
+    "rankingsTitle": "Rankings",
+    "rankingsHint": "Os mais bem avaliados na MeepleBoard e por ti",
+    "sortPrefix": "Ordenar:"
   },
   "rankings": {
     "title": "Rankings de jogos",
