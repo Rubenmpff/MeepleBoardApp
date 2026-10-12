@@ -115,7 +115,7 @@ test('session invitations still call respondInvite with true or false', async ()
 });
 
 test('organiser cancel/close actions require confirmation and remain status-specific', async () => {
-  for (const [status, label, service] of [['Upcoming', 'Cancelar sessão', 'cancel'], ['Active', 'Encerrar sessão', 'close']]) {
+  for (const [status, label, service] of [['Upcoming', 'Cancelar sessão', 'cancel'], ['Active', 'Terminar sessão', 'close']]) {
     const data = { ...session, status };
     const view = await render(detail, { states: { 0: data, 1: false }, stubRegisterForm: true, services: { [service]: undefined, getById: data } });
     await view.press(label);

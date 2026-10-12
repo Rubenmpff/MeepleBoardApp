@@ -2,7 +2,8 @@
  * GameSessionDetailScreen.tsx
  *
  * Detalhe de uma sessão de jogo.
- * - Organizer: pode cancelar (Upcoming) ou encerrar (Active)
+ * - Organizer: pode cancelar (Upcoming), terminar ou prolongar (Active)
+ * - Hora de fim automática (24 h após o início, até 48 h) na hora local
  * - Convidado: pode aceitar/recusar convite (Pending)
  * - Lista de participantes com status
  * - Registo de partidas numa página própria, apenas para participantes aceites
@@ -30,6 +31,7 @@ import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { RootState } from "@/src/store/store";
 import SessionAttendance from "../components/SessionAttendance";
 import SessionInvitations from "../components/SessionInvitations";
+import SessionEndTime from "../components/SessionEndTime";
 export default function GameSessionDetailScreen() {
   const { t, i18n } = useTranslation("matches");
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -166,6 +168,7 @@ export default function GameSessionDetailScreen() {
         {isActive && myStatus === "Accepted" && <PrimaryButton title={t("sessions.registerMatchHere")} icon={<MaterialCommunityIcons name="plus" size={20} color={COLORS.onPrimary} />}
           disabled={actionLoading} onPress={() => router.push({ pathname: "/games/sessions/register", params: { sessionId: session.id } })} />}
         {isUpcoming && <Note inset>{t("sessions.upcomingHint")}</Note>}
+        <SessionEndTime session={session} canChange={isOrganizer} onChanged={setSession} />
 
         <Section title={t("sessions.who")} note={String(session.players?.length ?? 0)}>
           <Card>

@@ -63,6 +63,13 @@ const sessionService = {
     await api.post(`${BASE_URL}/${id}/close`, null);
   },
 
+  /** Organizer escolhe outra hora de fim (até 48 h após o início real). */
+  async setCloseTime(id: string, closesAt: Date): Promise<GameSession> {
+    assertId(id, "sessionId");
+    const res = await api.put<GameSession>(`${BASE_URL}/${id}/close-time`, { closesAt: closesAt.toISOString() });
+    return res.data;
+  },
+
   /** ✅ NOVO — Cancela sessão (só organizer, só Upcoming) */
   async cancel(id: string): Promise<void> {
     assertId(id, "sessionId");
