@@ -1,0 +1,7 @@
+{"name":"recursos-admin","screens":[
+ {"id":"1-jogo-admin","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Recursos","wait":1500},{"scroll":"end"}]},
+ {"id":"2-pendentes","route":"/games/resources/admin?gameId={{game:Wingspan}}&gameName=Wingspan"},
+ {"id":"3-aprovados","route":"/games/resources/admin?gameId={{game:Wingspan}}&gameName=Wingspan","steps":[{"click":"Aprovados","wait":800}]},
+ {"id":"4-relatos","route":"/games/resources/admin","steps":[{"click":"Relatos","wait":800}]},
+ {"id":"5-novo","route":"/games/resources/form?gameId={{game:Wingspan}}&gameName=Wingspan&admin=1"}
+]}

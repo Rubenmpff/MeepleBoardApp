@@ -1,0 +1,6 @@
+{"name":"sessoes-fim","screens":[
+ {"id":"1-ativa-organizador","route":"/games/sessions/{{activeSession}}"},
+ {"id":"2-prolongar","route":"/games/sessions/{{activeSession}}","steps":[{"click":"Prolongar","wait":800}]},
+ {"id":"3-terminadas","route":"/play","steps":[{"click":"Terminadas","wait":800}]},
+ {"id":"4-terminada-auto","route":"/play","steps":[{"click":"Terminadas","wait":800},{"click":"Sessão fictícia SQL","wait":1200}]}
+]}

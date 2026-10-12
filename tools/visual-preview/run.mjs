@@ -34,7 +34,10 @@ const recent = (await get('/statistics/me/matches?start=2020-01-01&endExclusive=
 const vars = { ...Object.fromEntries(accounts.map(a => [`user:${a.Email.split('@')[0]}`, a.Id])), match: recent?.id ?? '', game: recent?.gameId ?? '',
   session: sessions[0]?.id ?? '', activeSession: (sessions.find(s => /active|ongoing|progress/i.test(String(s.status))) ?? sessions[0])?.id ?? '', upcomingSession: sessions.find(s => s.status === 'Upcoming')?.id ?? '', campaign: campaigns[0]?.id ?? '' };
 const file = path.resolve(args[0]);
-const spec = JSON.parse(fs.readFileSync(file, 'utf8').replace(/\{\{([^}]+)\}\}/g, (_, k) => vars[k] ?? ''));
+const text = fs.readFileSync(file, 'utf8');
+// {{game:Name}}: a game's ID by exact name (GET /game/search).
+for (const [, name] of text.matchAll(/\{\{game:([^}]+)\}\}/g)) vars[`game:${name}`] ??= (await get('/game/search?name=' + encodeURIComponent(name)))?.id ?? '';
+const spec = JSON.parse(text.replace(/\{\{([^}]+)\}\}/g, (_, k) => vars[k] ?? ''));
 const only = flag('--only')?.split(',');
 const dest = path.join(out, spec.name || path.basename(file, '.json'));
 fs.mkdirSync(dest, { recursive: true });

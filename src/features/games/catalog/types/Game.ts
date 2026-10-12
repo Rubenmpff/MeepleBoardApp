@@ -35,6 +35,9 @@ export interface Game {
   /** Nº de pessoas que avaliaram no BGG — medida de "quão conhecido" o jogo é. */
   ratingsCount?: number;
 
+  /** O mesmo número como a API o devolve no detalhe do jogo (UsersRatedCount). */
+  usersRatedCount?: number;
+
   /** Só vem preenchido na resposta do ranking pessoal — a tua própria média para este jogo. */
   personalAverageRating?: number | null;
 

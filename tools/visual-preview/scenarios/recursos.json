@@ -1,0 +1,13 @@
+{"name":"recursos","screens":[
+ {"id":"01-sobre","route":"/games/details/{{game:Wingspan}}"},
+ {"id":"02-sobre-fim","route":"/games/details/{{game:Wingspan}}","scroll":"end"},
+ {"id":"03-como-jogar","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Como jogar","wait":1500}]},
+ {"id":"04-como-jogar-fim","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Como jogar","wait":1500},{"scroll":"end"}]},
+ {"id":"05-como-jogar-todos","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Como jogar","wait":1500},{"click":"Todos","wait":1500},{"scroll":420}]},
+ {"id":"06-recursos","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Recursos","wait":1500},{"scroll":360}]},
+ {"id":"07-recursos-fim","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Recursos","wait":1500},{"scroll":"end"}]},
+ {"id":"08-reportar","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Recursos","wait":1500},{"click":"Reportar problema em Wingspan Organizer","wait":800}]},
+ {"id":"09-sugerir","route":"/games/resources/form?gameId={{game:Wingspan}}&gameName=Wingspan"},
+ {"id":"10-texto-grande","route":"/games/details/{{game:Wingspan}}","fontScale":1.3,"steps":[{"click":"Como jogar","wait":1500}]},
+ {"id":"11-jogo-sem-recursos","route":"/games/details/{{game:Meeple Teste Competitivo}}","steps":[{"click":"Recursos","wait":1500}]}
+]}

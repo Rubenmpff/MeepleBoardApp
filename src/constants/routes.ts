@@ -29,6 +29,11 @@ export const ROUTES = {
 
   MATCH_JOURNAL: "/games/matches/[id]/journal",
 
+  // ── Recursos dos jogos
+  RESOURCE_FORM: "/games/resources/form",
+
+  RESOURCE_ADMIN: "/games/resources/admin",
+
   // ── Campanhas
   CAMPAIGNS: "/(app)/games/campaigns",
 

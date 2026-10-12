@@ -67,7 +67,6 @@
     "matches_other": "{{count}} partidas",
     "minutesShort": "{{count}} min",
     "weight": "peso {{value}}",
-    "yourRatingValue": "A tua nota ★ {{value}}",
     "cooperativeMode": "Cooperativo",
     "soloMode": "Solo",
     "manageLibrary": "Gerir na biblioteca: {{status}}",
@@ -80,7 +79,34 @@
     "campaignsEmptyShort": "Ainda não tens campanhas deste jogo.",
     "readMore": "Ler mais",
     "readLess": "Ler menos",
-    "showAllCampaigns": "Ver as {{count}} campanhas"
+    "showAllCampaigns": "Ver as {{count}} campanhas",
+    "areas": {
+      "about": "Sobre",
+      "howToPlay": "Como jogar",
+      "resources": "Recursos"
+    },
+    "ratings": {
+      "title": "Avaliações",
+      "bgg": "Avaliação BGG",
+      "bggVotes_one": "{{count}} avaliação",
+      "bggVotes_other": "{{count}} avaliações",
+      "bggRank": "posição {{rank}}",
+      "bggSource": "BoardGameGeek",
+      "bggNone": "Sem avaliação no BoardGameGeek",
+      "meepleBoard": "Avaliação MeepleBoard",
+      "meepleBoardHint": "Média das avaliações dos jogadores no MeepleBoard",
+      "meepleBoardNone": "Ainda sem avaliações no MeepleBoard",
+      "personal": "A tua avaliação",
+      "personalHint": "Média das tuas avaliações nas partidas",
+      "personalNone": "Ainda não avaliaste este jogo",
+      "scale": "Todas de 0 a 10."
+    },
+    "bgg": {
+      "source": "Ficha do BoardGameGeek",
+      "open": "Abrir a página do jogo no BoardGameGeek",
+      "hint": "Abre o site original"
+    },
+    "descriptionSource": "Texto original do BoardGameGeek, sem tradução."
   },
   "ui": {
     "searchTitle": "Pesquisar jogos",
@@ -142,5 +168,147 @@
     "emptyMine": "Ainda não avaliaste nenhum jogo. Avalia uma partida no diário!",
     "loadError": "Não foi possível carregar os rankings.",
     "yourRating": "A tua média ★ {{value}}"
+  },
+  "resources": {
+    "loading": "A carregar recursos…",
+    "loadError": "Não foi possível carregar os recursos.",
+    "close": "Fechar",
+    "cancel": "Cancelar",
+    "send": "Enviar",
+    "language": {
+      "title": "Idioma dos recursos",
+      "all": "Todos",
+      "hint": "Independente do idioma da app."
+    },
+    "languages": {
+      "pt": "Português",
+      "en": "Inglês",
+      "es": "Espanhol",
+      "fr": "Francês",
+      "de": "Alemão",
+      "it": "Italiano",
+      "nl": "Neerlandês",
+      "none": "Sem idioma"
+    },
+    "kinds": {
+      "Rules": "Regras oficiais",
+      "HowToPlay": "Vídeos de explicação",
+      "Playthrough": "Partidas completas",
+      "PrintModel": "Modelos para impressão 3D",
+      "Unboxing": "Unboxings",
+      "Material": "Materiais adicionais"
+    },
+    "categories": {
+      "Organizer": "Organizadores e inserts",
+      "Accessory": "Acessórios",
+      "ReplacementPart": "Peças de substituição",
+      "Decorative": "Melhorias decorativas"
+    },
+    "categoriesEmpty": "Ainda sem: {{list}}.",
+    "official": "Da editora",
+    "free": "Gratuito",
+    "paid": "Pago",
+    "fits": "Compatível: {{value}}",
+    "opens": "Abre em {{platform}}, fora da app",
+    "reportFor": "Reportar problema em {{title}}",
+    "noneIn": "Nada em {{language}}.",
+    "noneYet": "Ainda não há nenhum para este jogo.",
+    "seeIn_one": "Ver em {{language}} ({{count}})",
+    "seeIn_other": "Ver em {{language}} ({{count}})",
+    "seeAll": "Ver todos os idiomas",
+    "areaEmpty": {
+      "howToPlay": "Ainda sem regras nem vídeos",
+      "resources": "Ainda sem recursos"
+    },
+    "areaEmptyHint": "Ainda ninguém sugeriu recursos para este jogo. Conheces um bom? Sugere-o.",
+    "suggest": "Sugerir recurso",
+    "suggestHint": "Fica pendente até ser aprovado.",
+    "manage": "Gerir recursos",
+    "externalNote": "São links para as páginas originais; o MeepleBoard não aloja ficheiros de terceiros.",
+    "reportTitle": "Reportar problema",
+    "reasons": {
+      "BrokenLink": "O link não funciona",
+      "WrongGame": "É de outro jogo",
+      "WrongLanguage": "O idioma está errado",
+      "Incompatible": "Não é compatível com esta edição",
+      "Other": "Outro problema"
+    },
+    "comment": "Detalhes (opcional)",
+    "commentRequired": "Descreve o problema",
+    "reported": "Obrigado. Vamos verificar este recurso.",
+    "reportError": "Não foi possível enviar.",
+    "form": {
+      "titleSuggest": "Sugerir recurso",
+      "titleCreate": "Novo recurso",
+      "titleEdit": "Editar recurso",
+      "pendingNote": "A sugestão fica pendente até um administrador a aprovar.",
+      "kind": "Tipo",
+      "category": "Categoria",
+      "categoryRequired": "Escolhe a categoria do modelo.",
+      "language": "Idioma",
+      "details": "Detalhes",
+      "title": "Título",
+      "url": "Endereço",
+      "urlHint": "Página original (editora, vídeo ou modelo), começada por https://",
+      "platform": "Plataforma",
+      "platformHint": "Por exemplo: YouTube, Printables, site da editora",
+      "author": "Autor",
+      "compatibility": "Edição ou expansões compatíveis",
+      "compatibilityHint": "Só se souberes",
+      "more": "Mais informação",
+      "official": "Disponibilizado pela editora",
+      "price": "Preço",
+      "prices": {
+        "unknown": "Não confirmado",
+        "free": "Gratuito",
+        "paid": "Pago"
+      },
+      "priceHint": "Indica gratuito ou pago só quando tiveres a certeza.",
+      "required": "Preenche o título, a plataforma e um endereço https.",
+      "submit": "Enviar sugestão",
+      "save": "Guardar",
+      "sent": "Obrigado! A sugestão fica pendente de aprovação.",
+      "saved": "Recurso guardado.",
+      "error": "Não foi possível guardar."
+    },
+    "admin": {
+      "title": "Gerir recursos",
+      "tabs": {
+        "Pending": "Pendentes",
+        "Approved": "Aprovados",
+        "Rejected": "Rejeitados",
+        "Reports": "Relatos"
+      },
+      "empty": {
+        "Pending": "Sem sugestões pendentes",
+        "Approved": "Sem recursos aprovados",
+        "Rejected": "Sem recursos rejeitados",
+        "Reports": "Sem relatos por resolver"
+      },
+      "emptyHint": "Puxa para atualizar.",
+      "add": "Adicionar recurso",
+      "approve": "Aprovar",
+      "reject": "Rejeitar",
+      "hide": "Retirar",
+      "edit": "Editar",
+      "remove": "Remover",
+      "openLink": "Abrir link",
+      "confirm": "Confirmar",
+      "removeConfirm": "Remover «{{title}}»? Deixa de aparecer e os relatos associados são apagados.",
+      "rejectNote": "Motivo (opcional)",
+      "rejectHint": "Fica guardado na revisão; o recurso deixa de ser público.",
+      "suggestedBy": "Sugerido por {{name}} a {{date}}",
+      "addedOn": "Adicionado a {{date}}",
+      "note": "Nota: {{note}}",
+      "openReports_one": "{{count}} relato por resolver",
+      "openReports_other": "{{count}} relatos por resolver",
+      "reportedBy": "{{name}} · {{reason}} · {{date}}",
+      "resolve": "Marcar como resolvido",
+      "error": "Não foi possível concluir."
+    },
+    "areaElsewhere": {
+      "howToPlay": "Há regras e vídeos noutros idiomas:",
+      "resources": "Há recursos noutros idiomas:"
+    }
   }
 }

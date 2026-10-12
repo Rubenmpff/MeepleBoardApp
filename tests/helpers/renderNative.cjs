@@ -100,6 +100,8 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     useRegisterMatch: () => ({ loading: !!options.saving, error: options.error,
       submitMatch: async payload => { calls.push(['submitMatch', payload]); return options.createdMatch || null; } }),
     useGameSessions: () => ({ error: options.createSessionError, createSession: async payload => { calls.push(['createSession', payload]); return options.createdSession || null; } }),
+    useResourceLanguage: () => ({ language: options.resourceLanguage || 'pt', appLanguage: 'pt', loaded: true, setLanguage: value => calls.push(['resourceLanguage', value]) }),
+    useGameResources: (gameId, language, enabled) => { if (enabled) calls.push(['gameResources', gameId, language]); return { data: options.resources || null, loading: false, error: !!options.resourcesError, reload: async () => calls.push(['reloadResources']) }; },
   };
   function load(filename) {
     if (cache.has(filename)) return cache.get(filename).exports;

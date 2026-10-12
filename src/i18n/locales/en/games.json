@@ -67,7 +67,6 @@
     "matches_other": "{{count}} matches",
     "minutesShort": "{{count}} min",
     "weight": "weight {{value}}",
-    "yourRatingValue": "Your rating ★ {{value}}",
     "cooperativeMode": "Cooperative",
     "soloMode": "Solo",
     "manageLibrary": "Manage in library: {{status}}",
@@ -80,7 +79,34 @@
     "campaignsEmptyShort": "You have no campaigns for this game yet.",
     "readMore": "Read more",
     "readLess": "Read less",
-    "showAllCampaigns": "View all {{count}} campaigns"
+    "showAllCampaigns": "View all {{count}} campaigns",
+    "areas": {
+      "about": "About",
+      "howToPlay": "How to play",
+      "resources": "Resources"
+    },
+    "ratings": {
+      "title": "Ratings",
+      "bgg": "BGG rating",
+      "bggVotes_one": "{{count}} rating",
+      "bggVotes_other": "{{count}} ratings",
+      "bggRank": "rank {{rank}}",
+      "bggSource": "BoardGameGeek",
+      "bggNone": "No BoardGameGeek rating",
+      "meepleBoard": "MeepleBoard rating",
+      "meepleBoardHint": "Average of players' ratings on MeepleBoard",
+      "meepleBoardNone": "No MeepleBoard ratings yet",
+      "personal": "Your rating",
+      "personalHint": "Average of your match ratings",
+      "personalNone": "You have not rated this game yet",
+      "scale": "All from 0 to 10."
+    },
+    "bgg": {
+      "source": "BoardGameGeek entry",
+      "open": "Open the game page on BoardGameGeek",
+      "hint": "Opens the original site"
+    },
+    "descriptionSource": "Original BoardGameGeek text, not translated."
   },
   "ui": {
     "searchTitle": "Search games",
@@ -142,5 +168,147 @@
     "emptyMine": "You have not rated any games yet. Review a match in the journal!",
     "loadError": "Unable to load the rankings.",
     "yourRating": "Your average ★ {{value}}"
+  },
+  "resources": {
+    "loading": "Loading resources…",
+    "loadError": "Resources could not be loaded.",
+    "close": "Close",
+    "cancel": "Cancel",
+    "send": "Send",
+    "language": {
+      "title": "Resource language",
+      "all": "All",
+      "hint": "Separate from the app language."
+    },
+    "languages": {
+      "pt": "Portuguese",
+      "en": "English",
+      "es": "Spanish",
+      "fr": "French",
+      "de": "German",
+      "it": "Italian",
+      "nl": "Dutch",
+      "none": "No language"
+    },
+    "kinds": {
+      "Rules": "Official rules",
+      "HowToPlay": "How-to-play videos",
+      "Playthrough": "Full playthroughs",
+      "PrintModel": "3D printing models",
+      "Unboxing": "Unboxings",
+      "Material": "Other material"
+    },
+    "categories": {
+      "Organizer": "Organisers and inserts",
+      "Accessory": "Accessories",
+      "ReplacementPart": "Replacement parts",
+      "Decorative": "Decorative upgrades"
+    },
+    "categoriesEmpty": "Nothing yet: {{list}}.",
+    "official": "From the publisher",
+    "free": "Free",
+    "paid": "Paid",
+    "fits": "Fits: {{value}}",
+    "opens": "Opens on {{platform}}, outside the app",
+    "reportFor": "Report a problem with {{title}}",
+    "noneIn": "Nothing in {{language}}.",
+    "noneYet": "None for this game yet.",
+    "seeIn_one": "See in {{language}} ({{count}})",
+    "seeIn_other": "See in {{language}} ({{count}})",
+    "seeAll": "See all languages",
+    "areaEmpty": {
+      "howToPlay": "No rules or videos yet",
+      "resources": "No resources yet"
+    },
+    "areaEmptyHint": "Nobody has suggested resources for this game yet. Know a good one? Suggest it.",
+    "suggest": "Suggest a resource",
+    "suggestHint": "It stays pending until approved.",
+    "manage": "Manage resources",
+    "externalNote": "These are links to the original pages; MeepleBoard does not host third-party files.",
+    "reportTitle": "Report a problem",
+    "reasons": {
+      "BrokenLink": "The link does not work",
+      "WrongGame": "It is for another game",
+      "WrongLanguage": "The language is wrong",
+      "Incompatible": "It does not fit this edition",
+      "Other": "Another problem"
+    },
+    "comment": "Details (optional)",
+    "commentRequired": "Describe the problem",
+    "reported": "Thank you. We will check this resource.",
+    "reportError": "Could not send.",
+    "form": {
+      "titleSuggest": "Suggest a resource",
+      "titleCreate": "New resource",
+      "titleEdit": "Edit resource",
+      "pendingNote": "The suggestion stays pending until an administrator approves it.",
+      "kind": "Type",
+      "category": "Category",
+      "categoryRequired": "Choose the model category.",
+      "language": "Language",
+      "details": "Details",
+      "title": "Title",
+      "url": "Address",
+      "urlHint": "Original page (publisher, video or model), starting with https://",
+      "platform": "Platform",
+      "platformHint": "For example: YouTube, Printables, publisher site",
+      "author": "Author",
+      "compatibility": "Compatible edition or expansions",
+      "compatibilityHint": "Only if you know",
+      "more": "More information",
+      "official": "Provided by the publisher",
+      "price": "Price",
+      "prices": {
+        "unknown": "Not confirmed",
+        "free": "Free",
+        "paid": "Paid"
+      },
+      "priceHint": "Mark free or paid only when you are sure.",
+      "required": "Fill in the title, the platform and an https address.",
+      "submit": "Send suggestion",
+      "save": "Save",
+      "sent": "Thank you! The suggestion is pending approval.",
+      "saved": "Resource saved.",
+      "error": "Could not save."
+    },
+    "admin": {
+      "title": "Manage resources",
+      "tabs": {
+        "Pending": "Pending",
+        "Approved": "Approved",
+        "Rejected": "Rejected",
+        "Reports": "Reports"
+      },
+      "empty": {
+        "Pending": "No pending suggestions",
+        "Approved": "No approved resources",
+        "Rejected": "No rejected resources",
+        "Reports": "No open reports"
+      },
+      "emptyHint": "Pull to refresh.",
+      "add": "Add resource",
+      "approve": "Approve",
+      "reject": "Reject",
+      "hide": "Withdraw",
+      "edit": "Edit",
+      "remove": "Remove",
+      "openLink": "Open link",
+      "confirm": "Confirm",
+      "removeConfirm": "Remove “{{title}}”? It stops showing and its reports are deleted.",
+      "rejectNote": "Reason (optional)",
+      "rejectHint": "Kept in the review; the resource stops being public.",
+      "suggestedBy": "Suggested by {{name}} on {{date}}",
+      "addedOn": "Added on {{date}}",
+      "note": "Note: {{note}}",
+      "openReports_one": "{{count}} open report",
+      "openReports_other": "{{count}} open reports",
+      "reportedBy": "{{name}} · {{reason}} · {{date}}",
+      "resolve": "Mark as resolved",
+      "error": "Could not complete."
+    },
+    "areaElsewhere": {
+      "howToPlay": "There are rules and videos in other languages:",
+      "resources": "There are resources in other languages:"
+    }
   }
 }
