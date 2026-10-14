@@ -170,6 +170,26 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 .sheethead{display:flex;align-items:center;min-height:44px}
 .new{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:1px 6px;border-radius:6px;background:var(--gold-soft);color:var(--gold-ink);border:1px solid var(--gold-line);vertical-align:middle}
 .ideas{border-color:var(--gold-line)}
+/* scope additions */
+.facts.three{grid-template-columns:repeat(3,1fr)}
+.srcline{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 16px 0;font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut);text-align:center}
+.plan{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;margin:4px 16px 0;color:var(--pri);font-weight:600;font-size:calc(15px*var(--s))}
+.xt{width:40px;height:40px;border-radius:10px;background:#EEE6F8;display:flex;align-items:center;justify-content:center;color:var(--lav);flex:none}
+.xt.img{background:#fff;box-shadow:inset 0 0 0 1px var(--line)}.xt img{width:34px;height:34px;object-fit:contain}
+.nav{position:absolute;top:0;left:0;right:0;z-index:12;background:var(--bg);padding-top:54px}
+.nav .row{height:44px;display:grid;grid-template-columns:96px 1fr 96px;align-items:center;padding:0 8px}
+.nav .ttl{text-align:center;font-weight:600;font-size:calc(17px*var(--s))}
+.form{padding:108px 16px 120px;display:flex;flex-direction:column;gap:16px}
+.ctitle{display:flex;align-items:center;gap:8px;font-weight:700;font-size:calc(16px*var(--s));padding:14px 16px 4px}
+.fld{padding:8px 16px 12px;display:flex;flex-direction:column;gap:6px}
+.fld label{font-size:calc(13px*var(--s));font-weight:600;color:var(--mut)}
+.input{min-height:46px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);font-size:calc(15px*var(--s));line-height:calc(20px*var(--s))}
+.input.ph{color:#8C9096}
+.gpick{display:flex;align-items:center;gap:12px;min-height:58px;border:1px solid var(--line);border-radius:12px;padding:8px 10px 8px 8px;background:var(--bg)}
+.gpick.none{border-style:dashed;color:var(--pri);font-weight:600;padding-left:14px}
+.search{display:flex;align-items:center;gap:8px;min-height:40px;border-radius:11px;background:var(--track);padding:0 12px;color:var(--mut);margin-bottom:12px}
+.radio{color:var(--pri)}.radio.off{color:#B9B3C0}
+.lbl{font-size:calc(12px*var(--s));letter-spacing:.4px;text-transform:uppercase;font-weight:700;color:var(--mut);padding:14px 4px 6px}
 </style>
 </head>
 <body>
@@ -182,9 +202,9 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 
 <nav class="grid" aria-label="Resumo">
  <div class="box"><h3>Organização recomendada</h3><ul>
-  <li><b>Topo:</b> capa com as proporções originais, nome, ano, as avaliações BGG e MeepleBoard lado a lado, a ficha e as duas ações.</li>
+  <li><b>Topo:</b> capa com as proporções originais, nome, ano, as avaliações BGG e MeepleBoard lado a lado, a ficha com a origem BGG, as duas ações e «Combinar sessão».</li>
   <li><b>Três separadores</b> que ficam fixos ao percorrer a página: <b>Sobre</b>, <b>Como jogar</b> e <b>Recursos</b>.</li>
-  <li><b>Sobre:</b> descrição com «Ler mais», «A tua experiência», amigos que o têm e expansões.</li>
+  <li><b>Sobre:</b> descrição com «Ler mais», «A tua experiência» (com Companhia neste jogo), amigos que o têm e expansões com o teu estado na biblioteca.</li>
  </ul></div>
  <div class="box"><h3>Origem dos dados</h3><ul>
   <li><b>BGG (Wingspan):</b> 8,0, 116 mil avaliações, posição 38, 1–5 jogadores, 40–70 min, 10+ anos, peso 2,48/5 e o início da descrição, tal como aparecem nas capturas do BGG de 14/10/2026.</li>
@@ -199,16 +219,24 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 <section class="block" id="recursos"><h2>Recursos</h2><p class="muted">Os modelos 3D aparecem numa grelha visual. Categorias sem conteúdo não aparecem; o que falta fica numa só linha. «Reportar problema» está no menu «…» de cada recurso.</p><div class="strip" id="s-recursos"></div></section>
 <section class="block" id="vazio"><h2>Estados vazios, nomes longos e texto ampliado</h2><p class="muted">Sem capa, sem avaliações ou sem recursos, a página encolhe: cada falta é uma linha discreta, sem cartões vazios nem traços. Os jogos sem dados e de nome longo são fictícios.</p><div class="strip" id="s-vazio"></div></section>
 <section class="block" id="en"><h2>English</h2><div class="strip" id="s-en"></div></section>
-<section class="block" id="ideias"><h2>Ligar a página aos fluxos <span class="tag new">propostas</span></h2><p class="muted">Ideias para avaliar depois de aprovada a direção; não fazem parte da implementação seguinte sem acordo. O ecrã mostra como as duas primeiras apareceriam.</p>
+<section class="block" id="ambito"><h2>Âmbito da implementação <span class="tag ok">decidido</span></h2><p class="muted">Os quatro elementos escolhidos já aparecem nos ecrãs acima: «Ficha do BoardGameGeek» sob a ficha, «Combinar sessão» sob as ações, «Companhia neste jogo» em «A tua experiência» e a lista de expansões com o estado na biblioteca. Estes ecrãs mostram o resto: ficha incompleta e o percurso da sessão com jogo.</p>
+<div class="strip" id="s-ambito"></div>
+<div class="tablewrap"><table class="map">
+<tr><th>Elemento</th><th>O que já existe</th><th>O que é novo</th></tr>
+<tr><td><b>Duração e idade</b></td><td>Jogadores e complexidade, importados do BGG</td><td>Campos novos no modelo (migração) e na importação BGG. O BGG usa 0 para «sem dado»: nesse caso o campo fica vazio e o bloco não aparece. Duração mín. = máx. mostra um só valor. A linha «Ficha do BoardGameGeek» identifica a origem e abre a ficha</td></tr>
+<tr><td><b>Expansões e biblioteca</b></td><td>Relação jogo base ↔ expansões no catálogo; estados da biblioteca</td><td>Lista das expansões do catálogo com o teu estado («Tenho» e outros), «Tens n de m» no título; cada uma abre a sua página. Só expansões que existam no catálogo MeepleBoard</td></tr>
+<tr><td><b>Companhia neste jogo</b></td><td>Companhia aceita o jogo na rota (<code>gameId</code>)</td><td>Ligação da página. Companhia não tem período «sempre»: proposta de abrir com um período personalizado desde a tua 1.ª partida do jogo até hoje, para coincidir com «A tua experiência». Só aparece quando há partidas</td></tr>
+<tr><td><b>Combinar sessão</b></td><td>Criar sessão, convidar, fim automático. Depois de criada, só a hora de fim se altera</td><td>Jogo opcional na sessão (API, migração, DTO). Campo «Jogo» no formulário, pré-preenchido a partir da página e alterável; «Sem jogo definido» continua válido. Na sessão, o organizador altera ou remove o jogo enquanto a sessão estiver aberta (endpoint novo); os convidados só veem. Sessões existentes ficam sem jogo</td></tr>
+</table></div>
+<p class="muted" style="margin-top:12px">Por decidir: quando a sessão tem jogo, «Registar partida» a partir da sessão pode abrir já com esse jogo (alterável). Fica fora do âmbito se não o aprovares.</p>
+</section>
+
+<section class="block" id="ideias"><h2>Propostas futuras <span class="tag new">fora desta ronda</span></h2><p class="muted">Ficam registadas para avaliar mais tarde; não entram na implementação seguinte.</p>
 <div class="strip" id="s-ideias"></div>
 <div class="tablewrap"><table class="map">
-<tr><th>Melhoria</th><th>O que já existe</th><th>O que é novo</th></tr>
-<tr><td><b>Combinar sessão com este jogo</b></td><td>Criar sessão, convidar amigos, fim automático</td><td>Abrir a criação a partir da página com o jogo indicado. A sessão não guarda jogo: pré-preencher o nome é simples; ligar a sessão ao jogo exige API</td></tr>
-<tr><td><b>Bom para o vosso grupo?</b></td><td>Mín./máx. de jogadores, peso, amigos que o têm</td><td>Duração e idade (importar do BGG), «melhor com N» (votação BGG), escolher o grupo</td></tr>
-<tr><td><b>Quem o pode trazer</b></td><td>Amigos com «Tenho» e biblioteca visível</td><td>Atalho «Convidar» a partir da lista de amigos</td></tr>
-<tr><td><b>Vocês neste jogo</b></td><td>Estatísticas de Companhia com filtro de jogo</td><td>Ligação da página para Companhia já filtrada</td></tr>
-<tr><td><b>Expansões</b></td><td>Relação jogo base ↔ expansões no catálogo</td><td>Mostrar as expansões e quais tens na biblioteca</td></tr>
-<tr><td><b>Ficha completa</b></td><td>Jogadores e peso</td><td>Duração e idade não existem no modelo: importação BGG e migração</td></tr>
+<tr><th>Proposta</th><th>O que já existe</th><th>O que seria novo</th></tr>
+<tr><td><b>Bom para o vosso grupo?</b></td><td>Mín./máx. de jogadores, complexidade, amigos que o têm; duração e idade com esta ronda</td><td>«Melhor com N» (votação BGG), escolher o grupo</td></tr>
+<tr><td><b>Convidar a partir dos amigos</b></td><td>Amigos com «Tenho» e biblioteca visível</td><td>Atalho «Convidar» na lista de amigos, ligado a «Combinar sessão»</td></tr>
 </table></div>
 </section>
 
@@ -225,7 +253,7 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 </div>
 
 <script>
-const G={"chevron-left":983361,"chevron-right":983362,"chevron-down":983360,"plus":984085,"bookshelf":987743,"check-circle":984544,"account-group":985161,"clock-outline":983376,"human-male-child":988044,"weight":984481,"open-in-new":984012,"star":984270,"star-outline":984274,"book-open-variant":988407,"play":984074,"printer-3d":984107,"dots-horizontal":983512,"flag-outline":983613,"calendar-plus":983283,"translate":984522,"package-variant":984022,"trophy-outline":984378,"notebook-outline":986815,"dice-5":983502,"cards-outline":984633,"account-heart-outline":986083,"information-outline":983805,"layers-outline":985598,"share-variant":984215,"check":983340,"lightbulb-outline":983862,"calendar-star":985555,"heart-outline":983765,"file-document-outline":985582,"play-circle-outline":984077,"flag-checkered":983612,"timer-sand":984351,"puzzle-outline":985702,"account-check-outline":986082,"chart-timeline-variant":986771};
+const G={"chevron-left":983361,"chevron-right":983362,"chevron-down":983360,"plus":984085,"bookshelf":987743,"check-circle":984544,"account-group":985161,"clock-outline":983376,"human-male-child":988044,"weight":984481,"open-in-new":984012,"star":984270,"star-outline":984274,"book-open-variant":988407,"play":984074,"printer-3d":984107,"dots-horizontal":983512,"flag-outline":983613,"calendar-plus":983283,"translate":984522,"package-variant":984022,"trophy-outline":984378,"notebook-outline":986815,"dice-5":983502,"cards-outline":984633,"account-heart-outline":986083,"information-outline":983805,"layers-outline":985598,"share-variant":984215,"check":983340,"lightbulb-outline":983862,"calendar-star":985555,"heart-outline":983765,"file-document-outline":985582,"play-circle-outline":984077,"flag-checkered":983612,"timer-sand":984351,"puzzle-outline":985702,"account-check-outline":986082,"chart-timeline-variant":986771,"magnify":983881,"close":983382,"calendar-outline":985959,"map-marker-outline":985049,"account-multiple-outline":983055,"radiobox-marked":984126,"radiobox-blank":984125,"circle-off-outline":987347,"pencil-outline":986294};
 const ic=(n,s=20,c='currentColor')=>`<span class="mdi" style="--sz:${s}px;color:${c}" aria-hidden="true">${String.fromCodePoint(G[n]||63)}</span>`;
 const COVER='https://stonemaiergames.com/wp-content/uploads/2026/04/3d-wingspan.webp';
 const YT=id=>`https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
@@ -248,7 +276,11 @@ pt:{back:'Voltar',year:'2019 · Jogo base',bgg:'BGG',mb:'MeepleBoard',of:'/10',b
  models:'Modelos 3D',org:'Organizadores',acc:'Acessórios',rep:'Peças de substituição',free:'Gratuito',fits:'Também European e Oceania',noneRes:'Ainda sem unboxings nem materiais adicionais.',
  nothingPt:'Nada em Português.',seeEn:'Ver em Inglês (4)',open:'Abrir em Printables',report:'Reportar problema',close:'Fechar',
  emptyExp:'Ainda não jogaste. Regista a primeira partida e avalia-a no diário.',emptyFriends:'Nenhum amigo tem este jogo.',emptyLearn:'Ainda sem regras nem vídeos para este jogo.',emptyRes:'Ainda sem modelos 3D nem outros recursos.',
- group:'Bom para o vosso grupo?',groupBody:'Teste-membro, Teste-participante e tu: 3 jogadores · cabe em 1–5 · complexidade média.',session:'Combinar sessão',sessionBody:'Com Wingspan indicado; convidar quem o tem.'},
+ group:'Bom para o vosso grupo?',groupBody:'Teste-membro, Teste-participante e tu: 3 jogadores · cabe em 1–5 · complexidade média.',session:'Combinar sessão',sessionBody:'Com Wingspan indicado; convidar quem o tem.',
+ factsSrc:'Ficha do BoardGameGeek',company:'Companhia neste jogo',companyHint:'Com quem jogaste Wingspan, desde a 1.ª partida',expOwned:'Tens 1 de 2',
+ createTitle:'Criar Sessão',cancel:'Cancelar',intro:'Combina a próxima sessão à mesa.',aboutS:'Sobre a sessão',gameF:'Jogo (opcional)',change:'Alterar',fromPage:'Escolhido na página do jogo',nameF:'Nome *',nameHint:'Ex: Noite de Wingspan',locF:'Local (opcional)',locHint:'Ex: Casa do Ruben, LeiriaCon...',when:'Quando',date:'Data',time:'Hora',who:'Quem vem',
+ pickTitle:'Jogo da sessão',done:'Concluir',searchCat:'Pesquisar no catálogo',noGame:'Sem jogo definido',noGameHint:'Decidem à mesa',fromLib:'Da tua biblioteca',chooseGame:'Escolher jogo',
+ sessions:'Sessões',upcoming:'Próximas',gameRow:'Jogo',undecided:'Jogo por definir'},
 en:{back:'Back',year:'2019 · Base game',bgg:'BGG',mb:'MeepleBoard',of:'/10',bggVotes:'116K ratings · #38',mbHint:'average of matches',noRatings:'No ratings yet',
  players:'players',minutes:'minutes',age:'age',weight:'weight',record:'Record match',addLib:'Library',owned:'Owned',tabs:['About','How to play','Resources'],
  desc:'Description',readMore:'Read more',bggText:'Original BoardGameGeek text, not translated',bggEntry:'BoardGameGeek entry',
@@ -261,26 +293,30 @@ en:{back:'Back',year:'2019 · Base game',bgg:'BGG',mb:'MeepleBoard',of:'/10',bgg
  models:'3D models',org:'Organisers',acc:'Accessories',rep:'Replacement parts',free:'Free',fits:'Also European and Oceania',noneRes:'No unboxings or extra material yet.',
  nothingPt:'Nothing in Portuguese.',seeEn:'See in English (4)',open:'Open in Printables',report:'Report a problem',close:'Close',
  emptyExp:'You have not played yet. Record your first match and rate it in its journal.',emptyFriends:'None of your friends owns this game.',emptyLearn:'No rules or videos for this game yet.',emptyRes:'No 3D models or other resources yet.',
- group:'Right for your group?',groupBody:'',session:'Plan a session',sessionBody:''}};
+ group:'Right for your group?',groupBody:'',session:'Plan a session',sessionBody:'',
+ factsSrc:'Details from BoardGameGeek',company:'Company in this game',companyHint:'Who you have played Wingspan with, since your 1st match',expOwned:'You own 1 of 2',
+ createTitle:'Create session',cancel:'Cancel',intro:'Bring everyone together around the table.',aboutS:'About the session',gameF:'Game (optional)',change:'Change',fromPage:'Chosen on the game page',nameF:'Name *',nameHint:'e.g. Wingspan night',locF:'Location (optional)',locHint:'e.g. Home, a game convention…',when:'When',date:'Date',time:'Time',who:'Who\'s coming',
+ pickTitle:'Session game',done:'Done',searchCat:'Search the catalogue',noGame:'No game set',noGameHint:'Decide at the table',fromLib:'From your library',chooseGame:'Choose game',
+ sessions:'Sessions',upcoming:'Upcoming',gameRow:'Game',undecided:'Game to be decided'}};
 
 const FR=['amiga-colecionadora','amiga-meeples','amiga-tabuleiro','amigo-com-um-nome-de-utilizador-bastante-comprido','amigo-dados'].map(n=>'Teste-'+n);
 
 function hero(t,o){
- const L=o.large;
- const cover=o.empty?`<div class="cover ph">${ic('dice-5',58)}</div>`:`<div class="cover"><img src="${COVER}" alt=""></div>`;
- const bgg=o.empty?'':`<div class="score"><div class="who"><span class="dot" style="background:#30283D"></span>${t.bgg} ${ic('open-in-new',12,'var(--mut)')}</div><div class="val"><b>8,0</b><i>${t.of}</i></div><div class="t-micro">${t.bggVotes}</div></div>`;
- const mb=o.empty?'':`<div class="score"><div class="who"><span class="dot" style="background:var(--pri)"></span>${t.mb}</div><div class="val"><b>7,4</b><i>${t.of}</i></div><div class="t-micro">${t.mbHint}</div></div>`;
- const scores=o.empty?`<div class="quiet" style="justify-content:center;margin-top:12px">${ic('star-outline',18)}${t.noRatings}</div>`:`<div class="scores${L?' col':''}">${bgg}${mb}</div>`;
+ const L=o.large,E=o.empty||o.noScores;
+ const cover=E?`<div class="cover ph">${ic('dice-5',58)}</div>`:`<div class="cover"><img src="${COVER}" alt=""></div>`;
+ const bgg=E?'':`<div class="score"><div class="who"><span class="dot" style="background:#30283D"></span>${t.bgg} ${ic('open-in-new',12,'var(--mut)')}</div><div class="val"><b>8,0</b><i>${t.of}</i></div><div class="t-micro">${t.bggVotes}</div></div>`;
+ const mb=E?'':`<div class="score"><div class="who"><span class="dot" style="background:var(--pri)"></span>${t.mb}</div><div class="val"><b>7,4</b><i>${t.of}</i></div><div class="t-micro">${t.mbHint}</div></div>`;
+ const scores=E?`<div class="quiet" style="justify-content:center;margin-top:12px">${ic('star-outline',18)}${t.noRatings}</div>`:`<div class="scores${L?' col':''}">${bgg}${mb}</div>`;
  return `<div class="hero"><div class="glow"></div>${cover}<h2>${o.name||'Wingspan'}</h2><div class="t-cap sub">${o.sub||t.year}</div>${scores}</div>`;
 }
 function facts(t,o){
- const f=o.empty?[['1–4',t.players,'account-group']]:[['1–5',t.players,'account-group'],['40–70',t.minutes,'clock-outline'],['10+',t.age,'human-male-child'],['2,5/5',t.weight,'puzzle-outline']];
+ const f=o.partial?[['2–4',t.players,'account-group'],['30',t.minutes,'clock-outline'],['2,1/5',t.weight,'puzzle-outline']]:[['1–5',t.players,'account-group'],['40–70',t.minutes,'clock-outline'],['10+',t.age,'human-male-child'],['2,5/5',t.weight,'puzzle-outline']];
  if(o.empty) return `<div class="quiet" style="margin:0 18px">${ic('account-group',18)}<span><b style="color:var(--ink)">1–4</b> ${t.players} · Solo</span></div>`;
- return `<div class="facts${o.large?' col':''}">${f.map(([v,k,i])=>`<div class="fact">${ic(i,18,'var(--lav)')}<span class="v">${v}</span><span class="k">${k}</span></div>`).join('')}</div>`;
+ return `<div class="facts${o.large?' col':o.partial?' three':''}">${f.map(([v,k,i])=>`<div class="fact">${ic(i,18,'var(--lav)')}<span class="v">${v}</span><span class="k">${k}</span></div>`).join('')}</div><div class="srcline">${ic('information-outline',14)}<span>${t.factsSrc}</span></div>`;
 }
 function actions(t,o){
  const lib=o.owned?`<div class="btn sec">${ic('check-circle',18)}${t.owned}${ic('chevron-down',18)}</div>`:`<div class="btn sec">${ic('bookshelf',18)}${t.addLib}</div>`;
- return `<div class="actions${o.large?' col':''}"><div class="btn pri">${ic('plus',20)}${t.record}</div>${lib}</div>`;
+ return `<div class="actions${o.large?' col':''}"><div class="btn pri">${ic('plus',20)}${t.record}</div>${lib}</div><div class="plan">${ic('calendar-plus',18)}${t.session}</div>`;
 }
 const tabs=(t,on)=>`<div class="tabs">${t.tabs.map((x,i)=>`<span class="${i===on?'on':''}">${x}</span>`).join('')}</div>`;
 const sec=(title,more,body)=>`<div class="blk"><div class="sechead"><h3>${title}</h3>${more?`<span class="more">${more}</span>`:''}</div>${body}</div>`;
@@ -299,10 +335,11 @@ function about(t,o){
   <div class="mrow"><span class="res w">1.º</span><span class="grow t-body">${t.m1}</span>${ic('chevron-right',20,'var(--chev)')}</div>
   <div class="mrow"><span class="res l">2.º</span><span class="grow t-body">${t.m2}</span>${ic('chevron-right',20,'var(--chev)')}</div>
   <div class="mrow"><span class="grow link">${t.seeMatches}</span>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="mrow">${ic('account-multiple-outline',20,'var(--friend)')}<div class="grow"><div class="t-body b">${t.company}</div><div class="t-cap">${t.companyHint}</div></div>${ic('chevron-right',20,'var(--chev)')}</div>
   <div class="mrow">${ic('flag-checkered',20,'var(--friend)')}<div class="grow"><div class="t-body b">${t.campaign}</div><div class="t-cap">${t.campaignMeta}</div></div>${ic('chevron-right',20,'var(--chev)')}</div>
   <div class="mrow">${ic('plus',20,'var(--pri)')}<span class="grow link">${t.newCampaign}</span></div></div>`);
  const fr=sec(t.friends,`${t.seeAll} (5)`,`<div class="friends">${FR.slice(0,3).map((n,i)=>`<div class="friend"><div class="av" style="background:${['#EEE6F8','#E3F0EA','#FBEFD9'][i]};color:${['#7A5AAE','#27594B','#8A6200'][i]}">${n.slice(0,1)}</div><div class="nm">${n}</div></div>`).join('')}<div class="friend more"><div class="av">+2</div><div class="nm">${t.seeAll}</div></div></div><div class="t-micro" style="padding:0 2px">${t.friendsNote}</div>`);
- const ex=sec(t.expansions,'',`<div style="display:flex;flex-wrap:wrap;gap:8px">${t.expList.map(x=>`<span class="lang" style="font-weight:500">${ic('layers-outline',16,'var(--lav)')}${x}</span>`).join('')}</div>`);
+ const ex=sec(t.expansions,t.expOwned,`<div class="card">${t.expList.map((x,i)=>`<div class="row inset"><span class="xt">${ic('layers-outline',22)}</span><div class="grow"><div class="t-body b">${x}</div><div class="t-cap">${t.expansion}</div></div>${i===0?`<span class="badge">${ic('check',12)}${t.owned}</span>`:''}${ic('chevron-right',20,'var(--chev)')}</div>`).join('')}</div>`);
  return desc+exp+fr+(o.noExp?'':ex);
 }
 function learn(t,o){
@@ -362,31 +399,74 @@ const fig=(o,b,span)=>`<figure class="shot">${phone(o)}<figcaption><b>${b}</b><s
 const put=(id,html)=>document.getElementById(id).innerHTML=html;
 
 put('s-sobre',
- fig({owned:true},'1 · Topo','Capa com as proporções originais; avaliações BGG e MeepleBoard separadas; ficha; ações à mão. Duração e idade: dados novos. MeepleBoard 7,4: fictício.')+
- fig({owned:true,scroll:560},'2 · Descrição e experiência','Descrição antes da informação pessoal. «A tua experiência» junta partidas, a tua avaliação (média das tuas partidas, com «Diário») e o que espera por ti. Valores fictícios.')+
- fig({owned:true,scroll:1180},'3 · Campanhas, amigos e expansões','Amigos com avatar, nome e perfil (contas «Teste-…» do DeviceTests), cor por pessoa; «Ver todos (5)». Expansões: exemplo com as duas expansões dos vídeos verificados; na app viria da relação jogo base ↔ expansões.'));
+ fig({owned:true},'1 · Topo','Capa com as proporções originais; avaliações BGG e MeepleBoard separadas; ficha com «Ficha do BoardGameGeek» a identificar a origem; ações à mão e «Combinar sessão» por baixo. Duração e idade: dados novos. MeepleBoard 7,4: fictício.')+
+ fig({owned:true,scroll:560},'2 · Descrição e experiência','Descrição antes da informação pessoal. «A tua experiência» junta partidas, a tua avaliação (média das tuas partidas, com «Diário»), o que espera por ti e «Companhia neste jogo». Valores fictícios.')+
+ fig({owned:true,scroll:1180},'3 · Campanhas, amigos e expansões','Amigos com avatar, nome e perfil (contas «Teste-…» do DeviceTests), cor por pessoa; «Ver todos (5)». Expansões: as duas dos vídeos verificados, com o teu estado na biblioteca («Tenho» fictício); na app vêm da relação jogo base ↔ expansões.'));
 put('s-aprender',
- fig({tab:1,owned:true,scroll:520},'Como jogar · Inglês','Regras da editora em destaque; vídeos com a miniatura real do YouTube; cada expansão no seu grupo; o que falta numa linha.')+
- fig({tab:1,owned:true,scroll:900},'Como jogar · continuação','Expansões compactas, com «…» em cada recurso.')+
- fig({tab:1,owned:true,pt:true,scroll:520},'Como jogar · Português','Sem nada em português: uma linha com «Ver em Inglês (4)», sem cartão vazio.'));
+ fig({tab:1,owned:true,scroll:565},'Como jogar · Inglês','Regras da editora em destaque; vídeos com a miniatura real do YouTube; cada expansão no seu grupo; o que falta numa linha.')+
+ fig({tab:1,owned:true,scroll:970},'Como jogar · continuação','Expansões compactas, com «…» em cada recurso.')+
+ fig({tab:1,owned:true,pt:true,scroll:565},'Como jogar · Português','Sem nada em português: uma linha com «Ver em Inglês (4)», sem cartão vazio.'));
 put('s-recursos',
- fig({tab:2,owned:true,scroll:520},'Recursos · modelos 3D','Grelha com as pré-visualizações reais da Printables; autor e preço confirmado; compatibilidade só quando acrescenta.')+
- fig({tab:2,owned:true,scroll:1010},'Recursos · expansão e ausências','Wingspan Asia agrupado; o que falta numa só linha; «Sugerir recurso».')+
- fig({tab:2,owned:true,scroll:520,sheet:true},'Menu «…»','«Abrir em Printables» e «Reportar problema» (o motivo e os detalhes seguem na mesma folha).'));
+ fig({tab:2,owned:true,scroll:565},'Recursos · modelos 3D','Grelha com as pré-visualizações reais da Printables; autor e preço confirmado; compatibilidade só quando acrescenta.')+
+ fig({tab:2,owned:true,scroll:1080},'Recursos · expansão e ausências','Wingspan Asia agrupado; o que falta numa só linha; «Sugerir recurso».')+
+ fig({tab:2,owned:true,scroll:565,sheet:true},'Menu «…»','«Abrir em Printables» e «Reportar problema» (o motivo e os detalhes seguem na mesma folha).'));
 put('s-vazio',
  fig({empty:true,name:'Jogo de teste sem dados',sub:'Fictício · jogo base'},'Sem capa nem dados','Jogo fictício: capa neutra, «Ainda sem avaliações», só a ficha que existe, ausências numa linha.')+
- fig({empty:true,tab:2,name:'Jogo de teste sem dados',sub:'Fictício · jogo base',scroll:330},'Sem recursos','Uma linha e «Sugerir recurso»; nada de cartões vazios por categoria.')+
+ fig({empty:true,tab:2,name:'Jogo de teste sem dados',sub:'Fictício · jogo base',scroll:375},'Sem recursos','Uma linha e «Sugerir recurso»; nada de cartões vazios por categoria.')+
  fig({empty:true,name:'Meeple Teste: Edição Comemorativa do Décimo Aniversário com Todas as Expansões',sub:'Jogo fictício · nome longo'},'Nome longo','O nome passa a várias linhas e empurra o resto; nada é cortado.')+
  fig({s:1.3,large:true,owned:true},'Texto ampliado · topo','Com 130 %: avaliações em coluna, ficha 2 × 2, ações em coluna.')+
- fig({s:1.3,large:true,owned:true,scroll:1050,noExp:true},'Texto ampliado · experiência','Os mesmos blocos, mais altos; nomes de amigos em duas linhas.'));
+ fig({s:1.3,large:true,owned:true,scroll:1560,noExp:true},'Texto ampliado · experiência','Os mesmos blocos, mais altos; nomes de amigos em duas linhas.'));
 put('s-en',
  fig({lang:'en',owned:true},'About · top','Same structure in English.')+
  fig({lang:'en',owned:true,scroll:560},'About · your experience','Your rating stays the average of your match ratings, with the journal.')+
- fig({lang:'en',tab:1,owned:true,scroll:520},'How to play','Base game first, expansions grouped.'));
+ fig({lang:'en',tab:1,owned:true,scroll:565},'How to play','Base game first, expansions grouped.'));
 const t=T.pt;
-put('s-ideias', fig({owned:true,scroll:300,body:`${hero(t,{})}${facts(t,{})}<div class="actions"><div class="btn pri">${ic('plus',20)}${t.record}</div><div class="btn sec">${ic('calendar-plus',18)}${t.session}</div></div><div class="body"><div class="card ideas"><div class="pad" style="display:flex;gap:12px"><span style="color:var(--friend)">${ic('account-check-outline',26)}</span><div class="grow"><div class="t-head">${t.group} <span class="new">novo</span></div><div class="t-cap" style="margin-top:4px">${t.groupBody}</div><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><span class="badge">${ic('check',12)}3 jogadores</span><span class="badge">${ic('check',12)}40–70 min</span><span class="badge n">2 amigos têm-no</span></div></div></div></div>
- <div class="card"><div class="row">${ic('calendar-plus',22,'var(--pri)')}<div class="grow"><div class="t-body b">${t.session} <span class="new">novo</span></div><div class="t-cap">${t.sessionBody}</div></div>${ic('chevron-right',20,'var(--chev)')}</div></div></div>`},
- 'Ideias · combinar e avaliar o grupo','Desenvolvimento novo, só como exemplo: «Combinar sessão» ao lado de «Registar partida» (a biblioteca passaria para o menu «…» do topo) e um cartão «Bom para o vosso grupo?».'));
+const navbar=(t,title,left,right)=>`<div class="nav"><div class="row"><span class="link">${left||''}</span><span class="ttl">${title}</span><span class="link" style="text-align:right">${right||''}</span></div></div>`;
+const coverThumb=`<span class="xt img"><img src="${COVER}" alt=""></span>`;
+function createForm(t,o){
+ const game=o.noGame?`<div class="gpick none">${ic('plus',18)}${t.chooseGame}</div>`
+  :`<div class="gpick">${coverThumb}<div class="grow"><div class="t-body b">Wingspan</div><div class="t-cap">${t.fromPage}</div></div><span class="link">${t.change}</span></div>`;
+ return `<div class="form"><div class="t-cap" style="padding:0 2px">${t.intro}</div>
+ <div class="card"><div class="ctitle">${ic('calendar-outline',20,'var(--pri)')}${t.aboutS}</div>
+  <div class="fld"><label>${t.gameF} <span class="new">novo</span></label>${game}</div>
+  <div class="fld"><label>${t.nameF}</label><div class="input ph">${t.nameHint}</div></div>
+  <div class="fld"><label>${t.locF}</label><div class="input ph">${t.locHint}</div></div></div>
+ <div class="card"><div class="ctitle">${ic('clock-outline',20,'var(--pri)')}${t.when}</div>
+  <div class="fld" style="flex-direction:row;gap:10px"><div class="input grow"><div class="t-micro">${t.date}</div>${o.lang==='en'?'Sat, 17 Oct':'sáb., 17 out.'}</div><div class="input" style="width:120px"><div class="t-micro">${t.time}</div>21:00</div></div></div>
+ <div class="card"><div class="ctitle">${ic('account-multiple-outline',20,'var(--pri)')}${t.who}</div><div class="fld"><div class="t-cap">…</div></div></div></div>`;
+}
+const formPhone=o=>{const t=T[o.lang||'pt'];return {s:o.s,lang:o.lang,body:createForm(t,o),custom:navbar(t,t.createTitle,t.cancel,'')+(o.picker?pickerSheet(t):'')};};
+function pickerSheet(t){
+ const r=(icon,title,cap,on)=>`<div class="row">${icon}<div class="grow"><div class="t-body${on?' b':''}">${title}</div>${cap?`<div class="t-cap">${cap}</div>`:''}</div><span class="radio${on?'':' off'}">${ic(on?'radiobox-marked':'radiobox-blank',22)}</span></div>`;
+ return `<div class="scrim"></div><div class="sheet" style="top:120px"><div class="grab"></div><div class="sheethead"><span class="link" style="min-width:72px">${t.cancel}</span><span class="grow t-head" style="text-align:center">${t.pickTitle}</span><span class="link" style="min-width:72px;text-align:right">${t.done}</span></div>
+ <div class="search">${ic('magnify',18)}${t.searchCat}</div>
+ <div class="card">${r(`<span class="xt">${ic('circle-off-outline',20)}</span>`,t.noGame,t.noGameHint,false)}</div>
+ <div class="lbl">${t.fromLib}</div>
+ <div class="card">${r(coverThumb,'Wingspan','2019',true)}${r(`<span class="xt">${ic('dice-5',22)}</span>`,'Meeple Teste Solo','',false)}${r(`<span class="xt">${ic('dice-5',22)}</span>`,'Jogo de teste sem dados','',false)}</div></div>`;
+}
+function sessionsList(t){
+ const card=(name,when,where,game)=>`<div class="card"><div class="pad" style="display:flex;flex-direction:column;gap:8px"><div class="t-head">${name}</div>
+  <div class="t-cap" style="display:flex;gap:6px;align-items:center">${ic('calendar-outline',15)}${when}</div><div class="t-cap" style="display:flex;gap:6px;align-items:center">${ic('map-marker-outline',15)}${where}</div></div>
+  <div class="row" style="border-top:1px solid var(--hair)">${game?coverThumb:`<span class="xt">${ic('dice-5',22)}</span>`}<div class="grow"><div class="t-micro">${t.gameRow}</div><div class="t-body ${game?'b':''}" style="${game?'':'color:var(--mut)'}">${game||t.undecided}</div></div>${ic('chevron-right',20,'var(--chev)')}</div></div>`;
+ return `<div class="form"><div class="lbl" style="padding-top:0">${t.upcoming}</div>${card('Noite de Wingspan','sáb., 17 out. · 21:00','Casa do Ruben','Wingspan')}${card('Jogos de domingo','dom., 25 out. · 15:00','LeiriaCon','')}</div>`;
+}
+function sessionDetail(t){
+ return `<div class="form"><div><div class="t-title">Noite de Wingspan</div><div class="t-cap" style="margin-top:4px">sáb., 17 out. · 21:00 · Casa do Ruben</div></div>
+ <div class="card"><div class="row">${coverThumb}<div class="grow"><div class="t-micro">${t.gameRow} <span class="new">novo</span></div><div class="t-body b">Wingspan</div></div><span class="link">${t.change}</span></div></div>
+ <div class="card pad"><div class="t-micro b" style="text-transform:uppercase;letter-spacing:.3px">Início · Fim</div><div class="t-body" style="margin-top:4px">sáb., 17 out., 21:00 → dom., 18 out., 21:00</div></div>
+ <div class="card pad"><div class="t-head">Quem vem</div><div class="t-cap" style="margin-top:4px">Tu · Organizador · Confirmado</div><div class="t-cap">Teste-amiga-meeples · Convite enviado</div></div></div>`;
+}
+put('s-ambito',
+ fig({partial:true,empty:false,name:'Jogo de teste com ficha parcial',sub:'Fictício · jogo base',noScores:true},'Ficha incompleta','Jogo fictício; os valores só ilustram o estado e não vêm do BGG. Sem idade no BGG: o bloco desaparece e a ficha fica com três. Duração 30 = mínimo e máximo iguais.')+
+ fig(formPhone({}),'Criar sessão · a partir do jogo','«Combinar sessão» na página do jogo abre o formulário atual com o campo «Jogo» já preenchido. Só esse campo é novo. «Alterar» abre a escolha.')+
+ fig(formPhone({picker:true}),'Escolher o jogo','«Sem jogo definido» continua possível. Primeiro os jogos da biblioteca, depois a pesquisa no catálogo. «Meeple Teste Solo» e «Jogo de teste sem dados» são jogos fictícios do DeviceTests.')+
+ fig(formPhone({noGame:true}),'Criar sessão · sem jogo','Aberto a partir de Sessões, sem jogo: o campo fica como convite discreto «Escolher jogo» e a sessão pode ser criada assim.')+
+ fig({body:sessionsList(t),custom:navbar(t,t.sessions,`${ic('chevron-left',28)}`,'')},'Sessões · com e sem jogo','Cartões simplificados; só a linha «Jogo» é nova. Sessões existentes aparecem como «Jogo por definir». Nomes e locais fictícios.')+
+ fig({body:sessionDetail(t),custom:navbar(t,'',`${ic('chevron-left',28)}`,'')},'Sessão · alterar o jogo','Ecrã atual resumido. O organizador vê «Alterar» enquanto a sessão está aberta; os convidados veem só o jogo. Sem jogo, a linha diz «Jogo por definir» e o organizador vê «Escolher».')+
+ fig(formPhone({lang:'en'}),'Create session · EN','Same field in English.')+
+ fig(formPhone({s:1.3}),'Criar sessão · texto ampliado','Com 130 %: o campo «Jogo» cresce sem cortar o nome.'));
+put('s-ideias', fig({owned:true,scroll:250,body:`${hero(t,{})}${facts(t,{})}${actions(t,{owned:true})}<div class="body"><div class="card ideas"><div class="pad" style="display:flex;gap:12px"><span style="color:var(--friend)">${ic('account-check-outline',26)}</span><div class="grow"><div class="t-head">${t.group} <span class="new">futuro</span></div><div class="t-cap" style="margin-top:4px">${t.groupBody}</div><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><span class="badge">${ic('check',12)}3 jogadores</span><span class="badge">${ic('check',12)}40–70 min</span><span class="badge n">2 amigos têm-no</span></div></div></div></div></div>`},
+ 'Futuro · Bom para o vosso grupo?','Só como registo da ideia; não entra nesta ronda. Valores fictícios.'));
 </script>
 </body>
 </html>
