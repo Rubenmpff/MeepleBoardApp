@@ -350,5 +350,6 @@
   "teamResultShort": "Resultado da equipa",
   "notCounted": "Não contam na taxa de vitória.",
   "playedWith": "Com quem jogaste",
-  "withoutResultShort": "Sem resultado"
+  "withoutResultShort": "Sem resultado",
+  "historyLimited": "A tua 1.ª partida de {{game}} é de {{first}}. As estatísticas cobrem no máximo 10 anos: as partidas anteriores a {{from}} não estão incluídas."
 }

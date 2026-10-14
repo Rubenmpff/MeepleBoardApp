@@ -52,6 +52,7 @@ export default function CompanyScreen(){
  const calculation=<Disclosure first title={t('howCalculated')}>
   <Text style={type.body}>{t('companyPrivacy')}</Text><Text style={type.caption}>{t('registeredParticipantsNote')}</Text><Text style={type.body}>{t('pairDrawNote')}</Text><Text style={type.caption}>{t('timeZone',{zone:query.timeZone})}</Text>
  </Disclosure>;
+ const day=(iso:string)=>new Intl.DateTimeFormat(i18n.language,{dateStyle:'medium',timeZone:'UTC'}).format(new Date(`${iso}T12:00:00Z`));
  const r=data?.results;
  const known=r?.known??0;
  return <SafeAreaView style={s.screen} edges={workspace?[]:['top','left','right']}><KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS==='ios'?'padding':undefined}>
@@ -64,6 +65,11 @@ export default function CompanyScreen(){
     <View style={s.swap}><Glyph name="swap-horizontal" size={20} color={colors.primary}/><Text style={[type.body,strong,{color:colors.primary}]}>{t('switchFriend')}</Text></View>
    </TouchableOpacity>}
    <ExploreFilters query={query} onChange={setQuery} games={summary.data?.gameOptions??[]} initialPeriod={activePeriod} onPeriodChange={setActivePeriod}/>
+   {/* From a game page whose first match is older than the 10-year limit: say what is left out, while that period is in use. */}
+   {!!value('historyFrom')&&query.start===value('start')&&query.gameId===value('gameId')&&<View style={s.limited} accessibilityRole="alert">
+    <Glyph name="information-outline" size={18} color={colors.pendingIcon}/>
+    <Text style={[type.body,s.flex,{color:colors.pendingText}]}>{t('historyLimited',{game:value('gameName')??'',first:day(value('historyFrom')!),from:day(query.start)})}</Text>
+   </View>}
   </View>
 
   {report.busy&&<ActivityIndicator color={colors.primary}/>}
@@ -179,6 +185,7 @@ export default function CompanyScreen(){
 }
 
 const s=StyleSheet.create({
+ limited:{flexDirection:"row",alignItems:"flex-start",gap:10,padding:space.md,borderRadius:14,borderWidth:1,borderColor:colors.pendingLine,backgroundColor:colors.pendingSoft},
  screen:{flex:1,backgroundColor:colors.background},
  flex:{flex:1,minWidth:0},
  group:{gap:space.md},

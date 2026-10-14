@@ -4,6 +4,7 @@ import { ROUTES } from "@/src/constants/routes";
  * CreateSessionScreen.tsx
  *
  * Campos:
+ *   - Jogo previsto (opcional; vem da página do jogo quando é aberta a partir dela, e pode ser alterado)
  *   - Nome (obrigatório, mín. 3 chars)
  *   - Local (opcional)
  *   - Data e hora da sessão (DatePicker nativo)
@@ -15,7 +16,7 @@ import ScreenLayout from "@/src/components/ui/ScreenLayout";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Keyboard, ScrollView, Platform, Switch } from "react-native";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { MaterialIcons } from "@expo/vector-icons";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
@@ -23,6 +24,7 @@ import { UI_STYLES } from "@/src/styles/uiStyles";
 import { useGameSessions } from "../hooks/useGameSessions";
 import FriendSelector from "../components/FriendSelector";
 import { useFriends } from "@/src/features/friends/hooks/useFriends";
+import { PlannedGame, PlannedGameField, PlannedGamePicker } from "../components/PlannedGame";
 /* ── Helpers ── */
 function formatDate(date: Date, locale: string): string {
   return date.toLocaleDateString(locale, {
@@ -68,6 +70,11 @@ export default function CreateSessionScreen() {
   // DatePicker state
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
   const [inviteValidation, setInviteValidation] = useState(false);
+  // Planned game: from the game page when opened there; optional and changeable.
+  const params = useLocalSearchParams<{ gameId?: string; gameName?: string; gameImageUrl?: string }>();
+  const fromPage: PlannedGame | null = params.gameId && params.gameName ? { id: params.gameId, name: params.gameName, imageUrl: params.gameImageUrl } : null;
+  const [plannedGame, setPlannedGame] = useState<PlannedGame | null>(fromPage);
+  const [pickingGame, setPickingGame] = useState(false);
   const showPicker = (target: PickerTarget) => { Keyboard.dismiss(); setPickerTarget(target); };
   const hidePicker = () => setPickerTarget(null);
   const onDateChange = (_event: DateTimePickerEvent, selected?: Date) => {
@@ -119,6 +126,7 @@ export default function CreateSessionScreen() {
         scheduledStartDate: sessionDate.toISOString(),
         responseDeadline: useDeadline ? deadlineDate.toISOString() : undefined,
         playerIds: selectedIds,
+        ...(plannedGame ? { plannedGameId: plannedGame.id } : {}),
       });
       if (created) {
         navigationGuard.allowExit();
@@ -145,6 +153,9 @@ export default function CreateSessionScreen() {
         {/* ── Card: Detalhes ── */}
         <View style={styles.card}>
           <CardTitle icon="event" label={t("sessions.about")} />
+          <Field label={t("sessions.plannedGameOptional")}>
+            <PlannedGameField game={plannedGame} note={plannedGame && plannedGame.id === fromPage?.id ? t("sessions.plannedFromGame") : undefined} onChange={() => { Keyboard.dismiss(); setPickingGame(true); }} />
+          </Field>
           <Field label={t("sessions.name")}>
             <TextInput
               style={[styles.input, nameError && styles.inputError]}
@@ -288,6 +299,8 @@ export default function CreateSessionScreen() {
         <Text style={[UI_STYLES.caption, { marginBottom: 8 }]}>{t("sessions.invitesPreview", { count: selectedIds.length })}</Text>
         <PrimaryButton title={t("sessions.createTitle")} onPress={handleSave} disabled={!canSave} loading={saving} />
       </View>
+      <PlannedGamePicker visible={pickingGame} current={plannedGame} onClose={() => setPickingGame(false)}
+        onPick={game => { if (game?.id !== plannedGame?.id) navigationGuard.markUnsaved(); setPlannedGame(game); }} />
     </ScreenLayout>
   );
 }

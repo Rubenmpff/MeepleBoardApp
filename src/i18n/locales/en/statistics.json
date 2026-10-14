@@ -350,5 +350,6 @@
   "teamResultShort": "Team result",
   "notCounted": "Not counted in the win rate.",
   "playedWith": "Who you played with",
-  "withoutResultShort": "No result"
+  "withoutResultShort": "No result",
+  "historyLimited": "Your first {{game}} match was on {{first}}. Statistics cover at most 10 years: matches before {{from}} are not included."
 }

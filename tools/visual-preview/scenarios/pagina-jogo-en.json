@@ -1,7 +1,9 @@
 {"name":"pagina-jogo-en","defaults":{"lang":"en"},"screens":[
  {"id":"01-top","route":"/games/details/{{game:Wingspan}}"},
- {"id":"02-friends","route":"/games/details/{{game:Wingspan}}","steps":[{"scrollTo":"Your rating","offset":120}]},
- {"id":"03-how-to-play","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"How to play","wait":1500},{"click":"English","wait":2500},{"scroll":330}]},
- {"id":"04-resources","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Resources","wait":2500},{"scroll":330}]},
- {"id":"05-empty","route":"/games/details/{{game:Meeple Teste Solo}}","steps":[{"click":"Resources","wait":2000}]}
+ {"id":"02-about","route":"/games/details/{{game:Wingspan}}","steps":[{"scrollTo":"Your experience","offset":150}]},
+ {"id":"03-friends-expansions","route":"/games/details/{{game:Wingspan}}","steps":[{"scrollTo":"Friends who own this game","offset":170}]},
+ {"id":"04-how-to-play","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"How to play","wait":2500},{"scrollTo":"Resource language","offset":150}]},
+ {"id":"05-resources","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Resources","wait":2500},{"scrollTo":"Resource language","offset":150}]},
+ {"id":"06-played-game","route":"/games/details/{{game:Meeple Teste Solo}}","steps":[{"scrollTo":"Your experience","offset":150}]},
+ {"id":"07-empty","route":"/games/details/{{game:Meeple Teste Solo}}","steps":[{"click":"Resources","wait":2000}]}
 ]}

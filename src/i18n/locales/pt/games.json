@@ -102,7 +102,13 @@
       "personalHint_other": "Média das tuas avaliações em {{count}} partidas",
       "personalNoMatches": "Avalias cada partida no diário, depois de a registares.",
       "rateMatch": "Avaliar a partida de {{date}}",
-      "reviewJournal": "Ver o diário da partida de {{date}}"
+      "reviewJournal": "Ver o diário da partida de {{date}}",
+      "noneShort": "Ainda sem avaliações",
+      "meepleBoardShort": "média das partidas",
+      "bggVotesShort_one": "{{value}} avaliação",
+      "bggVotesShort_other": "{{value}} avaliações",
+      "bggRankShort": "nº {{rank}}",
+      "bggShort": "BGG"
     },
     "bgg": {
       "source": "Ficha do BoardGameGeek",
@@ -113,11 +119,56 @@
     "addToLibraryShort": "Biblioteca",
     "friends": {
       "title": "Amigos que têm este jogo",
-      "none": "Nenhum amigo tem este jogo na biblioteca.",
+      "none": "Sem amigos com este jogo visível na biblioteca.",
       "loading": "A carregar…",
       "error": "Não foi possível carregar os amigos.",
       "showAll": "Ver todos ({{count}})",
-      "openProfile": "Abre o perfil"
+      "openProfile": "Abre o perfil",
+      "note": "Só amigos com o jogo em «Tenho» e a biblioteca visível.",
+      "more": "Mais {{count}}",
+      "sheetClose": "Fechar"
+    },
+    "facts": {
+      "players": "jogadores",
+      "minutes": "minutos",
+      "age": "idade",
+      "weight": "complexidade",
+      "ageValue": "{{value}}+",
+      "weightValue": "{{value}}/5",
+      "source": "Ficha do BoardGameGeek",
+      "solo": "Solo",
+      "cooperative": "Cooperativo"
+    },
+    "planSession": "Combinar sessão",
+    "planSessionHint": "Abre a criação de sessão com este jogo previsto",
+    "bggEntry": "Ficha no BoardGameGeek",
+    "experience": {
+      "title": "A tua experiência",
+      "matches_one": "partida",
+      "matches_other": "partidas",
+      "wins_one": "vitória",
+      "wins_other": "vitórias",
+      "last": "última",
+      "rating": "A tua avaliação",
+      "journal": "Diário",
+      "journalHint": "Abre o diário da partida",
+      "toRate_one": "{{count}} partida por avaliar",
+      "toRate_other": "{{count}} partidas por avaliar",
+      "rate": "Avaliar",
+      "empty": "Ainda não jogaste. Regista a primeira partida e avalia-a no diário.",
+      "players_one": "{{count}} jogador",
+      "players_other": "{{count}} jogadores",
+      "company": "Companhia neste jogo",
+      "companyHint": "Desde a tua 1.ª partida de {{name}} até hoje",
+      "companyLimited": "Últimos 10 anos de {{name}} (o limite das estatísticas)",
+      "win": "Vitória",
+      "place": "{{place}}.º"
+    },
+    "expansions": {
+      "title": "Expansões",
+      "owned": "Tens {{owned}} de {{total}}",
+      "item": "Expansão",
+      "open": "Abre a página da expansão"
     }
   },
   "ui": {
@@ -189,7 +240,10 @@
     "send": "Enviar",
     "language": {
       "title": "Idioma dos recursos · não muda o idioma da app",
-      "all": "Todos"
+      "all": "Todos",
+      "button": "Idioma dos recursos",
+      "sheetTitle": "Idioma dos recursos",
+      "sheetNote": "Escolher aqui não muda o idioma da app."
     },
     "languages": {
       "pt": "Português",
@@ -328,6 +382,17 @@
     "expansion": "Expansão",
     "baseGame": "Jogo base",
     "alsoIn_one": "Também em {{language}} ({{count}})",
-    "alsoIn_other": "Também em {{language}} ({{count}})"
+    "alsoIn_other": "Também em {{language}} ({{count}})",
+    "missing": "Ainda sem {{list}}.",
+    "missingJoin": " nem ",
+    "suggestShort": "Sugerir",
+    "kindsInline": {
+      "Rules": "regras oficiais",
+      "HowToPlay": "vídeos de explicação",
+      "Playthrough": "partidas completas",
+      "PrintModel": "modelos 3D",
+      "Unboxing": "unboxings",
+      "Material": "materiais adicionais"
+    }
   }
 }

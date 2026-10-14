@@ -11,6 +11,8 @@ export type CreateSessionPayload = {
   scheduledStartDate?: string;
   responseDeadline?: string; // ✅ NOVO — data limite de resposta
   playerIds?: string[];
+  /** Jogo previsto (opcional). */
+  plannedGameId?: string | null;
 };
 
 function assertId(id: string, label: string) {
@@ -51,6 +53,7 @@ const sessionService = {
       scheduledStartDate: payload.scheduledStartDate,
       responseDeadline: payload.responseDeadline,
       playerIds: payload.playerIds ?? [],
+      plannedGameId: payload.plannedGameId || undefined,
     };
 
     const res = await api.post<GameSession>(BASE_URL, body);
@@ -67,6 +70,13 @@ const sessionService = {
   async setCloseTime(id: string, closesAt: Date): Promise<GameSession> {
     assertId(id, "sessionId");
     const res = await api.put<GameSession>(`${BASE_URL}/${id}/close-time`, { closesAt: closesAt.toISOString() });
+    return res.data;
+  },
+
+  /** Organizer define, altera ou retira (null) o jogo previsto; partidas, prazo e horas não mudam. */
+  async setPlannedGame(id: string, gameId: string | null): Promise<GameSession> {
+    assertId(id, "sessionId");
+    const res = await api.put<GameSession>(`${BASE_URL}/${id}/planned-game`, { gameId });
     return res.data;
   },
 

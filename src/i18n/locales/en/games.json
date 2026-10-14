@@ -102,7 +102,13 @@
       "personalHint_other": "Average of your ratings in {{count}} matches",
       "personalNoMatches": "You rate each match in its journal, after recording it.",
       "rateMatch": "Rate the match of {{date}}",
-      "reviewJournal": "See the journal of the match of {{date}}"
+      "reviewJournal": "See the journal of the match of {{date}}",
+      "noneShort": "No ratings yet",
+      "meepleBoardShort": "average of matches",
+      "bggVotesShort_one": "{{value}} rating",
+      "bggVotesShort_other": "{{value}} ratings",
+      "bggRankShort": "#{{rank}}",
+      "bggShort": "BGG"
     },
     "bgg": {
       "source": "BoardGameGeek entry",
@@ -113,11 +119,56 @@
     "addToLibraryShort": "Library",
     "friends": {
       "title": "Friends who own this game",
-      "none": "None of your friends has this game in their library.",
+      "none": "No friends with this game visible in their library.",
       "loading": "Loading…",
       "error": "Could not load your friends.",
       "showAll": "See all ({{count}})",
-      "openProfile": "Opens the profile"
+      "openProfile": "Opens the profile",
+      "note": "Only friends who own it and whose library is visible.",
+      "more": "{{count}} more",
+      "sheetClose": "Close"
+    },
+    "facts": {
+      "players": "players",
+      "minutes": "minutes",
+      "age": "age",
+      "weight": "weight",
+      "ageValue": "{{value}}+",
+      "weightValue": "{{value}}/5",
+      "source": "Details from BoardGameGeek",
+      "solo": "Solo",
+      "cooperative": "Cooperative"
+    },
+    "planSession": "Plan a session",
+    "planSessionHint": "Opens a new session with this game planned",
+    "bggEntry": "BoardGameGeek entry",
+    "experience": {
+      "title": "Your experience",
+      "matches_one": "match",
+      "matches_other": "matches",
+      "wins_one": "win",
+      "wins_other": "wins",
+      "last": "last",
+      "rating": "Your rating",
+      "journal": "Journal",
+      "journalHint": "Opens the match journal",
+      "toRate_one": "{{count}} match to rate",
+      "toRate_other": "{{count}} matches to rate",
+      "rate": "Rate",
+      "empty": "You have not played yet. Record your first match and rate it in its journal.",
+      "players_one": "{{count}} player",
+      "players_other": "{{count}} players",
+      "company": "Company in this game",
+      "companyHint": "From your first {{name}} match to today",
+      "companyLimited": "Last 10 years of {{name}} (the statistics limit)",
+      "win": "Win",
+      "place": "#{{place}}"
+    },
+    "expansions": {
+      "title": "Expansions",
+      "owned": "You own {{owned}} of {{total}}",
+      "item": "Expansion",
+      "open": "Opens the expansion page"
     }
   },
   "ui": {
@@ -189,7 +240,10 @@
     "send": "Send",
     "language": {
       "title": "Resource language · does not change the app language",
-      "all": "All"
+      "all": "All",
+      "button": "Resource language",
+      "sheetTitle": "Resource language",
+      "sheetNote": "Choosing here does not change the app language."
     },
     "languages": {
       "pt": "Portuguese",
@@ -328,6 +382,17 @@
     "expansion": "Expansion",
     "baseGame": "Base game",
     "alsoIn_one": "Also in {{language}} ({{count}})",
-    "alsoIn_other": "Also in {{language}} ({{count}})"
+    "alsoIn_other": "Also in {{language}} ({{count}})",
+    "missing": "No {{list}} yet.",
+    "missingJoin": " or ",
+    "suggestShort": "Suggest",
+    "kindsInline": {
+      "Rules": "official rules",
+      "HowToPlay": "how-to-play videos",
+      "Playthrough": "full playthroughs",
+      "PrintModel": "3D models",
+      "Unboxing": "unboxings",
+      "Material": "other material"
+    }
   }
 }

@@ -159,11 +159,11 @@ export function EmptyState({ title, message, action }: { title: string; message:
  </Card>;
 }
 
-// The person's photo when there is one (and it loads); otherwise their initial.
-export function Avatar({ name, size = 40, uri }: { name: string; size?: number; uri?: string | null }) {
- return <View style={[s.avatar, { width: size, height: size, borderRadius: size / 2 }]} accessible={false}>
-  {uri ? <AvatarPhoto name={name} uri={uri} size={size} />
-   : <Text style={[type.body, strong, { color: colors.primary }]}>{name.slice(0, 1).toLocaleUpperCase() || "?"}</Text>}
+// The person's photo when there is one (and it loads); otherwise their initial. tint = [background, initial colour].
+export function Avatar({ name, size = 40, uri, tint }: { name: string; size?: number; uri?: string | null; tint?: readonly [string, string] }) {
+ return <View style={[s.avatar, { width: size, height: size, borderRadius: size / 2 }, tint && { backgroundColor: tint[0] }]} accessible={false}>
+  {uri ? <AvatarPhoto name={name} uri={uri} size={size} color={tint?.[1]} />
+   : <Text style={[type.body, strong, { color: tint?.[1] ?? colors.primary }, size > 48 && { fontSize: 20, lineHeight: 24 }]}>{name.slice(0, 1).toLocaleUpperCase() || "?"}</Text>}
  </View>;
 }
 

@@ -41,8 +41,13 @@ export interface Game {
   /** Só vem preenchido na resposta do ranking pessoal — a tua própria média para este jogo. */
   personalAverageRating?: number | null;
 
-  /** Complexity (weight) from BGG */
-  averageWeight?: number;
+  /** Complexity (weight) from BGG, 1–5. */
+  averageWeight?: number | null;
+
+  /** Play time in minutes and minimum age, as BGG gives them; null when BGG has no value. */
+  minPlayTime?: number | null;
+  maxPlayTime?: number | null;
+  minAge?: number | null;
 
   // ─── Player count & game modes ────────────────────────────────────────────
 

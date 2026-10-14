@@ -26,7 +26,8 @@ test('session tabs preserve filters, numeric pending statuses and destinations i
   for (const language of ['pt', 'en']) {
     const view = await render(list, { states: { 0: data, 1: false, 2: 'Invites' }, language });
     assert.deepEqual(view.lists[0].data.map(s => s.id), ['invited']);
-    await view.press('Test-only session');
+    // Each card also says its planned game, or that it is still to be decided.
+    await view.press(language === 'pt' ? 'Test-only session. Jogo previsto: Por definir' : 'Test-only session. Planned game: To be decided');
     assert.equal(view.routes[0], '/(app)/games/sessions/invited');
     await view.press(language === 'pt' ? 'Criar' : 'Create');
     assert.equal(view.routes[1], '/(app)/games/sessions/create');
@@ -160,6 +161,52 @@ test('standalone session registration passes context and returns to the same ses
   assert.equal(props.disableScroll, undefined);
   props.onRegistered();
   assert.deepEqual(view.routes[0], ['dismissTo', { pathname: '/games/sessions/[id]', params: { id: session.id } }]);
+});
+
+test('planned game: chosen on the game page and changeable; optional; organizer changes it while open; registering starts with it', async () => {
+  // CreateSessionScreen states: name, location, invited, saving, date, deadline, useDeadline, picker, inviteValidation, plannedGame, pickingGame.
+  for (const language of ['pt', 'en']) {
+    const fromPage = await render(create, { language, params: { gameId: 'game-w', gameName: 'Wingspan' }, states: { 0: 'Noite de jogos', 2: ['other'], 4: future } });
+    const t = key => fromPage.i18n.t(key, { ns: 'matches' });
+    assert.ok(fromPage.html.includes(t('sessions.plannedGameOptional')) && fromPage.html.includes('Wingspan') && fromPage.html.includes(t('sessions.plannedFromGame')));
+    await fromPage.press(`${t('sessions.plannedGameOptional')}: Wingspan`);
+    assert.ok(fromPage.updates.some(([index, value]) => index === 10 && value === true), 'opens the choice');
+    await fromPage.press(language === 'pt' ? 'Criar Sessão' : 'Create session');
+    assert.equal(fromPage.calls.find(c => c[0] === 'createSession')[1].plannedGameId, 'game-w');
+  }
+  const cleared = await render(create, { params: { gameId: 'game-w', gameName: 'Wingspan' }, states: { 0: 'Noite de jogos', 2: ['other'], 4: future, 9: null } });
+  assert.ok(cleared.controls.some(c => c.accessibilityLabel === 'Jogo previsto (opcional): Escolher jogo'));
+  await cleared.press('Criar Sessão');
+  assert.equal('plannedGameId' in cleared.calls.find(c => c[0] === 'createSession')[1], false, 'a session without a game stays valid');
+
+  const picker = await renderNative('src/features/games/sessions/components/PlannedGame.tsx', 'PlannedGamePicker', { visible: true, current: { id: 'game-w', name: 'Wingspan' }, onClose() {}, onPick: game => picked.push(game) },
+    { library: [{ gameId: 'game-w', gameName: 'Wingspan', status: 1 }, { gameId: 'game-s', gameName: 'Meeple Teste Solo', status: 3 }] });
+  const picked = [];
+  assert.ok(picker.html.indexOf('Wingspan') < picker.html.indexOf('Meeple Teste Solo'), 'owned games first');
+  await picker.press('Sem jogo definido');
+  await picker.press('Meeple Teste Solo');
+  assert.deepEqual(picked, [null, { id: 'game-s', name: 'Meeple Teste Solo', imageUrl: undefined }]);
+
+  // Detail: the organizer changes it while open; guests only see it; it never limits which games are recorded.
+  const planned = { ...session, plannedGameId: 'game-w', plannedGameName: 'Wingspan' };
+  const organizer = await render(detail, { params: { id: session.id }, states: { 0: planned, 1: false, 5: true }, services: { setPlannedGame: { ...planned, plannedGameId: null, plannedGameName: null } } });
+  assert.ok(organizer.html.includes('Jogo previsto') && organizer.html.includes('Podem registar partidas de qualquer jogo.'));
+  assert.ok(organizer.controls.some(c => c.accessibilityLabel === 'Alterar: Jogo previsto'));
+  await organizer.press('Sem jogo definido');
+  assert.deepEqual(organizer.calls.find(c => c[0] === 'setPlannedGame'), ['setPlannedGame', 'session-test', null]);
+  const guest = await render(detail, { states: { 0: { ...planned, organizerId: 'other' }, 1: false } });
+  assert.ok(guest.html.includes('Wingspan') && !guest.controls.some(c => /^Alterar/.test(c.accessibilityLabel || '')));
+  const closed = await render(detail, { states: { 0: { ...planned, status: 'Closed' }, 1: false } });
+  assert.ok(!closed.controls.some(c => /^Alterar/.test(c.accessibilityLabel || '')), 'not after the session ends');
+  const undecided = await render(detail, { states: { 0: session, 1: false } });
+  assert.ok(undecided.html.includes('Por definir') && undecided.controls.some(c => c.accessibilityLabel === 'Escolher jogo: Jogo previsto'));
+  const active = await render(detail, { states: { 0: { ...planned, status: 'Active' }, 1: false }, stubRegisterForm: true });
+  await active.press('Registar partida nesta sessão');
+  assert.deepEqual(active.routes[0], { pathname: '/games/sessions/register', params: { sessionId: session.id, gameId: 'game-w' } });
+  const register = await render('src/features/games/sessions/screens/RegisterSessionMatchScreen.tsx', { params: { sessionId: session.id, gameId: 'game-w' }, stubRegisterForm: true, states: { 0: { id: 'game-w', name: 'Wingspan' } } });
+  const props = register.calls.find(c => c[0] === 'registerForm')[1];
+  assert.equal(props.sessionId, session.id, 'the match stays in the session');
+  assert.equal(props.initialGame.id, 'game-w', 'starts with the planned game; the form lets you change it');
 });
 
 test('campaign list retains status sections, zero ratings and existing destinations', async () => {

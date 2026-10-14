@@ -24,6 +24,7 @@ import { GameSession } from "@/src/features/games/sessions/types/GameSession";
 import { sessionPlayerGuards } from "@/src/features/games/sessions/types/GameSessionPlayer";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import SessionAttendance from "../components/SessionAttendance";
+import { GameThumb } from "../components/PlannedGame";
 import { RootState } from "@/src/store/store";
 type TabKey = "Active" | "Upcoming" | "Closed" | "Invites";
 // Invitations first: they are the ones waiting for an answer.
@@ -87,12 +88,17 @@ export default function SessionsListScreen() {
     // The list endpoint does not include matches (S-LIST02): show the count only when it is known.
     const matchCount = item.matches?.length ?? 0;
     return (
-      <TouchableOpacity style={styles.card} onPress={() => goDetail(item.id)} accessibilityRole="button" accessibilityLabel={item.name}>
+      <TouchableOpacity style={styles.card} onPress={() => goDetail(item.id)} accessibilityRole="button"
+        accessibilityLabel={[item.name, `${t("sessions.plannedGame")}: ${item.plannedGameName || t("sessions.plannedUndecided")}`].join(". ")}>
         <View style={styles.cardHeader}>
           <Text style={styles.cardTitle}>{item.name}</Text>
           <Text style={[styles.statusPill, { color: tone, backgroundColor: tone + "1F" }]}>{t("sessions.status." + item.status)}</Text>
         </View>
         <Text style={styles.cardSub}>{[when, item.location].filter(Boolean).join(" · ")}</Text>
+        <View style={styles.planned}>
+          <GameThumb game={item.plannedGameId ? { id: item.plannedGameId, name: item.plannedGameName ?? "", imageUrl: item.plannedGameImageUrl } : null} size={32} />
+          <Text style={[styles.cardSub, styles.plannedText]} numberOfLines={2}>{t("sessions.plannedGame")}: <Text style={item.plannedGameName ? styles.plannedName : undefined}>{item.plannedGameName || t("sessions.plannedUndecided")}</Text></Text>
+        </View>
         {item.status === "Upcoming" && deadline && (
           <Text style={styles.deadlineText}>{t(item.responseDeadline ? "sessions.replyBy" : "sessions.replyByStart", { date: deadline })}</Text>
         )}
@@ -131,6 +137,9 @@ const styles = StyleSheet.create({
   cardTitle: { flex: 1, minWidth: 0, fontSize: 17, lineHeight: 22, fontWeight: "600", color: COLORS.onBackground },
   statusPill: { fontSize: 12, lineHeight: 18, fontWeight: "600", paddingHorizontal: 9, paddingVertical: 1, borderRadius: 999, overflow: "hidden" },
   cardSub: { fontSize: 13, lineHeight: 18, color: COLORS.textMuted },
+  planned: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8 },
+  plannedText: { flex: 1, minWidth: 0 },
+  plannedName: { fontWeight: "600", color: COLORS.onBackground },
   deadlineText: { fontSize: 13, lineHeight: 18, color: COLORS.secondary, fontWeight: "600" },
   cardFooter: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 12, marginTop: 6 },
   cardMetaText: { fontSize: 13, lineHeight: 18, color: COLORS.textMuted },

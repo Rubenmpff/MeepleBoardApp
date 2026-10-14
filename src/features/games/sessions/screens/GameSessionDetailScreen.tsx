@@ -8,6 +8,8 @@
  * - Lista de participantes com status
  * - Registo de partidas numa página própria, apenas para participantes aceites
  * - Lista de partidas da sessão
+ * - Jogo previsto: o organizador escolhe, altera ou retira enquanto a sessão está aberta; não limita
+ *   os jogos registados nem muda partidas ou horas. Registar partida abre com ele, alterável.
  */
 import { SESSION_STATUS_COLORS } from "@/src/styles/statusColors";
 import { useTranslation } from "react-i18next";
@@ -15,11 +17,11 @@ import ScreenLayout from "@/src/components/ui/ScreenLayout";
 import ScreenState from "@/src/components/ui/ScreenState";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useMemo, useState, useCallback } from "react";
-import { View, Text, RefreshControl, StyleSheet, Alert, ScrollView, } from "react-native";
+import { View, Text, RefreshControl, StyleSheet, Alert, ScrollView, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import GameCover from "@/src/components/ui/GameCover";
 import { Avatar, Card, Note, Row, Section } from "@/src/ui/components";
-import { colors, space, strong, type } from "@/src/ui/theme";
+import { colors, space, strong, touch, type } from "@/src/ui/theme";
 import { formatDateTime } from "@/src/ui/format";
 import { matchResultText } from "../utils/matchResultKey";
 import { useSelector } from "react-redux";
@@ -32,6 +34,7 @@ import { RootState } from "@/src/store/store";
 import SessionAttendance from "../components/SessionAttendance";
 import SessionInvitations from "../components/SessionInvitations";
 import SessionEndTime from "../components/SessionEndTime";
+import { GameThumb, PlannedGame, PlannedGamePicker } from "../components/PlannedGame";
 export default function GameSessionDetailScreen() {
   const { t, i18n } = useTranslation("matches");
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -42,6 +45,7 @@ export default function GameSessionDetailScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [pickingGame, setPickingGame] = useState(false);
   const fetchSession = useCallback(async (opts?: { silent?: boolean }) => {
     if (!id) return;
     try {
@@ -87,6 +91,13 @@ export default function GameSessionDetailScreen() {
     } finally {
       setActionLoading(false);
     }
+  };
+  const changePlannedGame = async (game: PlannedGame | null) => {
+    if (!id || (game?.id ?? null) === (session?.plannedGameId ?? null)) return;
+    setActionLoading(true);
+    try { setSession(await sessionService.setPlannedGame(id, game?.id ?? null)); }
+    catch (err: any) { Alert.alert(t("sessions.error"), err?.response?.data?.message ?? t("sessions.plannedError")); }
+    finally { setActionLoading(false); }
   };
   const handleCancel = () => {
     Alert.alert(
@@ -141,6 +152,8 @@ export default function GameSessionDetailScreen() {
   if (loading) return <ScreenLayout title={t("sessions.details")}><ScreenState loading message={t("ui.loading")} /></ScreenLayout>;
   if (!session || loadError) return <ScreenLayout title={t("sessions.details")}><ScreenState error={loadError} message={t(loadError ? "sessions.loadError" : "sessions.notFound")} onRetry={() => fetchSession()} retryLabel={t("ui.retry")} /></ScreenLayout>;
   const tone = SESSION_STATUS_COLORS[session.status];
+  const planned: PlannedGame | null = session.plannedGameId ? { id: session.plannedGameId, name: session.plannedGameName ?? "", imageUrl: session.plannedGameImageUrl } : null;
+  const canPlan = isOrganizer && (isActive || isUpcoming);
   const statusOf = (raw: Parameters<typeof normalizeInviteStatus>[0]) => normalizeInviteStatus(raw);
   return (
     <ScreenLayout title={t("sessions.details")}>
@@ -158,6 +171,25 @@ export default function GameSessionDetailScreen() {
           {!!deadlineLabel && isUpcoming && <InfoRow icon="timer-sand" text={t(session.responseDeadline ? "sessions.replyBy" : "sessions.replyByStart", { date: deadlineLabel })} />}
         </View>
 
+        <Card>
+          <View style={styles.planned}>
+            <TouchableOpacity style={styles.plannedMain} disabled={!planned} accessibilityRole={planned ? "button" : undefined}
+              accessibilityLabel={`${t("sessions.plannedGame")}: ${planned?.name || t("sessions.plannedUndecided")}. ${t("sessions.plannedAnyGame")}`}
+              onPress={() => planned && router.push({ pathname: "/games/details/[id]", params: { id: planned.id } })}>
+              <GameThumb game={planned} />
+              <View style={styles.flex}>
+                <Text style={type.micro}>{t("sessions.plannedGame")}</Text>
+                <Text style={[type.body, strong, !planned && { color: colors.muted }]}>{planned?.name || t("sessions.plannedUndecided")}</Text>
+                <Text style={type.micro}>{t("sessions.plannedAnyGame")}</Text>
+              </View>
+            </TouchableOpacity>
+            {canPlan && <TouchableOpacity style={styles.plannedAction} disabled={actionLoading} onPress={() => setPickingGame(true)} accessibilityRole="button"
+              accessibilityLabel={`${planned ? t("sessions.plannedChange") : t("sessions.plannedChoose")}: ${t("sessions.plannedGame")}`} accessibilityHint={t("sessions.plannedChangeHint")}>
+              <Text style={[type.body, strong, { color: colors.primary }]}>{planned ? t("sessions.plannedChange") : t("sessions.plannedChoose")}</Text>
+            </TouchableOpacity>}
+          </View>
+        </Card>
+
         {isPending && <View style={styles.invite}>
           <Text style={[type.body, strong, { color: colors.pendingText }]}>{t("sessions.inviteQuestion")}</Text>
           <View style={styles.actions}>
@@ -166,7 +198,7 @@ export default function GameSessionDetailScreen() {
           </View>
         </View>}
         {isActive && myStatus === "Accepted" && <PrimaryButton title={t("sessions.registerMatchHere")} icon={<MaterialCommunityIcons name="plus" size={20} color={COLORS.onPrimary} />}
-          disabled={actionLoading} onPress={() => router.push({ pathname: "/games/sessions/register", params: { sessionId: session.id } })} />}
+          disabled={actionLoading} onPress={() => router.push({ pathname: "/games/sessions/register", params: { sessionId: session.id, ...(session.plannedGameId ? { gameId: session.plannedGameId } : {}) } })} />}
         {isUpcoming && <Note inset>{t("sessions.upcomingHint")}</Note>}
         <SessionEndTime session={session} canChange={isOrganizer} onChanged={setSession} />
 
@@ -203,6 +235,7 @@ export default function GameSessionDetailScreen() {
           <Note inset>{t("sessions.manageHint")}</Note>
         </Section>}
       </ScrollView>
+      {canPlan && <PlannedGamePicker visible={pickingGame} current={planned} onClose={() => setPickingGame(false)} onPick={game => { void changePlannedGame(game); }} />}
     </ScreenLayout>
   );
 }
@@ -229,4 +262,7 @@ const styles = StyleSheet.create({
   pending: { color: colors.pendingText, backgroundColor: colors.pendingSoft },
   invite: { gap: space.md, padding: space.lg, borderRadius: 14, backgroundColor: colors.pendingSoft },
   actions: { flexDirection: "row", gap: space.md },
+  planned: { flexDirection: "row", alignItems: "center", gap: space.sm, paddingRight: space.sm },
+  plannedMain: { flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: space.md, paddingVertical: space.md, paddingLeft: space.lg, minHeight: touch },
+  plannedAction: { minHeight: touch, minWidth: touch, justifyContent: "center", paddingHorizontal: space.sm },
 });

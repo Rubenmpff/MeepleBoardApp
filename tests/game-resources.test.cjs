@@ -9,10 +9,11 @@ const area = 'src/features/games/resources/components/ResourceArea.tsx';
 const form = 'src/features/games/resources/screens/ResourceFormScreen.tsx';
 const admin = 'src/features/games/resources/screens/ResourceAdminScreen.tsx';
 const report = 'src/features/games/resources/components/ResourceActionsSheet.tsx';
-const game = { id: 'game-id', bggId: 266192, name: 'Fixture game', description: 'Fixture description', averageRating: 7.9, usersRatedCount: 1234, bggRanking: 30, meepleBoardScore: 82, minPlayers: 1, maxPlayers: 5, yearPublished: 2019 };
+const game = { id: 'game-id', bggId: 266192, name: 'Fixture game', description: 'Fixture description', averageRating: 7.9, usersRatedCount: 1234, bggRanking: 30, meepleBoardScore: 82, minPlayers: 1, maxPlayers: 5, yearPublished: 2019,
+  minPlayTime: 40, maxPlayTime: 70, minAge: 10, averageWeight: 2.48 };
 // GameDetailsScreen state order: game, matches, campaigns, userRating, loading, gameError, historyLoading, historyError,
 // campaignsLoading, campaignsError, allMatches, allCampaigns, fullDescription, adding, managing, area, canManage,
-// friendOwners, friendsLoading, friendsError.
+// friendOwners, friendsLoading, friendsError, pinned (0 top, 1 name bar, 2 name bar with the areas).
 const page = (extra = {}, options = {}) => renderNative(details, 'default', {}, { ...options, states: { 0: game, 3: 6.5, 4: false, 6: false, 8: false, 18: false, ...extra } });
 const resource = (id, kind, language, extra = {}) => ({ id, gameId: 'game-id', kind, printCategory: null, language, title: `Title ${id}`, author: 'Author', platform: 'YouTube',
   url: `https://example.org/${id}`, compatibility: null, isOfficial: false, isFree: null, status: 'Approved', ...extra });
@@ -20,54 +21,104 @@ const list = { language: 'pt', total: 6,
   items: [resource('rules', 'Rules', null, { isOfficial: true, platform: 'Publisher' }), resource('model', 'PrintModel', null, { printCategory: 'Organizer', platform: 'Printables', isFree: true, compatibility: 'Base game' })],
   languages: [{ code: 'en', count: 4, kinds: { Rules: 1, HowToPlay: 3 } }, { code: null, count: 2, kinds: { PrintModel: 2 } }] };
 const areaProps = (extra = {}) => ({ area: 'howToPlay', gameId: 'game-id', gameName: 'Fixture game', data: list, loading: false, error: false, onRetry() {}, language: 'pt', appLanguage: 'pt', onLanguage() {}, canManage: false, ...extra });
+const played = [{ id: 'm2', matchDate: '2026-10-10', personalRating: null, journalStatus: 'Open', players: [{ userId: 'me', outcome: 'Win', isWinner: true, rankPosition: 1 }, { userId: 'x', outcome: 'Loss', isWinner: false }] },
+  { id: 'm1', matchDate: '2026-10-01', personalRating: 6.5, journalStatus: 'Closed', players: [{ userId: 'me', outcome: 'Loss', isWinner: false }, { userId: 'x', outcome: 'Win', isWinner: true }] }];
 
-test('game page keeps both actions above three areas; About separates BGG, MeepleBoard and personal ratings', async () => {
+test('game page top: cover, name, BGG and MeepleBoard ratings apart, facts with their BGG source, actions and «Combinar sessão»', async () => {
   for (const language of ['pt', 'en']) {
-    const view = await page({}, { language });
-    const t = key => view.i18n.t(key, { ns: 'games' });
-    for (const label of [t('details.areas.about'), t('details.areas.howToPlay'), t('details.areas.resources')]) assert.ok(view.controls.some(c => c.accessibilityLabel === label), label);
-    assert.ok(view.controls.some(c => c.accessibilityLabel === t('details.registerMatch')));
-    assert.ok(view.controls.some(c => c.accessibilityLabel === t('details.addToLibrary')));
+    const view = await page({ 1: played }, { language });
+    const t = (key, o) => view.i18n.t(key, { ns: 'games', ...o });
+    for (const label of [t('details.areas.about'), t('details.areas.howToPlay'), t('details.areas.resources'), t('details.registerMatch'), t('details.addToLibrary'), t('details.planSession')])
+      assert.ok(view.controls.some(c => c.accessibilityLabel === label), label);
     const decimal = language === 'pt' ? ',' : '.';
-    for (const label of [`${t('details.ratings.bgg')}: 7${decimal}9`, `${t('details.ratings.meepleBoard')}: 8${decimal}2`, `${t('details.ratings.personal')}: 6${decimal}5`])
-      assert.ok(view.html.includes(label.split(': ')[0]) && view.html.includes(label.split(': ')[1]), label);
-    assert.ok(view.html.includes('BoardGameGeek'));
-    assert.ok(view.html.includes(t('details.descriptionSource')));
-    // BGG and MeepleBoard side by side with their scale; yours apart, from your match ratings.
-    assert.ok(view.html.includes(t('details.ratings.title')) && view.html.includes(t('details.ratings.personal')));
-    assert.equal((view.html.match(/ \/10/g) || []).length, 3, 'each value shows its scale');
-    assert.ok(view.html.includes(language === 'pt' ? '1234 avaliações' : '1,234 ratings'), 'BGG count');
+    assert.ok(view.html.includes('Fixture game') && view.html.includes('2019'), 'name and year');
+    assert.ok(view.controls.some(c => c.accessibilityLabel === `BoardGameGeek: ${t('details.ratings.outOf', { value: `7${decimal}9` })}. ${language === 'pt' ? '1234 avaliações · nº 30' : '1,234 ratings · #30'}`), 'BGG tile with its count and rank');
+    assert.ok(view.html.includes(`8${decimal}2`) && view.html.includes(t('details.ratings.meepleBoard')), 'MeepleBoard apart');
+    assert.equal((view.html.match(/ \/10/g) || []).length, 3, 'BGG, MeepleBoard and yours, each with its scale');
+    for (const fact of ['1–5', '40–70', '10+', `2${decimal}5/5`]) assert.ok(view.html.includes(fact), fact);
+    assert.ok(view.html.includes(t('details.facts.source')), 'the facts name their BGG source');
+    assert.ok(view.html.includes(t('details.descriptionSource')) && view.html.includes(t('details.bggEntry')));
   }
   const view = await page();
-  await view.press('Abrir a página do jogo no BoardGameGeek');
+  await view.press('BoardGameGeek: 7,9 em 10. 1234 avaliações · nº 30');
   assert.deepEqual(view.calls.find(c => c[0] === 'openURL'), ['openURL', 'https://boardgamegeek.com/boardgame/266192']);
   await view.press('Registar partida');
   assert.deepEqual(view.routes.at(-1), { pathname: '/games/register-match', params: { gameId: 'game-id' } });
+  await view.press('Combinar sessão');
+  assert.deepEqual(view.routes.at(-1), { pathname: '/games/sessions/create', params: { gameId: 'game-id', gameName: 'Fixture game' } });
   assert.ok(!view.calls.some(c => c[0] === 'gameResources'), 'resources load only when an area opens');
+  // Scrolling: past the cover a bar with the name replaces the floating back button; past the areas the bar also holds them.
+  const top = await page();
+  assert.equal(top.controls.filter(c => c.accessibilityLabel === 'Sobre').length, 1);
+  const named = await page({ 20: 1 });
+  assert.ok(named.html.includes('Fixture game') && named.controls.filter(c => c.accessibilityLabel === 'Sobre').length === 1 && named.controls.some(c => c.accessibilityLabel === 'Voltar'));
+  const withAreas = await page({ 20: 2 });
+  assert.equal(withAreas.controls.filter(c => c.accessibilityLabel === 'Sobre').length, 2, 'the areas stay at hand in the bar');
+  const large = await page({}, { fontScale: 1.3 });
+  assert.ok(large.controls.some(c => c.accessibilityLabel === 'Adicionar à biblioteca') && large.html.includes('Adicionar à biblioteca'), 'large text keeps the full action label');
 });
 
-test('without BGG data the page says so instead of inventing a rating or a link', async () => {
-  const view = await page({ 0: { ...game, bggId: null, averageRating: null, meepleBoardScore: null }, 3: null });
-  // One simple line for the public ratings, one for yours; no dashes.
-  for (const text of ['Ainda sem avaliações do BoardGameGeek nem do MeepleBoard.', 'Avalias cada partida no diário, depois de a registares.']) assert.ok(view.html.includes(text), text);
-  assert.ok(!view.html.includes('—'));
+test('without BGG data the page says so briefly; missing facts are left out and never attributed to BGG', async () => {
+  const view = await page({ 0: { ...game, bggId: null, averageRating: null, meepleBoardScore: null, minPlayTime: null, maxPlayTime: null, minAge: null, averageWeight: null }, 3: null });
+  assert.ok(view.html.includes('Ainda sem avaliações') && !view.html.includes('—'));
+  assert.ok(!view.controls.some(c => c.accessibilityLabel === 'Abrir a página do jogo no BoardGameGeek'));
+  for (const text of ['Texto original do BoardGameGeek', 'Ficha do BoardGameGeek', 'minutos', 'idade', 'complexidade']) assert.ok(!view.html.includes(text), text);
+  assert.ok(view.html.includes('1–5') && view.html.includes('jogadores'), 'players stay');
   const onlyMeeple = await page({ 0: { ...game, averageRating: null } });
   assert.ok(onlyMeeple.html.includes('Sem avaliações') && onlyMeeple.html.includes('8,2'), 'a missing BGG rating next to an existing MeepleBoard one');
-  assert.ok(!view.controls.some(c => c.accessibilityLabel === 'Abrir a página do jogo no BoardGameGeek'));
-  assert.ok(!view.html.includes('Texto original do BoardGameGeek'));
+  // BGG without an age: that block is simply absent; one playing time shows once.
+  const partial = await page({ 0: { ...game, minAge: null, minPlayTime: 30, maxPlayTime: 30, averageWeight: null } });
+  assert.ok(partial.html.includes('Ficha do BoardGameGeek') && !partial.html.includes('idade') && !partial.html.includes('complexidade') && !partial.html.includes('30–30'));
+  const noDescription = await page({ 0: { ...game, description: '' } });
+  assert.ok(!noDescription.html.includes('Descrição') && !noDescription.html.includes('Sem descrição'), 'no empty description block');
 });
 
-test('your rating is the average of your match ratings, with a way into the journal; it never pretends to rate the game', async () => {
-  const matches = [{ id: 'm2', matchDate: '2026-10-10', personalRating: null, journalStatus: 'Open' }, { id: 'm1', matchDate: '2026-10-01', personalRating: 6.5, journalStatus: 'Closed' }];
-  const view = await page({ 1: matches });
-  assert.ok(view.html.includes('Média das tuas avaliações em 1 partida'));
+test('«A tua experiência»: your rating is the average of your match ratings, with the journal; matches, wins and what waits for you', async () => {
+  const view = await page({ 1: played });
+  assert.ok(view.html.includes('A tua experiência') && view.html.includes('Média das tuas avaliações em 1 partida'));
+  assert.match(view.html, /<span>2<\/span><span>partidas<\/span>/, 'two matches');
+  assert.match(view.html, /<span>1<\/span><span>vitória<\/span>/, 'one win (yours, by your outcome)');
+  assert.ok(view.html.includes('1 partida por avaliar'));
   await view.press('Avaliar a partida de 10 out. 2026');
   assert.deepEqual(view.routes.at(-1), { pathname: '/games/matches/[id]/journal', params: { id: 'm2' } });
-  const done = await page({ 1: [matches[1]] });
+  const done = await page({ 1: [played[1]] });
   await done.press('Ver o diário da partida de 1 out. 2026');
   assert.deepEqual(done.routes.at(-1), { pathname: '/games/matches/[id]/journal', params: { id: 'm1' } });
+  assert.ok(!done.html.includes('por avaliar'));
   const loading = await page({ 6: true, 3: null });
-  assert.ok(!loading.html.includes('Ainda não avaliaste') && !loading.html.includes('Avalias cada partida'), 'no claim while loading');
+  assert.ok(!loading.html.includes('Ainda não avaliaste') && !loading.html.includes('Ainda não jogaste'), 'no claim while loading');
+  // Campaigns stay reachable, with and without matches.
+  for (const matches of [played, []]) {
+    const v = await page({ 1: matches });
+    await v.press('Nova campanha');
+    assert.equal(v.routes.at(-1), '/(app)/games/campaigns/create?gameId=game-id&gameName=Fixture%20game');
+  }
+});
+
+test('«Companhia neste jogo» opens Companhia filtered by the game, from your first match to today; capped at 10 years and said so', async () => {
+  const view = await page({ 1: played });
+  await view.press('Companhia neste jogo');
+  const route = view.routes.at(-1);
+  assert.equal(route.pathname, '/statistics/company');
+  assert.equal(route.params.gameId, 'game-id'); assert.equal(route.params.period, 'custom'); assert.equal(route.params.start, '2026-10-01');
+  assert.ok(!route.params.historyFrom, 'not limited');
+  const none = await page({ 1: [] });
+  assert.ok(!none.html.includes('Companhia neste jogo'), 'without matches there is nothing to open');
+  const { companyPeriod } = view.load(details);
+  const today = new Date(2026, 9, 14, 12);
+  assert.deepEqual(companyPeriod([{ matchDate: '2025-03-03T20:00:00Z' }, { matchDate: '2026-01-01' }], today), { start: '2025-03-03', endExclusive: '2026-10-15', first: '2025-03-03', limited: false });
+  const old = companyPeriod([{ matchDate: '2012-05-12' }], today);
+  assert.deepEqual(old, { start: '2016-10-07', endExclusive: '2026-10-15', first: '2012-05-12', limited: true }, '3660 days at most');
+  const oldView = await page({ 1: [{ ...played[1], matchDate: '2012-05-12' }] });
+  assert.ok(oldView.html.includes('Últimos 10 anos de Fixture game'));
+  await oldView.press('Companhia neste jogo');
+  assert.equal(oldView.routes.at(-1).params.historyFrom, '2012-05-12');
+  // Companhia states it instead of presenting a partial history as complete.
+  const company = await renderNative('src/features/statistics/screens/CompanyScreen.tsx', 'default', {}, { params: { start: '2016-10-07', endExclusive: '2026-10-15', timeZone: 'UTC', gameId: 'game-id', period: 'custom', historyFrom: '2012-05-12', gameName: 'Fixture game' } });
+  assert.ok(company.html.includes('A tua 1.ª partida de Fixture game é de 12 de mai. de 2012. As estatísticas cobrem no máximo 10 anos: as partidas anteriores a 7 de out. de 2016 não estão incluídas.'));
+  assert.ok(company.html.includes('7 out. 2016 – 14 out. 2026'), 'the period itself is shown in the selector');
+  const plain = await renderNative('src/features/statistics/screens/CompanyScreen.tsx', 'default', {}, { params: { start: '2025-03-03', endExclusive: '2026-10-15', timeZone: 'UTC', gameId: 'game-id', period: 'custom' } });
+  assert.ok(!plain.html.includes('no máximo 10 anos'));
 });
 
 test('regression: match history answered 204 No Content (data "") is no matches; any other non-list is an error', async () => {
@@ -88,16 +139,16 @@ test('regression: match history answered 204 No Content (data "") is no matches;
   }
   // The page in each state: loading, error (with retry), no matches, rated matches.
   const none = await page({ 1: [], 3: null });
-  assert.ok(none.html.includes('Avalias cada partida no diário') && none.html.includes('Ainda não registaste nenhuma partida deste jogo.'));
+  assert.ok(none.html.includes('Ainda não jogaste. Regista a primeira partida e avalia-a no diário.'));
   const failed = await page({ 7: true, 3: null });
   assert.ok(failed.html.includes('Não foi possível carregar os dados.') && !failed.html.includes('Ainda não avaliaste'));
   await failed.press('Tentar novamente');
   assert.ok(failed.calls.some(c => c[0] === 'getHistoryByGame'));
   const rated = await page({ 1: list });
-  assert.ok(rated.html.includes('Média das tuas avaliações em 1 partida') && rated.html.includes('Ver o diário da partida de 1 out. 2026'));
+  assert.ok(rated.html.includes('Média das tuas avaliações em 1 partida') && rated.controls.some(c => c.accessibilityLabel === 'Ver o diário da partida de 1 out. 2026'));
 });
 
-test('friends who have the game: a few with avatar and name, «Ver todos», profile access, simple empty and error states', async () => {
+test('friends who own the game: avatar and name with profile access, «Ver todos (n)» opens the full list, quiet empty and error states', async () => {
   const friends = 'src/features/games/catalog/components/FriendOwners.tsx';
   const owners = ['Ana', 'Teste-amigo-com-um-nome-de-utilizador-bastante-comprido', 'Bruno', 'Carla', 'Duarte'].map((userName, i) => ({ userId: 'u' + i, userName, profilePictureUrl: i === 0 ? 'https://example.org/a.jpg' : null }));
   const opened = [];
@@ -106,16 +157,25 @@ test('friends who have the game: a few with avatar and name, «Ver todos», prof
     const t = (key, o) => view.i18n.t(key, { ns: 'games', ...o });
     assert.ok(view.html.includes(t('details.friends.title')));
     assert.ok(view.html.includes('Teste-amigo-com-um-nome-de-utilizador-bastante-comprido'));
-    assert.ok(!view.html.includes('Duarte'), 'only a few at first');
-    assert.ok(view.controls.some(c => c.accessibilityLabel === t('details.friends.showAll', { count: 5 })));
+    assert.ok(!view.html.includes('Carla') && !view.html.includes('Duarte'), 'three at first, then «+2»');
+    assert.ok(view.html.includes('+2'));
+    assert.equal(view.controls.filter(c => c.accessibilityLabel === t('details.friends.showAll', { count: 5 })).length, 2, '«Ver todos (5)» in the heading and on the «+2» tile');
     assert.equal(view.images.length, 1, 'the photo when there is one, the initial otherwise');
+    assert.ok(view.html.includes(t('details.friends.note')));
     await view.press('Ana');
+    await view.press(t('details.friends.showAll', { count: 5 }));
+    assert.ok(view.updates.some(([index, value]) => index === 0 && value === true), 'opens the full list');
   }
   assert.deepEqual(opened, ['u0', 'u0']);
-  const all = await renderNative(friends, 'default', { owners, loading: false, error: false, onRetry() {}, onOpen() {} }, { states: { 0: true } });
-  assert.ok(all.html.includes('Duarte') && all.html.includes('Mostrar menos'));
+  const all = await renderNative(friends, 'default', { owners, loading: false, error: false, onRetry() {}, onOpen: id => opened.push(id) }, { states: { 0: true } });
+  assert.ok(all.html.includes('Duarte') && all.html.includes('Carla'), 'the full list');
+  await all.press('Duarte');
+  assert.equal(opened.at(-1), 'u4');
+  const four = await renderNative(friends, 'default', { owners: owners.slice(0, 4), loading: false, error: false, onRetry() {}, onOpen() {} });
+  assert.ok(four.html.includes('Carla') && !four.controls.some(c => /Ver todos/.test(c.accessibilityLabel || '')), 'four fit without «Ver todos»');
   const none = await renderNative(friends, 'default', { owners: [], loading: false, error: false, onRetry() {}, onOpen() {} });
-  assert.ok(none.html.includes('Nenhum amigo tem este jogo na biblioteca.'));
+  assert.ok(none.html.includes('Sem amigos com este jogo visível na biblioteca.'));
+  assert.ok(!/Nenhum amigo/.test(none.html), 'never claims that no friend owns it');
   let retried = 0;
   const failed = await renderNative(friends, 'default', { owners: null, loading: false, error: true, onRetry: () => retried++, onOpen() {} });
   await failed.press('Não foi possível carregar os amigos.');
@@ -126,6 +186,19 @@ test('friends who have the game: a few with avatar and name, «Ver todos», prof
   assert.deepEqual(pageView.routes.at(-1), { pathname: '/friends/[id]', params: { id: 'u0' } });
 });
 
+test('expansions: each with your library state and a way to its page; «Tens n de m»; nothing when the catalogue has none', async () => {
+  const expansions = [{ id: 'eu', name: 'Wingspan: European Expansion', isExpansion: true }, { id: 'oc', name: 'Wingspan: Oceania Expansion', isExpansion: true }];
+  const view = await page({ 0: { ...game, expansions } }, { library: [{ gameId: 'eu', status: 1, gameName: 'Wingspan: European Expansion' }] });
+  assert.ok(view.html.includes('Expansões') && view.html.includes('Tens 1 de 2'));
+  assert.ok(view.controls.some(c => c.accessibilityLabel === 'Wingspan: European Expansion, Expansão, Tenho'));
+  await view.press('Wingspan: Oceania Expansion, Expansão');
+  assert.deepEqual(view.routes.at(-1), { pathname: '/games/details/[id]', params: { id: 'oc' } });
+  const en = await page({ 0: { ...game, expansions } }, { language: 'en', library: [{ gameId: 'eu', status: 1 }] });
+  assert.ok(en.html.includes('You own 1 of 2'));
+  const none = await page();
+  assert.ok(!none.html.includes('Expansões'));
+});
+
 test('opening How to play loads resources in the preferred language and keeps the actions at hand', async () => {
   const view = await page({ 15: 'howToPlay' }, { resources: list });
   assert.ok(view.calls.some(c => c[0] === 'gameResources' && c[1] === 'game-id' && c[2] === 'pt'));
@@ -133,41 +206,49 @@ test('opening How to play loads resources in the preferred language and keeps th
   assert.ok(view.controls.some(c => c.accessibilityLabel === 'Registar partida'));
 });
 
-test('language chips: the user language first, then languages with resources, then All; nothing in Portuguese offers English', async () => {
+test('resource language: one button; the user language first, then languages with resources, then All; nothing in Portuguese offers English', async () => {
   const chosen = [];
   const view = await renderNative(area, 'default', areaProps({ onLanguage: value => chosen.push(value) }));
-  const chips = view.controls.filter(c => ['Português', 'Inglês', 'Todos'].includes(c.accessibilityLabel)).map(c => c.accessibilityLabel);
-  assert.deepEqual(chips, ['Português', 'Inglês', 'Todos']);
-  assert.match(view.html, /não muda o idioma da app/);
+  assert.ok(view.controls.some(c => c.accessibilityLabel === 'Idioma dos recursos: Português'));
+  await view.press('Idioma dos recursos: Português');
+  assert.ok(view.updates.some(([index, value]) => index === 1 && value === true), 'opens the choice');
+  const sheet = await renderNative(area, 'default', areaProps({ onLanguage: value => chosen.push(value) }), { states: { 1: true } });
+  const options = sheet.controls.filter(c => ['Português', 'Inglês', 'Todos'].includes(c.accessibilityLabel)).map(c => c.accessibilityLabel);
+  assert.deepEqual(options, ['Português', 'Inglês', 'Todos']);
+  assert.match(sheet.html, /não muda o idioma da app/);
+  await sheet.press('Inglês');
   // Rules exist (language-independent here); videos only in English: empty kinds are hidden, one line offers English.
-  assert.ok(view.html.includes('Regras oficiais') && !view.html.includes('Vídeos de explicação') && !view.html.includes('Partidas completas'));
+  assert.ok(view.html.includes('Regras oficiais') && !view.html.includes('Vídeos de explicação'));
+  assert.ok(view.html.includes('Ainda sem partidas completas.'), 'only what exists in no language is called missing');
   await view.press('Também em Inglês (4)');
-  assert.deepEqual(chosen, ['en']);
+  assert.deepEqual(chosen, ['en', 'en']);
   // Nothing at all in Portuguese for the area: a single notice with the alternatives.
   const none = await renderNative(area, 'default', areaProps({ onLanguage: value => chosen.push(value), data: { ...list, items: [] } }));
   assert.equal((none.html.match(/Nada em Português\./g) || []).length, 1);
   assert.match(none.html, /Há regras e vídeos noutros idiomas/);
   await none.press('Ver em Inglês (4)');
   await none.press('Ver todos os idiomas');
-  assert.deepEqual(chosen, ['en', 'en', 'all']);
+  assert.deepEqual(chosen, ['en', 'en', 'en', 'all']);
 });
 
-test('3D models are grouped by category, show confirmed price only, and hide the empty categories', async () => {
+test('3D models in a grid by category, with confirmed price only; empty categories hidden and missing kinds in one line', async () => {
   const view = await renderNative(area, 'default', areaProps({ area: 'resources' }));
   assert.match(view.html, /Organizadores e inserts/);
   assert.match(view.html, /Gratuito/);
   assert.match(view.html, /Compatível: Base game/);
-  for (const empty of ['Acessórios', 'Peças de substituição', 'Melhorias decorativas', 'Unboxings', 'Materiais adicionais', 'Ainda sem']) assert.ok(!view.html.includes(empty), empty);
-  assert.ok(!view.html.includes('Pago'));
+  for (const empty of ['Acessórios', 'Peças de substituição', 'Melhorias decorativas', 'Pago']) assert.ok(!view.html.includes(empty), empty);
+  assert.ok(view.html.includes('Ainda sem unboxings nem materiais adicionais.'));
   await view.press('Title model, Author · Printables, Gratuito, Base game');
   assert.deepEqual(view.calls.find(c => c[0] === 'openURL'), ['openURL', 'https://example.org/model']);
   const official = await renderNative(area, 'default', areaProps());
   assert.match(official.html, /Da editora/);
   const same = await renderNative('src/features/games/resources/components/ResourceRow.tsx', 'default', { resource: resource('pub', 'Rules', 'en', { author: 'Publisher', platform: 'Publisher' }) });
   assert.ok(same.html.includes('Publisher') && !same.html.includes('Publisher · Publisher'), 'author equal to platform is shown once');
+  const large = await renderNative(area, 'default', areaProps({ area: 'resources', data: { ...list, items: [list.items[1], { ...list.items[1], id: 'model2', title: 'Title model2' }] } }), { fontScale: 1.3 });
+  assert.ok(large.html.includes('Title model2'), 'large text: one model per row');
 });
 
-test('base game first, each expansion apart; real thumbnails with a neutral fallback; report sits in each resource menu', async () => {
+test('base game first, each expansion apart; the main video large with its real image; neutral fallback; report sits in each resource menu', async () => {
   const grouped = { language: 'all', total: 3, languages: [{ code: 'en', count: 3, kinds: { HowToPlay: 3 } }], items: [
     resource('base', 'HowToPlay', 'en', { url: 'https://www.youtube.com/watch?v=lgDgcLI2B0U' }),
     resource('eu', 'HowToPlay', 'en', { expansion: 'European Expansion', thumbnailUrl: 'https://example.org/eu.jpg' }),
@@ -175,19 +256,21 @@ test('base game first, each expansion apart; real thumbnails with a neutral fall
   const view = await renderNative(area, 'default', areaProps({ data: grouped, language: 'all' }));
   const order = ['Jogo base', 'Title base', 'European Expansion', 'Title eu', 'Oceania Expansion', 'Title oc'].map(text => view.html.indexOf(text));
   assert.ok(order.every((at, i) => at >= 0 && (i === 0 || at > order[i - 1])), 'base game first, then each expansion: ' + order);
-  assert.equal((view.html.match(/Expansão/g) || []).length, 2);
+  assert.equal((view.html.match(/>Expansão</g) || []).length, 2);
   assert.deepEqual(view.images.map(i => i.source.uri), ['https://i.ytimg.com/vi/lgDgcLI2B0U/hqdefault.jpg', 'https://example.org/eu.jpg'], 'no invented image for the third');
   const single = await renderNative(area, 'default', areaProps({ data: { ...grouped, items: [grouped.items[0]] }, language: 'all' }));
   assert.ok(!single.html.includes('Jogo base'), 'no group heading without expansions');
-  await view.press('Mais opções: Title eu');
-  assert.ok(view.updates.some(([, value]) => value?.id === 'eu'), 'the menu opens for that resource');
+  for (const id of ['base', 'eu']) {
+    await view.press(`Mais opções: Title ${id}`);
+    assert.ok(view.updates.some(([, value]) => value?.id === id), 'the menu opens for that resource: ' + id);
+  }
   const menu = await renderNative(report, 'default', { resource: grouped.items[1], onClose() {} });
   assert.ok(menu.controls.some(c => c.accessibilityLabel === 'Abrir em YouTube') && menu.controls.some(c => c.accessibilityLabel === 'Reportar problema'));
   await menu.press('Reportar problema');
   assert.ok(menu.updates.some(([, value]) => value === 'report'));
 });
 
-test('suggest is always offered; manage only for administrators; an empty area invites a suggestion', async () => {
+test('suggest is always offered; manage only for administrators; an empty area is one quiet line and a suggestion', async () => {
   const user = await renderNative(area, 'default', areaProps());
   assert.ok(!user.controls.some(c => c.accessibilityLabel === 'Gerir recursos'));
   await user.press('Sugerir recurso');
@@ -196,7 +279,7 @@ test('suggest is always offered; manage only for administrators; an empty area i
   await manager.press('Gerir recursos');
   assert.deepEqual(manager.routes, [{ pathname: '/games/resources/admin', params: { gameId: 'game-id', gameName: 'Fixture game' } }]);
   const empty = await renderNative(area, 'default', areaProps({ data: { language: 'pt', items: [], languages: [], total: 0 } }));
-  assert.match(empty.html, /Ainda sem regras nem vídeos/);
+  assert.match(empty.html, /Ainda sem regras nem vídeos\./);
   assert.ok(empty.controls.some(c => c.accessibilityLabel === 'Sugerir recurso'));
   const failed = await renderNative(area, 'default', areaProps({ data: null, error: true }));
   assert.match(failed.html, /Não foi possível carregar os recursos/);

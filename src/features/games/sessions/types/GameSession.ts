@@ -33,6 +33,11 @@ export interface GameSession {
 
   location?: string | null;
 
+  /** Jogo previsto (opcional); não limita os jogos registados na sessão. */
+  plannedGameId?: string | null;
+  plannedGameName?: string | null;
+  plannedGameImageUrl?: string | null;
+
   /** Upcoming | Active | Closed | Cancelled */
   status: GameSessionStatus;
 

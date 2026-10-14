@@ -378,7 +378,23 @@
       "saved": "Hora de fim atualizada.",
       "error": "Não foi possível alterar a hora de fim.",
       "invalid": "Escolhe uma hora entre agora e {{date}}."
-    }
+    },
+    "plannedGame": "Jogo previsto",
+    "plannedGameOptional": "Jogo previsto (opcional)",
+    "plannedFromGame": "Escolhido na página do jogo",
+    "plannedChange": "Alterar",
+    "plannedChoose": "Escolher jogo",
+    "plannedNone": "Sem jogo definido",
+    "plannedNoneHint": "Decidem à mesa",
+    "plannedUndecided": "Por definir",
+    "plannedAnyGame": "Podem registar partidas de qualquer jogo.",
+    "plannedFromLibrary": "Da tua biblioteca",
+    "plannedSearch": "Pesquisar no catálogo",
+    "plannedPickTitle": "Jogo previsto",
+    "plannedSaved": "Jogo previsto atualizado.",
+    "plannedError": "Não foi possível alterar o jogo previsto.",
+    "plannedChangeHint": "Não muda partidas nem horas da sessão",
+    "plannedCancel": "Cancelar"
   },
   "form": {
     "withScores": "Com pontuação",

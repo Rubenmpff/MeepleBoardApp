@@ -378,7 +378,23 @@
       "saved": "End time updated.",
       "error": "Could not change the end time.",
       "invalid": "Choose a time between now and {{date}}."
-    }
+    },
+    "plannedGame": "Planned game",
+    "plannedGameOptional": "Planned game (optional)",
+    "plannedFromGame": "Chosen on the game page",
+    "plannedChange": "Change",
+    "plannedChoose": "Choose game",
+    "plannedNone": "No game set",
+    "plannedNoneHint": "Decide at the table",
+    "plannedUndecided": "To be decided",
+    "plannedAnyGame": "You can record matches of any game.",
+    "plannedFromLibrary": "From your library",
+    "plannedSearch": "Search the catalogue",
+    "plannedPickTitle": "Planned game",
+    "plannedSaved": "Planned game updated.",
+    "plannedError": "Could not change the planned game.",
+    "plannedChangeHint": "Does not change the session's matches or times",
+    "plannedCancel": "Cancel"
   },
   "form": {
     "withScores": "With scores",

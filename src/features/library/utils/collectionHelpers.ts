@@ -66,7 +66,7 @@ export function buildCollectionEntries(
       gameImageUrl: entry.gameImageUrl,
       bggId: entry.bggId,
       averageRating: entry.game?.averageRating,
-      averageWeight: entry.game?.averageWeight,
+      averageWeight: entry.game?.averageWeight ?? undefined,
       minPlayers: entry.game?.minPlayers,
       maxPlayers: entry.game?.maxPlayers,
       isExpansion: entry.game?.isExpansion,

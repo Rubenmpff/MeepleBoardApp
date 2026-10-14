@@ -1,0 +1,9 @@
+{"name":"sessao-jogo-previsto","screens":[
+ {"id":"01-criar-a-partir-do-jogo","route":"/games/sessions/create?gameId={{game:Wingspan}}&gameName=Wingspan"},
+ {"id":"02-escolher-jogo","route":"/games/sessions/create?gameId={{game:Wingspan}}&gameName=Wingspan","steps":[{"click":"Jogo previsto (opcional): Wingspan","wait":900}]},
+ {"id":"03-criar-sem-jogo","route":"/games/sessions/create"},
+ {"id":"04-lista","route":"/games/sessions","steps":[{"click":"Agendadas, 5","wait":800}]},
+ {"id":"05-detalhe","route":"/games/sessions/{{upcomingSession}}"},
+ {"id":"06-texto-grande","route":"/games/sessions/create?gameId={{game:Wingspan}}&gameName=Wingspan","fontScale":1.35},
+ {"id":"07-create-en","route":"/games/sessions/create?gameId={{game:Wingspan}}&gameName=Wingspan","lang":"en"}
+]}
