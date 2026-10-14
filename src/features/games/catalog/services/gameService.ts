@@ -6,6 +6,9 @@ import type { AxiosRequestConfig } from "axios";
 import { Game } from "../types/Game";
 import { GameSuggestion } from "../types/GameSuggestion";
 
+/** A friend who has the game («Tenho»), as the friends list shows them. */
+export interface GameFriendOwner { userId: string; userName: string; profilePictureUrl: string | null }
+
 export interface PagedResponse<T> {
   data: T[];
   totalCount: number;
@@ -139,6 +142,14 @@ async function getSuggestionsSingleFlight(
 }
 
 const gameService = {
+  /**
+   * Amigos aceites com o jogo no estado «Tenho» cuja biblioteca o utilizador pode ver (regras aplicadas na API).
+   */
+  getFriendOwners: async (gameId: string): Promise<{ total: number; items: GameFriendOwner[] }> => {
+    const res = await api.get(`/game/${gameId}/friend-owners`);
+    return res.data;
+  },
+
   /**
    * Retorna detalhes completos de um jogo por ID local.
    */

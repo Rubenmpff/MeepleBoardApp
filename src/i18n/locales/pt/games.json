@@ -53,7 +53,7 @@
       "campaigns": "Campanhas"
     },
     "descriptionTitle": "Descrição",
-    "descriptionEmpty": "Sem descrição disponível.\nImporta o jogo do BGG para veres mais detalhes.",
+    "descriptionEmpty": "Sem descrição disponível.",
     "historyEmpty": "Ainda não registaste nenhuma partida deste jogo.",
     "newCampaign": "Nova campanha",
     "campaignStatus": {
@@ -87,26 +87,38 @@
     },
     "ratings": {
       "title": "Avaliações",
-      "bgg": "Avaliação BGG",
-      "bggVotes_one": "{{count}} avaliação",
-      "bggVotes_other": "{{count}} avaliações",
+      "bgg": "BoardGameGeek",
+      "bggVotes_one": "{{value}} avaliação",
+      "bggVotes_other": "{{value}} avaliações",
       "bggRank": "posição {{rank}}",
-      "bggSource": "BoardGameGeek",
-      "bggNone": "Sem avaliação no BoardGameGeek",
-      "meepleBoard": "Avaliação MeepleBoard",
-      "meepleBoardHint": "Média das avaliações dos jogadores no MeepleBoard",
-      "meepleBoardNone": "Ainda sem avaliações no MeepleBoard",
+      "meepleBoard": "MeepleBoard",
+      "meepleBoardHint": "Jogadores do MeepleBoard",
       "personal": "A tua avaliação",
-      "personalHint": "Média das tuas avaliações nas partidas",
-      "personalNone": "Ainda não avaliaste este jogo",
-      "scale": "Todas de 0 a 10."
+      "personalNone": "Ainda não avaliaste nenhuma partida deste jogo.",
+      "noData": "Sem avaliações",
+      "noneYet": "Ainda sem avaliações do BoardGameGeek nem do MeepleBoard.",
+      "outOf": "{{value}} em 10",
+      "personalHint_one": "Média das tuas avaliações em {{count}} partida",
+      "personalHint_other": "Média das tuas avaliações em {{count}} partidas",
+      "personalNoMatches": "Avalias cada partida no diário, depois de a registares.",
+      "rateMatch": "Avaliar a partida de {{date}}",
+      "reviewJournal": "Ver o diário da partida de {{date}}"
     },
     "bgg": {
       "source": "Ficha do BoardGameGeek",
       "open": "Abrir a página do jogo no BoardGameGeek",
       "hint": "Abre o site original"
     },
-    "descriptionSource": "Texto original do BoardGameGeek, sem tradução."
+    "descriptionSource": "Texto original do BoardGameGeek, sem tradução.",
+    "addToLibraryShort": "Biblioteca",
+    "friends": {
+      "title": "Amigos que têm este jogo",
+      "none": "Nenhum amigo tem este jogo na biblioteca.",
+      "loading": "A carregar…",
+      "error": "Não foi possível carregar os amigos.",
+      "showAll": "Ver todos ({{count}})",
+      "openProfile": "Abre o perfil"
+    }
   },
   "ui": {
     "searchTitle": "Pesquisar jogos",
@@ -176,9 +188,8 @@
     "cancel": "Cancelar",
     "send": "Enviar",
     "language": {
-      "title": "Idioma dos recursos",
-      "all": "Todos",
-      "hint": "Independente do idioma da app."
+      "title": "Idioma dos recursos · não muda o idioma da app",
+      "all": "Todos"
     },
     "languages": {
       "pt": "Português",
@@ -204,15 +215,12 @@
       "ReplacementPart": "Peças de substituição",
       "Decorative": "Melhorias decorativas"
     },
-    "categoriesEmpty": "Ainda sem: {{list}}.",
     "official": "Da editora",
     "free": "Gratuito",
     "paid": "Pago",
     "fits": "Compatível: {{value}}",
     "opens": "Abre em {{platform}}, fora da app",
-    "reportFor": "Reportar problema em {{title}}",
     "noneIn": "Nada em {{language}}.",
-    "noneYet": "Ainda não há nenhum para este jogo.",
     "seeIn_one": "Ver em {{language}} ({{count}})",
     "seeIn_other": "Ver em {{language}} ({{count}})",
     "seeAll": "Ver todos os idiomas",
@@ -220,7 +228,7 @@
       "howToPlay": "Ainda sem regras nem vídeos",
       "resources": "Ainda sem recursos"
     },
-    "areaEmptyHint": "Ainda ninguém sugeriu recursos para este jogo. Conheces um bom? Sugere-o.",
+    "areaEmptyHint": "Conheces um bom? Sugere-o: fica visível depois de aprovado.",
     "suggest": "Sugerir recurso",
     "suggestHint": "Fica pendente até ser aprovado.",
     "manage": "Gerir recursos",
@@ -264,12 +272,16 @@
         "paid": "Pago"
       },
       "priceHint": "Indica gratuito ou pago só quando tiveres a certeza.",
-      "required": "Preenche o título, a plataforma e um endereço https.",
+      "required": "Preenche o título, a plataforma e endereços https válidos.",
       "submit": "Enviar sugestão",
       "save": "Guardar",
       "sent": "Obrigado! A sugestão fica pendente de aprovação.",
       "saved": "Recurso guardado.",
-      "error": "Não foi possível guardar."
+      "error": "Não foi possível guardar.",
+      "expansion": "Expansão",
+      "expansionHint": "Só se for para uma expansão específica; em branco é o jogo base.",
+      "thumbnail": "Imagem de pré-visualização",
+      "thumbnailHint": "Endereço https de uma imagem no site original (opcional)."
     },
     "admin": {
       "title": "Gerir recursos",
@@ -309,6 +321,13 @@
     "areaElsewhere": {
       "howToPlay": "Há regras e vídeos noutros idiomas:",
       "resources": "Há recursos noutros idiomas:"
-    }
+    },
+    "moreFor": "Mais opções: {{title}}",
+    "openIn": "Abrir em {{platform}}",
+    "back": "Voltar",
+    "expansion": "Expansão",
+    "baseGame": "Jogo base",
+    "alsoIn_one": "Também em {{language}} ({{count}})",
+    "alsoIn_other": "Também em {{language}} ({{count}})"
   }
 }

@@ -39,7 +39,9 @@ export default function ResourceFormScreen() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(editing);
   const [submitted, setSubmitted] = useState(false);
-  const guard = useUnsavedChanges(!!(title || author || platform || url || compatibility) && !editing, saving, "/games/details/" + params.gameId);
+  const [expansion, setExpansion] = useState("");
+  const [thumbnail, setThumbnail] = useState("");
+  const guard = useUnsavedChanges(!!(title || author || platform || url || compatibility || expansion || thumbnail) && !editing, saving, "/games/details/" + params.gameId);
 
   // Editing: read the current values from the administration list.
   useEffect(() => {
@@ -49,11 +51,13 @@ export default function ResourceFormScreen() {
       if (!r) return;
       setKind(r.kind); setCategory(r.printCategory); setLanguage(r.language); setTitle(r.title); setAuthor(r.author ?? ""); setPlatform(r.platform);
       setUrl(r.url); setCompatibility(r.compatibility ?? ""); setOfficial(r.isOfficial); setPrice(r.isFree == null ? "unknown" : r.isFree ? "free" : "paid");
+      setExpansion(r.expansion ?? ""); setThumbnail(r.thumbnailUrl ?? "");
     }).catch(() => Alert.alert(t("resources.form.error"))).finally(() => setLoading(false));
   }, [editing, params.gameId, params.resourceId]);
 
   const urlValid = /^https:\/\/[^\s/$.?#][^\s]*\.[^\s]+/i.test(url.trim());
-  const missing = !title.trim() || !platform.trim() || !urlValid || (kind === "PrintModel" && !category);
+  const thumbnailValid = !thumbnail.trim() || /^https:\/\/[^\s/$.?#][^\s]*\.[^\s]+/i.test(thumbnail.trim());
+  const missing = !title.trim() || !platform.trim() || !urlValid || !thumbnailValid || (kind === "PrintModel" && !category);
   const chooseKind = (next: ResourceKind) => {
     setKind(next);
     if (next === "PrintModel") setLanguage(null); else setCategory(null);
@@ -63,7 +67,8 @@ export default function ResourceFormScreen() {
     setSubmitted(true);
     if (missing || saving) return;
     const input: GameResourceInput = { kind, printCategory: kind === "PrintModel" ? category : null, language, title: title.trim(), author: author.trim() || null,
-      platform: platform.trim(), url: url.trim(), compatibility: compatibility.trim() || null, isOfficial: official, isFree: price === "unknown" ? null : price === "free" };
+      platform: platform.trim(), url: url.trim(), compatibility: compatibility.trim() || null, isOfficial: official, isFree: price === "unknown" ? null : price === "free",
+      expansion: expansion.trim() || null, thumbnailUrl: thumbnail.trim() || null };
     setSaving(true);
     try {
       if (editing) await resourceService.update(params.resourceId!, input);
@@ -113,7 +118,9 @@ export default function ResourceFormScreen() {
           {field(t("resources.form.url"), url, setUrl, { required: true, keyboard: "url", hint: t("resources.form.urlHint"), invalid: !urlValid })}
           {field(t("resources.form.platform"), platform, setPlatform, { required: true, hint: t("resources.form.platformHint"), invalid: !platform.trim() })}
           {field(t("resources.form.author"), author, setAuthor)}
+          {field(t("resources.form.expansion"), expansion, setExpansion, { hint: t("resources.form.expansionHint") })}
           {field(t("resources.form.compatibility"), compatibility, setCompatibility, { hint: t("resources.form.compatibilityHint") })}
+          {field(t("resources.form.thumbnail"), thumbnail, setThumbnail, { keyboard: "url", hint: t("resources.form.thumbnailHint"), invalid: !thumbnailValid })}
         </Card>
       </Section>
 

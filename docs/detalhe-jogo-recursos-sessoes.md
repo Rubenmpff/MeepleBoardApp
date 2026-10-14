@@ -4,13 +4,20 @@ Ramo `feat/game-resources-session-autoclose` (app e API), a partir de `checkpoin
 
 ## Página do jogo
 
-- Sempre à mão: capa, ficha (tipo, ano, jogadores, peso), «Ficha do BoardGameGeek» com ligação à página original, «Registar partida» e o estado na biblioteca («Adicionar à biblioteca» ou «Na tua biblioteca · …» para gerir).
-- **Sobre:** «Avaliação BGG» (com número de avaliações, posição e origem BoardGameGeek), «Avaliação MeepleBoard» (média dos jogadores na app) e «A tua avaliação», todas de 0 a 10 e com estado claro quando não existem; descrição com a origem («Texto original do BoardGameGeek, sem tradução.»); as tuas partidas e campanhas, como antes.
-- **Como jogar:** regras oficiais, vídeos de explicação, partidas completas.
-- **Recursos:** modelos 3D por categoria (organizadores e inserts, acessórios, peças de substituição, melhorias decorativas), unboxings e materiais adicionais. Gratuito/pago só quando confirmado.
-- **Idioma dos recursos:** começa no idioma da app, guarda-se à parte (`resource_language`) e não muda a língua da app. Mostra o idioma do utilizador, os idiomas com recursos e «Todos». Sem nada no idioma escolhido, um aviso único oferece os idiomas com mais recursos e «Ver todos os idiomas»; num grupo vazio, uma linha leva ao idioma alternativo.
-- Cada recurso abre a página original; a bandeira «Reportar problema» envia o motivo aos administradores. «Sugerir recurso» abre o formulário (fica pendente). Administradores veem «Gerir recursos».
-- Código: `src/features/games/resources/` (tipos, serviço, hooks, componentes, ecrãs de formulário e gestão); rotas `/games/resources/form` e `/games/resources/admin`.
+Revisão de 2026-10-14 (ponto de recuperação `checkpoint/pre-game-page-v2`).
+
+- **Topo compacto:** capa 72 pt, nome, ficha numa linha (tipo, ano, jogadores, peso, Solo/Cooperativo), «Ficha do BoardGameGeek» com ligação à página original. «Registar partida» e a biblioteca lado a lado («Biblioteca», ou o estado atual com ▾ para gerir; o rótulo acessível diz sempre «Adicionar à biblioteca» / «Gerir na biblioteca: …»). Com texto grande ficam em coluna e com o rótulo completo.
+- **Sobre:**
+  - «Avaliações»: BoardGameGeek e MeepleBoard lado a lado, cada um com a escala «/10»; o BGG mostra o número de avaliações e a posição quando existem. Sem nenhuma das duas, uma só frase; sem uma delas, «Sem avaliações» nesse lado. Cálculos inalterados.
+  - «A tua avaliação», à parte: a média das avaliações que deste às tuas partidas, com o número de partidas avaliadas, e acesso ao diário (a partida por avaliar mais recente, ou o diário da última). Não existe avaliação direta do jogo e a página não sugere que exista.
+  - «Amigos que têm este jogo»: avatar (foto quando existe), nome e acesso ao perfil; quatro e «Ver todos (n)». Só amigos aceites com «Tenho» e biblioteca visível (regras na API: `GET /game/{id}/friend-owners`).
+  - Descrição (com a origem BGG), as tuas partidas e campanhas, como antes.
+- **Como jogar / Recursos:** jogo base primeiro e cada expansão num grupo próprio (campo `expansion`); dentro, só os tipos e categorias 3D com conteúdo. Nada na área: um único estado vazio com «Sugerir recurso». Nada no idioma escolhido: um aviso com os idiomas alternativos; com conteúdo mas mais noutro idioma: uma linha «Também em …».
+- **Cartões de recurso:** miniatura real (a do YouTube para vídeos; a pré-visualização do site original quando registada em `thumbnailUrl`), ou um ícone neutro por tipo; título em destaque; autor e plataforma, depois «Da editora · idioma · preço» e a compatibilidade como informação secundária. Tocar abre a página original; «…» abre um menu com «Abrir em …» e «Reportar problema» (o relato continua na mesma folha, com «Voltar»).
+- **Explicações secundárias** em texto pequeno: idioma («não muda o idioma da app») e a nota sobre links externos.
+- **Idioma dos recursos:** começa no idioma da app, guarda-se à parte (`resource_language`) e não muda a língua da app.
+- «Sugerir recurso» (fica pendente) aceita expansão e imagem https opcionais; administradores veem «Gerir recursos».
+- Código: `src/features/games/catalog/components/GameRatings.tsx`, `FriendOwners.tsx`; `src/features/games/resources/` (`ResourceRow`, `ResourceActionsSheet`, `ResourceArea`, formulário e gestão).
 
 ## Sessões
 
@@ -20,18 +27,19 @@ Ramo `feat/game-resources-session-autoclose` (app e API), a partir de `checkpoin
 
 ## Verificação
 
-- App: TypeScript sem erros; 314 testes (`node --test tests/*.test.cjs`), incluindo `game-resources.test.cjs` e `session-end-time.test.cjs`.
-- API: `Sessions.Tests` 13, `GameResources.Tests` 9, e os projetos existentes (Authorization 59+1, PlayerScores 72, Library 15) sem alterações.
-- SQL real (DeviceTests): `verify-session-auto-close.cjs` e `verify-game-resources.cjs` (inclui todos os jogos: catálogo vazio e sugestão pendente nos que não são o Wingspan), ambos também com `--recheck` depois de reiniciar a API.
-- WebKit: cenários `recursos`, `recursos-admin` (`--account admin`) e `sessoes-fim` em `tools/visual-preview/scenarios/`.
+- App: TypeScript sem erros; 317 testes (`node --test tests/*.test.cjs`), incluindo `game-resources.test.cjs` (página do jogo, avaliações, amigos, recursos) e `session-end-time.test.cjs`.
+- API: `Sessions.Tests` 13, `GameResources.Tests` 10, `Library.Tests` 16 (inclui amigos com o jogo), Authorization 59+1, PlayerScores 72.
+- SQL real (DeviceTests): `verify-session-auto-close.cjs`, `verify-game-resources.cjs` (todos os jogos; expansões e miniaturas) e `verify-game-friends.cjs` (quem aparece e quem não pode aparecer).
+- WebKit: cenários `pagina-jogo` e `pagina-jogo-en` (`--account participante`), `recursos-admin` (`--account admin`) e `sessoes-fim`. Avaliações BGG preenchidas só nos testes isolados, com dados de teste identificados: o DeviceTests não copia dados do BGG.
 
 ## Por confirmar no iPhone
 
-1. **Wingspan → Sobre:** três avaliações distintas; «Ficha do BoardGameGeek» abre o site; texto grande sem cortes.
-2. **Como jogar:** idioma Português mostra o aviso e «Ver em Inglês (4)»; em Inglês, abrir um vídeo (YouTube) e voltar à app no mesmo separador.
-3. **Recursos:** abrir um modelo da Printables; «Reportar problema» → motivo → Enviar; repetir dá a mensagem de que já foi reportado.
-4. **Sugerir recurso** com a conta `autor`: aparece em «Pendentes» na conta `admin`; aprovar e confirmar que fica público; rejeitar outra e confirmar que não aparece.
-5. **Idioma dos recursos:** mudar para «Todos», fechar a app e voltar: a escolha mantém-se e a app continua no mesmo idioma.
-6. **Sessões:** «Sessão de teste · fim automático» (conta `autor`) mostra início e fim; «Prolongar» com o seletor nativo de data e hora; a conta `participante` vê a mesma hora sem «Prolongar».
-7. **Terminadas:** sessões antigas aparecem em Jogar → Sessões → Terminadas com partidas e participantes; «Registar partida» deixa de estar disponível nelas.
-8. Para registar partidas numa sessão ativa no roteiro anterior, criar uma sessão nova (as antigas terminaram automaticamente).
+1. **Wingspan → Sobre** (conta `participante`): topo compacto com as duas ações; avaliações sem dados numa frase; «A tua avaliação» à parte; «Amigos que têm este jogo» com 4 + «Ver todos (5)», o nome longo sem cortes, e o perfil abre ao tocar. Não aparecem: amigo com biblioteca privada, «Quero jogar», «Já joguei», pedido pendente, não amigo.
+2. **Meeple Teste Solo → Sobre:** MeepleBoard e a tua avaliação preenchidas, «Ver o diário da partida de …» abre o diário; amigos vazio numa linha.
+3. **Como jogar:** Português mostra o aviso e «Ver em Inglês (4)»; em Inglês, jogo base primeiro e as expansões European e Oceania em grupos; miniaturas do YouTube; abrir um vídeo e voltar à app.
+4. **Recursos:** miniaturas da Printables; «…» → «Reportar problema» → motivo → Enviar; repetir dá a mensagem de que já foi reportado. Num jogo sem recursos, um único estado vazio. Texto grande e EN sem cortes.
+5. **Sugerir recurso** com a conta `autor`: aparece em «Pendentes» na conta `admin`; aprovar e confirmar que fica público; rejeitar outra e confirmar que não aparece.
+6. **Idioma dos recursos:** mudar para «Todos», fechar a app e voltar: a escolha mantém-se e a app continua no mesmo idioma.
+7. **Sessões:** «Sessão de teste · fim automático» (conta `autor`) mostra início e fim; «Prolongar» com o seletor nativo de data e hora; a conta `participante` vê a mesma hora sem «Prolongar».
+8. **Terminadas:** sessões antigas aparecem em Jogar → Sessões → Terminadas com partidas e participantes; «Registar partida» deixa de estar disponível nelas.
+9. Para registar partidas numa sessão ativa no roteiro anterior, criar uma sessão nova (as antigas terminaram automaticamente).

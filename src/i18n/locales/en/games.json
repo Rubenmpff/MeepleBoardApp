@@ -53,7 +53,7 @@
       "campaigns": "Campaigns"
     },
     "descriptionTitle": "Description",
-    "descriptionEmpty": "No description is available.\nImport the game from BGG to see more details.",
+    "descriptionEmpty": "No description is available.",
     "historyEmpty": "You haven't registered any matches for this game yet.",
     "newCampaign": "New campaign",
     "campaignStatus": {
@@ -87,26 +87,38 @@
     },
     "ratings": {
       "title": "Ratings",
-      "bgg": "BGG rating",
-      "bggVotes_one": "{{count}} rating",
-      "bggVotes_other": "{{count}} ratings",
+      "bgg": "BoardGameGeek",
+      "bggVotes_one": "{{value}} rating",
+      "bggVotes_other": "{{value}} ratings",
       "bggRank": "rank {{rank}}",
-      "bggSource": "BoardGameGeek",
-      "bggNone": "No BoardGameGeek rating",
-      "meepleBoard": "MeepleBoard rating",
-      "meepleBoardHint": "Average of players' ratings on MeepleBoard",
-      "meepleBoardNone": "No MeepleBoard ratings yet",
+      "meepleBoard": "MeepleBoard",
+      "meepleBoardHint": "MeepleBoard players",
       "personal": "Your rating",
-      "personalHint": "Average of your match ratings",
-      "personalNone": "You have not rated this game yet",
-      "scale": "All from 0 to 10."
+      "personalNone": "You have not rated any match of this game yet.",
+      "noData": "No ratings",
+      "noneYet": "No BoardGameGeek or MeepleBoard ratings yet.",
+      "outOf": "{{value}} out of 10",
+      "personalHint_one": "Average of your ratings in {{count}} match",
+      "personalHint_other": "Average of your ratings in {{count}} matches",
+      "personalNoMatches": "You rate each match in its journal, after recording it.",
+      "rateMatch": "Rate the match of {{date}}",
+      "reviewJournal": "See the journal of the match of {{date}}"
     },
     "bgg": {
       "source": "BoardGameGeek entry",
       "open": "Open the game page on BoardGameGeek",
       "hint": "Opens the original site"
     },
-    "descriptionSource": "Original BoardGameGeek text, not translated."
+    "descriptionSource": "Original BoardGameGeek text, not translated.",
+    "addToLibraryShort": "Library",
+    "friends": {
+      "title": "Friends who own this game",
+      "none": "None of your friends has this game in their library.",
+      "loading": "Loading…",
+      "error": "Could not load your friends.",
+      "showAll": "See all ({{count}})",
+      "openProfile": "Opens the profile"
+    }
   },
   "ui": {
     "searchTitle": "Search games",
@@ -176,9 +188,8 @@
     "cancel": "Cancel",
     "send": "Send",
     "language": {
-      "title": "Resource language",
-      "all": "All",
-      "hint": "Separate from the app language."
+      "title": "Resource language · does not change the app language",
+      "all": "All"
     },
     "languages": {
       "pt": "Portuguese",
@@ -204,15 +215,12 @@
       "ReplacementPart": "Replacement parts",
       "Decorative": "Decorative upgrades"
     },
-    "categoriesEmpty": "Nothing yet: {{list}}.",
     "official": "From the publisher",
     "free": "Free",
     "paid": "Paid",
     "fits": "Fits: {{value}}",
     "opens": "Opens on {{platform}}, outside the app",
-    "reportFor": "Report a problem with {{title}}",
     "noneIn": "Nothing in {{language}}.",
-    "noneYet": "None for this game yet.",
     "seeIn_one": "See in {{language}} ({{count}})",
     "seeIn_other": "See in {{language}} ({{count}})",
     "seeAll": "See all languages",
@@ -220,7 +228,7 @@
       "howToPlay": "No rules or videos yet",
       "resources": "No resources yet"
     },
-    "areaEmptyHint": "Nobody has suggested resources for this game yet. Know a good one? Suggest it.",
+    "areaEmptyHint": "Know a good one? Suggest it: it shows once approved.",
     "suggest": "Suggest a resource",
     "suggestHint": "It stays pending until approved.",
     "manage": "Manage resources",
@@ -264,12 +272,16 @@
         "paid": "Paid"
       },
       "priceHint": "Mark free or paid only when you are sure.",
-      "required": "Fill in the title, the platform and an https address.",
+      "required": "Fill in the title, the platform and valid https addresses.",
       "submit": "Send suggestion",
       "save": "Save",
       "sent": "Thank you! The suggestion is pending approval.",
       "saved": "Resource saved.",
-      "error": "Could not save."
+      "error": "Could not save.",
+      "expansion": "Expansion",
+      "expansionHint": "Only if it is for a specific expansion; leave empty for the base game.",
+      "thumbnail": "Preview image",
+      "thumbnailHint": "https address of an image on the original site (optional)."
     },
     "admin": {
       "title": "Manage resources",
@@ -309,6 +321,13 @@
     "areaElsewhere": {
       "howToPlay": "There are rules and videos in other languages:",
       "resources": "There are resources in other languages:"
-    }
+    },
+    "moreFor": "More options: {{title}}",
+    "openIn": "Open in {{platform}}",
+    "back": "Back",
+    "expansion": "Expansion",
+    "baseGame": "Base game",
+    "alsoIn_one": "Also in {{language}} ({{count}})",
+    "alsoIn_other": "Also in {{language}} ({{count}})"
   }
 }

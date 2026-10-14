@@ -20,6 +20,10 @@ export interface GameResource {
   /** Only set when the price was confirmed. */
   isFree: boolean | null;
   status: ResourceStatus;
+  /** The expansion it is specifically for; null: the base game. */
+  expansion?: string | null;
+  /** Preview image on the original site, when one exists. */
+  thumbnailUrl?: string | null;
 }
 
 export interface ResourceLanguage { code: string | null; count: number; kinds: Partial<Record<ResourceKind, number>> }

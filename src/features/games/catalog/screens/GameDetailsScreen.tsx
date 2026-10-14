@@ -1,14 +1,14 @@
 /**
- * Game page. Always at hand: the cover, the facts, «Registar partida» and the library state.
+ * Game page. Always at hand, in a compact top: the cover, the facts, «Registar partida» and the library state.
  * Three areas:
- *   Sobre       — ratings (BGG, MeepleBoard, mine), description, my matches and campaigns.
+ *   Sobre       — ratings (BGG and MeepleBoard; mine apart), friends who have it, description, my matches and campaigns.
  *   Como jogar  — official rules, explanation videos and full playthroughs.
  *   Recursos    — 3D models (by category), unboxings and other material.
  * BoardGameGeek data is labelled where it appears, with a link to the original page.
  */
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Image, Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Linking, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,8 +16,8 @@ import Toast from "react-native-toast-message";
 import ScreenHeader from "@/src/components/navigation/ScreenHeader";
 import ScreenState from "@/src/components/ui/ScreenState";
 import ScreenScroll from "@/src/ui/Screen";
-import { Button, Card, Glyph, Note, Row, Section, Segmented } from "@/src/ui/components";
-import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
+import { Button, Card, Glyph, Row, Section, Segmented } from "@/src/ui/components";
+import { colors, isLarge, radius, space, strong, touch, type } from "@/src/ui/theme";
 import { formatDate, formatRating } from "@/src/ui/format";
 import { ROUTES } from "@/src/constants/routes";
 import { RootState } from "@/src/store/store";
@@ -31,7 +31,9 @@ import { useGameResources } from "@/src/features/games/resources/hooks/useGameRe
 import { useResourceLanguage } from "@/src/features/games/resources/hooks/useResourceLanguage";
 import resourceService from "@/src/features/games/resources/services/resourceService";
 import { matchResultText } from "../../sessions/utils/matchResultKey";
-import gameService from "../services/gameService";
+import gameService, { GameFriendOwner } from "../services/gameService";
+import GameRatings, { JournalTarget } from "../components/GameRatings";
+import FriendOwners from "../components/FriendOwners";
 import matchService from "../../matches/services/matchService";
 import campaignService from "../../campaigns/services/campaignService";
 import { Game } from "../types/Game";
@@ -69,6 +71,11 @@ export default function GameDetailsScreen() {
   const [managing, setManaging] = useState(false);
   const [area, setArea] = useState<Area>("about");
   const [canManage, setCanManage] = useState(false);
+  const [friendOwners, setFriendOwners] = useState<GameFriendOwner[] | null>(null);
+  const [friendsLoading, setFriendsLoading] = useState(true);
+  const [friendsError, setFriendsError] = useState(false);
+  const { width, fontScale } = useWindowDimensions();
+  const large = isLarge(width, fontScale);
   const resourceLanguage = useResourceLanguage(language);
   const resources = useGameResources(game?.id, resourceLanguage.language, area !== "about" && resourceLanguage.loaded);
 
@@ -97,7 +104,15 @@ export default function GameDetailsScreen() {
     finally { setCampaignsLoading(false); }
   }, [id]);
 
-  useEffect(() => { fetchGame(); fetchHistory(); fetchCampaigns(); }, [fetchGame, fetchHistory, fetchCampaigns]);
+  const fetchFriends = useCallback(async () => {
+    if (!id) { setFriendsLoading(false); return; }
+    setFriendsLoading(true); setFriendsError(false);
+    try { setFriendOwners((await gameService.getFriendOwners(id)).items); }
+    catch (err) { console.error("Erro ao carregar amigos com o jogo", err); setFriendsError(true); }
+    finally { setFriendsLoading(false); }
+  }, [id]);
+
+  useEffect(() => { fetchGame(); fetchHistory(); fetchCampaigns(); fetchFriends(); }, [fetchGame, fetchHistory, fetchCampaigns, fetchFriends]);
   useEffect(() => { resourceService.canManage().then(setCanManage).catch(() => setCanManage(false)); }, []);
 
   const header = <View style={styles.header}><ScreenHeader title="" leftAccessibilityLabel={t("ui.back")} /></View>;
@@ -113,10 +128,14 @@ export default function GameDetailsScreen() {
   const statusLabel = entry?.status === GameLibraryStatus.Wishlist ? libraryT("ui.wanted") : entry?.status === GameLibraryStatus.Played ? libraryT("ui.played") : libraryT("ui.owned");
   const facts = [game.isExpansion ? t("ui.expansion") : t("ui.baseGame"), game.yearPublished ? String(game.yearPublished) : null,
     game.minPlayers && game.maxPlayers ? t("ui.playersCount", { range: game.minPlayers === game.maxPlayers ? game.minPlayers : `${game.minPlayers}–${game.maxPlayers}` }) : null,
-    game.averageWeight ? t("details.weight", { value: formatRating(game.averageWeight, language) }) : null].filter(Boolean).join(" · ");
-  const modes = [game.isCooperative ? t("details.cooperativeMode") : null, game.supportsSoloMode ? t("details.soloMode") : null].filter(Boolean) as string[];
+    game.averageWeight ? t("details.weight", { value: formatRating(game.averageWeight, language) }) : null,
+    game.isCooperative ? t("details.cooperativeMode") : null, game.supportsSoloMode ? t("details.soloMode") : null].filter(Boolean).join(" · ");
   const shown = allMatches ? matches : matches.slice(0, PREVIEW);
-  const bggVotes = game.usersRatedCount ?? game.ratingsCount;
+  // «A tua avaliação» is the average of your match ratings: point at the next match to rate, or the latest journal.
+  const rated = matches.filter(m => m.personalRating != null).length;
+  const toRate = matches.find(m => m.id && m.personalRating == null && m.journalStatus !== "Closed");
+  const latest = matches.find(m => m.id);
+  const journal: JournalTarget | null = toRate ? { id: toRate.id!, date: toRate.matchDate, pending: true } : latest ? { id: latest.id!, date: latest.matchDate, pending: false } : null;
   const openBgg = () => { if (game.bggId) void Linking.openURL(bggUrl(game.bggId)); };
 
   async function add(price?: number, status?: GameLibraryStatus) {
@@ -125,17 +144,11 @@ export default function GameDetailsScreen() {
   }
 
   const about = <>
-    <Section title={t("details.ratings.title")}>
-      <Card>
-        <Row first title={t("details.ratings.bgg")} value={game.averageRating ? formatRating(game.averageRating, language) : "—"}
-          subtitle={game.averageRating ? [bggVotes ? t("details.ratings.bggVotes", { count: bggVotes }) : null, game.bggRanking ? t("details.ratings.bggRank", { rank: game.bggRanking }) : null, t("details.ratings.bggSource")].filter(Boolean).join(" · ") : t("details.ratings.bggNone")} />
-        <Row title={t("details.ratings.meepleBoard")} value={game.meepleBoardScore != null ? formatRating(game.meepleBoardScore / 10, language) : "—"}
-          subtitle={t(game.meepleBoardScore != null ? "details.ratings.meepleBoardHint" : "details.ratings.meepleBoardNone")} />
-        <Row title={t("details.ratings.personal")} value={userRating !== null ? formatRating(userRating, language) : "—"}
-          subtitle={t(userRating !== null ? "details.ratings.personalHint" : "details.ratings.personalNone")} />
-      </Card>
-      <Note inset>{t("details.ratings.scale")}</Note>
-    </Section>
+    <GameRatings game={game} language={language} userRating={userRating} ratedMatches={rated} journal={journal} personalState={historyLoading ? "loading" : historyError ? "error" : "ready"}
+      onOpenJournal={matchId => router.push({ pathname: ROUTES.MATCH_JOURNAL, params: { id: matchId } } as never)} />
+
+    <FriendOwners owners={friendOwners} loading={friendsLoading} error={friendsError} onRetry={() => { void fetchFriends(); }}
+      onOpen={userId => router.push({ pathname: ROUTES.USER_PROFILE, params: { id: userId } } as never)} />
 
     <Section title={t("details.descriptionTitle")}>
       <Card padded style={styles.description}>
@@ -193,7 +206,7 @@ export default function GameDetailsScreen() {
       <View style={styles.hero}>
         <View style={styles.cover}>
           {game.imageUrl ? <Image source={{ uri: game.imageUrl }} style={styles.image} resizeMode="cover" accessible={false} />
-            : <Glyph name="dice-5" size={44} color={colors.icon} />}
+            : <Glyph name="dice-5" size={36} color={colors.icon} />}
         </View>
         <View style={styles.heroText}>
           <Text style={type.title} accessibilityRole="header">{game.name}</Text>
@@ -204,17 +217,16 @@ export default function GameDetailsScreen() {
           </TouchableOpacity>}
         </View>
       </View>
-      {modes.length > 0 && <View style={styles.pills}>{modes.map(label => <Text key={label} style={styles.pill}>{label}</Text>)}</View>}
 
-      <View style={styles.actions}>
-        <Button variant="primary" icon="plus" title={t("details.registerMatch")} onPress={() => router.push({ pathname: ROUTES.REGISTER_MATCH, params: { gameId: game.id } } as never)} />
+      <View style={[styles.actions, large && styles.actionsLarge]}>
+        <Button variant="primary" icon="plus" title={t("details.registerMatch")} style={styles.action} onPress={() => router.push({ pathname: ROUTES.REGISTER_MATCH, params: { gameId: game.id } } as never)} />
         {entry
-          ? <TouchableOpacity style={styles.libraryState} onPress={() => setManaging(true)} accessibilityRole="button" accessibilityLabel={t("details.manageLibrary", { status: statusLabel })}>
-            <Glyph name="check-circle" size={20} color={colors.primary} />
-            <Text style={[type.body, strong, styles.libraryText]}>{t("details.inLibrary", { status: statusLabel })}</Text>
-            <Glyph name="chevron-down" size={20} color={colors.primary} />
+          ? <TouchableOpacity style={[styles.libraryState, styles.action]} onPress={() => setManaging(true)} accessibilityRole="button" accessibilityLabel={t("details.manageLibrary", { status: statusLabel })}>
+            <Glyph name="check-circle" size={18} color={colors.primary} />
+            <Text style={[type.body, strong, styles.libraryText]} numberOfLines={large ? undefined : 1}>{statusLabel}</Text>
+            <Glyph name="chevron-down" size={18} color={colors.primary} />
           </TouchableOpacity>
-          : <Button title={t("details.addToLibrary")} icon="bookshelf" onPress={() => setAdding(true)} />}
+          : <Button title={t(large ? "details.addToLibrary" : "details.addToLibraryShort")} accessibilityLabel={t("details.addToLibrary")} icon="bookshelf" style={styles.action} onPress={() => setAdding(true)} />}
       </View>
 
       <Segmented items={(["about", "howToPlay", "resources"] as Area[]).map(key => ({ key, label: t(`details.areas.${key}`) }))} value={area} onChange={setArea} />
@@ -233,17 +245,17 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   header: { paddingHorizontal: space.lg },
   content: { paddingTop: space.xs },
-  hero: { flexDirection: "row", gap: space.lg, alignItems: "center" },
-  cover: { width: 96, height: 96, borderRadius: radius.hero, backgroundColor: colors.hero, alignItems: "center", justifyContent: "center", overflow: "hidden" },
+  hero: { flexDirection: "row", gap: space.md, alignItems: "center" },
+  cover: { width: 72, height: 72, borderRadius: radius.control, backgroundColor: colors.hero, alignItems: "center", justifyContent: "center", overflow: "hidden" },
   image: { width: "100%", height: "100%" },
-  heroText: { flex: 1, minWidth: 0, gap: space.xs },
-  source: { flexDirection: "row", alignItems: "center", gap: 4, minHeight: touch, alignSelf: "flex-start" },
+  heroText: { flex: 1, minWidth: 0, gap: 2 },
+  source: { flexDirection: "row", alignItems: "center", gap: 4, minHeight: touch, alignSelf: "flex-start", marginBottom: -space.sm },
   link: { color: colors.primary, fontWeight: "600" },
-  pills: { flexDirection: "row", flexWrap: "wrap", gap: space.sm, marginTop: -space.sm },
-  pill: { fontSize: 12, lineHeight: 18, fontWeight: "600", paddingHorizontal: 9, paddingVertical: 2, borderRadius: 999, overflow: "hidden", backgroundColor: "#EEE9F6", color: "#5B4A80" },
-  actions: { gap: space.md, marginTop: -space.sm },
-  libraryState: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: space.sm, paddingHorizontal: space.lg, borderRadius: radius.control, backgroundColor: colors.primarySoft },
-  libraryText: { flex: 1, color: colors.primary },
+  actions: { flexDirection: "row", gap: space.sm, marginTop: -space.xs },
+  actionsLarge: { flexDirection: "column" },
+  action: { flexGrow: 1, flexBasis: "auto" },
+  libraryState: { minHeight: touch, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: space.sm, paddingHorizontal: space.lg, borderRadius: radius.control, backgroundColor: colors.primarySoft },
+  libraryText: { flexShrink: 1, color: colors.primary },
   description: { gap: space.sm },
   muted: { color: colors.muted },
   pad: { padding: space.lg, paddingBottom: space.sm },

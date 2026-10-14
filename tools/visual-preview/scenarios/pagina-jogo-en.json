@@ -1,0 +1,7 @@
+{"name":"pagina-jogo-en","defaults":{"lang":"en"},"screens":[
+ {"id":"01-top","route":"/games/details/{{game:Wingspan}}"},
+ {"id":"02-friends","route":"/games/details/{{game:Wingspan}}","steps":[{"scrollTo":"Your rating","offset":120}]},
+ {"id":"03-how-to-play","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"How to play","wait":1500},{"click":"English","wait":2500},{"scroll":330}]},
+ {"id":"04-resources","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Resources","wait":2500},{"scroll":330}]},
+ {"id":"05-empty","route":"/games/details/{{game:Meeple Teste Solo}}","steps":[{"click":"Resources","wait":2000}]}
+]}

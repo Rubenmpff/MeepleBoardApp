@@ -2,6 +2,7 @@ import { ReactNode, useState } from "react";
 import { StyleProp, StyleSheet, Text, TextInput, TouchableOpacity, View, ViewStyle, useWindowDimensions } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, isLarge, radius, space, strong, touch, type } from "./theme";
+import AvatarPhoto from "./AvatarPhoto";
 
 type Icon = keyof typeof MaterialCommunityIcons.glyphMap;
 export type { Icon };
@@ -158,9 +159,11 @@ export function EmptyState({ title, message, action }: { title: string; message:
  </Card>;
 }
 
-export function Avatar({ name, size = 40 }: { name: string; size?: number }) {
+// The person's photo when there is one (and it loads); otherwise their initial.
+export function Avatar({ name, size = 40, uri }: { name: string; size?: number; uri?: string | null }) {
  return <View style={[s.avatar, { width: size, height: size, borderRadius: size / 2 }]} accessible={false}>
-  <Text style={[type.body, strong, { color: colors.primary }]}>{name.slice(0, 1).toLocaleUpperCase() || "?"}</Text>
+  {uri ? <AvatarPhoto name={name} uri={uri} size={size} />
+   : <Text style={[type.body, strong, { color: colors.primary }]}>{name.slice(0, 1).toLocaleUpperCase() || "?"}</Text>}
  </View>;
 }
 
@@ -203,8 +206,8 @@ export const s = StyleSheet.create({
  search: { flexDirection: "row", alignItems: "center", gap: space.sm, minHeight: touch, paddingLeft: space.md, borderWidth: 1, borderColor: "#E1DBE7", borderRadius: radius.control, backgroundColor: colors.card },
  searchInput: { flex: 1, minWidth: 0, minHeight: touch, paddingVertical: 10, paddingRight: space.md, color: colors.text },
  chips: { flexDirection: "row", flexWrap: "wrap", columnGap: space.sm },
- chipTouch: { minHeight: touch, justifyContent: "center" },
- chip: { minHeight: 36, paddingHorizontal: space.md, paddingVertical: space.sm, borderRadius: 18, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, color: colors.text, fontSize: 15, lineHeight: 20, overflow: "hidden" },
+ chipTouch: { minHeight: touch, minWidth: touch, justifyContent: "center" },
+ chip: { minHeight: 36, minWidth: touch, textAlign: "center", paddingHorizontal: space.md, paddingVertical: space.sm, borderRadius: 18, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, color: colors.text, fontSize: 15, lineHeight: 20, overflow: "hidden" },
  chipOn: { backgroundColor: colors.primary, borderColor: colors.primary, color: colors.onPrimary, fontWeight: "600" },
- avatar: { backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+ avatar: { backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" },
 });

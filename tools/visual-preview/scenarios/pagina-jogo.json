@@ -1,0 +1,17 @@
+{"name":"pagina-jogo","screens":[
+ {"id":"01-topo","route":"/games/details/{{game:Wingspan}}"},
+ {"id":"02-amigos","route":"/games/details/{{game:Wingspan}}","steps":[{"scrollTo":"A tua avaliação","offset":120}]},
+ {"id":"03-amigos-todos","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Ver todos (5)","wait":600},{"scrollTo":"Amigos que têm este jogo","offset":40}]},
+ {"id":"04-como-jogar","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Como jogar","wait":1500}]},
+ {"id":"05-como-jogar-ingles","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Como jogar","wait":1500},{"click":"Inglês","wait":2500},{"scroll":330}]},
+ {"id":"06-como-jogar-expansoes","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Como jogar","wait":1500},{"click":"Inglês","wait":2500},{"scroll":"end"}]},
+ {"id":"07-recursos","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Recursos","wait":2500},{"scroll":330}]},
+ {"id":"08-recursos-fim","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Recursos","wait":2500},{"scroll":"end"}]},
+ {"id":"09-menu","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Recursos","wait":2500},{"click":"Mais opções: Wingspan Organizer","wait":800}]},
+ {"id":"10-reportar","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Recursos","wait":2500},{"click":"Mais opções: Wingspan Organizer","wait":800},{"click":"Reportar problema","wait":800}]},
+ {"id":"11-texto-grande-topo","route":"/games/details/{{game:Wingspan}}","fontScale":1.35},
+ {"id":"12-texto-grande-amigos","route":"/games/details/{{game:Wingspan}}","fontScale":1.35,"steps":[{"scrollTo":"Avaliações","offset":20}]},
+ {"id":"13-texto-grande-recursos","route":"/games/details/{{game:Wingspan}}","fontScale":1.35,"steps":[{"click":"Como jogar","wait":1500},{"click":"Inglês","wait":2500},{"scroll":330}]},
+ {"id":"14-jogo-sem-amigos-avaliado","route":"/games/details/{{game:Meeple Teste Solo}}","scroll":220},
+ {"id":"15-jogo-vazio-recursos","route":"/games/details/{{game:Meeple Teste Solo}}","steps":[{"click":"Recursos","wait":2000}]}
+]}
