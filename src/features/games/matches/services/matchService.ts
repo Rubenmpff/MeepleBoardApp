@@ -5,6 +5,16 @@ import { MatchDto, MatchFormData, LastMatch } from "../types/MatchForm";
 import { JournalEntry, UpsertJournalEntryPayload } from "../../campaigns/types/Campaign";
 import { mapMatchFormToRequest } from "../utils/mapMatchFormToRequest";
 
+/**
+ * Match lists: the API answers 204 No Content when there are none (axios then gives data ""),
+ * and an array otherwise. Anything else is invalid and is reported, never turned into an empty list.
+ */
+export function matchList(res: { status: number; data: unknown }, what: string): MatchDto[] {
+  if (res.status === 204) return [];
+  if (Array.isArray(res.data)) return res.data as MatchDto[];
+  throw new Error(`Resposta inválida ao carregar ${what}.`);
+}
+
 function extractApiErrorMessage(error: any, fallback: string) {
   const data = error?.response?.data;
   if (typeof data === "string" && data.trim()) return data;
@@ -53,13 +63,13 @@ const matchService = {
 
   /** Historial de partidas do utilizador para um jogo específico. */
   async getHistoryByGame(gameId: string): Promise<MatchDto[]> {
+    let res;
     try {
-      const res = await api.get<MatchDto[]>(`/matches/history/game/${gameId}`);
-      return res.data ?? [];
+      res = await api.get<MatchDto[]>(`/matches/history/game/${gameId}`);
     } catch (error: any) {
-      if (error?.response?.status === 204) return [];
       throw new Error(extractApiErrorMessage(error, "Erro ao carregar histórico."));
     }
+    return matchList(res, "o histórico");
   },
 
   /** Avaliação pessoal média do utilizador para um jogo. */
@@ -79,13 +89,13 @@ const matchService = {
    * Usado no ecrã "Partidas pendentes de avaliação".
    */
   async getPendingJournalMatches(): Promise<MatchDto[]> {
+    let res;
     try {
-      const res = await api.get<MatchDto[]>("/matches/pending-journal");
-      return res.data ?? [];
+      res = await api.get<MatchDto[]>("/matches/pending-journal");
     } catch (error: any) {
-      if (error?.response?.status === 204) return [];
       throw new Error(extractApiErrorMessage(error, "Erro ao carregar partidas pendentes."));
     }
+    return matchList(res, "as partidas pendentes");
   },
 
   /** Obter uma partida pelo ID. */

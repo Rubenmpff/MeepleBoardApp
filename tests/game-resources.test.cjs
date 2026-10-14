@@ -70,6 +70,33 @@ test('your rating is the average of your match ratings, with a way into the jour
   assert.ok(!loading.html.includes('Ainda não avaliaste') && !loading.html.includes('Avalias cada partida'), 'no claim while loading');
 });
 
+test('regression: match history answered 204 No Content (data "") is no matches; any other non-list is an error', async () => {
+  // The real DeviceTests answer for a game without matches (participante, Wingspan): HTTP 204 and an empty body,
+  // which axios hands over as data "". Before the fix the service returned "" and matches.filter crashed the page.
+  const responses = { history: { status: 204, data: '' } };
+  const host = await renderNative(area, 'default', areaProps(), { services: { get: async url => responses[url.includes('pending') ? 'pending' : 'history'] } });
+  const service = host.load('src/features/games/matches/services/matchService.ts').default;
+  assert.deepEqual(await service.getHistoryByGame('game-id'), []);
+  responses.pending = { status: 204, data: '' };
+  assert.deepEqual(await service.getPendingJournalMatches(), []);
+  const list = [{ id: 'm1', matchDate: '2026-10-01', personalRating: 7.5, journalStatus: 'Closed' }];
+  responses.history = { status: 200, data: list };
+  assert.deepEqual(await service.getHistoryByGame('game-id'), list);
+  for (const invalid of [{ status: 200, data: '' }, { status: 200, data: { items: list } }, { status: 200, data: null }]) {
+    responses.history = invalid;
+    await assert.rejects(service.getHistoryByGame('game-id'), /Resposta inválida ao carregar o histórico/, JSON.stringify(invalid));
+  }
+  // The page in each state: loading, error (with retry), no matches, rated matches.
+  const none = await page({ 1: [], 3: null });
+  assert.ok(none.html.includes('Avalias cada partida no diário') && none.html.includes('Ainda não registaste nenhuma partida deste jogo.'));
+  const failed = await page({ 7: true, 3: null });
+  assert.ok(failed.html.includes('Não foi possível carregar os dados.') && !failed.html.includes('Ainda não avaliaste'));
+  await failed.press('Tentar novamente');
+  assert.ok(failed.calls.some(c => c[0] === 'getHistoryByGame'));
+  const rated = await page({ 1: list });
+  assert.ok(rated.html.includes('Média das tuas avaliações em 1 partida') && rated.html.includes('Ver o diário da partida de 1 out. 2026'));
+});
+
 test('friends who have the game: a few with avatar and name, «Ver todos», profile access, simple empty and error states', async () => {
   const friends = 'src/features/games/catalog/components/FriendOwners.tsx';
   const owners = ['Ana', 'Teste-amigo-com-um-nome-de-utilizador-bastante-comprido', 'Bruno', 'Carla', 'Duarte'].map((userName, i) => ({ userId: 'u' + i, userName, profilePictureUrl: i === 0 ? 'https://example.org/a.jpg' : null }));
