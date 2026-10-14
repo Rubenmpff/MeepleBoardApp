@@ -24,11 +24,9 @@ export interface GameSession {
   startDate?: string | null;
   endDate?: string | null;
 
-  /** Início real (UTC): hora marcada, ou primeira aceitação se chegou depois. */
-  startedAt?: string | null;
-  /** Hora a que termina sozinha: 24 h após o início, ou a escolhida pelo organizador. */
+  /** Hora a que termina sozinha: 24 h após a hora marcada, ou a escolhida pelo organizador. */
   autoCloseAt?: string | null;
-  /** Limite para prolongar: 48 h após o início real. */
+  /** Limite para prolongar: 48 h após a hora marcada. */
   latestCloseAt?: string | null;
   closeTimeChosen?: boolean;
   closedAutomatically?: boolean;

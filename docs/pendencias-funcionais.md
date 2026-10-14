@@ -88,7 +88,7 @@ Ver [sessoes-experiencia-convites.md](sessoes-experiencia-convites.md). Formulá
 
 **S-CANCEL01 — cancelar uma sessão a decorrer pela API:** `GetByIdForUpdateAsync` não carrega os jogadores, por isso a verificação de sessão ativa em `CancelSessionAsync` não vê convidados aceites. A app só oferece «Cancelar» em sessões agendadas. Ver `MeepleBoardApi/docs/sessoes-encerramento-automatico.md`.
 
-**BGG-ATTR01 — logótipo «Powered by BGG»:** a página oficial dos termos e dos logótipos recusa leitura automática. A app identifica os dados do BGG com texto e ligação; falta colocar o logótipo oficial e confirmar os termos (uso comercial, registo) antes de uma publicação pública. Os jogos fictícios do DeviceTests têm IDs BGG inventados (990001–990003), cuja ligação não abre um jogo real.
+**BGG-ATTR01 — logótipo «Powered by BGG»:** as páginas oficiais do BGG recusam leitura automática (403, também no Wayback). Excertos oficiais confirmam: creditar o BGG pelo nome, logótipo «Powered by BGG» com ligação em apps públicas, licença só não comercial, dados sem modificação. A app já cumpre a origem visível e as avaliações separadas. Falta o responsável fornecer o texto das páginas guardado, os ficheiros oficiais do logótipo e a classificação comercial/registo; detalhe em `MeepleBoardApi/docs/recursos-jogos.md`. Os jogos fictícios do DeviceTests têm IDs BGG inventados (990001–990003), cuja ligação não abre um jogo real.
 
 ## Decisão pendente — cancelar versus eliminar sessões
 

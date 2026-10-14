@@ -1,4 +1,4 @@
-// Session end time: local display for everyone, extend/choose for the organizer, limits and saving.
+// Session start and end: local display for everyone, extend/choose for the organizer, limits and saving.
 // Isolated services; nothing reaches the API or a database.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
@@ -8,7 +8,7 @@ const source = 'src/features/games/sessions/components/SessionEndTime.tsx';
 const detail = 'src/features/games/sessions/screens/GameSessionDetailScreen.tsx';
 const HOUR = 3600000;
 const started = new Date(Date.now() - 2 * HOUR);
-const active = { id: 'session-test', name: 'Test-only session', organizerId: 'me', status: 'Active', startedAt: started.toISOString(),
+const active = { id: 'session-test', name: 'Test-only session', organizerId: 'me', status: 'Active', scheduledStartDate: started.toISOString(),
   autoCloseAt: new Date(started.getTime() + 24 * HOUR).toISOString(), latestCloseAt: new Date(started.getTime() + 48 * HOUR).toISOString(),
   closeTimeChosen: false, players: [], matches: [] };
 // State order in SessionEndTime: open, choice, saving, androidPicker.
@@ -17,10 +17,12 @@ const render = (session, canChange, options = {}) => renderNative(source, 'defau
 let formatDateTime;
 test.before(async () => { formatDateTime = (await render(active, false)).load('src/ui/format.ts').formatDateTime; });
 
-test('everyone sees the automatic end in local time; only the organizer can extend', async () => {
+test('everyone sees the scheduled start and the automatic end in local time; only the organizer can extend', async () => {
   for (const language of ['pt', 'en']) {
     const guest = await render(active, false, { language });
     const ends = formatDateTime(active.autoCloseAt, language);
+    const starts = formatDateTime(active.scheduledStartDate, language);
+    assert.ok(guest.html.includes(language === 'pt' ? `Começou ${starts}, à hora marcada` : `Started ${starts}, at the scheduled time`), guest.html);
     assert.ok(guest.html.includes(language === 'pt' ? `Termina automaticamente ${ends}` : `Ends automatically ${ends}`), guest.html);
     assert.ok(!guest.controls.some(c => /Prolongar|Extend/.test(c.accessibilityLabel ?? '')));
     const organizer = await render(active, true, { language });
@@ -38,10 +40,24 @@ test('chosen, maximum, ended and not-yet-started states read clearly', async () 
   const ended = await render({ ...active, status: 'Closed', endDate: active.autoCloseAt, closedAutomatically: true }, true);
   assert.ok(ended.html.includes(`Terminou automaticamente ${formatDateTime(active.autoCloseAt, 'pt')}`));
   assert.ok(!ended.controls.some(c => c.accessibilityLabel === 'Prolongar'), 'no changes after the end');
-  const byHand = await render({ ...active, status: 'Closed', endDate: active.startedAt }, true);
-  assert.ok(byHand.html.includes(`Terminou ${formatDateTime(active.startedAt, 'pt')}`) && !byHand.html.includes('automaticamente'));
-  const upcoming = await render({ ...active, status: 'Upcoming', startedAt: null, autoCloseAt: null, latestCloseAt: null }, true);
-  assert.match(upcoming.html, /Termina 24 horas depois de começar/);
+  const byHand = await render({ ...active, status: 'Closed', endDate: active.scheduledStartDate }, true);
+  assert.ok(byHand.html.includes(`Terminou ${formatDateTime(active.scheduledStartDate, 'pt')}`) && !byHand.html.includes('automaticamente'));
+});
+
+test('before anyone confirms, start and end are already shown, with what happens without a confirmed guest', async () => {
+  const later = new Date(Date.now() + 5 * HOUR), deadline = new Date(Date.now() + 3 * HOUR);
+  const upcoming = { ...active, status: 'Upcoming', scheduledStartDate: later.toISOString(), effectiveDeadline: deadline.toISOString(),
+    autoCloseAt: new Date(later.getTime() + 24 * HOUR).toISOString(), latestCloseAt: new Date(later.getTime() + 48 * HOUR).toISOString(),
+    players: [{ userId: 'me', isOrganizer: true, status: 'Accepted' }, { userId: 'guest', isOrganizer: false, status: 'Pending' }] };
+  const view = await render(upcoming, true);
+  assert.ok(view.html.includes(`Começa ${formatDateTime(later, 'pt')}, à hora marcada`), view.html);
+  assert.ok(view.html.includes(`Termina automaticamente ${formatDateTime(upcoming.autoCloseAt, 'pt')}, 24 horas depois`));
+  assert.ok(view.html.includes(`Sem confirmações até ${formatDateTime(deadline, 'pt')}, é cancelada.`));
+  assert.ok(!view.controls.some(c => c.accessibilityLabel === 'Prolongar'), 'changes only while it runs');
+  const confirmed = await render({ ...upcoming, players: [upcoming.players[0], { ...upcoming.players[1], status: 'Accepted' }] }, true);
+  assert.ok(!confirmed.html.includes('é cancelada') && confirmed.html.includes(`Começa ${formatDateTime(later, 'pt')}`));
+  const cancelled = await render({ ...upcoming, status: 'Cancelled' }, true);
+  assert.equal(cancelled.html.trim(), '');
 });
 
 test('quick choices stay inside 48 h and saving sends the chosen time', async () => {
@@ -62,9 +78,9 @@ test('quick choices stay inside 48 h and saving sends the chosen time', async ()
   assert.ok(invalid.calls.some(c => c[0] === 'alert'));
 });
 
-test('session detail shows the end card and keeps closing behind a confirmation', async () => {
+test('session detail shows the start and end card and keeps closing behind a confirmation', async () => {
   const view = await renderNative(detail, 'default', {}, { states: { 0: { ...active, players: [{ userId: 'me', userName: 'Me', isOrganizer: true, status: 'Accepted' }] }, 1: false }, stubRegisterForm: true });
-  assert.match(view.html, /Fim da sessão/);
+  assert.match(view.html, /Início.*Começou.*Fim.*Termina automaticamente/);
   assert.ok(view.controls.some(c => c.accessibilityLabel === 'Prolongar'));
   assert.ok(view.controls.some(c => c.accessibilityLabel === 'Terminar sessão'));
 });

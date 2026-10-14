@@ -14,15 +14,15 @@ Ramo `feat/game-resources-session-autoclose` (app e API), a partir de `checkpoin
 
 ## Sessões
 
-- O detalhe mostra «Fim da sessão» em hora local: «Termina automaticamente …», «Termina …, hora escolhida pelo organizador», «Terminou automaticamente …» ou «Termina 24 horas depois de começar».
-- O organizador de uma sessão a decorrer tem «Prolongar»: mais 1/3/6 horas, até ao limite (48 h desde o início) ou outra hora; escolhas acima do limite não aparecem nem são enviadas.
+- Início sempre à hora marcada; aceitar um convite, mesmo tarde, não o muda (decisão de 2026-10-14). O detalhe mostra «Início» e «Fim» em hora local desde a criação, também sem convidados confirmados: «Começa …, à hora marcada» / «Começou …», «Termina automaticamente …, 24 horas depois», «Termina …, hora escolhida pelo organizador» ou «Terminou automaticamente …». Sem convidado confirmado: «Só decorre com pelo menos um convidado confirmado. Sem confirmações até …, é cancelada.»
+- O organizador de uma sessão a decorrer tem «Prolongar»: mais 1/3/6 horas, até ao limite (48 h desde a hora marcada) ou outra hora; escolhas acima do limite não aparecem nem são enviadas.
 - «Encerrada» passa a «Terminada» (estado, filtro e ação «Terminar sessão», sempre com confirmação).
 
 ## Verificação
 
-- App: TypeScript sem erros; 313 testes (`node --test tests/*.test.cjs`), incluindo `game-resources.test.cjs` e `session-end-time.test.cjs`.
+- App: TypeScript sem erros; 314 testes (`node --test tests/*.test.cjs`), incluindo `game-resources.test.cjs` e `session-end-time.test.cjs`.
 - API: `Sessions.Tests` 13, `GameResources.Tests` 9, e os projetos existentes (Authorization 59+1, PlayerScores 72, Library 15) sem alterações.
-- SQL real (DeviceTests): `verify-session-auto-close.cjs` e `verify-game-resources.cjs`, ambos também com `--recheck` depois de reiniciar a API.
+- SQL real (DeviceTests): `verify-session-auto-close.cjs` e `verify-game-resources.cjs` (inclui todos os jogos: catálogo vazio e sugestão pendente nos que não são o Wingspan), ambos também com `--recheck` depois de reiniciar a API.
 - WebKit: cenários `recursos`, `recursos-admin` (`--account admin`) e `sessoes-fim` em `tools/visual-preview/scenarios/`.
 
 ## Por confirmar no iPhone
@@ -32,6 +32,6 @@ Ramo `feat/game-resources-session-autoclose` (app e API), a partir de `checkpoin
 3. **Recursos:** abrir um modelo da Printables; «Reportar problema» → motivo → Enviar; repetir dá a mensagem de que já foi reportado.
 4. **Sugerir recurso** com a conta `autor`: aparece em «Pendentes» na conta `admin`; aprovar e confirmar que fica público; rejeitar outra e confirmar que não aparece.
 5. **Idioma dos recursos:** mudar para «Todos», fechar a app e voltar: a escolha mantém-se e a app continua no mesmo idioma.
-6. **Sessões:** «Sessão de teste · fim automático» (conta `autor`) mostra o fim; «Prolongar» com o seletor nativo de data e hora; a conta `participante` vê a mesma hora sem «Prolongar».
+6. **Sessões:** «Sessão de teste · fim automático» (conta `autor`) mostra início e fim; «Prolongar» com o seletor nativo de data e hora; a conta `participante` vê a mesma hora sem «Prolongar».
 7. **Terminadas:** sessões antigas aparecem em Jogar → Sessões → Terminadas com partidas e participantes; «Registar partida» deixa de estar disponível nelas.
 8. Para registar partidas numa sessão ativa no roteiro anterior, criar uma sessão nova (as antigas terminaram automaticamente).

@@ -1,4 +1,5 @@
 {"name":"sessoes-fim","screens":[
+ {"id":"0-agendada","route":"/games/sessions/{{upcomingSession}}"},
  {"id":"1-ativa-organizador","route":"/games/sessions/{{activeSession}}"},
  {"id":"2-prolongar","route":"/games/sessions/{{activeSession}}","steps":[{"click":"Prolongar","wait":800}]},
  {"id":"3-terminadas","route":"/play","steps":[{"click":"Terminadas","wait":800}]},

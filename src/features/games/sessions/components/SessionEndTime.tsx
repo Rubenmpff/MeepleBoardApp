@@ -1,6 +1,7 @@
 /**
- * When the session ends, in the viewer's local time. The organizer of a running
- * session can extend it or choose another end time, up to 48 h after it started.
+ * When the session starts and ends, in the viewer's local time, known from the moment it is created:
+ * it starts at the scheduled time (accepting never moves it) and ends 24 h later. The organizer of a
+ * running session can extend it or choose another end time, up to 48 h after the scheduled time.
  */
 import { useState } from "react";
 import { Alert, Platform, StyleSheet, Text, View } from "react-native";
@@ -12,6 +13,7 @@ import { colors, space, type } from "@/src/ui/theme";
 import { formatDateTime } from "@/src/ui/format";
 import sessionService from "../services/sessionService";
 import { GameSession } from "../types/GameSession";
+import { normalizeInviteStatus } from "../types/GameSessionPlayer";
 
 const HOUR = 3600_000;
 // Leave a margin so a choice made now is still in the future when it reaches the API.
@@ -28,11 +30,14 @@ export default function SessionEndTime({ session, canChange, onChanged }: { sess
   const end = session.autoCloseAt ? new Date(session.autoCloseAt) : null;
   const latest = session.latestCloseAt ? new Date(session.latestCloseAt) : null;
   const active = session.status === "Active";
+  if (session.status === "Cancelled" || !session.scheduledStartDate) return null;
+  const starts = t(session.status === "Upcoming" ? "sessions.end.starts" : "sessions.end.started", { date: when(session.scheduledStartDate) });
   const text = session.status === "Closed" && session.endDate
     ? t(session.closedAutomatically ? "sessions.end.endedAuto" : "sessions.end.ended", { date: when(session.endDate) })
-    : end ? t(session.closeTimeChosen ? "sessions.end.endsChosen" : "sessions.end.ends", { date: when(end) })
-    : session.status === "Upcoming" ? t("sessions.end.endsAfterStart") : null;
+    : end ? t(session.closeTimeChosen ? "sessions.end.endsChosen" : "sessions.end.ends", { date: when(end) }) : null;
   if (!text) return null;
+  // Without a confirmed guest it never runs; the cleanup job cancels it at the response deadline.
+  const unconfirmed = session.status === "Upcoming" && !(session.players ?? []).some(p => !p.isOrganizer && normalizeInviteStatus(p.status) === "Accepted");
 
   const earliest = () => new Date(Date.now() + MIN_LEAD);
   const editable = canChange && active && !!end && !!latest;
@@ -72,7 +77,9 @@ export default function SessionEndTime({ session, canChange, onChanged }: { sess
 
   return <>
     <Card>
-      <Row first title={t("sessions.end.title")} subtitle={text} accessibilityLabel={`${t("sessions.end.title")}: ${text}`} />
+      <Row first title={t("sessions.end.startTitle")} subtitle={starts} accessibilityLabel={`${t("sessions.end.startTitle")}: ${starts}`} />
+      <Row title={t("sessions.end.title")} subtitle={text} accessibilityLabel={`${t("sessions.end.title")}: ${text}`} />
+      {unconfirmed && <Row title={t("sessions.end.needsGuest", { date: when(session.effectiveDeadline ?? session.scheduledStartDate) })} />}
       {editable && (atMaximum
         ? <Row title={t("sessions.end.atMaximum")} />
         : <Row title={t("sessions.end.extend")} subtitle={t("sessions.end.extendHint", { date: when(latest!) })} tone="link"
