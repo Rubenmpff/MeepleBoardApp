@@ -59,7 +59,8 @@ function Scores({ game, language, large, onOpenBgg }: { game: Game; language: st
       : <View style={[styles.tile, large && styles.tileLarge]} accessible accessibilityLabel={accessibilityLabel}>{body}</View>;
   };
   return <View style={[styles.scores, large && styles.scoresLarge]}>
-    {tile(t("details.ratings.bgg"), t("details.ratings.bggShort"), colors.text, bgg, bggDetail, game.bggId ? onOpenBgg : undefined)}
+    {/* Links to BGG only with a BGG rating to show; the facts and the description keep their own source links. */}
+    {tile(t("details.ratings.bgg"), t("details.ratings.bggShort"), colors.text, bgg, bggDetail, game.bggId && bgg ? onOpenBgg : undefined)}
     {tile(t("details.ratings.meepleBoard"), t("details.ratings.meepleBoard"), colors.primary, meeple, t("details.ratings.meepleBoardShort"))}
   </View>;
 }

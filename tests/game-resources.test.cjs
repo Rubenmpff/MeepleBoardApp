@@ -66,6 +66,7 @@ test('without BGG data the page says so briefly; missing facts are left out and 
   assert.ok(view.html.includes('1–5') && view.html.includes('jogadores'), 'players stay');
   const onlyMeeple = await page({ 0: { ...game, averageRating: null } });
   assert.ok(onlyMeeple.html.includes('Sem avaliações') && onlyMeeple.html.includes('8,2'), 'a missing BGG rating next to an existing MeepleBoard one');
+  assert.ok(!onlyMeeple.controls.some(c => c.accessibilityLabel?.startsWith('BoardGameGeek:')), 'without a BGG rating the tile is not a link (fictitious ids have no BGG page)');
   // BGG without an age: that block is simply absent; one playing time shows once.
   const partial = await page({ 0: { ...game, minAge: null, minPlayTime: 30, maxPlayTime: 30, averageWeight: null } });
   assert.ok(partial.html.includes('Ficha do BoardGameGeek') && !partial.html.includes('idade') && !partial.html.includes('complexidade') && !partial.html.includes('30–30'));

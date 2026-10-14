@@ -97,7 +97,7 @@ function metrics() {
   const small = hits.filter(r => r.h < 43.5 || r.w < 43.5);
   const overflow = [...document.querySelectorAll<HTMLElement>('[data-text]')].filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && (e.scrollWidth > e.clientWidth + 1 || r.right > 402.5); }).map(e => (e.textContent || '').slice(0, 50));
   const scroll = mainScroll();
-  return { small, overflow, missingIcons: [...new Set(W.__missingIcons || [])], scrollHeight: scroll?.scrollHeight, requests: W.__requests, blockedWrites: W.__blockedWrites, routes: W.__routes, unresolved: W.__unresolved, toasts: W.__toasts, pathname: W.__pathname };
+  return { small, overflow, missingIcons: [...new Set(W.__missingIcons || [])], scrollHeight: scroll?.scrollHeight, requests: W.__requests, blockedWrites: W.__blockedWrites, routes: W.__routes, unresolved: W.__unresolved, toasts: W.__toasts, pathname: W.__pathname, external: W.__external };
 }
 (async () => {
   await sleep(sc.wait ?? 900);

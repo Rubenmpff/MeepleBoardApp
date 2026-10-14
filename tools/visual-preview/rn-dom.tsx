@@ -115,7 +115,7 @@ export const useWindowDimensions = () => ({ width: 402, height: 874, scale: 3, f
 export const Dimensions = { get: () => ({ width: 402, height: 874, scale: 3, fontScale: W.__fontScale || 1 }), addEventListener: () => ({ remove() { } }) };
 export const PixelRatio = { get: () => 3, getFontScale: () => W.__fontScale || 1, roundToNearestPixel: (n: number) => n };
 export const useColorScheme = () => 'light';
-export const Alert = { alert() { } }, Linking = { openURL: async () => { } }, BackHandler = { addEventListener: () => ({ remove() { } }) };
+export const Alert = { alert() { } }, Linking = { openURL: async (url: string) => { const w = window as any; w.__external = [...(w.__external || []), url]; } }, BackHandler = { addEventListener: () => ({ remove() { } }) };
 export const AccessibilityInfo = { announceForAccessibility() { }, isScreenReaderEnabled: async () => false };
 export const LayoutAnimation = { configureNext() { }, Presets: {} };
 const anim = () => ({ start(cb?: any) { cb?.({ finished: true }); }, stop() { }, reset() { } });

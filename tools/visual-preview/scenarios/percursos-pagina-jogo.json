@@ -1,0 +1,10 @@
+{"name":"percursos-pagina-jogo","screens":[
+ {"id":"01-amigos-lista-completa","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Ver todos (5)","wait":700}]},
+ {"id":"02-amigos-perfil","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Ver todos (5)","wait":700},{"click":"Teste-amigo-com-um-nome-de-utilizador-bastante-comprido","wait":2500}]},
+ {"id":"03-amigos-voltar","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Ver todos (5)","wait":700},{"click":"Teste-amigo-com-um-nome-de-utilizador-bastante-comprido","wait":2500},{"back":true,"wait":1500}]},
+ {"id":"04-recurso-ligacao-externa","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Recursos","wait":2500},{"click":"Wingspan Organizer","wait":800}]},
+ {"id":"05-sessao-a-decorrer","route":"/games/sessions/{{activeSession}}"},
+ {"id":"06-registar-com-jogo-previsto","route":"/games/sessions/{{activeSession}}","steps":[{"click":"Registar partida nesta sessão","wait":3000}]},
+ {"id":"07-registar-mudar-jogo","route":"/games/sessions/{{activeSession}}","steps":[{"click":"Registar partida nesta sessão","wait":3000},{"click":"Mudar","wait":1200}]},
+ {"id":"08-registar-voltar-a-sessao","route":"/games/sessions/{{activeSession}}","steps":[{"click":"Registar partida nesta sessão","wait":3000},{"back":true,"wait":1500}]}
+]}

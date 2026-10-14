@@ -50,7 +50,7 @@ for (const s of spec.screens.filter(s => !only || only.includes(s.id))) {
   const r = JSON.parse(fs.readFileSync(png + '.json', 'utf8')), m = r.m || {};
   const issues = [r.e && `error: ${r.e.split('\n')[0]}`, m.small?.length && `${m.small.length} toques < 44: ${m.small.slice(0, 4).map(x => `${x.label || '?'} ${x.w}×${x.h}`).join('; ')}`, m.overflow?.length && `transborda: ${m.overflow.slice(0, 3).join('; ')}`, m.missingIcons?.length && `ícones: ${m.missingIcons.join(',')}`, m.blockedWrites?.length && `escritas recusadas: ${m.blockedWrites.join(',')}`, m.unresolved?.length && `rotas sem ecrã: ${JSON.stringify(m.unresolved)}`].filter(Boolean);
   summary.push({ id: s.id, pathname: m.pathname, issues, requests: m.requests?.length || 0 });
-  console.log(`${issues.length ? '•' : '✓'} ${s.id} (${m.pathname}, ${m.requests?.length || 0} pedidos GET)${issues.length ? '\n    ' + issues.join('\n    ') : ''}`);
+  console.log(`${issues.length ? '•' : '✓'} ${s.id} (${m.pathname}, ${m.requests?.length || 0} pedidos GET)${m.external?.length ? ` · abriu fora da app: ${m.external.join(', ')}` : ''}${issues.length ? '\n    ' + issues.join('\n    ') : ''}`);
 }
 fs.writeFileSync(path.join(dest, 'summary.json'), JSON.stringify(summary, null, 1));
 console.log(`\n${summary.length} capturas em ${path.relative(process.cwd(), dest)}`);

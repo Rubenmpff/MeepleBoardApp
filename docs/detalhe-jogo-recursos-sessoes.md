@@ -35,6 +35,13 @@ Revisão de 2026-10-14 segundo a proposta aprovada (`docs/mockups/app/jogo/propo
 - SQL real (DeviceTests): `verify-game-page.cjs` (ficha, expansões e jogo previsto: criar, alterar, retirar, recusas), `verify-game-resources.cjs`, `verify-game-friends.cjs`, `verify-session-auto-close.cjs`.
 - WebKit: `pagina-jogo` (19 ecrãs), `pagina-jogo-en` (7) e `sessao-jogo-previsto` (7), `--account participante`. O Wingspan do DeviceTests não tem capa, descrição nem avaliações BGG (não são copiadas); tem a duração e a idade das capturas do BGG de 14/10/2026 e não tem complexidade, o que mostra também a ficha incompleta.
 
+## Percursos verificados (2026-10-14)
+
+- **Amigos → lista completa → perfil → voltar:** «Ver todos (5)» abre a folha; tocar num amigo fecha-a e abre o perfil; voltar regressa à página do jogo sem a folha aberta.
+- **Recursos → ligação externa → regressar:** tocar num modelo abre a página da Printables fora da app (`Linking.openURL`, registado pela pré-visualização); a página fica em «Recursos».
+- **Combinar sessão → jogo previsto → registar outro jogo:** `verify-planned-game-journey.cjs` (SQL real) cria a sessão com Wingspan previsto, o convidado aceita, regista uma partida de Meeple Teste Competitivo na mesma sessão, muda o jogo previsto e confirma que a partida, o prazo e as horas se mantêm. Deixa a sessão «Sessão de teste · jogo previsto» a decorrer (organiza `participante`, convidado `autor`). Na app, «Registar partida nesta sessão» começa com Wingspan, «Mudar» abre a escolha e voltar regressa à sessão.
+- Cenário WebKit `percursos-pagina-jogo` (8 ecrãs, `--account participante`).
+
 ## Por confirmar no iPhone
 
 1. **Wingspan → topo** (conta `participante`): ícone em vez de capa, «Ainda sem avaliações», ficha com 1–5, 40–70 e 10+ e «Ficha do BoardGameGeek» a abrir o BGG; «Registar partida», «Biblioteca» e «Combinar sessão».
