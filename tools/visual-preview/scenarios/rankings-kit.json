@@ -1,0 +1,6 @@
+{"name":"rankings-kit","screens":[
+ {"id":"01-geral","route":"/games/rankings"},
+ {"id":"02-minha","route":"/games/rankings","steps":[{"click":"Minha","wait":1200}]},
+ {"id":"03-texto-grande","route":"/games/rankings","fontScale":1.35},
+ {"id":"04-en","route":"/games/rankings","lang":"en"}
+]}
