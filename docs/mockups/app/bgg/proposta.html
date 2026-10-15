@@ -191,7 +191,7 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 .radio{color:var(--pri)}.radio.off{color:#B9B3C0}
 .lbl{font-size:calc(12px*var(--s));letter-spacing:.4px;text-transform:uppercase;font-weight:700;color:var(--mut);padding:14px 4px 6px}
 /* «Powered by BGG»: the official file, unchanged (colours, proportions and its own transparent margins) */
-.pbgg{display:block;height:calc(36px*var(--s));width:auto;max-width:none;flex:none}
+.pbgg{display:block;height:calc(44px*var(--s));width:auto;max-width:none;flex:none}
 .pbgg.big{height:calc(52px*var(--s))}
 .sizes{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;padding:20px;background:#FAFAF7;border:1px solid var(--doc-line);border-radius:14px;color:#2A2433}
 .sizes figure{margin:0;display:flex;flex-direction:column;gap:6px;font-size:13px}.sizes img{display:block;width:auto;max-width:none}
@@ -215,16 +215,11 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 <div class="prose">
 <p class="lede">O BGG aprovou o uso da API XML (e-mail de 11/02/2026) com a condição de mostrar o logótipo «Powered by BGG». Proposta: o logótipo aparece uma vez na página do jogo, junto à identificação da origem da ficha, e em Perfil → Sobre e créditos, com uma explicação curta. Não aparece nos passos do registo nem nas listas.</p>
 <p class="muted"><span class="tag ok">posição aprovada</span> Composição com o ficheiro oficial (<code>assets/brand/bgg/powered-by-bgg.webp</code>, 900 × 264 px, fundo transparente), tal como foi fornecido: sem recortar as margens, recolorir nem mudar as proporções. Falta confirmar o tamanho e a legibilidade.</p>
-<section class="block" id="tamanho"><h2>Tamanho e legibilidade</h2><p class="muted">Tamanho real em pontos, sobre o fundo da app. O ficheiro tem margens transparentes próprias, que ficam: as letras ocupam 22% da altura da imagem. Proposta: <b>36 pt de altura</b> na página do jogo (letras com cerca de 8 pt, 123 pt de largura) e <b>52 pt</b> nos créditos (letras com cerca de 11 pt). Com texto ampliado cresce com o texto.</p>
-<div class="sizes">
- <figure><img src="../../../../assets/brand/bgg/powered-by-bgg.webp" alt="Powered by BGG" style="height:28px"><figcaption><b>28 pt</b> <span>· letras 6 pt, pequeno demais</span></figcaption></figure>
- <figure><img src="../../../../assets/brand/bgg/powered-by-bgg.webp" alt="Powered by BGG" style="height:36px"><figcaption><b>36 pt</b> <span>· página do jogo (proposta)</span></figcaption></figure>
- <figure><img src="../../../../assets/brand/bgg/powered-by-bgg.webp" alt="Powered by BGG" style="height:52px"><figcaption><b>52 pt</b> <span>· Sobre e créditos (proposta)</span></figcaption></figure>
-</div></section>
+<section class="block" id="tamanho"><h2>Tamanho recomendado</h2><p class="muted">Na página do jogo, o logótipo fica <b>numa linha própria, por baixo de «Ficha do BoardGameGeek»</b>, alinhado à esquerda com o texto, com <b>44 pt de altura</b> (150 pt de largura; letras com cerca de 10 pt, ao nível do texto da ficha). Ao lado do texto teria de ficar com 36 pt ou menos; por baixo pode ser maior sem apertar o texto nem dominar a ficha. Com texto ampliado cresce na mesma proporção. Nos créditos fica com 52 pt.</p></section>
 </div>
 <nav class="grid" aria-label="Resumo">
  <div class="box"><h3>Onde aparece</h3><ul>
-  <li><b>Página do jogo:</b> na linha «Ficha do BoardGameGeek», logo abaixo da ficha (jogadores, duração, idade, complexidade). Tocar no logótipo abre a página do jogo no BoardGameGeek; jogos sem ficha BGG (criados na app) não mostram a linha.</li>
+  <li><b>Página do jogo:</b> por baixo de «Ficha do BoardGameGeek», logo abaixo da ficha (jogadores, duração, idade, complexidade). Tocar no logótipo abre a página do jogo no BoardGameGeek; jogos sem ficha BGG (criados na app) não mostram a linha.</li>
   <li><b>Perfil → Conta → Sobre e créditos:</b> ecrã novo com o logótipo, o que vem do BGG, a diferença entre as três avaliações e «Abrir BoardGameGeek».</li>
   <li><b>Descrição:</b> mantém «Texto original do BoardGameGeek» e «Ficha no BoardGameGeek ↗», sem repetir o logótipo.</li>
  </ul></div>
@@ -235,13 +230,13 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
   <li>O logótipo identifica a origem dos dados, nunca a nota MeepleBoard nem a tua.</li>
  </ul></div>
 </nav>
-<section class="block" id="jogo"><h2>Página do jogo</h2><p class="muted">Wingspan, como na página aprovada. Só muda a linha da origem da ficha, que passa a ter o logótipo à direita.</p><div class="strip" id="s-jogo"></div></section>
+<section class="block" id="jogo"><h2>Página do jogo</h2><p class="muted">Wingspan, como na página aprovada. Só muda a linha da origem da ficha, que passa a ter o logótipo por baixo.</p><div class="strip" id="s-jogo"></div></section>
 <section class="block" id="perfil"><h2>Perfil → Sobre e créditos</h2><p class="muted">Uma linha nova no fim de «Conta», depois de «Avaliações pendentes». O ecrã explica a integração em poucas linhas e liga ao BoardGameGeek.</p><div class="strip" id="s-perfil"></div></section>
 <section class="block" id="regras"><h2>Regras de utilização</h2>
 <div class="tablewrap"><table class="map">
 <tr><th>Ponto</th><th>Proposta</th></tr>
 <tr><td>Ficheiro</td><td>O oficial fornecido, sem edição (WebP 900 × 264 px, suficiente para 3× até 88 pt de altura). A app só tem tema claro; o logótipo fica sobre o fundo claro dos cartões.</td></tr>
-<tr><td>Tamanho</td><td>36 pt de altura na página do jogo e 52 pt nos créditos, com as margens do ficheiro; nunca abaixo de 36 pt.</td></tr>
+<tr><td>Tamanho</td><td>44 pt de altura na página do jogo (por baixo do texto da origem) e 52 pt nos créditos, com as margens do ficheiro; cresce com o texto ampliado.</td></tr>
 <tr><td>Ligação</td><td>Página do jogo: a página do jogo no BoardGameGeek. Créditos: boardgamegeek.com. Abre no navegador.</td></tr>
 <tr><td>Acessibilidade</td><td>Botão com o nome «Powered by BGG, abrir no BoardGameGeek»; área de toque de 44 pt.</td></tr>
 <tr><td>Dados</td><td>Só dados que vieram do BGG ficam junto ao logótipo. Os dados criados na app nunca são atribuídos ao BGG.</td></tr>
@@ -396,7 +391,7 @@ const LOGO='../../../../assets/brand/bgg/powered-by-bgg.webp';
 const PB=(big)=>`<img class="pbgg${big?' big':''}" src="${LOGO}" alt="Powered by BGG">`;
 function srcline(t,o){
  if(o.empty) return '';
- return `<div class="srcrow${o.large?' col':''}" style="padding-block:2px"><span class="txt">${ic('information-outline',14)}<span>${t.factsSrc}</span></span>${PB()}</div>`;
+ return `<div class="srcrow col" style="gap:4px;padding:10px 12px 6px"><span class="txt">${ic('information-outline',14)}<span>${t.factsSrc}</span></span>${PB()}</div>`;
 }
 const tp=T.pt;
 const backNav=(t,title,back)=>`<div class="nav"><div class="row"><span class="link" style="display:flex;align-items:center">${ic('chevron-left',26)}${back}</span><span class="ttl">${title}</span><span></span></div></div>`;
@@ -423,9 +418,9 @@ const credits=(en)=>{const x=en?{
  <div class="blk"><div class="sechead"><h3>${x.rh}</h3></div><div class="card three">${x.r.map(([c,a,b])=>`<div class="row"><span class="dot" style="background:${c}"></span><div class="grow"><div class="t-body b">${a}</div><div class="t-cap">${b}</div></div></div>`).join('')}</div></div>
  <div class="card"><div class="row">${ic('open-in-new',20,'var(--pri)')}<div class="grow"><div class="link">${x.open}</div><div class="t-cap">${x.host}</div></div></div></div></div>`;};
 put('s-jogo',
- fig({owned:true},'1 · Topo','A linha «Ficha do BoardGameGeek» ganha o logótipo à direita, ligado à página do jogo no BGG. As notas BGG e MeepleBoard continuam lado a lado e separadas; o logótipo fica junto à ficha, não às notas. MeepleBoard 7,4: fictício.')+
+ fig({owned:true},'1 · Topo','Por baixo de «Ficha do BoardGameGeek», o logótipo oficial com 44 pt de altura, ligado à página do jogo no BGG. As notas BGG e MeepleBoard continuam lado a lado e separadas; o logótipo fica junto à ficha, não às notas. MeepleBoard 7,4: fictício.')+
  fig({owned:true,scroll:560},'2 · Descrição e experiência','Sem segundo logótipo: a descrição mantém «Texto original do BoardGameGeek» e a ligação «Ficha no BoardGameGeek ↗». A tua avaliação (7,5) fica em «A tua experiência», longe da origem BGG. Valores pessoais fictícios.')+
- fig({owned:true,large:true,s:1.24},'Texto ampliado','Com texto grande, o texto da origem fica numa linha e o logótipo por baixo, maior na mesma proporção (45 pt).')+
+ fig({owned:true,large:true,s:1.24,scroll:420,custom:`<div class="bar"><div class="row"><span class="act">${ic('chevron-left',28)}</span><span class="ttl">Wingspan</span><span class="act">${ic('dots-horizontal',22)}</span></div></div>`},'Texto ampliado','Texto ampliado: a mesma composição, com o logótipo maior na mesma proporção (cerca de 55 pt). Ecrã deslocado até à ficha (separadores ainda por baixo, não fixos).')+
  fig({owned:true,lang:'en'},'English','«Details from BoardGameGeek» com o mesmo logótipo (o ficheiro oficial é o mesmo nas duas línguas).'));
 put('s-perfil',
  fig({body:`<div style="padding:60px 16px 0"><div class="ptitle">Perfil</div><div class="t-cap" style="margin:4px 2px 0">… (topo do perfil sem alterações)</div></div>`+profileEnd.replace('padding-top:110px','padding-top:12px'),custom:tabbar,scroll:0},'Perfil · Conta','Linha nova «Sobre e créditos» (fundo amarelo só para a destacar nesta maqueta), com o mesmo estilo de Definições.')+
