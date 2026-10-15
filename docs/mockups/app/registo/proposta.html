@@ -257,9 +257,6 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 .track .knob{position:absolute;width:28px;height:28px;border-radius:14px;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.3);margin-left:-14px;border:3px solid var(--gold)}
 .track .tick{position:absolute;width:2px;height:8px;background:rgba(255,255,255,.7)}
 .scale{display:flex;justify-content:space-between;font-size:calc(11.5px*var(--s));color:var(--mut);padding:0 58px}
-.quick{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
-.quick span{min-width:44px;min-height:36px;border-radius:18px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:calc(13.5px*var(--s));background:var(--card);font-variant-numeric:tabular-nums}
-.quick span.on{background:var(--gold-soft);border-color:var(--gold);color:var(--gold-ink);font-weight:700}
 .rowx{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 16px;position:relative}
 .rowx+.rowx::before{content:"";position:absolute;top:0;left:52px;right:0;height:1px;background:var(--hair)}
 .fld2{display:flex;flex-direction:column;gap:6px;padding:10px 16px}
@@ -293,22 +290,23 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 </ul></div>
 <div class="box"><h3>Proposta</h3><ul>
 <li><b>Jogo</b> (capas, biblioteca, catálogo; depois um resumo com o modo) → <b>Jogadores</b> → <b>Resultado</b> (só resultado e tabela) → <b>Avaliação e data</b> → <b>Rever</b>.</li>
-<li>Vindo da página do jogo, de uma sessão ou de «Jogar novamente», o jogo já vem escolhido: o passo 1 é só o resumo e «Continuar».</li>
-<li>Tudo o que foi escrito fica no rascunho ao avançar, voltar ou mudar de modo/resultado (as escolhas incompatíveis ficam guardadas e reaparecem se voltares).</li>
+<li><b>Jogo já escolhido</b> (página do jogo, sessão, «Jogar novamente»): se o modo é o único do catálogo e não há expansões tuas por indicar, abre diretamente em <b>Jogadores</b>, com o resumo do jogo e «Mudar». Se faltar escolher o modo ou as expansões, mostra essa configuração primeiro.</li>
+<li><b>Mudar de modo ou de resposta</b> conserva o que continua válido (jogadores, pontuações, avaliação, data, detalhes) e <b>limpa no momento</b> as seleções que deixam de fazer sentido (vencedores, empatados, resultado da equipa, confirmação de vitória partilhada), com um aviso e «Desfazer». Nada incompatível fica escondido para ser guardado.</li>
 </ul></div>
 <div class="box"><h3>Esforço do registo rápido</h3><ul>
 <li>Competitivo a 2, sem pontuação: escolher jogo · Continuar · adicionar 1 amigo · Continuar · marcar vencedor · Continuar · tocar na avaliação · Continuar · Guardar = <b>9 toques</b> (hoje: 8, com o Resultado num só ecrã comprido e scroll).</li>
-<li>O passo a mais troca scroll por ecrãs que cabem sem deslizar.</li>
+<li>Com o jogo já escolhido e definido: começa em Jogadores = <b>7 toques</b>.</li>
 </ul></div>
 </div>
 
+<section class="block" id="entrada"><h2>0 · Entrada e mudanças de modo</h2><p class="muted">Sem passos sem decisão: com o jogo já escolhido e definido, começa em Jogadores. As mudanças de modo ou de resposta nunca deixam seleções incompatíveis guardadas às escondidas.</p><div class="strip" id="s-entry"></div></section>
 <section class="block" id="percurso"><h2>1 · Percurso competitivo</h2><div class="strip" id="s-comp"></div></section>
 <section class="block" id="resultados"><h2>2 · Resultados: vitória partilhada, empate, não definido</h2>
 <p class="muted">Uma pergunta, «Quem ganhou?», com três respostas. A vitória partilhada nasce de escolher mais do que um vencedor e pede a confirmação das regras; o empate é outra resposta, com a coluna «Empatado em 1.º» e derrota para os restantes. As pontuações nunca marcam nada.</p>
 <div class="strip" id="s-res"></div></section>
 <section class="block" id="modos"><h2>3 · Cooperativo e solo</h2><div class="strip" id="s-modos"></div></section>
 <section class="block" id="avaliacao"><h2>4 · Avaliação, data e detalhes</h2>
-<p class="muted">Valor grande «x / 10»; uma barra com marcas de 0 a 10 e botões ±0,5 de 48 pt; atalhos 0, 5, 6, 7, 8, 9, 10. «Ainda sem avaliação» é um estado próprio («— / 10»), diferente de 0. Continua obrigatória: sem ela não se passa para Rever.</p>
+<p class="muted">Valor grande «x / 10», uma barra com marcas de 0 a 10 e botões ±0,5 de 48 pt; sem atalhos. A barra funciona sem arrastar: tocar num ponto escolhe o meio ponto mais próximo; com VoiceOver é um controlo ajustável (deslizar para cima/baixo = ±0,5, lido como «7,5 de 10»). Toda a escala de 0 a 10 em meios pontos. «Ainda sem avaliação» («— / 10») é diferente de 0. Continua obrigatória.</p>
 <div class="strip" id="s-aval"></div></section>
 <section class="block" id="extremos"><h2>5 · Teclado, nomes longos, texto ampliado e inglês</h2><div class="strip" id="s-ext"></div></section>
 
@@ -323,6 +321,7 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 <tr><td>Pontuações inteiras com sinal (zero e negativos), todas ou nenhuma; ± no teclado numérico</td><td>Coluna «Pontos» só com «Com pontuação»; ± na barra do teclado</td></tr>
 <tr><td>Avaliação obrigatória, 0–10 em meios pontos; zero ≠ sem avaliação</td><td>Controlo novo; «— / 10» até escolher; zero é um valor</td></tr>
 <tr><td>Modo não oficial com justificação; expansões usadas; sessão; fotografias; saída protegida; confirmação após guardar</td><td>Iguais; expansões e modo no resumo do jogo; fotografias nos detalhes</td></tr>
+<tr><td>Mudar de modo ou de resultado</td><td>Conserva jogadores, pontuações, avaliação, data e detalhes; limpa logo vencedores, empatados, resultado da equipa e a confirmação de vitória partilhada, com «Desfazer». Solo com mais de um jogador fica bloqueado com o aviso atual em Jogadores, sem remover ninguém em silêncio.</td></tr>
 </table></div></section>
 </div>
 
@@ -341,7 +340,7 @@ const T={pt:{title:'Registar partida',quick:'Registo rápido',cancel:'Cancelar',
  when:'Quando',today:'Hoje',date:'qua., 15 out. 2026',time:'21:30',edit:'Alterar',details:'Detalhes opcionais',detailsSub:'Local, duração, comentários, notas, etiquetas, fotografias',
  loc:'Local',dur:'Duração (minutos)',com:'Comentários',notes:'Notas privadas',tags:'Etiquetas',photos:'Fotografias',addPhoto:'Adicionar fotografia',
  rv:'Confirma antes de guardar',game:'Jogo',result:'Resultado',ratingShort:'Avaliação',whenShort:'Quando',fix:'Corrigir',ratingError:'Escolhe a tua avaliação (0 a 10) para continuar.',
- we:'Ganhámos',weLost:'Perdemos',teamDraw:'Empate',iWon:'Ganhei',gameWon:'O jogo ganhou',team:'Resultado da equipa',teamNote:'Aplica-se a todos os jogadores; sem vencedor individual.',soloNote:'O teu resultado contra o jogo.'},
+ we:'Ganhámos',weLost:'Perdemos',teamDraw:'Empate',iWon:'Ganhei',gameWon:'Perdi',team:'Resultado da equipa',teamNote:'Aplica-se a todos os jogadores; sem vencedor individual.',soloNote:'O teu resultado contra o jogo.'},
 en:{title:'Record match',quick:'Quick record',cancel:'Cancel',steps:['Game','Players','Result','Rating and date','Review'],stepOf:(n,l)=>`Step ${n} of 5 · ${l}`,prev:'Back',next:'Continue',review:'Review match',save:'Save match',
  search:'Search the catalogue or your library',lib:'From your library',cat:'In the catalogue',base:'Base game',exp:'Expansion',change:'Change',mode:'Game mode',comp:'Competitive',coop:'Cooperative',solo:'Solo',inCat:'In catalogue',force:'Force',expUsed:'Expansions used',none:'None',
  players:'Players',you:'you',add:'Add',searchFriends:'Search friends',mandatory:'You take part in this match; you cannot be removed.',
@@ -353,7 +352,7 @@ en:{title:'Record match',quick:'Quick record',cancel:'Cancel',steps:['Game','Pla
  when:'When',today:'Today',date:'Wed, 15 Oct 2026',time:'21:30',edit:'Change',details:'Optional details',detailsSub:'Place, duration, comments, notes, tags, photos',
  loc:'Place',dur:'Duration (minutes)',com:'Comments',notes:'Private notes',tags:'Tags',photos:'Photos',addPhoto:'Add photo',
  rv:'Check before saving',game:'Game',result:'Result',ratingShort:'Rating',whenShort:'When',fix:'Edit',ratingError:'Choose your rating (0 to 10) to continue.',
- we:'We won',weLost:'We lost',teamDraw:'Draw',iWon:'I won',gameWon:'The game won',team:'Team result',teamNote:'Applies to every player; no individual winner.',soloNote:'Your result against the game.'}};
+ we:'We won',weLost:'We lost',teamDraw:'Draw',iWon:'I won',gameWon:'I lost',team:'Team result',teamNote:'Applies to every player; no individual winner.',soloNote:'Your result against the game.'}};
 const status=`<div class="status"><span>9:41</span><span class="batt"><i></i></span></div><div class="island"></div><div class="homebar"></div>`;
 const nav=(t,n)=>`<div class="nav"><div class="row"><span class="link">${t.cancel}</span><span class="ttl">${t.title}<span class="sub">${t.quick}</span></span><span></span></div><div class="prog">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div><div class="step">${t.stepOf(n,t.steps[n-1])}</div></div>`;
 const foot=(t,n,dis)=>`<div class="foot2">${n>1?`<div class="btn sec">${t.prev}</div>`:''}<div class="btn pri${dis?' dis':''}">${n===5?t.save:n===4?t.review:t.next}</div></div>`;
@@ -395,7 +394,6 @@ const ratingCtl=(t,v,{err=false}={})=>{const pct=v==null?0:v*10;const ticks=[...
  ${v==null?`<div class="cap" style="text-align:center;margin-top:-6px">${t.noRating}</div>`:''}
  <div class="rctl"><span class="rbtn">${t===T.en?'−0.5':'−0,5'}</span><div class="track"><span class="tbar"></span>${v!=null?`<span class="tfill" style="width:${pct}%"></span>`:''}${ticks}${v!=null?`<span class="knob" style="left:${pct}%"></span>`:''}</div><span class="rbtn">${t===T.en?'+0.5':'+0,5'}</span></div>
  <div class="scale"><span>0</span><span>5</span><span>10</span></div>
- <div class="quick">${[0,5,6,7,8,9,10].map(q=>`<span class="${v===q?'on':''}">${q}</span>`).join('')}</div>
  ${err?`<div class="note" style="color:#A3445A">${ic('alert-circle-outline',16,'#A3445A')}<span>${t.ratingError}</span></div>`:`<div class="cap">${t.ratingHint}</div>`}</div>`;};
 const whenCard=t=>`<div class="card"><div class="rowx">${ic('calendar-clock',20,'var(--pri)')}<div class="grow"><div class="cap">${t.when}</div><div class="b">${t.today} · ${t.date} · ${t.time}</div></div><span class="link">${t.edit}</span></div></div>`;
 const detailsCard=(t,open)=>open?`<div class="card"><div class="rowx">${ic('text-box-outline',20,'var(--pri)')}<div class="grow b">${t.details}</div>${ic('chevron-up',22,'var(--chev)')}</div>
@@ -415,13 +413,20 @@ ${o.table||table(t,[['Teste-participante','',0,'w'],['Teste-amiga-colecionadora'
 ${rvSection(t,t.ratingShort,`<div class="card"><div class="rv"><span class="k">${t.rating}</span><span class="v" style="font-size:calc(18px*var(--s))">7,5 / 10</span></div><div class="rv"><span class="k">${t.whenShort}</span><span class="v">${t.date} · ${t.time}</span></div><div class="rv"><span class="k">${t.loc}</span><span class="v">Casa de teste</span></div></div>`)}`;
 
 const t=T.pt,e=T.en;
+const coopChoices=(tt,on)=>`<div class="h">${tt.team}</div><div class="cgrid">${[tt.we,tt.weLost,tt.teamDraw,tt.undef].map((a,i)=>`<div class="choice${i===on?' on':''}"><span class="rd"></span><span class="t">${a}</span></div>`).join('')}</div>`;
+const soloChoices=(tt,on)=>`<div class="h">${tt.result}</div><div class="cgrid">${[tt.iWon,tt.gameWon,tt.draw,tt.undef].map((a,i)=>`<div class="choice${i===on?' on':''}"><span class="rd"></span><span class="t">${a}</span></div>`).join('')}</div>`;
+const switchNote=(tt,msg)=>`<div class="confirm" style="background:var(--band);border-color:var(--line);color:var(--ink);align-items:center">${ic('information-outline',20,'var(--lav)')}<span class="grow">${msg}</span><span class="link">Desfazer</span></div>`;
+put('s-entry',
+ fig(phone(t,2,step2(t)),'Jogo já escolhido e definido','Vindo da página do jogo: abre em Jogadores com o resumo e «Mudar». O passo 1 conta como feito (barra de progresso).')+
+ fig(phone(t,1,`${summary(t,'Wingspan',`2019 · ${t.base}`,true)}<div class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:10px"><div class="cap b" style="text-transform:uppercase;letter-spacing:.3px">${t.mode}</div><div class="seg2"><span>${t.solo}</span><span>${t.comp}</span><span>${t.coop}</span></div><div class="cap">Escolhe o modo desta partida: o catálogo indica mais de um.</div></div><div class="card"><div class="rowx">${ic('layers-outline',20,'var(--lav)')}<div class="grow"><div class="b">${t.expUsed}</div><div class="cap">Tens Wingspan: European Expansion. Usaste-a?</div></div>${ic('chevron-right',20,'var(--chev)')}</div></div>`,{dis:true}),'Jogo escolhido, falta configurar','Quando o catálogo indica mais de um modo ou tens expansões deste jogo, a configuração aparece primeiro; «Continuar» só depois de escolher o modo.')+
+ fig(phone(t,3,`${summary(t,'Meeple Teste Cooperativo',`2026 · ${t.base} · ${t.coop}`)}${switchNote(t,'Mudaste para Cooperativo: os vencedores escolhidos foram limpos.')}${coopChoices(t,-1)}${scoreToggle(t,true)}${table(t,[['Teste-participante','-17',0,'u'],['Teste-amiga-colecionadora','0',0,'u']],{scores:true,col:null})}${explain(t)}`),'Mudar de modo','Jogadores e pontuações ficam; os vencedores do competitivo são limpos no momento, com «Desfazer». O resultado da equipa fica por escolher.'));
 put('s-comp',
  fig(phone(t,1,gameGrid(t),{dis:true}),'1 · Escolher o jogo','Biblioteca com capas, nome, ano e «Jogo base»/«Expansão»; a pesquisa procura na biblioteca e no catálogo. Sem jogo escolhido, «Continuar» fica inativo.')+
  fig(phone(t,1,step1b(t)),'1 · Jogo escolhido','Resumo compacto com «Mudar»; modo num controlo de três (com «No catálogo» e «Forçar» como hoje); expansões usadas numa linha.')+
  fig(phone(t,2,step2(t)),'2 · Jogadores','Tu fixo, com cadeado; os outros removíveis; amigos para adicionar por baixo.')+
  fig(phone(t,3,step3(t)),'3 · Resultado','«Quem ganhou?»: escolher vencedor(es), empate ou não definido. Tabela alinhada: jogador, seleção, resultado de cada um. Uma só explicação.')+
  fig(phone(t,3,step3(t,{scores:true,rows:[['Teste-participante','-17',1,'w'],['Teste-amiga-colecionadora','0',0,'l']]})),'3 · Com pontuação','Coluna «Pontos» alinhada à direita, zero e negativos; o vencedor continua a ser escolhido à mão (aqui quem tem −17).')+
- fig(phone(t,4,step4(t,7.5)),'4 · Avaliação e data','«7,5 / 10» em destaque; barra 0–10 com ±0,5 e atalhos; data e hora numa linha; detalhes recolhidos.')+
+ fig(phone(t,4,step4(t,7.5)),'4 · Avaliação e data','«7,5 / 10» em destaque; barra 0–10 (tocar ou ±0,5; ajustável com VoiceOver); data e hora numa linha; detalhes recolhidos.')+
  fig(phone(t,5,step5(t)),'5 · Rever','Secções legíveis com «Corrigir»; resultado por jogador; avaliação e data juntas. «Guardar partida» só aqui.'));
 
 put('s-res',
@@ -430,17 +435,15 @@ put('s-res',
  fig(phone(t,3,step3(t,{on:1,scores:true,rows:[['Teste-participante','42',1,'d'],['Teste-amiga-colecionadora','42',1,'d'],['Teste-amiga-meeples','38',0,'l']]})),'Empate com pontuações','Pontos iguais não marcam empate sozinhos: a seleção é tua.')+
  fig(phone(t,3,step3(t,{on:2,body:table(t,[['Teste-participante','',0,'u'],['Teste-amiga-colecionadora','',0,'u']],{col:null})})),'Não definido','Sem colunas de seleção; cada jogador fica «—». Guardar continua possível, como hoje.'));
 
-const coopChoices=(tt,on)=>`<div class="h">${tt.team}</div><div class="cgrid">${[tt.we,tt.weLost,tt.teamDraw,tt.undef].map((a,i)=>`<div class="choice${i===on?' on':''}"><span class="rd"></span><span class="t">${a}</span></div>`).join('')}</div>`;
-const soloChoices=(tt,on)=>`<div class="h">${tt.result}</div><div class="cgrid">${[tt.iWon,tt.gameWon,tt.draw,tt.undef].map((a,i)=>`<div class="choice${i===on?' on':''}"><span class="rd"></span><span class="t">${a}</span></div>`).join('')}</div>`;
 put('s-modos',
  fig(phone(t,3,`${summary(t,'Meeple Teste Cooperativo',`2026 · ${t.base} · ${t.coop}`)}${coopChoices(t,0)}<div class="note">${ic('account-group',16,'var(--lav)')}<span>${t.teamNote}</span></div>${scoreToggle(t,false)}${table(t,[['Teste-participante','',0,'w'],['Teste-amiga-colecionadora','',0,'w'],['Teste-amiga-meeples','',0,'w']],{col:null})}${explain(t)}`),'Cooperativo','Resultado da equipa em quatro respostas claras; todos recebem o mesmo; sem vencedor individual.')+
  fig(phone(t,5,step5(t,{game:'Meeple Teste Cooperativo',sub:`2026 · ${t.base} · ${t.coop}`,res:t.we,table:table(t,[['Teste-participante','',0,'w'],['Teste-amiga-colecionadora','',0,'w'],['Teste-amiga-meeples','',0,'w']],{col:null})})),'Cooperativo · Rever','«Ganhámos» e uma vitória por pessoa, como nos cálculos atuais.')+
- fig(phone(t,3,`${summary(t,'Meeple Teste Solo',`2026 · ${t.base} · ${t.solo}`)}${soloChoices(t,1)}<div class="note">${ic('account',16,'var(--lav)')}<span>${t.soloNote}</span></div>${scoreToggle(t,true)}${table(t,[['Teste-participante','64',0,'l']],{scores:true,col:null})}${explain(t)}`),'Solo','«Ganhei / O jogo ganhou / Empate / Não definido»; um jogador; pontuação opcional.'));
+ fig(phone(t,3,`${summary(t,'Meeple Teste Solo',`2026 · ${t.base} · ${t.solo}`)}${soloChoices(t,1)}<div class="note">${ic('account',16,'var(--lav)')}<span>${t.soloNote}</span></div>${scoreToggle(t,true)}${table(t,[['Teste-participante','64',0,'l']],{scores:true,col:null})}${explain(t)}`),'Solo','«Ganhei / Perdi / Empate / Não definido»: funciona também em jogos sem adversário automático. Um jogador; pontuação opcional.'));
 
 put('s-aval',
  fig(phone(t,4,step4(t,null)),'Ainda sem avaliação','«— / 10» e «Ainda sem avaliação»: não é zero. Barra vazia, sem marcador.')+
  fig(phone(t,4,step4(t,null,{err:true}),{dis:false}),'Tentar continuar sem avaliar','Uma linha de erro junto do controlo; não se passa para Rever (regra atual).')+
- fig(phone(t,4,step4(t,0)),'Zero','Zero é um valor escolhido (atalho «0»), com «Limpar» para voltar a «sem avaliação».')+
+ fig(phone(t,4,step4(t,0)),'Zero','Zero é um valor escolhido (tocar no início da barra ou −0,5 a partir de 0,5), com «Limpar» para voltar a «sem avaliação».')+
  fig(phone(t,4,step4(t,7.5,{open:true}),{scroll:330}),'Detalhes abertos','Local, duração, comentários, notas privadas, etiquetas e fotografias, só quando os abres.'));
 
 const kb=`<div class="kbbar"><span>±</span><span>Concluir</span></div><div class="kb">${['1','2','3','4','5','6','7','8','9','','0','⌫'].map(k=>`<span class="${k===''||k==='⌫'?'g':''}">${k}</span>`).join('')}</div>`;
@@ -448,7 +451,7 @@ put('s-ext',
  fig(phone(t,3,step3(t,{scores:true,rows:[['Teste-participante','-17',1,'w'],['Teste-amigo-com-um-nome-de-utilizador-bastante-comprido','',0,'l'],['Teste-amiga-meeples','12',0,'l']],focus:1}),{over:kb,noFoot:true,scroll:330}),'Teclado numérico aberto','O campo ativo fica visível acima do teclado; «±» na barra do teclado para negativos; «Concluir» fecha. Nome longo em várias linhas.')+
  fig(phone(t,2,step2(t,true)),'Nome longo · Jogadores','O nome quebra linha; nada é cortado.')+
  fig(phone(t,3,step3(t,{scores:true,large:true,rows:[['Teste-participante','-17',1,'w'],['Teste-amiga-colecionadora','0',0,'l']]}),{s:1.3}),'Texto ampliado · Resultado','Escolhas em lista; tabela com colunas mais largas; o resultado de cada jogador passa para baixo do nome se faltar espaço.')+
- fig(phone(t,4,step4(t,7.5),{s:1.3}),'Texto ampliado · Avaliação','Valor e controlos crescem; os atalhos passam a duas linhas.')+
+ fig(phone(t,4,step4(t,7.5),{s:1.3}),'Texto ampliado · Avaliação','Valor e controlos crescem; a barra mantém toda a largura.')+
  fig(phone(e,3,step3(e,{scores:true,rows:[['Teste-participante','-17',1,'w'],['Teste-amiga-colecionadora','0',0,'l']]})),'EN · Result','«Who won?» · «Pick the winner(s)» · «Tie for first» · «Not set».')+
  fig(phone(e,4,step4(e,7.5)),'EN · Rating and date','«7.5 / 10», «Not rated yet» when empty.')+
  fig(phone(e,5,step5(e,{res:'Winner: Teste-participante'})),'EN · Review','Same sections in English.'));
