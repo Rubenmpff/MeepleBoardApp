@@ -25,5 +25,22 @@
     "public": "Public",
     "publicDescription": "Any user can see your collection.",
     "changeError": "Unable to change collection privacy."
+  },
+  "about": {
+    "title": "About and credits",
+    "version": "Version {{version}}",
+    "dataTitle": "Game data",
+    "data": "Names, covers, year, players, playing time, age, complexity, descriptions, categories, mechanics, expansions and the BGG rating come from the BoardGameGeek XML API.",
+    "dataNote": "Descriptions stay in the original language. Matches, ratings, libraries and friends are MeepleBoard data and are not sent to BoardGameGeek.",
+    "ratingsTitle": "Three ratings",
+    "bgg": "BGG",
+    "bggHint": "Average of BoardGameGeek users",
+    "meepleBoard": "MeepleBoard",
+    "meepleBoardHint": "Average of matches recorded in the app",
+    "mine": "Yours",
+    "mineHint": "Only yours, from your matches",
+    "open": "Open BoardGameGeek",
+    "openHint": "Opens boardgamegeek.com in the browser",
+    "logo": "Powered by BGG. Open BoardGameGeek"
   }
 }

@@ -69,13 +69,13 @@ function build(file) {
   const ext = path.extname(file);
   let src;
   if (ext === '.json') src = 'module.exports=' + fs.readFileSync(file, 'utf8');
-  else if (/\.(png|jpe?g|gif|ttf)$/.test(ext)) src = 'module.exports=' + JSON.stringify('file://' + file);
+  else if (/\.(png|jpe?g|gif|webp|ttf)$/.test(ext)) src = 'module.exports=' + JSON.stringify('file://' + file);
   else {
     src = fs.readFileSync(file, 'utf8');
     if (/\.(tsx?|jsx)$/.test(ext) || file.startsWith(path.join(app, 'src'))) src = ts.transpileModule(src, { fileName: file, compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020, esModuleInterop: true } }).outputText;
   }
   src = src.replace(/\brequire\((['"])([^'"]+)\1\)/g, (m, q, req) => {
-    if (/\.(png|jpe?g|gif)$/.test(req)) { const f = req.startsWith('@/') ? path.join(app, req.slice(2)) : path.resolve(path.dirname(file), req); return JSON.stringify('file://' + f); }
+    if (/\.(png|jpe?g|gif|webp)$/.test(req)) { const f = req.startsWith('@/') ? path.join(app, req.slice(2)) : path.resolve(path.dirname(file), req); return JSON.stringify('file://' + f); }
     let r; try { r = resolve(file, req); } catch (e) { console.warn('missing', req, 'from', path.relative(app, file)); return `__missing(${JSON.stringify(req)})`; }
     const id = add(r.file);
     return `__req(${id}${r.part ? ',' + JSON.stringify(r.part) : ''})`;

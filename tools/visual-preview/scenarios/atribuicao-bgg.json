@@ -1,0 +1,11 @@
+{"name":"atribuicao-bgg","screens":[
+ {"id":"1-jogo","route":"/games/details/{{game:Wingspan}}"},
+ {"id":"2-jogo-ligacao","route":"/games/details/{{game:Wingspan}}","steps":[{"click":"Ficha do BoardGameGeek. Powered by BGG","wait":400}]},
+ {"id":"3-jogo-texto-grande","route":"/games/details/{{game:Wingspan}}","fontScale":1.35,"steps":[{"scrollTo":"Ficha do BoardGameGeek","offset":260}]},
+ {"id":"4-jogo-en","route":"/games/details/{{game:Wingspan}}","lang":"en"},
+ {"id":"5-perfil-conta","route":"/me","scroll":"end"},
+ {"id":"6-sobre","route":"/about"},
+ {"id":"7-sobre-ligacao","route":"/about","steps":[{"click":"Powered by BGG. Abrir BoardGameGeek","wait":400}]},
+ {"id":"8-sobre-texto-grande","route":"/about","fontScale":1.35},
+ {"id":"9-sobre-en","route":"/about","lang":"en"}
+]}

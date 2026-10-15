@@ -1,11 +1,13 @@
 /**
  * Top of the game page: the cover with its own proportions, name, year and kind, then the BGG and MeepleBoard
  * ratings side by side (each on its own scale) and the facts sheet. Ratings are shown as they come; nothing
- * is recalculated here. BoardGameGeek data keeps its source and a way to the original page.
+ * is recalculated here. BoardGameGeek data keeps its source and a way to the original page; the facts carry the
+ * official «Powered by BGG» logo on its own line under the source.
  */
 import { Image, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Glyph, type Icon } from "@/src/ui/components";
+import PoweredByBgg from "@/src/ui/PoweredByBgg";
 import { colors, isLarge, radius, space, strong, touch, type } from "@/src/ui/theme";
 import { formatRating, locale } from "@/src/ui/format";
 import { Game } from "../types/Game";
@@ -92,9 +94,12 @@ export function GameFacts({ game, language, onOpenBgg }: Props) {
         <Text style={[type.micro, styles.center]}>{f.label}</Text>
       </View>)}
     </View>
-    {fromBgg && <TouchableOpacity style={styles.source} onPress={onOpenBgg} accessibilityRole="link" accessibilityLabel={t("details.bgg.open")} accessibilityHint={t("details.bgg.hint")}>
-      <Glyph name="information-outline" size={14} color={colors.muted} />
-      <Text style={type.micro}>{t("details.facts.source")}</Text>
+    {fromBgg && <TouchableOpacity style={styles.source} onPress={onOpenBgg} accessibilityRole="link" accessibilityLabel={t("details.bgg.poweredBy")} accessibilityHint={t("details.bgg.open")}>
+      <View style={styles.sourceText}>
+        <Glyph name="information-outline" size={14} color={colors.muted} />
+        <Text style={[type.micro, styles.flex]}>{t("details.facts.source")}</Text>
+      </View>
+      <PoweredByBgg height={44} />
     </TouchableOpacity>}
   </View>;
 }
@@ -118,11 +123,14 @@ const styles = StyleSheet.create({
   value: { fontSize: 26, lineHeight: 31, fontWeight: "700", color: colors.text, fontVariant: ["tabular-nums"] },
   scale: { fontSize: 13, fontWeight: "400", color: colors.muted },
   muted: { color: colors.muted },
-  factsWrap: { gap: space.xs },
+  factsWrap: { gap: space.sm },
   facts: { flexDirection: "row", flexWrap: "wrap", backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: radius.hero, borderCurve: "continuous", overflow: "hidden" },
   fact: { alignItems: "center", gap: 2, paddingVertical: 10, paddingHorizontal: 6 },
   factDivider: { borderLeftWidth: 1, borderLeftColor: colors.hair },
   factTop: { borderTopWidth: 1, borderTopColor: colors.hair },
   factValue: { fontSize: 16, lineHeight: 20, fontWeight: "700", color: colors.text, fontVariant: ["tabular-nums"], textAlign: "center" },
-  source: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, minHeight: touch, alignSelf: "center", paddingHorizontal: space.sm, marginVertical: -space.sm },
+  source: { alignItems: "flex-start", gap: space.xs, minHeight: touch, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: radius.hero, borderCurve: "continuous",
+    paddingTop: 10, paddingBottom: 6, paddingHorizontal: space.md },
+  sourceText: { flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "stretch" },
+  flex: { flex: 1 },
 });

@@ -69,12 +69,15 @@
     "allFriends": "Ver todos e procurar pessoas",
     "findPeople": "Procurar pessoas",
     "noFriends": "Ainda não tens amigos na MeepleBoard.",
+    "sharedMatches_zero": "0 partidas juntos",
     "sharedMatches_one": "{{count}} partida juntos",
     "sharedMatches_other": "{{count}} partidas juntos",
     "account": "Conta",
     "settingsHint": "Idioma e privacidade da coleção",
     "pendingJournal": "Avaliações pendentes",
     "loadError": "Não foi possível carregar.",
-    "retry": "Tentar novamente"
+    "retry": "Tentar novamente",
+    "about": "Sobre e créditos",
+    "aboutHint": "Versão e dados do BoardGameGeek"
   }
 }

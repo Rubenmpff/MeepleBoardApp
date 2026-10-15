@@ -113,7 +113,8 @@
     "bgg": {
       "source": "BoardGameGeek entry",
       "open": "Open the game page on BoardGameGeek",
-      "hint": "Opens the original site"
+      "hint": "Opens the original site",
+      "poweredBy": "Details from BoardGameGeek. Powered by BGG"
     },
     "descriptionSource": "Original BoardGameGeek text, not translated.",
     "addToLibraryShort": "Library",

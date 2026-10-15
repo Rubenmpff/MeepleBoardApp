@@ -69,12 +69,15 @@
     "allFriends": "See all and find people",
     "findPeople": "Find people",
     "noFriends": "You have no friends on MeepleBoard yet.",
+    "sharedMatches_zero": "0 matches together",
     "sharedMatches_one": "{{count}} match together",
     "sharedMatches_other": "{{count}} matches together",
     "account": "Account",
     "settingsHint": "Language and collection privacy",
     "pendingJournal": "Pending ratings",
     "loadError": "Could not load.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "about": "About and credits",
+    "aboutHint": "Version and BoardGameGeek data"
   }
 }

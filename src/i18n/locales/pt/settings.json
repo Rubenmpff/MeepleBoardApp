@@ -25,5 +25,22 @@
     "public": "Pública",
     "publicDescription": "Qualquer utilizador pode ver a tua coleção.",
     "changeError": "Não foi possível alterar a privacidade da coleção."
+  },
+  "about": {
+    "title": "Sobre e créditos",
+    "version": "Versão {{version}}",
+    "dataTitle": "Dados dos jogos",
+    "data": "Os nomes, capas, ano, jogadores, duração, idade, complexidade, descrições, categorias, mecânicas, expansões e a nota BGG vêm da API XML do BoardGameGeek.",
+    "dataNote": "As descrições ficam na língua original. Partidas, avaliações, bibliotecas e amigos são dados do MeepleBoard e não são enviados ao BoardGameGeek.",
+    "ratingsTitle": "Três avaliações",
+    "bgg": "BGG",
+    "bggHint": "Média dos utilizadores do BoardGameGeek",
+    "meepleBoard": "MeepleBoard",
+    "meepleBoardHint": "Média das partidas registadas na app",
+    "mine": "A tua",
+    "mineHint": "Só tua, das tuas partidas",
+    "open": "Abrir BoardGameGeek",
+    "openHint": "Abre boardgamegeek.com no navegador",
+    "logo": "Powered by BGG. Abrir BoardGameGeek"
   }
 }

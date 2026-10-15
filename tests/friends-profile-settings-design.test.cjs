@@ -114,6 +114,22 @@ test('Personal profile opens settings, statistics and friends, in both languages
     await r.press(r.i18n.t('settings', { ns: 'navigation' })); assert.equal(r.routes[0], '/settings'); assert.doesNotMatch(r.html, /Your Profile|will appear here|settings-outline/);
   }
 });
+test('Profile opens «Sobre e créditos»: version, BGG data with the official logo linked to BoardGameGeek, the three ratings apart', async () => {
+  for (const language of ['pt', 'en']) {
+    const r = await renderNative('src/features/users/screens/ProfileHomeScreen.tsx', 'default', {}, { language });
+    await r.press(r.i18n.t('me.about', { ns: 'navigation' })); assert.equal(r.routes[0], '/about');
+    assert.equal(r.i18n.t('me.sharedMatches', { ns: 'navigation', count: 0 }), language === 'pt' ? '0 partidas juntos' : '0 matches together');
+    const about = await renderNative('src/features/settings/screens/AboutScreen.tsx', 'default', {}, { language });
+    const t = key => about.i18n.t(key, { ns: 'settings' });
+    assert.ok(about.html.includes(language === 'pt' ? 'Versão 1.0.0' : 'Version 1.0.0'));
+    for (const key of ['about.title', 'about.dataTitle', 'about.data', 'about.dataNote', 'about.bggHint', 'about.meepleBoardHint', 'about.mineHint']) assert.ok(about.html.includes(t(key).replace(/'/g, '&#x27;')), key);
+    const logo = about.images.filter(i => i.source === 1 && i.accessible === false);
+    assert.equal(logo.length, 1); assert.deepEqual(logo[0].style, { height: 52, width: 52 * 900 / 264 });
+    await about.press(t('about.logo')); await about.press(t('about.open'));
+    assert.deepEqual(about.calls.filter(c => c[0] === 'openURL'), [['openURL', 'https://boardgamegeek.com'], ['openURL', 'https://boardgamegeek.com']]);
+  }
+});
+
 test('Settings preserve privacy enums, selected state and language requests', async () => {
   const r = await renderNative(settingsScreen, 'default', {}, { language: 'en', states: { 0: 'pt', 2: 2 }, services: { updateLibraryPrivacy: undefined } });
   await r.press('Private'); await r.press('English');

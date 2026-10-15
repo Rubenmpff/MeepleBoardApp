@@ -56,6 +56,8 @@ export const ROUTES = {
 
   SETTINGS: "/settings",
 
+  ABOUT: "/about",
+
   PROFILE: "/(app)/(tabs)/(me)/me",
 
   SIGN_IN: "/(auth)/signin",

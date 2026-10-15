@@ -58,6 +58,27 @@ test('game page top: cover, name, BGG and MeepleBoard ratings apart, facts with 
   assert.ok(large.controls.some(c => c.accessibilityLabel === 'Adicionar à biblioteca') && large.html.includes('Adicionar à biblioteca'), 'large text keeps the full action label');
 });
 
+test('the facts carry the official «Powered by BGG» logo under their source, 44 pt, growing with larger text, linked to the game on BGG', async () => {
+  const logo = view => view.images.filter(i => i.source === 1 && i.accessible === false);
+  for (const language of ['pt', 'en']) {
+    const view = await page({}, { language });
+    const label = view.i18n.t('details.bgg.poweredBy', { ns: 'games' });
+    assert.ok(view.controls.some(c => c.accessibilityLabel === label && c.accessibilityRole === 'link'), label);
+    assert.equal(logo(view).length, 1, 'once on the page');
+  }
+  const view = await page();
+  assert.deepEqual(logo(view)[0].style, { height: 44, width: 150 }, 'official proportions (900 × 264)');
+  await view.press('Ficha do BoardGameGeek. Powered by BGG');
+  assert.deepEqual(view.calls.find(c => c[0] === 'openURL'), ['openURL', 'https://boardgamegeek.com/boardgame/266192']);
+  const large = await page({}, { fontScale: 1.3 });
+  const { height, width } = logo(large)[0].style;
+  assert.ok(height === 57 && Math.abs(width / height - 900 / 264) < 1e-9, 'larger with large text, same proportions');
+  // Without BGG facts (app-created or fictitious games) there is no source line and no logo.
+  const none = await page({ 0: { ...game, minPlayTime: null, maxPlayTime: null, minAge: null, averageWeight: null } });
+  assert.equal(logo(none).length, 0);
+  assert.ok(!none.controls.some(c => c.accessibilityLabel === 'Ficha do BoardGameGeek. Powered by BGG'));
+});
+
 test('without BGG data the page says so briefly; missing facts are left out and never attributed to BGG', async () => {
   const view = await page({ 0: { ...game, bggId: null, averageRating: null, meepleBoardScore: null, minPlayTime: null, maxPlayTime: null, minAge: null, averageWeight: null }, 3: null });
   assert.ok(view.html.includes('Ainda sem avaliações') && !view.html.includes('—'));

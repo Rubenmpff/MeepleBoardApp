@@ -16,7 +16,7 @@ import { useFriends } from "@/src/features/friends/hooks/useFriends";
 import { getIncomingRequests } from "@/src/features/friends/services/friendshipService";
 import { usePendingJournal } from "@/src/features/games/matches/hooks/usePendingJournal";
 
-// Perfil: who I am, my year, my friends (with requests) and my account.
+// Perfil: who I am, my year, my friends (with requests) and my account (settings, pending ratings, about and credits).
 export default function ProfileHomeScreen() {
   const { t, i18n } = useTranslation("navigation");
   const router = useRouter();
@@ -67,6 +67,7 @@ export default function ProfileHomeScreen() {
         <Card>
           <Row first inset={52} lead={<Glyph name="cog-outline" size={22} color={colors.muted} />} title={t("settings")} subtitle={t("me.settingsHint")} onPress={() => router.push(ROUTES.SETTINGS as never)} />
           <Row inset={52} lead={<Glyph name="star-outline" size={22} color={colors.muted} />} title={t("me.pendingJournal")} value={pendingRatings ? n(pendingRatings) : undefined} onPress={() => router.push(ROUTES.PENDING_JOURNAL as never)} />
+          <Row inset={52} lead={<Glyph name="information-outline" size={22} color={colors.muted} />} title={t("me.about")} subtitle={t("me.aboutHint")} onPress={() => router.push(ROUTES.ABOUT as never)} />
         </Card>
       </Section>
     </ScreenScroll>

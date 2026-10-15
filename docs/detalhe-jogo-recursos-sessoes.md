@@ -7,7 +7,7 @@ Ramo `feat/game-resources-session-autoclose` (app e API), a partir de `checkpoin
 Revisão de 2026-10-14 segundo a proposta aprovada (`docs/mockups/app/jogo/proposta.html`; ponto de recuperação `checkpoint/pre-game-page-v3`).
 
 - **Topo:** capa com as proporções originais sobre a faixa lavanda (sem capa, um ícone neutro), nome, «ano · Jogo base/Expansão · Cooperativo · Solo». Avaliações BGG e MeepleBoard lado a lado, cada uma com «/10»; o BGG mostra o número de avaliações e a posição e abre a página original. Sem nenhuma, «Ainda sem avaliações»; sem uma delas, «Sem avaliações» nesse lado. Cálculos inalterados.
-- **Ficha:** jogadores, duração, idade e complexidade, só os que existem (sem traços). Duração, idade e complexidade vêm da importação BGG (`minPlayTime`, `maxPlayTime`, `minAge`, `averageWeight`; 0 no BGG = sem dado); com algum deles, a linha «Ficha do BoardGameGeek» identifica a origem e abre a página original. Mínimo = máximo mostra um só valor.
+- **Ficha:** jogadores, duração, idade e complexidade, só os que existem (sem traços). Duração, idade e complexidade vêm da importação BGG (`minPlayTime`, `maxPlayTime`, `minAge`, `averageWeight`; 0 no BGG = sem dado); com algum deles, um cartão por baixo da ficha diz «Ficha do BoardGameGeek» e, numa linha própria, mostra o logótipo oficial «Powered by BGG» (44 pt, alinhado à esquerda, maior com texto ampliado); o cartão inteiro abre a página original. O logótipo e a explicação da integração estão também em Perfil → Conta → «Sobre e créditos». Mínimo = máximo mostra um só valor.
 - **Ações:** «Registar partida» e a biblioteca lado a lado (em coluna com texto grande); por baixo, a linha «Combinar sessão» (toda a largura, 44 pt), que abre a criação de sessão com este jogo previsto.
 - **Separadores** «Sobre», «Como jogar», «Recursos». Ao descer, passada a capa aparece uma barra com o nome e «Voltar»; passados os separadores, a barra mostra-os também.
 - **Sobre**, por esta ordem:
@@ -44,7 +44,7 @@ Revisão de 2026-10-14 segundo a proposta aprovada (`docs/mockups/app/jogo/propo
 
 ## Por confirmar no iPhone
 
-1. **Wingspan → topo** (conta `participante`): ícone em vez de capa, «Ainda sem avaliações», ficha com 1–5, 40–70 e 10+ e «Ficha do BoardGameGeek» a abrir o BGG; «Registar partida», «Biblioteca» e «Combinar sessão».
+1. **Wingspan → topo** (conta `participante`): ícone em vez de capa, «Ainda sem avaliações», ficha com 1–5, 40–70 e 10+ e «Ficha do BoardGameGeek» com o logótipo «Powered by BGG» legível por baixo, a abrir o BGG; «Registar partida», «Biblioteca» e «Combinar sessão».
 2. **Descer:** passada a capa aparece a barra com o nome; passados os separadores, a barra mostra-os e trocar de área funciona sem saltos estranhos.
 3. **Sobre:** «A tua experiência» vazia numa linha com «Nova campanha»; amigos com três avatares, «+2» e «Ver todos (5)» a abrir a lista completa; o perfil abre ao tocar; «Expansões» com «Tens 1 de 2» e «Tenho» na European; tocar abre a página da expansão.
 4. **Meeple Teste Solo:** MeepleBoard 5,8; «A tua experiência» com 1 partida, 1 vitória, a tua avaliação 7,5 e «Diário»; «Companhia neste jogo» abre Companhia com Meeple Teste Solo e o período desde a 1.ª partida.
