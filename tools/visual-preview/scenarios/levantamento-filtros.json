@@ -1,0 +1,14 @@
+{"name":"levantamento-filtros","screens":[
+ {"id":"01-biblioteca","route":"/library"},
+ {"id":"02-biblioteca-filtros","route":"/library","steps":[{"click":"Abrir filtros","wait":900}]},
+ {"id":"03-biblioteca-ordenar","route":"/library","steps":[{"click":"Alterar ordenação","wait":900}]},
+ {"id":"04-descobrir-resultados","route":"/library","params":{"area":"discover"},"steps":[{"type":["Pesquisar um jogo de tabuleiro","Meeple"],"wait":1800}]},
+ {"id":"05-descobrir-filtros","route":"/library","params":{"area":"discover"},"steps":[{"type":["Pesquisar um jogo de tabuleiro","Meeple"],"wait":1800},{"click":"Filtros","wait":900}]},
+ {"id":"06-rankings","route":"/games/rankings"},
+ {"id":"07-partidas","route":"/play","steps":[{"click":"Partidas","wait":1200}]},
+ {"id":"08-partidas-filtros","route":"/play","steps":[{"click":"Partidas","wait":1200},{"click":"Filtros","wait":900}]},
+ {"id":"09-sessoes","route":"/games/sessions"},
+ {"id":"10-campanhas","route":"/play","steps":[{"click":"Campanhas","wait":1200}]},
+ {"id":"11-estatisticas-filtros","route":"/statistics/explore","steps":[{"click":"Filtros","wait":900}]},
+ {"id":"12-companhia","route":"/statistics/company"}
+]}
