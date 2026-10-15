@@ -9,6 +9,7 @@ import { Segmented } from "@/src/ui/components";
 import { colors, space } from "@/src/ui/theme";
 import MyLibraryScreen from "./MyLibraryScreen";
 import GameSearchScreen from "@/src/features/games/catalog/screens/GameSearchScreen";
+import { recall, useAccountId, useRemember } from "@/src/shared/hooks/useAccountMemory";
 
 type Area = "library" | "discover";
 // Jogos: my library (what I have, want and played) and discovering games in the catalogue, including Rankings.
@@ -16,7 +17,10 @@ export default function GamesScreen() {
   const { t } = useTranslation("library");
   const params = useLocalSearchParams();
   const requested = params.area === "discover" ? "discover" : params.area === "library" ? "library" : undefined;
-  const [area, setArea] = useState<Area>(requested ?? "library");
+  // Kept per account while the app is open; each area keeps its own search, filters and position.
+  const account = useAccountId();
+  const [area, setArea] = useState<Area>(() => requested ?? recall(account, "games:area", "library"));
+  useRemember("games:area", area);
   useEffect(() => { if (requested) setArea(requested); }, [requested]);
   return <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>
     <View style={styles.head}>

@@ -160,7 +160,13 @@
       "price_high": "Preço mais alto",
       "price_low": "Preço mais baixo"
     },
-    "addedWanted": "Quero jogar {{name}} — está na tua lista"
+    "addedWanted": "Quero jogar {{name}} — está na tua lista",
+    "weArePlayers": "Vamos ser",
+    "modes": "Modo de jogo",
+    "resultsOf": "{{shown}} de {{total}} jogos",
+    "resultsAll_one": "{{count}} jogo",
+    "resultsAll_other": "{{count}} jogos",
+    "activeIn": "Em «{{tab}}»: {{filters}}."
   },
   "hub": {
     "title": "Jogos",

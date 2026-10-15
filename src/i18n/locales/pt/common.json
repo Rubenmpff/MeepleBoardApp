@@ -9,5 +9,27 @@
   "delete": "Eliminar",
   "edit": "Editar",
   "retry": "Tentar novamente",
-  "unknownError": "Ocorreu um erro inesperado."
+  "unknownError": "Ocorreu um erro inesperado.",
+  "filters": {
+    "title": "Filtros",
+    "apply": "Aplicar",
+    "cancel": "Cancelar",
+    "clear": "Limpar",
+    "clearCount": "Limpar ({{count}})",
+    "clearAll": "Limpar tudo",
+    "remove": "Retirar filtro: {{label}}",
+    "show_one": "Ver {{count}} resultado",
+    "show_other": "Ver {{count}} resultados",
+    "showNone": "Sem resultados",
+    "sortTitle": "Ordenar por",
+    "sort": "Ordenar: {{label}}",
+    "open": "Abrir filtros",
+    "openCount_one": "Filtros, {{count}} ativo",
+    "openCount_other": "Filtros, {{count}} ativos",
+    "noResultsTitle": "Nenhum resultado com estes filtros",
+    "adjust": "Ajustar",
+    "clearFilters": "Limpar filtros",
+    "unknownLeftOut_one": "{{count}} sem esta informação ficou de fora.",
+    "unknownLeftOut_other": "{{count}} sem esta informação ficaram de fora."
+  }
 }

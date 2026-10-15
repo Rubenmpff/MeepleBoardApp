@@ -23,7 +23,9 @@ import { CollectionTabs, CollectionTab } from "../components/CollectionTabs";
 import { CollectionToolbar } from "../components/CollectionToolbar";
 import { CollectionFiltersSheet } from "../components/CollectionFiltersSheet";
 import { CollectionSortSheet } from "../components/CollectionSortSheet";
-import { ActiveFilterChips } from "../components/ActiveFilterChips";
+import { ActiveFilterChips, activeFilterItems } from "../components/ActiveFilterChips";
+import { NoResults } from "@/src/ui/Filters";
+import { recall, useAccountId, useAccountPreference, useRemember, useRememberedRef } from "@/src/shared/hooks/useAccountMemory";
 import { CollectionGridCard } from "../components/CollectionGridCard";
 import { CollectionListItem } from "../components/CollectionListItem";
 import { CollectionEmptyState } from "../components/CollectionEmptyState";
@@ -41,7 +43,7 @@ import { GameLibraryStatus } from "../types/GameLibraryStatus";
 import { UserGameLibrary } from "../types/UserGameLibrary";
 import {
   buildCollectionEntries, CollectionEntry, CollectionFilters, EMPTY_FILTERS,
-  countActiveFilters, applyFilters, sortEntries, sortOptionsForTab, SortOption,
+  countActiveFilters, applyFilters, sortEntries, sortOptionsForTab, SortOption, unknownForFilters,
 } from "../utils/collectionHelpers";
 import { ROUTES } from "@/src/constants/routes";
 
@@ -53,39 +55,46 @@ export default function MyLibraryScreen() {
   const { removeGame, updateGame } = useLibraryActions();
   const { viewMode, setViewMode } = useViewModePreference();
 
-  const [activeTab, setActiveTab] = useState<CollectionTab>("ALL");
-  const [search, setSearch] = useState("");
+  // Tab, search and filters are kept per account while the app is open (back from a game, or from Descobrir).
+  const account = useAccountId();
+  const [activeTab, setActiveTab] = useState<CollectionTab>(() => recall(account, "library:tab", "ALL"));
+  const [search, setSearch] = useState(() => recall(account, "library:search", ""));
   const [refreshing, setRefreshing] = useState(false);
   const [manageEntry, setManageEntry] = useState<UserGameLibrary | null>(null);
   const [actionsEntry, setActionsEntry] = useState<CollectionEntry | null>(null);
 
-  const [filters, setFilters] = useState<CollectionFilters>(EMPTY_FILTERS);
+  const [filters, setFilters] = useState<CollectionFilters>(() => recall(account, "library:filters", EMPTY_FILTERS));
+  useRemember("library:tab", activeTab);
+  useRemember("library:search", search);
+  useRemember("library:filters", filters);
   const [filtersVisible, setFiltersVisible] = useState(false);
   const [sortVisible, setSortVisible] = useState(false);
 
   const availableSorts = useMemo(() => sortOptionsForTab(activeTab), [activeTab]);
-  const [sort, setSort] = useState<SortOption>(availableSorts[0]);
-
-  // Se mudares de separador e a ordenação atual já não fizer sentido lá, volta à 1ª opção válida
-  useEffect(() => {
-    if (!availableSorts.includes(sort)) setSort(availableSorts[0]);
-  }, [availableSorts, sort]);
+  // Sort per tab, saved on the device for this account; an option the tab does not offer falls back to its first.
+  const { value: sort, setValue: setSort } = useAccountPreference<SortOption>(`library-sort-${activeTab}`, availableSorts[0], v => (availableSorts as string[]).includes(v));
+  const scrollY = useRememberedRef("library:scroll", 0);
 
   const allEntries = useMemo(
     () => buildCollectionEntries(library, playedGames),
     [library, playedGames]
   );
 
+  // Tab counts follow the search and the filters, over the whole library.
+  const narrowed = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return applyFilters(query ? allEntries.filter(e => e.gameName.toLowerCase().includes(query)) : allEntries, filters);
+  }, [allEntries, search, filters]);
   const counts = useMemo(() => {
     const owned = library.filter((e) => e.status === GameLibraryStatus.Owned);
     return {
-      total: allEntries.length,
-      owned: owned.length,
-      wishlist: library.filter((e) => e.status === GameLibraryStatus.Wishlist).length,
-      played: playedGames.length,
+      total: narrowed.length,
+      owned: narrowed.filter(e => e.status === GameLibraryStatus.Owned).length,
+      wishlist: narrowed.filter(e => e.status === GameLibraryStatus.Wishlist).length,
+      played: narrowed.filter(e => e.timesPlayed > 0).length,
       totalSpent: owned.reduce((sum, e) => sum + (e.pricePaid ?? 0), 0),
     };
-  }, [allEntries, library, playedGames]);
+  }, [narrowed, library]);
 
   const tabFiltered = useMemo(() => {
     if (activeTab === "ALL") return allEntries;
@@ -152,6 +161,8 @@ export default function MyLibraryScreen() {
   }
 
   const isLoading = (loading || playedLoading) && allEntries.length === 0;
+  const tabLabel = t(`ui.${activeTab === "ALL" ? "all" : activeTab === "PLAYED" ? "playedTab" : activeTab === GameLibraryStatus.Owned ? "owned" : "wanted"}`);
+  const unknown = unknownForFilters(searchFiltered, filters);
 
   const emptyVariant =
     filterCount > 0 ? "filters" :
@@ -176,6 +187,7 @@ export default function MyLibraryScreen() {
       )}
 
       <CollectionToolbar
+        count={search.trim() || filterCount ? t("ui.resultsOf", { shown: visibleEntries.length, total: tabFiltered.length }) : undefined}
         viewMode={viewMode}
         onChangeViewMode={setViewMode}
         activeFilterCount={filterCount}
@@ -212,7 +224,11 @@ export default function MyLibraryScreen() {
             <View accessibilityLabel={t("common:loading")} accessibilityState={{ busy: true }}>
               <CollectionSkeleton viewMode={viewMode} />
             </View>
-          ) : error || playedError ? null : (
+          ) : error || playedError ? null : filterCount > 0 ? (
+            <NoResults onAdjust={() => setFiltersVisible(true)} onClear={() => setFilters(EMPTY_FILTERS)}
+              detail={[t("ui.activeIn", { tab: tabLabel, filters: activeFilterItems(filters, setFilters, t).map(f => f.label).join(" · ") }),
+                unknown ? t("common:filters.unknownLeftOut", { count: unknown }) : null].filter(Boolean).join(" ")} />
+          ) : (
             <CollectionEmptyState
               variant={emptyVariant as any}
               onActionPress={
@@ -254,6 +270,9 @@ export default function MyLibraryScreen() {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
           }
           contentContainerStyle={styles.listContent}
+          contentOffset={{ x: 0, y: scrollY.current }}
+          onScroll={e => { scrollY.current = e.nativeEvent.contentOffset.y; }}
+          scrollEventThrottle={64}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
         />
@@ -278,6 +297,7 @@ export default function MyLibraryScreen() {
       <CollectionFiltersSheet
         visible={filtersVisible}
         filters={filters}
+        entries={searchFiltered}
         onApply={setFilters}
         onClose={() => setFiltersVisible(false)}
       />

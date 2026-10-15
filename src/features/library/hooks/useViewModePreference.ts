@@ -1,25 +1,10 @@
 // src/features/library/hooks/useViewModePreference.ts
-import { useCallback, useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAccountPreference } from "@/src/shared/hooks/useAccountMemory";
 
-const STORAGE_KEY = "collection_view_mode";
 export type ViewMode = "grid" | "list";
 
+/** Grid or list in the library, saved on the device for the signed-in account. */
 export function useViewModePreference() {
-  const [viewMode, setViewModeState] = useState<ViewMode>("grid");
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((saved) => {
-      if (saved === "grid" || saved === "list") setViewModeState(saved);
-      setLoaded(true);
-    });
-  }, []);
-
-  const setViewMode = useCallback((mode: ViewMode) => {
-    setViewModeState(mode);
-    AsyncStorage.setItem(STORAGE_KEY, mode).catch(() => {});
-  }, []);
-
+  const { value: viewMode, setValue: setViewMode, loaded } = useAccountPreference<ViewMode>("collection-view-mode", "grid", v => v === "grid" || v === "list", "collection_view_mode");
   return { viewMode, setViewMode, loaded };
 }

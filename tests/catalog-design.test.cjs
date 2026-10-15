@@ -126,18 +126,35 @@ test('Search translates offline and empty states; failed requests have a working
 });
 
 test('Collection and catalogue filter sheets apply existing values and keep translated labels', async () => {
-  for (const [file, name, filters] of [
-    ['src/features/library/components/CollectionFiltersSheet.tsx', 'CollectionFiltersSheet', { playerCount: 5, minBggRating: 8, types: ['solo'], history: 'never' }],
-    ['src/features/games/catalog/components/GameSearchFiltersSheet.tsx', 'GameSearchFiltersSheet', { playerCount: 2, minBggRating: 7 }],
+  for (const [file, name, filters, players, extra] of [
+    ['src/features/library/components/CollectionFiltersSheet.tsx', 'CollectionFiltersSheet', { playerCount: 5, minBggRating: 8, modes: ['solo'], history: 'never' }, 'We are', { entries: [] }],
+    ['src/features/games/catalog/components/GameSearchFiltersSheet.tsx', 'GameSearchFiltersSheet', { playerCount: 2, minBggRating: 7 }, 'Number of players', {}],
   ]) {
     let applied, closed = 0;
-    const r = await renderNative(file, name, { visible: true, filters, onApply: v => applied = v, onClose: () => closed++ }, { language: 'en' });
-    assert.ok(r.html.includes('Number of players'));
+    const r = await renderNative(file, name, { visible: true, filters, onApply: v => applied = v, onClose: () => closed++, ...extra }, { language: 'en' });
+    assert.ok(r.html.includes(players));
     assert.ok(r.html.includes('Minimum BGG rating'));
     assert.ok(!r.html.includes('ui.'));
     await r.press('Apply');
     assert.deepEqual(applied, filters); assert.equal(closed, 1);
   }
+});
+
+test('Library filters: a draft until Apply, cancel keeps the list, count of the draft, unknown data left out, no «competitive»', async () => {
+  const sheet = 'src/features/library/components/CollectionFiltersSheet.tsx';
+  const entries = [{ gameId: 'a', gameName: 'A', minPlayers: 1, maxPlayers: 4, isCooperative: true, timesPlayed: 0 },
+    { gameId: 'b', gameName: 'B', minPlayers: 2, maxPlayers: 5, timesPlayed: 2 }, { gameId: 'c', gameName: 'C (no player data)', timesPlayed: 0 }];
+  let applied = null, closed = 0;
+  const r = await renderNative(sheet, 'CollectionFiltersSheet', { visible: true, filters: { playerCount: 3 }, entries, onApply: v => applied = v, onClose: () => closed++ }, { language: 'pt' });
+  assert.ok(r.controls.some(c => c.accessibilityLabel === 'Ver 2 resultados'), 'count of the draft over all the games given');
+  assert.ok(!r.html.includes('Competitivo'), '«competitive» is not deduced');
+  await r.press('Cancelar');
+  assert.equal(applied, null); assert.equal(closed, 1);
+  const helpers = r.load('src/features/library/utils/collectionHelpers.ts');
+  assert.deepEqual(helpers.applyFilters(entries, { playerCount: 3 }).map(e => e.gameId), ['a', 'b']);
+  assert.equal(helpers.unknownForFilters(entries, { playerCount: 3 }), 1, 'the game without player data is left out and counted');
+  assert.deepEqual(helpers.applyFilters(entries, { modes: ['cooperative', 'solo'] }).map(e => e.gameId), ['a'], 'at least one mode inside the group');
+  assert.deepEqual(helpers.applyFilters(entries, { playerCount: 3, modes: ['cooperative'] }).map(e => e.gameId), ['a'], 'every group');
 });
 
 test('Collection and catalogue sort sheets preserve option values and close after selection', async () => {
@@ -181,4 +198,21 @@ test('Add-to-library price dialog preserves confirmation and skipping without in
   const wish = await renderNative(file, 'default', { ...props, onAddToLibrary: (price, status) => wanted.push([price, status]) }, { language: 'en', states: { 0: 3, 1: '12' } });
   assert.equal(wish.inputs.length, 0, 'a wishlist entry has no price');
   await wish.press('Add'); assert.deepEqual(wanted, [[undefined, 3]]);
+});
+
+test('Library list: tab counts follow search and filters; no results says what is active and what was left out', async () => {
+  // MyLibraryScreen state order: tab, search, refreshing, manageEntry, actionsEntry, filters, filtersVisible, sortVisible.
+  const library = [{ id: 'e1', gameId: 'a', gameName: 'Alpha', status: 1, game: { id: 'a', name: 'Alpha', minPlayers: 1, maxPlayers: 4 } },
+    { id: 'e2', gameId: 'b', gameName: 'Beta', status: 3, game: { id: 'b', name: 'Beta' } }];
+  const r = await renderNative(libraryScreen, 'default', {}, { library, states: { 5: { playerCount: 3 } } });
+  assert.ok(r.html.includes('Todos 1') && r.html.includes('Tenho 1') && r.html.includes('Quero 0'), 'counts with the filter applied');
+  assert.ok(r.html.includes('1 de 2 jogos'));
+  assert.ok(r.controls.some(c => c.accessibilityLabel === 'Retirar filtro: 3 jogadores'));
+  const none = await renderNative(libraryScreen, 'default', {}, { library, states: { 0: 3, 5: { playerCount: 3 } } });
+  assert.match(none.html, /Nenhum resultado com estes filtros/);
+  assert.match(none.html, /Em «Quero»: 3 jogadores\. 1 sem esta informação ficou de fora\./);
+  await none.press('Limpar filtros');
+  assert.ok(none.updates.some(([index, value]) => index === 5 && Object.keys(value).length === 0));
+  await none.press('Ajustar');
+  assert.ok(none.updates.some(([index, value]) => index === 6 && value === true));
 });

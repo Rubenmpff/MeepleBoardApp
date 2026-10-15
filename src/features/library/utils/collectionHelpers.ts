@@ -106,14 +106,17 @@ export function formatBggRating(rating?: number): string {
 }
 
 // ── Filtros ──────────────────────────────────────────────────────────────
+// Between groups every filter must match; inside «modes», at least one. A game without the data a filter needs
+// is left out of that filter (never treated as a match or as «no»), and unknownForFilters says how many.
 
 export type HistoryFilter = "never" | "recent" | "stale";
-export type TypeFilter = "cooperative" | "competitive" | "solo";
+/** Modes known from the catalogue. «Competitivo» is not a BGG classification, so it is not deduced. */
+export type ModeFilter = "cooperative" | "solo";
 
 export interface CollectionFilters {
-  playerCount?: number; // 1-4, ou 5 para "5+"
+  playerCount?: number; // "vamos ser N": 1-4, ou 5 para "5+"
   minBggRating?: number; // 7, 8, 9
-  types?: TypeFilter[];
+  modes?: ModeFilter[];
   history?: HistoryFilter;
 }
 
@@ -123,45 +126,44 @@ export function countActiveFilters(filters: CollectionFilters): number {
   let count = 0;
   if (filters.playerCount != null) count++;
   if (filters.minBggRating != null) count++;
-  if (filters.types && filters.types.length > 0) count++;
+  count += filters.modes?.length ?? 0;
   if (filters.history != null) count++;
   return count;
 }
 
+const knownPlayers = (e: CollectionEntry) => e.minPlayers != null || e.maxPlayers != null;
+
+function matches(e: CollectionEntry, filters: CollectionFilters): boolean {
+  if (filters.playerCount != null) {
+    if (!knownPlayers(e)) return false;
+    const min = e.minPlayers ?? e.maxPlayers!;
+    const max = e.maxPlayers ?? e.minPlayers!;
+    const target = filters.playerCount;
+    if (!(target === 5 ? max >= 5 : target >= min && target <= max)) return false;
+  }
+  if (filters.minBggRating != null && !(e.averageRating && e.averageRating >= filters.minBggRating)) return false;
+  if (filters.modes?.length) {
+    const known: ModeFilter[] = [];
+    if (e.isCooperative) known.push("cooperative");
+    if (e.supportsSoloMode) known.push("solo");
+    if (!filters.modes.some(m => known.includes(m))) return false;
+  }
+  if (filters.history) {
+    const days = e.lastPlayedAt ? Math.floor((Date.now() - new Date(e.lastPlayedAt).getTime()) / 86400000) : null;
+    if (filters.history === "never" && e.timesPlayed > 0) return false;
+    if (filters.history === "recent" && (days == null || days > 30)) return false;
+    if (filters.history === "stale" && (days == null || days <= 180)) return false;
+  }
+  return true;
+}
+
 export function applyFilters(entries: CollectionEntry[], filters: CollectionFilters): CollectionEntry[] {
-  return entries.filter((e) => {
-    if (filters.playerCount != null) {
-      const min = e.minPlayers ?? 1;
-      const max = e.maxPlayers ?? 99;
-      const target = filters.playerCount;
-      const matches = target === 5 ? max >= 5 : target >= min && target <= max;
-      if (!matches) return false;
-    }
+  return entries.filter(e => matches(e, filters));
+}
 
-    if (filters.minBggRating != null) {
-      if (!e.averageRating || e.averageRating < filters.minBggRating) return false;
-    }
-
-    if (filters.types && filters.types.length > 0) {
-      const gameTypes: TypeFilter[] = [];
-      if (e.isCooperative) gameTypes.push("cooperative");
-      if (e.supportsSoloMode) gameTypes.push("solo");
-      if (!e.isCooperative) gameTypes.push("competitive");
-      if (!filters.types.some((t) => gameTypes.includes(t))) return false;
-    }
-
-    if (filters.history) {
-      const days = e.lastPlayedAt
-        ? Math.floor((Date.now() - new Date(e.lastPlayedAt).getTime()) / (1000 * 60 * 60 * 24))
-        : null;
-
-      if (filters.history === "never" && e.timesPlayed > 0) return false;
-      if (filters.history === "recent" && (days == null || days > 30)) return false;
-      if (filters.history === "stale" && (days == null || days <= 180)) return false;
-    }
-
-    return true;
-  });
+/** Games left out only because they lack the data a filter needs (player count or BGG rating). */
+export function unknownForFilters(entries: CollectionEntry[], filters: CollectionFilters): number {
+  return entries.filter(e => (filters.playerCount != null && !knownPlayers(e)) || (filters.minBggRating != null && !e.averageRating)).length;
 }
 
 // ── Ordenação ────────────────────────────────────────────────────────────

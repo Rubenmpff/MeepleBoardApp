@@ -1,0 +1,10 @@
+{"name":"filtros-biblioteca","screens":[
+ {"id":"01-lista","route":"/library"},
+ {"id":"02-filtros","route":"/library","steps":[{"click":"Abrir filtros","wait":900}]},
+ {"id":"03-filtros-escolhidos","route":"/library","steps":[{"click":"Abrir filtros","wait":900},{"click":"Vamos ser: 2","wait":300},{"click":"Modo de jogo: Cooperativo","wait":300}]},
+ {"id":"04-aplicado","route":"/library","steps":[{"click":"Abrir filtros","wait":900},{"click":"Vamos ser: 2","wait":300},{"click":"Aplicar","wait":900}]},
+ {"id":"05-sem-resultados","route":"/library","steps":[{"click":"Abrir filtros","wait":900},{"click":"Nota BGG mínima: 9+","wait":300},{"click":"Aplicar","wait":900}]},
+ {"id":"06-ordenar","route":"/library","steps":[{"click":"Ordenar: Nome A–Z","wait":900}]},
+ {"id":"07-texto-grande","route":"/library","fontScale":1.35,"steps":[{"click":"Abrir filtros","wait":900}]},
+ {"id":"08-en","route":"/library","lang":"en","steps":[{"click":"Open filters","wait":900}]}
+]}

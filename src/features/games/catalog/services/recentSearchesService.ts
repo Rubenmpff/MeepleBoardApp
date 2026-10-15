@@ -2,7 +2,11 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const STORAGE_KEY = "meepleboard:recent-game-searches:v2";
+// Recent searches belong to the signed-in account (set by useRecentSearches). The old device-wide list (v2)
+// cannot be attributed to an account, so it is removed instead of being shown to whoever signs in.
+const LEGACY_KEY = "meepleboard:recent-game-searches:v2";
+let account = "signed-out";
+const storageKey = () => `meepleboard:${account}:recent-game-searches:v3`;
 const MAX_ITEMS = 8;
 const MAX_TERM_LENGTH = 100;
 
@@ -93,7 +97,7 @@ async function writeEntries(
 ): Promise<void> {
   try {
     await AsyncStorage.setItem(
-      STORAGE_KEY,
+      storageKey(),
       JSON.stringify(entries)
     );
   } catch {
@@ -102,9 +106,16 @@ async function writeEntries(
 }
 
 const recentSearchesService = {
+  /** Switch to the account whose searches are read and written; drops the old device-wide list. */
+  setAccount(id: string): void {
+    account = id || "signed-out";
+    AsyncStorage.removeItem(LEGACY_KEY).catch(() => {});
+  },
+
+
   async getRecent(): Promise<RecentSearchEntry[]> {
     try {
-      const raw = await AsyncStorage.getItem(STORAGE_KEY);
+      const raw = await AsyncStorage.getItem(storageKey());
 
       if (!raw) {
         return [];
@@ -113,7 +124,7 @@ const recentSearchesService = {
       const parsed = JSON.parse(raw);
 
       if (!Array.isArray(parsed)) {
-        await AsyncStorage.removeItem(STORAGE_KEY);
+        await AsyncStorage.removeItem(storageKey());
         return [];
       }
 
@@ -211,7 +222,7 @@ const recentSearchesService = {
 
   async clearRecent(): Promise<void> {
     try {
-      await AsyncStorage.removeItem(STORAGE_KEY);
+      await AsyncStorage.removeItem(storageKey());
     } catch {
       // Não crítico.
     }

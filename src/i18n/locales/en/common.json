@@ -9,5 +9,27 @@
   "delete": "Delete",
   "edit": "Edit",
   "retry": "Try again",
-  "unknownError": "An unexpected error occurred."
+  "unknownError": "An unexpected error occurred.",
+  "filters": {
+    "title": "Filters",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "clear": "Clear",
+    "clearCount": "Clear ({{count}})",
+    "clearAll": "Clear all",
+    "remove": "Remove filter: {{label}}",
+    "show_one": "Show {{count}} result",
+    "show_other": "Show {{count}} results",
+    "showNone": "No results",
+    "sortTitle": "Sort by",
+    "sort": "Sort: {{label}}",
+    "open": "Open filters",
+    "openCount_one": "Filters, {{count}} active",
+    "openCount_other": "Filters, {{count}} active",
+    "noResultsTitle": "No results with these filters",
+    "adjust": "Adjust",
+    "clearFilters": "Clear filters",
+    "unknownLeftOut_one": "{{count}} without this information was left out.",
+    "unknownLeftOut_other": "{{count}} without this information were left out."
+  }
 }

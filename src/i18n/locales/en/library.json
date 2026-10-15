@@ -160,7 +160,13 @@
       "price_high": "Highest price",
       "price_low": "Lowest price"
     },
-    "addedWanted": "{{name}} is on your wishlist"
+    "addedWanted": "{{name}} is on your wishlist",
+    "weArePlayers": "We are",
+    "modes": "Game mode",
+    "resultsOf": "{{shown}} of {{total}} games",
+    "resultsAll_one": "{{count}} game",
+    "resultsAll_other": "{{count}} games",
+    "activeIn": "In «{{tab}}»: {{filters}}."
   },
   "hub": {
     "title": "Games",

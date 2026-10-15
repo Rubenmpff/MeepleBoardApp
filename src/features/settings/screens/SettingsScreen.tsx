@@ -21,6 +21,8 @@ import {
 } from "@/src/i18n";
 import { getCurrentUser, updateLibraryPrivacy } from "@/src/features/users/services/userService";
 import { LibraryPrivacy } from "@/src/features/users/types/User";
+import { forgetAccountMemory } from "@/src/shared/hooks/useAccountMemory";
+
 
 type LanguageOption = {
   value: AppLanguage;
@@ -165,6 +167,8 @@ export default function SettingsScreen() {
           onPress: async () => {
             try {
               await authService.logout();
+              // Filters, searches and positions kept for this session are not carried to the next account.
+              forgetAccountMemory();
               router.replace("/welcome");
             } catch (error) {
               console.error(
