@@ -128,7 +128,7 @@ test('Search translates offline and empty states; failed requests have a working
 test('Collection and catalogue filter sheets apply existing values and keep translated labels', async () => {
   for (const [file, name, filters, players, extra] of [
     ['src/features/library/components/CollectionFiltersSheet.tsx', 'CollectionFiltersSheet', { playerCount: 5, minBggRating: 8, modes: ['solo'], history: 'never' }, 'We are', { entries: [] }],
-    ['src/features/games/catalog/components/GameSearchFiltersSheet.tsx', 'GameSearchFiltersSheet', { playerCount: 2, minBggRating: 7 }, 'Number of players', {}],
+    ['src/features/games/catalog/components/GameSearchFiltersSheet.tsx', 'GameSearchFiltersSheet', { playerCount: 2, minBggRating: 7 }, 'We are', {}],
   ]) {
     let applied, closed = 0;
     const r = await renderNative(file, name, { visible: true, filters, onApply: v => applied = v, onClose: () => closed++, ...extra }, { language: 'en' });

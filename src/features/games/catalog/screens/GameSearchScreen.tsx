@@ -54,7 +54,10 @@ import {
   EMPTY_SEARCH_FILTERS,
   countActiveSearchFilters,
   applySearchFilters,
+  searchFilterItems,
 } from "../components/GameSearchFiltersSheet";
+import { ActiveFilters, ListToolbar } from "@/src/ui/Filters";
+import { recall, useAccountId, useAccountPreference, useRemember, useRememberedRef } from "@/src/shared/hooks/useAccountMemory";
 import {
   GameSearchSortSheet,
   SearchSortOption,
@@ -116,19 +119,21 @@ export default function GameSearchScreen() {
   const embedded = React.useContext(EmbeddedScreen);
   const { t } =
     useTranslation("games");
+  // Search, type, filters and position are kept per account while the app is open; sort is saved on the device.
+  const account = useAccountId();
 
   const [query, setQuery] =
-    useState("");
+    useState(() => recall(account, "discover:query", ""));
 
   const [
     typeFilter,
     setTypeFilter,
   ] =
-    useState<TypeFilter>("all");
+    useState<TypeFilter>(() => recall<TypeFilter>(account, "discover:type", "all"));
 
   const [filters, setFilters] =
-    useState<SearchFilters>(
-      EMPTY_SEARCH_FILTERS
+    useState<SearchFilters>(() =>
+      recall(account, "discover:filters", EMPTY_SEARCH_FILTERS)
     );
 
   const [
@@ -137,9 +142,23 @@ export default function GameSearchScreen() {
   ] = useState(false);
 
   const [sort, setSort] =
-    useState<SearchSortOption>(
-      "relevance"
+    useState<SearchSortOption>(() =>
+      recall<SearchSortOption>(account, "discover:sort", "relevance")
     );
+  useRemember("discover:query", query);
+  useRemember("discover:type", typeFilter);
+  useRemember("discover:filters", filters);
+  useRemember("discover:sort", sort);
+  const sortPreference = useAccountPreference<SearchSortOption>("discover-sort", "relevance",
+    v => ["relevance", "most_known", "bgg_rating", "year_desc", "name_asc"].includes(v));
+  const sortRestored = useRef(false);
+  useEffect(() => {
+    if (!sortPreference.loaded) return;
+    if (!sortRestored.current) { sortRestored.current = true; if (sortPreference.value !== sort) setSort(sortPreference.value); return; }
+    if (sortPreference.value !== sort) sortPreference.setValue(sort);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortPreference.loaded, sort]);
+  const listScroll = useRememberedRef("discover:scroll", 0);
 
   const [
     sortVisible,
@@ -1280,94 +1299,11 @@ export default function GameSearchScreen() {
           ))}
         </View>
 
-        <View
-          style={
-            styles.toolbarRow
-          }
-        >
-          <TouchableOpacity accessibilityRole="button"
-            style={
-              styles.toolbarBtn
-            }
-            onPress={() =>
-              setFiltersVisible(
-                true
-              )
-            }
-            activeOpacity={
-              0.8
-            }
-          >
-            <MaterialIcons
-              name="tune"
-              size={15}
-              color={
-                ui.primary
-              }
-            />
+        <ListToolbar filterCount={activeFilterCount} onFilters={() => setFiltersVisible(true)}
 
-            <Text
-              style={
-                styles.toolbarBtnText
-              }
-            >
-              {t("ui.filters")}
-            </Text>
+          sortLabel={t(`ui.sort.${sort}`)} onSort={() => setSortVisible(true)} />
 
-            {activeFilterCount >
-              0 && (
-                <View
-                  style={
-                    styles.badge
-                  }
-                >
-                  <Text
-                    style={
-                      styles.badgeText
-                    }
-                  >
-                    {
-                      activeFilterCount
-                    }
-                  </Text>
-                </View>
-              )}
-          </TouchableOpacity>
-
-          <TouchableOpacity accessibilityRole="button"
-            style={
-              styles.toolbarBtnFlex
-            }
-            onPress={() =>
-              setSortVisible(
-                true
-              )
-            }
-            activeOpacity={
-              0.8
-            }
-          >
-            <Text
-              style={
-                styles.toolbarBtnText
-              }
-              numberOfLines={2}
-            >
-              {t("ui.sortPrefix")}{" "}
-              {
-                t(`ui.sort.${sort}`)
-              }
-            </Text>
-
-            <MaterialIcons
-              name="expand-more"
-              size={16}
-              color={
-                ui.primary
-              }
-            />
-          </TouchableOpacity>
-        </View>
+        <ActiveFilters items={searchFilterItems(filters, setFilters, t)} onClearAll={() => setFilters(EMPTY_SEARCH_FILTERS)} />
       </>
     )}
     {showInitialContent && (
@@ -1570,7 +1506,7 @@ export default function GameSearchScreen() {
                         styles.recentCardText
                       }
                       numberOfLines={
-                        1
+                        3
                       }
                     >
                       {
@@ -1597,6 +1533,8 @@ export default function GameSearchScreen() {
       edges={embedded ? [] : ["top", "left", "right", "bottom"]}
     >
       <FlatList
+        contentOffset={{ x: 0, y: listScroll.current }}
+        onScroll={event => { listScroll.current = event.nativeEvent.contentOffset.y; }}
         ListHeaderComponent={listHeader}
         keyboardShouldPersistTaps="handled"
         data={showFirstPageLoader ? [] : displayedList}
@@ -1941,6 +1879,8 @@ const styles =
 
     typeFilterChip: {
       ...UI_STYLES.control,
+      minWidth: 44,
+      alignItems: "center",
       paddingHorizontal: 12,
       paddingVertical: 6,
       backgroundColor: COLORS.surface,

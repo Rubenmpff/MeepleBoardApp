@@ -1,0 +1,9 @@
+{"name":"filtros-descobrir","screens":[
+ {"id":"01-inicio","route":"/library","params":{"area":"discover"}},
+ {"id":"02-resultados","route":"/library","params":{"area":"discover"},"steps":[{"type":["Pesquisar um jogo de tabuleiro","Meeple"],"wait":1800}]},
+ {"id":"03-filtros","route":"/library","params":{"area":"discover"},"steps":[{"type":["Pesquisar um jogo de tabuleiro","Meeple"],"wait":1800},{"click":"Abrir filtros","wait":900}]},
+ {"id":"04-aplicado","route":"/library","params":{"area":"discover"},"steps":[{"type":["Pesquisar um jogo de tabuleiro","Meeple"],"wait":1800},{"click":"Abrir filtros","wait":900},{"click":"Vamos ser: 2","wait":300},{"click":"Aplicar","wait":1800}]},
+ {"id":"05-ordenar","route":"/library","params":{"area":"discover"},"steps":[{"type":["Pesquisar um jogo de tabuleiro","Meeple"],"wait":1800},{"click":"Ordenar: Relevância","wait":900}]},
+ {"id":"06-texto-grande","route":"/library","params":{"area":"discover"},"fontScale":1.35,"steps":[{"type":["Pesquisar um jogo de tabuleiro","Meeple"],"wait":1800}]},
+ {"id":"07-en","route":"/library","params":{"area":"discover"},"lang":"en","steps":[{"type":["Search for a board game","Meeple"],"wait":1800}]}
+]}
