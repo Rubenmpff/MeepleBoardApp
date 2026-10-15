@@ -1,0 +1,11 @@
+{"name":"filtros-jogar","screens":[
+ {"id":"01-sessoes","route":"/play"},
+ {"id":"02-sessoes-filtro","route":"/play","steps":[{"click":"Abrir filtros","wait":900}]},
+ {"id":"03-sessoes-aplicado","route":"/play","steps":[{"click":"Abrir filtros","wait":900},{"click":"Jogo previsto: Wingspan","wait":300},{"click":"Aplicar","wait":900}]},
+ {"id":"04-campanhas","route":"/play","steps":[{"click":"Campanhas","wait":1500}]},
+ {"id":"05-campanhas-filtro","route":"/play","steps":[{"click":"Campanhas","wait":1500},{"click":"Abrir filtros","wait":900}]},
+ {"id":"06-partidas-filtros","route":"/play","steps":[{"click":"Partidas","wait":1500},{"click":"Filtros","wait":900}]},
+ {"id":"07-partidas-modo","route":"/play","steps":[{"click":"Partidas","wait":1500},{"click":"Filtros","wait":900},{"click":"Modo","wait":600},{"click":"Competitivo","wait":600}]},
+ {"id":"08-texto-grande","route":"/play","fontScale":1.35},
+ {"id":"09-en","route":"/play","lang":"en","steps":[{"click":"Campaigns","wait":1500}]}
+]}

@@ -6,12 +6,16 @@
  *   - Agendadas → sessões futuras
  *   - Encerradas → sessões fechadas
  *   - Convites  → sessões onde fui convidado e ainda não respondi
+ * Pesquisa por nome ou local e filtro «Jogo previsto» (inclui «Por definir»); as contagens seguem-nos.
+ * Separador, pesquisa e filtro ficam guardados por conta enquanto a app está aberta.
  */
 import { SESSION_STATUS_COLORS } from "@/src/styles/statusColors";
 import { useTranslation } from "react-i18next";
 import ScreenLayout, { EmbeddedScreen } from "@/src/components/ui/ScreenLayout";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
-import { FilterChips } from "@/src/ui/components";
+import { FilterChips, SearchField } from "@/src/ui/components";
+import { ActiveFilters, FilterSheet, ListToolbar, NoResults, OptionGroup } from "@/src/ui/Filters";
+import { recall, useAccountId, useRemember } from "@/src/shared/hooks/useAccountMemory";
 import { formatDateTime } from "@/src/ui/format";
 import ScreenState from "@/src/components/ui/ScreenState";
 import { useCallback, useContext, useMemo, useState } from "react";
@@ -36,8 +40,16 @@ export default function SessionsListScreen() {
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const [sessions, setSessions] = useState<GameSession[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<TabKey>("Active");
+  const account = useAccountId();
+  const [tab, setTab] = useState<TabKey>(() => recall<TabKey>(account, "sessions:tab", "Active"));
   const [loadError, setLoadError] = useState(false);
+  const [search, setSearch] = useState(() => recall(account, "sessions:search", ""));
+  // Planned game id, "none" for «Por definir», or undefined for any.
+  const [planned, setPlanned] = useState<string | undefined>(() => recall<string | undefined>(account, "sessions:planned", undefined));
+  const [filtersVisible, setFiltersVisible] = useState(false);
+  useRemember("sessions:tab", tab);
+  useRemember("sessions:search", search);
+  useRemember("sessions:planned", planned);
   const load = useCallback(async () => {
     try {
       setLoadError(false);
@@ -52,7 +64,20 @@ export default function SessionsListScreen() {
   }, []);
   useFocusEffect(useCallback(() => { load(); }, [load]));
   /* ── Filtering ── */
+  // Search and planned game first, over every session; tab counts follow them.
+  const narrowed = useMemo(() => {
+    const q = search.trim().toLocaleLowerCase();
+    return (sessions ?? []).filter(s => (!q || [s.name, s.location, s.plannedGameName].some(v => v?.toLocaleLowerCase().includes(q)))
+      && (planned === undefined || (planned === "none" ? !s.plannedGameId : s.plannedGameId === planned)));
+  }, [sessions, search, planned]);
+  const plannedOptions = useMemo(() => {
+    const games = new Map<string, string>();
+    for (const s of sessions ?? []) if (s.plannedGameId) games.set(s.plannedGameId, s.plannedGameName ?? "");
+    return [...[...games].sort((a, b) => a[1].localeCompare(b[1])).map(([key, label]) => ({ key, label })), { key: "none", label: t("sessions.plannedUndecided") }];
+  }, [sessions, t]);
+  const plannedLabel = planned === undefined ? undefined : plannedOptions.find(o => o.key === planned)?.label ?? t("sessions.list.plannedFilter");
   const filtered = useMemo(() => {
+    const sessions = narrowed;
     if (!sessions) return [];
     if (tab === "Invites") {
       // Sessões onde fui convidado (não sou organizer) e ainda não respondi (Pending)
@@ -64,20 +89,20 @@ export default function SessionsListScreen() {
       });
     }
     return sessions.filter((s) => s.status === tab);
-  }, [sessions, tab, currentUser?.id]);
+  }, [narrowed, tab, currentUser?.id]);
   /* ── Badge count for Invites ── */
   const inviteCount = useMemo(() => {
-    return sessions.filter((s) => {
+    return narrowed.filter((s) => {
       if (s.status === "Cancelled") return false;
       if (s.organizerId === currentUser?.id) return false;
       const myLink = s.players?.find((p) => p.userId === currentUser?.id);
       return myLink && sessionPlayerGuards.isPending(myLink);
     }).length;
-  }, [sessions, currentUser?.id]);
+  }, [narrowed, currentUser?.id]);
   const goCreate = () => router.push("/(app)/games/sessions/create");
   const goDetail = (id: string) => router.push(`/(app)/games/sessions/${id}`);
   if (loading && !sessions.length) return <ScreenLayout title={t("sessions.title")}><ScreenState loading message={t("ui.loading")} /></ScreenLayout>;
-  const countFor = (key: TabKey) => key === "Invites" ? inviteCount : sessions.filter(s => s.status === key).length;
+  const countFor = (key: TabKey) => key === "Invites" ? inviteCount : narrowed.filter(s => s.status === key).length;
   /* ── Card ── */
   const renderCard = ({ item }: { item: GameSession }) => {
     const when = item.scheduledStartDate ? formatDateTime(item.scheduledStartDate, i18n.language) : "—";
@@ -114,7 +139,10 @@ export default function SessionsListScreen() {
     <ScreenLayout title={t("sessions.title")}>
       <View style={styles.headerRow}>
         {!embedded && <PrimaryButton title={t("sessions.create")} icon={<MaterialIcons name="add" size={20} color={COLORS.onPrimary} />} onPress={goCreate} />}
+        <SearchField value={search} onChangeText={setSearch} placeholder={t("sessions.list.search")} />
         <FilterChips items={TABS.map(key => ({ key, label: t("sessions.tabs." + key), count: countFor(key) }))} value={tab} onChange={setTab} />
+        <ListToolbar filterCount={planned === undefined ? 0 : 1} onFilters={() => setFiltersVisible(true)} />
+        <ActiveFilters items={plannedLabel ? [{ key: "planned", label: `${t("sessions.list.plannedFilter")}: ${plannedLabel}`, onRemove: () => setPlanned(undefined) }] : []} onClearAll={() => setPlanned(undefined)} />
       </View>
       {loadError && <ScreenState error message={t("sessions.listError")} onRetry={load} retryLabel={t("ui.retry")} />}
       <FlatList
@@ -122,9 +150,17 @@ export default function SessionsListScreen() {
         keyExtractor={(i) => i.id}
         renderItem={renderCard}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={load} colors={[COLORS.primary]} tintColor={COLORS.primary} />}
-        ListEmptyComponent={loadError ? null : <ScreenState message={t("sessions.empty." + tab)} />}
+        ListEmptyComponent={loadError ? null : (search.trim() || planned !== undefined) && sessions.length > 0
+          ? <NoResults detail={t("sessions.list.noneFound")} onAdjust={() => setFiltersVisible(true)} onClear={() => { setSearch(""); setPlanned(undefined); }} />
+          : <ScreenState message={t("sessions.empty." + tab)} />}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.list}
       />
+      <FilterSheet visible={filtersVisible} value={planned} empty={undefined} onApply={setPlanned} onClose={() => setFiltersVisible(false)}
+        activeCount={v => v === undefined ? 0 : 1}>
+        {(draft, setDraft) => <OptionGroup title={t("sessions.list.plannedFilter")} options={plannedOptions} selected={draft === undefined ? [] : [draft]} onChange={next => setDraft(next[0])} />}
+      </FilterSheet>
     </ScreenLayout>
   );
 }

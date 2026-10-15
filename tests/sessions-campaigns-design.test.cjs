@@ -335,3 +335,26 @@ test('all seven screens translate headings and existing actions in English', asy
     assert.doesNotMatch(view.html, /sessions\.(?:title|tabs|deadline)|encounter\.(?:title|submit)|ui\.detailTitle/);
   }
 });
+
+test('sessions and campaigns: search and game filter narrow the list and its counts; no results offers clearing', async () => {
+  // SessionsListScreen state order: sessions, loading, tab, loadError, search, planned, filtersVisible.
+  const sessions = [{ ...session, id: 's1', name: 'Noite de Wingspan', status: 'Active', plannedGameId: 'w', plannedGameName: 'Wingspan' },
+    { ...session, id: 's2', name: 'Domingo', status: 'Active' }, { ...session, id: 's3', name: 'Outra', status: 'Upcoming', plannedGameId: 'w', plannedGameName: 'Wingspan' }];
+  const byGame = await render(list, { states: { 0: sessions, 1: false, 2: 'Active', 5: 'w' } });
+  assert.deepEqual(byGame.lists[0].data.map(s => s.id), ['s1']);
+  assert.ok(byGame.controls.some(c => c.accessibilityLabel === 'Agendadas, 1') && byGame.controls.some(c => c.accessibilityLabel === 'Ativas, 1'), 'counts follow the filter');
+  assert.ok(byGame.controls.some(c => c.accessibilityLabel === 'Retirar filtro: Jogo previsto: Wingspan'));
+  const undecided = await render(list, { states: { 0: sessions, 1: false, 2: 'Active', 5: 'none' } });
+  assert.deepEqual(undecided.lists[0].data.map(s => s.id), ['s2']);
+  const searched = await render(list, { states: { 0: sessions, 1: false, 2: 'Active', 4: 'zzz' } });
+  assert.match(searched.html, /Nenhum resultado com estes filtros/);
+  await searched.press('Limpar filtros');
+  assert.ok(searched.updates.some(([i, v]) => i === 4 && v === ''));
+  // CampaignListScreen state order: campaigns, loading, refreshing, loadError, status, search, gameId, filtersVisible.
+  const many = [campaign, { ...campaign, id: 'c2', name: 'Outra campanha', gameId: 'other', gameName: 'Other game', status: 'Completed' }];
+  const camps = await render(campaigns, { states: { 0: many, 1: false, 6: 'game-test' } });
+  assert.ok(camps.html.includes('Test-only campaign') && !camps.html.includes('Outra campanha'));
+  assert.ok(camps.controls.some(c => c.accessibilityLabel === 'Concluídas, 0'), 'status counts follow the game filter');
+  const none = await render(campaigns, { states: { 0: many, 1: false, 5: 'zzz' } });
+  assert.match(none.html, /Nenhuma campanha com esta pesquisa ou filtro/);
+});

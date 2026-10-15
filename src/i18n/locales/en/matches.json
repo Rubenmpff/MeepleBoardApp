@@ -394,7 +394,13 @@
     "plannedSaved": "Planned game updated.",
     "plannedError": "Could not change the planned game.",
     "plannedChangeHint": "Does not change the session's matches or times",
-    "plannedCancel": "Cancel"
+    "plannedCancel": "Cancel",
+    "list": {
+      "search": "Search sessions",
+      "plannedFilter": "Planned game",
+      "plannedAny": "Any game",
+      "noneFound": "No sessions match this search or filter."
+    }
   },
   "form": {
     "withScores": "With scores",

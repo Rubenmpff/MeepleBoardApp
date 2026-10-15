@@ -394,7 +394,13 @@
     "plannedSaved": "Jogo previsto atualizado.",
     "plannedError": "Não foi possível alterar o jogo previsto.",
     "plannedChangeHint": "Não muda partidas nem horas da sessão",
-    "plannedCancel": "Cancelar"
+    "plannedCancel": "Cancelar",
+    "list": {
+      "search": "Pesquisar sessões",
+      "plannedFilter": "Jogo previsto",
+      "plannedAny": "Qualquer jogo",
+      "noneFound": "Nenhuma sessão com esta pesquisa ou filtro."
+    }
   },
   "form": {
     "withScores": "Com pontuação",

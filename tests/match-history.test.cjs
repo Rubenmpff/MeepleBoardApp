@@ -42,27 +42,36 @@ test('result chips and the period, game and mode filters change the request with
   const days = (Date.parse(query.endExclusive) - Date.parse(query.start)) / 86400000;
   assert.equal(Math.round(days), 3660, 'all dates use the widest window the API accepts');
 
+  // Period, game and mode go to a draft (state 9); «Aplicar» applies it, «Cancelar» discards it.
   const years = await render({ 1: page([match('a')]), 7: ['2026', '2025'], 8: 'range' });
   for (const label of ['Todas as datas', 'Este mês', '2026', '2025']) assert.ok(years.controls.some(c => c.accessibilityLabel === label), label);
   await years.press('2025');
-  assert.deepEqual(years.updates.find(([i]) => i === 0)[1], { ...ALL, range: '2025' });
+  assert.deepEqual(years.updates.find(([i]) => i === 9)[1], { ...ALL, range: '2025' });
+  assert.ok(!years.updates.some(([i]) => i === 0), 'nothing applied yet');
   assert.ok(years.updates.some(([i, v]) => i === 8 && v === 'main'), 'back to the filter summary');
 
   const games = await render({ 1: page([match('a')]), 6: [{ gameId: 'g9', name: 'Fixture game', imageUrl: null, matches: 3 }], 8: 'game' });
   await games.press('Fixture game');
-  assert.deepEqual(games.updates.find(([i]) => i === 0)[1], { ...ALL, gameId: 'g9' });
+  assert.deepEqual(games.updates.find(([i]) => i === 9)[1], { ...ALL, gameId: 'g9' });
   const modes = await render({ 1: page([match('a')]), 8: 'mode' });
   await modes.press('Cooperativo');
-  assert.deepEqual(modes.updates.find(([i]) => i === 0)[1], { ...ALL, mode: 'COOPERATIVE' });
+  assert.deepEqual(modes.updates.find(([i]) => i === 9)[1], { ...ALL, mode: 'COOPERATIVE' });
+
+  const apply = await render({ 1: page([match('a')]), 8: 'main', 9: { ...ALL, mode: 'SOLO' } });
+  await apply.press('Aplicar');
+  assert.deepEqual(apply.updates.find(([i]) => i === 0)[1], { ...ALL, mode: 'SOLO' });
+  const cancel = await render({ 1: page([match('a')]), 8: 'main', 9: { ...ALL, mode: 'SOLO' } });
+  await cancel.press('Cancelar');
+  assert.ok(!cancel.updates.some(([i]) => i === 0) && cancel.updates.some(([i, v]) => i === 8 && v === null), 'cancel keeps the list');
 });
 
 test('the filter summary names the active choices and clearing keeps the result chip', async () => {
   const filters = { result: 'losses', range: '2025', gameId: 'g9', mode: 'SOLO' };
-  const ui = await render({ 0: filters, 1: page([match('a')]), 6: [{ gameId: 'g9', name: 'Fixture game', imageUrl: null, matches: 3 }], 8: 'main' });
+  const ui = await render({ 0: filters, 1: page([match('a')]), 6: [{ gameId: 'g9', name: 'Fixture game', imageUrl: null, matches: 3 }], 8: 'main', 9: filters });
   assert.ok(ui.controls.some(c => c.accessibilityLabel === 'Período: 2025 · Fixture game · Solo'));
   assert.ok(!ui.html.includes('últimos 10 anos'), 'the 10-year note only applies to all dates');
   await ui.press('Limpar filtros');
-  assert.deepEqual(ui.updates.find(([i]) => i === 0)[1], { result: 'losses', range: 'all' });
+  assert.deepEqual(ui.updates.find(([i]) => i === 9)[1], { result: 'losses', range: 'all' }, 'clears the draft');
 });
 
 test('empty history offers registration; empty filters offer clearing; errors retry', async () => {

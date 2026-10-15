@@ -59,6 +59,8 @@ export default function MatchHistoryScreen() {
   const [games, setGames] = useState<GameSummary[]>([]);
   const [years, setYears] = useState<string[]>([]);
   const [sheet, setSheet] = useState<null | "main" | "range" | "game" | "mode">(null);
+  // Period, game and mode are chosen in a draft; nothing changes until «Aplicar» (result chips apply at once).
+  const [draft, setDraft] = useState<Filters>(filters);
   const timeZone = useRef(zone()).current;
   const request = useRef(0);
 
@@ -100,9 +102,14 @@ export default function MatchHistoryScreen() {
   }, [filters, query, loadOptions]));
 
   const change = (next: Partial<Filters>) => setFilters(f => ({ ...f, ...next }));
+  const changeDraft = (next: Partial<Filters>) => setDraft(d => ({ ...d, ...next }));
+  const openFilters = () => { setDraft(filters); setSheet("main"); };
+  const applyDraft = () => { setFilters(f => ({ ...draft, result: f.result })); setSheet(null); };
   const rangeLabel = (range: Range) => range === "all" ? t("history.allDates") : range === "month" ? t("history.thisMonth") : range;
-  const gameLabel = filters.gameId ? games.find(g => g.gameId === filters.gameId)?.name ?? t("history.selectedGame") : t("history.allGames");
-  const modeLabel = filters.mode ? t(`statistics:modes.${filters.mode}`) : t("history.allModes");
+  const gameName = (f: Filters) => f.gameId ? games.find(g => g.gameId === f.gameId)?.name ?? t("history.selectedGame") : t("history.allGames");
+  const modeName = (f: Filters) => f.mode ? t(`statistics:modes.${f.mode}`) : t("history.allModes");
+  const gameLabel = gameName(filters), modeLabel = modeName(filters);
+  const draftActive = (draft.range !== "all" ? 1 : 0) + (draft.gameId ? 1 : 0) + (draft.mode ? 1 : 0);
   const active = (filters.range !== "all" ? 1 : 0) + (filters.gameId ? 1 : 0) + (filters.mode ? 1 : 0);
   const filtered = active > 0 || filters.result !== "all";
   const outcome = (m: SupportingMatch) => m.resultSource === "Legacy" ? t("statistics:legacyItem") : m.outcome ? t(`statistics:outcomes.${m.outcome}`) : t("statistics:undefinedItem");
@@ -111,12 +118,12 @@ export default function MatchHistoryScreen() {
     <FilterChips items={RESULTS.map(key => ({ key, label: t(`history.results.${key}`) }))} value={filters.result} onChange={result => change({ result })} />
     <Card style={styles.scope}>
       <TouchableOpacity style={styles.scopeMain} accessibilityRole="button" accessibilityLabel={`${t("history.period")}: ${rangeLabel(filters.range)} · ${gameLabel} · ${modeLabel}`}
-        accessibilityHint={t("history.filters")} onPress={() => setSheet("main")}>
+        accessibilityHint={t("history.filters")} onPress={openFilters}>
         <View style={styles.line}><Text style={[type.body, strong, styles.shrink]}>{rangeLabel(filters.range)}</Text><Glyph name="chevron-down" size={18} color={colors.primary} /></View>
         <Text style={type.caption}>{gameLabel} · {modeLabel}</Text>
       </TouchableOpacity>
       <View style={styles.divider} />
-      <FilterButton count={active} onPress={() => setSheet("main")} expanded={sheet !== null} />
+      <FilterButton count={active} onPress={openFilters} expanded={sheet !== null} />
     </Card>
     {page && !error && <Note inset>{t("history.count", { count: page.total })}{filters.range === "all" ? ` · ${t("history.tenYears")}` : ""}</Note>}
   </View>;
@@ -158,25 +165,26 @@ export default function MatchHistoryScreen() {
 
     <Sheet visible={sheet !== null} onClose={() => setSheet(null)} closeLabel={t("history.close")}
       title={sheet === "range" ? t("history.period") : sheet === "game" ? t("history.game") : sheet === "mode" ? t("history.mode") : t("history.filters")}
-      left={sheet && sheet !== "main" ? { label: t("history.filters"), back: true, onPress: () => setSheet("main") } : undefined}
-      right={{ label: t("history.done"), bold: true, onPress: () => setSheet(null) }}>
+      left={sheet && sheet !== "main" ? { label: t("history.filters"), back: true, onPress: () => setSheet("main") } : { label: t("common:filters.cancel"), onPress: () => setSheet(null) }}
+      right={sheet === "main" ? { label: t("common:filters.apply"), bold: true, onPress: applyDraft } : undefined}>
       {sheet === "main" && <>
         <Card>
-          <Row first title={t("history.period")} value={rangeLabel(filters.range)} onPress={() => setSheet("range")} />
-          <Row title={t("history.game")} value={gameLabel} onPress={() => setSheet("game")} />
-          <Row title={t("history.mode")} value={modeLabel} onPress={() => setSheet("mode")} />
+          <Row first title={t("history.period")} value={rangeLabel(draft.range)} onPress={() => setSheet("range")} />
+          <Row title={t("history.game")} value={gameName(draft)} onPress={() => setSheet("game")} />
+          <Row title={t("history.mode")} value={modeName(draft)} onPress={() => setSheet("mode")} />
         </Card>
-        {active > 0 && <Card><Row first title={t("history.clear")} tone="link" end="none" onPress={() => { setFilters(f => ({ ...DEFAULT, result: f.result })); setSheet(null); }} /></Card>}
+        {draftActive > 0 && <Card><Row first title={t("history.clear")} tone="link" end="none" onPress={() => setDraft(d => ({ ...DEFAULT, result: d.result }))} /></Card>}
+        <Button variant="primary" title={t("common:filters.apply")} onPress={applyDraft} />
       </>}
       {sheet === "range" && <Card>
-        {["all", "month", ...years].map((range, index) => pick(range, rangeLabel(range), filters.range === range, () => change({ range }), index === 0))}
+        {["all", "month", ...years].map((range, index) => pick(range, rangeLabel(range), draft.range === range, () => changeDraft({ range }), index === 0))}
       </Card>}
       {sheet === "game" && <Card>
-        {pick("all", t("history.allGames"), !filters.gameId, () => change({ gameId: undefined }), true)}
-        {games.map(game => pick(game.gameId, game.name, filters.gameId === game.gameId, () => change({ gameId: game.gameId }), false, <GameCover uri={game.imageUrl} size={44} />))}
+        {pick("all", t("history.allGames"), !draft.gameId, () => changeDraft({ gameId: undefined }), true)}
+        {games.map(game => pick(game.gameId, game.name, draft.gameId === game.gameId, () => changeDraft({ gameId: game.gameId }), false, <GameCover uri={game.imageUrl} size={44} />))}
       </Card>}
       {sheet === "mode" && <Card>
-        {([undefined, ...MODES] as (Mode | undefined)[]).map((mode, index) => pick(mode ?? "all", mode ? t(`statistics:modes.${mode}`) : t("history.allModes"), filters.mode === mode, () => change({ mode }), index === 0))}
+        {([undefined, ...MODES] as (Mode | undefined)[]).map((mode, index) => pick(mode ?? "all", mode ? t(`statistics:modes.${mode}`) : t("history.allModes"), draft.mode === mode, () => changeDraft({ mode }), index === 0))}
       </Card>}
     </Sheet>
   </>;

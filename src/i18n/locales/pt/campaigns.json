@@ -56,7 +56,11 @@
     "matches_other": "{{count}} partidas",
     "loadError": "Não foi possível carregar as campanhas.",
     "members_one": "{{count}} membro",
-    "members_other": "{{count}} membros"
+    "members_other": "{{count}} membros",
+    "search": "Pesquisar campanhas",
+    "gameFilter": "Jogo",
+    "noneFound": "Nenhuma campanha com esta pesquisa ou filtro.",
+    "emptyStatus": "Sem campanhas neste estado."
   },
   "detail": {
     "notFound": "Campanha não encontrada.",
