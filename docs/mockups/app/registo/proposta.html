@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registo de partida MeepleBoard</title>
+<style>
+:root{--doc-bg:#F3F1F5;--doc-ink:#2A2433;--doc-muted:#5E6570;--doc-card:#FFFFFF;--doc-line:#E2DDE7;--doc-accent:#27594B;--doc-new:#FFF7DE;--doc-new-ink:#6E4D00;
+ --doc-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--doc-bg:#17141B;--doc-ink:#ECE8F0;--doc-muted:#A9A3B2;--doc-card:#221E28;--doc-line:#37303F;--doc-accent:#8CC4AE;--doc-new:#3A3220;--doc-new-ink:#F1D79A}}
+:root[data-theme="dark"]{color-scheme:dark;--doc-bg:#17141B;--doc-ink:#ECE8F0;--doc-muted:#A9A3B2;--doc-card:#221E28;--doc-line:#37303F;--doc-accent:#8CC4AE;--doc-new:#3A3220;--doc-new-ink:#F1D79A}
+@font-face{font-family:"MCI";src:url(../../../../node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf) format("truetype");font-display:block}
+*{box-sizing:border-box}
+body{margin:0;background:var(--doc-bg);color:var(--doc-ink);font:16px/1.55 var(--doc-font);padding:0 20px 72px}
+.doc{max-width:1240px;margin:0 auto}.prose{max-width:720px}
+h1{font-size:34px;line-height:1.15;letter-spacing:-.4px;margin:44px 0 12px;text-wrap:balance}
+h2{font-size:24px;line-height:1.25;margin:0 0 8px;text-wrap:balance}h3{font-size:17px;margin:0 0 6px}
+p{margin:0 0 12px}.lede{font-size:18px}.muted{color:var(--doc-muted)}
+section.block{margin-top:56px;padding-top:32px;border-top:1px solid var(--doc-line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:16px}
+.box{background:var(--doc-card);border:1px solid var(--doc-line);border-radius:14px;padding:18px 20px}
+ul,ol{margin:0;padding-left:20px}li{margin:4px 0}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;padding:1px 8px;border-radius:999px;background:var(--doc-line);color:var(--doc-ink)}
+.tag.new{background:var(--doc-new);color:var(--doc-new-ink)}.tag.ok{background:#E7F0E7;color:#27594B}
+table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--doc-card);border:1px solid var(--doc-line);border-radius:14px;overflow:hidden}
+.map th,.map td{text-align:left;padding:9px 12px;border-top:1px solid var(--doc-line);vertical-align:top}.map th{color:var(--doc-muted);font-weight:600;border-top:0}
+.tablewrap{overflow-x:auto}
+.strip{display:flex;gap:28px;overflow-x:auto;padding:20px 4px 12px}
+.shot{flex:none;display:flex;flex-direction:column;gap:10px;margin:0;max-width:402px}
+.shot figcaption{font-size:14px;line-height:20px}.shot figcaption b{display:block;font-size:15px}.shot figcaption span{color:var(--doc-muted)}
+
+/* ---------- Telemóvel 402 × 874 pt; tokens = src/ui/theme.ts ---------- */
+.phone{--s:1;--bg:#FBFBF8;--card:#FFFFFF;--hero:#F1EBFA;--band:#F6F2FA;--ink:#30283D;--mut:#58616A;--pri:#27594B;--pri-soft:#E7F0E7;--line:#EAE5EF;--hair:#EFEAF2;--track:#EFEDF1;
+ --gold-soft:#FFF7DE;--gold-line:#F1E3B5;--gold-ink:#6E4D00;--gold:#DCA52B;--friend:#7A5AAE;--lav:#9C86C9;--chev:#8C9096;
+ width:402px;height:874px;position:relative;overflow:hidden;border-radius:44px;background:var(--bg);color:var(--ink);flex:none;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;font-size:15px;line-height:20px;
+ box-shadow:0 0 0 1px rgba(30,20,40,.10),0 30px 60px -30px rgba(40,20,60,.45)}
+.phone *{box-sizing:border-box}
+.mdi{font-family:"MCI";font-style:normal;line-height:1;display:inline-block;flex:none;font-size:calc(var(--sz)*var(--s))}
+.t-large{font-size:calc(28px*var(--s));line-height:calc(33px*var(--s));font-weight:700;letter-spacing:-.4px}
+.t-title{font-size:calc(22px*var(--s));line-height:calc(28px*var(--s));font-weight:700}
+.t-head{font-size:calc(17px*var(--s));line-height:calc(22px*var(--s));font-weight:600}
+.t-body{font-size:calc(15px*var(--s));line-height:calc(21px*var(--s))}
+.t-cap{font-size:calc(13px*var(--s));line-height:calc(18px*var(--s));color:var(--mut)}
+.t-micro{font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut)}
+.b{font-weight:600}.grow{flex:1;min-width:0}.num{font-variant-numeric:tabular-nums}.link{color:var(--pri);font-weight:600}
+.status{position:absolute;top:0;left:0;right:0;height:54px;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:16px 34px 0 54px;font-weight:600;font-size:17px;pointer-events:none}
+.island{position:absolute;top:11px;left:50%;width:124px;height:36px;margin-left:-62px;border-radius:20px;background:#0E0C10;z-index:31}
+.batt{width:26px;height:12px;border:1.5px solid var(--ink);border-radius:4px;padding:1.5px}.batt i{display:block;height:100%;width:80%;background:var(--ink);border-radius:1.5px}
+.homebar{position:absolute;bottom:8px;left:50%;width:138px;height:5px;margin-left:-69px;border-radius:3px;background:#17131B;z-index:40}
+.viewport{position:absolute;inset:0;overflow:hidden}
+.scroll{position:absolute;left:0;right:0;top:0}
+/* floating buttons over the hero */
+.float{position:absolute;top:58px;z-index:12;width:40px;height:40px;border-radius:20px;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;color:var(--pri);box-shadow:0 1px 3px rgba(40,20,60,.18)}
+.float.l{left:12px}.float.r{right:12px}
+/* compact header after scrolling */
+.bar{position:absolute;top:0;left:0;right:0;z-index:12;background:var(--bg);padding-top:54px;border-bottom:1px solid var(--line)}
+.bar .row{height:44px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 6px}
+.bar .row .ttl{text-align:center;font-weight:600;font-size:calc(17px*var(--s));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .act{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;color:var(--pri)}
+.bar .tabs{margin:0 16px 8px}
+/* hero */
+.hero{position:relative;padding:62px 20px 22px;background:linear-gradient(180deg,#EADFF8 0%,var(--hero) 58%,var(--bg) 100%);text-align:center}
+.hero>*:not(.glow){position:relative}
+.hero .glow{position:absolute;left:50%;top:70px;width:300px;height:220px;margin-left:-150px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.75),rgba(255,255,255,0));pointer-events:none}
+.cover{position:relative;display:inline-flex;align-items:flex-end;justify-content:center;height:calc(188px*var(--s));max-height:220px;margin:4px auto 14px}
+.cover img{height:100%;width:auto;display:block;filter:drop-shadow(0 14px 18px rgba(48,40,61,.28))}
+.cover.ph{width:150px;height:150px;border-radius:18px;background:#E3D8F3;align-items:center;color:var(--lav);box-shadow:inset 0 0 0 1px rgba(156,134,201,.25)}
+.hero h2{margin:0;font-size:calc(28px*var(--s));line-height:calc(33px*var(--s));font-weight:700;letter-spacing:-.4px;text-wrap:balance}
+.hero .sub{margin-top:4px}
+.scores{display:flex;gap:10px;margin-top:16px;text-align:left}
+.score{flex:1;min-width:0;background:var(--card);border-radius:16px;padding:10px 12px;box-shadow:0 1px 0 rgba(48,40,61,.06),0 0 0 1px var(--line)}
+.score .who{display:flex;align-items:center;gap:6px;font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--mut)}
+.score .val{display:flex;align-items:baseline;gap:3px;margin-top:2px}
+.score .val b{font-size:calc(26px*var(--s));line-height:calc(30px*var(--s));font-weight:700;font-variant-numeric:tabular-nums}
+.score .val i{font-style:normal;color:var(--mut);font-size:calc(13px*var(--s))}
+.score.none .val{font-size:calc(14px*var(--s));color:var(--mut);font-weight:400;margin-top:6px}
+.dot{width:8px;height:8px;border-radius:4px;display:inline-block}
+.scores.col{flex-direction:column}
+/* facts */
+.facts{display:grid;grid-template-columns:repeat(4,1fr);margin:0 16px;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.facts.col{grid-template-columns:1fr 1fr}
+.fact{padding:10px 6px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;border-left:1px solid var(--hair)}
+.facts.col .fact:nth-child(odd){border-left:0}.facts.col .fact:nth-child(n+3){border-top:1px solid var(--hair)}
+.fact:first-child{border-left:0}
+.fact .v{font-weight:700;font-size:calc(16px*var(--s));line-height:calc(20px*var(--s));font-variant-numeric:tabular-nums}
+.fact .k{font-size:calc(11.5px*var(--s));line-height:calc(15px*var(--s));color:var(--mut)}
+/* actions */
+.actions{display:flex;gap:8px;margin:12px 16px 0}
+.actions.col{flex-direction:column}
+.btn{white-space:nowrap;min-height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;font-weight:600;font-size:calc(15px*var(--s));line-height:calc(19px*var(--s));text-align:center}
+.btn.pri{background:var(--pri);color:#fff;flex:1.5}.btn.sec{background:var(--pri-soft);color:var(--pri);flex:1}
+.btn.icon{flex:none;width:46px;padding:0}
+/* tabs */
+.tabs{display:flex;background:var(--track);border-radius:12px;padding:3px;gap:2px}
+.tabs span{flex:1;min-height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:calc(14.5px*var(--s));color:var(--ink)}
+.tabs span.on{background:var(--card);font-weight:600;box-shadow:0 1px 2px rgba(48,40,61,.16)}
+.tabsWrap{margin:18px 16px 0}
+/* body */
+.body{padding:20px 16px 120px;display:flex;flex-direction:column;gap:26px}
+.blk{display:flex;flex-direction:column;gap:10px}
+.sechead{display:flex;align-items:baseline;gap:10px;padding:0 2px}
+.sechead h3{margin:0;font-size:calc(19px*var(--s));line-height:calc(24px*var(--s));font-weight:700;letter-spacing:-.2px}
+.sechead .more{margin-left:auto;color:var(--pri);font-weight:600;font-size:calc(14px*var(--s));white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.pad{padding:14px 16px}
+.row{display:flex;align-items:center;gap:12px;min-height:52px;padding:10px 16px;position:relative}
+.row+.row::before{content:"";position:absolute;top:0;left:16px;right:0;height:1px;background:var(--hair)}
+.row.inset+.row.inset::before{left:64px}
+.chev{color:var(--chev)}
+.desc{font-size:calc(15px*var(--s));line-height:calc(22px*var(--s))}
+.fade{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.source{display:flex;align-items:center;gap:6px;margin-top:8px}
+.quiet{display:flex;align-items:center;gap:10px;padding:2px 2px;color:var(--mut);font-size:calc(14px*var(--s));line-height:calc(19px*var(--s))}
+.quiet .mdi{color:var(--lav)}
+.quiet .link{margin-left:auto;white-space:nowrap}
+/* experience */
+.stats{display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:12px 8px;text-align:center;border-left:1px solid var(--hair)}.stat:first-child{border-left:0}
+.stat b{display:block;font-size:calc(20px*var(--s));line-height:calc(24px*var(--s));font-variant-numeric:tabular-nums}
+.stat span{font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut)}
+.mine{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--hair)}
+.mine .big{font-size:calc(24px*var(--s));line-height:calc(28px*var(--s));font-weight:700;font-variant-numeric:tabular-nums}
+.mine .big i{font-style:normal;font-size:calc(13px*var(--s));font-weight:400;color:var(--mut)}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border-radius:999px;background:var(--pri-soft);color:var(--pri);font-weight:600;font-size:calc(13.5px*var(--s));white-space:nowrap}
+.pending{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--gold-soft);color:var(--gold-ink);border-top:1px solid var(--gold-line);font-size:calc(14px*var(--s));line-height:calc(19px*var(--s))}
+.mrow{display:flex;align-items:center;gap:12px;padding:10px 16px;border-top:1px solid var(--hair);min-height:52px}
+.res{width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none}
+.res.w{background:var(--pri-soft);color:var(--pri)}.res.l{background:#FBE7E8;color:#B5454B}
+/* friends */
+.friends{display:flex;gap:6px;overflow:hidden;padding:2px 0}
+.friend{width:84px;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.av{width:56px;height:56px;border-radius:28px;background:#EEE6F8;color:var(--friend);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:calc(20px*var(--s));box-shadow:0 0 0 2px var(--bg),0 0 0 3px #DCCFF0;flex:none}
+.friend .nm{font-size:calc(12px*var(--s));line-height:calc(15px*var(--s));display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.friend.more .av{background:var(--track);color:var(--mut);box-shadow:none}
+/* learn */
+.langbar{display:flex;align-items:center;gap:8px}
+.lang{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-weight:600;font-size:calc(14px*var(--s))}
+.grouphead{display:flex;flex-direction:column;gap:0;padding:0 2px}
+.grouphead .k{font-size:calc(11.5px*var(--s));letter-spacing:.4px;text-transform:uppercase;font-weight:700;color:var(--mut)}
+.grouphead .n{font-size:calc(19px*var(--s));line-height:calc(24px*var(--s));font-weight:700}
+.kind{font-size:calc(13px*var(--s));font-weight:600;color:var(--mut);padding:0 2px}
+.rules{display:flex;gap:14px;align-items:center;padding:14px 16px}
+.rules .tile{width:56px;height:72px;border-radius:8px;background:linear-gradient(160deg,#F1EBFA,#E3D8F3);display:flex;align-items:center;justify-content:center;color:var(--friend);flex:none;box-shadow:inset 0 0 0 1px rgba(156,134,201,.3)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:calc(11.5px*var(--s));font-weight:700;letter-spacing:.2px;padding:2px 8px;border-radius:999px;background:var(--pri-soft);color:var(--pri)}
+.badge.n{background:var(--track);color:var(--mut)}
+.carousel{display:flex;gap:12px;overflow:hidden;margin:0 -16px;padding:0 16px}
+.vcard{width:100%;flex:none}.carousel .vcard:not(:only-child){width:248px}
+.thumb{position:relative;border-radius:14px;overflow:hidden;background:#E3D8F3}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .play{position:absolute;left:10px;bottom:10px;width:34px;height:34px;border-radius:17px;background:rgba(20,14,26,.66);color:#fff;display:flex;align-items:center;justify-content:center}
+.vcard .thumb{aspect-ratio:16/9}
+.meta{margin-top:8px;display:flex;flex-direction:column;gap:2px}
+.vtitle{font-weight:600;font-size:calc(15px*var(--s));line-height:calc(20px*var(--s));display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mgrid.col{grid-template-columns:1fr}
+.mcard{display:flex;flex-direction:column}
+.mcard .thumb{aspect-ratio:4/3}
+.mcard .vtitle{-webkit-line-clamp:2}
+.dots{position:absolute;right:6px;top:6px;width:32px;height:32px;border-radius:16px;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.compact{display:flex;gap:12px;align-items:center;padding:10px 16px}
+.compact .thumb{width:104px;height:62px;flex:none;border-radius:10px}
+.compact .thumb .play{width:26px;height:26px;left:6px;bottom:6px}
+.suggest{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px dashed #D6CDE3;border-radius:14px;color:var(--pri);font-weight:600}
+.foot{font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut);padding:0 2px}
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(35,25,45,.36);z-index:50}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:51;background:var(--bg);border-radius:22px 22px 0 0;padding:6px 16px 34px}
+.grab{width:36px;height:5px;border-radius:3px;background:#D6D1DC;margin:0 auto 8px}
+.sheethead{display:flex;align-items:center;min-height:44px}
+.new{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:1px 6px;border-radius:6px;background:var(--gold-soft);color:var(--gold-ink);border:1px solid var(--gold-line);vertical-align:middle}
+.ideas{border-color:var(--gold-line)}
+/* scope additions */
+.facts.three{grid-template-columns:repeat(3,1fr)}
+.srcline{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 16px 0;font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut);text-align:center}
+.plan{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;margin:4px 16px 0;color:var(--pri);font-weight:600;font-size:calc(15px*var(--s))}
+.xt{width:40px;height:40px;border-radius:10px;background:#EEE6F8;display:flex;align-items:center;justify-content:center;color:var(--lav);flex:none}
+.xt.img{background:#fff;box-shadow:inset 0 0 0 1px var(--line)}.xt img{width:34px;height:34px;object-fit:contain}
+.nav{position:absolute;top:0;left:0;right:0;z-index:12;background:var(--bg);padding-top:54px}
+.nav .row{height:44px;display:grid;grid-template-columns:96px 1fr 96px;align-items:center;padding:0 8px}
+.nav .ttl{text-align:center;font-weight:600;font-size:calc(17px*var(--s))}
+.form{padding:108px 16px 120px;display:flex;flex-direction:column;gap:16px}
+.ctitle{display:flex;align-items:center;gap:8px;font-weight:700;font-size:calc(16px*var(--s));padding:14px 16px 4px}
+.fld{padding:8px 16px 12px;display:flex;flex-direction:column;gap:6px}
+.fld label{font-size:calc(13px*var(--s));font-weight:600;color:var(--mut)}
+.input{min-height:46px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);font-size:calc(15px*var(--s));line-height:calc(20px*var(--s))}
+.input.ph{color:#8C9096}
+.gpick{display:flex;align-items:center;gap:12px;min-height:58px;border:1px solid var(--line);border-radius:12px;padding:8px 10px 8px 8px;background:var(--bg)}
+.gpick.none{border-style:dashed;color:var(--pri);font-weight:600;padding-left:14px}
+.search{display:flex;align-items:center;gap:8px;min-height:40px;border-radius:11px;background:var(--track);padding:0 12px;color:var(--mut);margin-bottom:12px}
+.radio{color:var(--pri)}.radio.off{color:#B9B3C0}
+.lbl{font-size:calc(12px*var(--s));letter-spacing:.4px;text-transform:uppercase;font-weight:700;color:var(--mut);padding:14px 4px 6px}
+
+/* ---------- registo ---------- */
+.nav{position:absolute;top:0;left:0;right:0;z-index:12;background:var(--bg);padding-top:54px}
+.nav .row{height:52px;display:grid;grid-template-columns:96px 1fr 96px;align-items:center;padding:0 8px}
+.nav .ttl{text-align:center;font-weight:600;font-size:calc(17px*var(--s));line-height:calc(20px*var(--s))}
+.nav .sub{display:block;font-weight:400;font-size:calc(12px*var(--s));color:var(--mut)}
+.prog{display:flex;gap:4px;margin:0 16px}.prog i{flex:1;height:4px;border-radius:2px;background:var(--line)}.prog i.on{background:var(--pri)}
+.step{margin:6px 16px 0;font-size:calc(12.5px*var(--s));color:var(--mut)}
+.page{padding:150px 16px 120px;display:flex;flex-direction:column;gap:16px}
+.foot2{position:absolute;left:0;right:0;bottom:0;z-index:20;background:var(--bg);border-top:1px solid var(--line);padding:12px 16px 34px;display:flex;gap:10px}
+.foot2 .btn{flex:1}.foot2 .btn.sec{flex:.6}
+.btn.dis{opacity:.45}
+.h{font-weight:700;font-size:calc(17px*var(--s));line-height:calc(22px*var(--s))}
+.cap{font-size:calc(13px*var(--s));line-height:calc(18px*var(--s));color:var(--mut)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.gcard{display:flex;flex-direction:column;gap:4px}
+.gcov{aspect-ratio:1;border-radius:14px;background:#EEE6F8;display:flex;align-items:center;justify-content:center;color:var(--lav);position:relative;overflow:hidden}
+.gcov img{width:84%;height:84%;object-fit:contain}
+.gname{font-weight:600;font-size:calc(13px*var(--s));line-height:calc(16px*var(--s))}
+.tagx{display:inline-block;font-size:calc(10.5px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;padding:1px 6px;border-radius:6px;background:var(--track);color:var(--mut)}
+.tagx.b{background:var(--pri-soft);color:var(--pri)}
+.search2{display:flex;align-items:center;gap:8px;min-height:46px;border:1px solid var(--line);border-radius:12px;padding:0 12px;background:var(--card);color:var(--mut)}
+.search2.on{border-color:var(--pri);color:var(--ink)}
+.seg2{display:flex;background:var(--track);border-radius:12px;padding:3px;gap:2px}
+.seg2 span{flex:1;min-height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:calc(14px*var(--s));text-align:center;padding:0 4px}
+.seg2 span.on{background:var(--card);font-weight:600;box-shadow:0 1px 2px rgba(48,40,61,.16)}
+.summary{display:flex;align-items:center;gap:12px;padding:10px 12px}
+.sthumb{width:52px;height:52px;border-radius:12px;background:#EEE6F8;display:flex;align-items:center;justify-content:center;color:var(--lav);flex:none;overflow:hidden}
+.sthumb img{width:90%;height:90%;object-fit:contain}
+.choices{display:flex;flex-direction:column;gap:8px}
+.choice{display:flex;align-items:center;gap:12px;min-height:52px;padding:8px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.choice.on{border-color:var(--pri);background:var(--pri-soft)}
+.choice .rd{width:22px;height:22px;border-radius:11px;border:2px solid #B9B3C0;flex:none}
+.choice.on .rd{border:7px solid var(--pri)}
+.choice .t{font-weight:600}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cgrid .choice{min-height:56px}
+.tbl{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tr{display:grid;align-items:center;gap:8px;padding:8px 12px;min-height:56px;position:relative}
+.tr+.tr::before{content:"";position:absolute;top:0;left:12px;right:0;height:1px;background:var(--hair)}
+.th{min-height:32px;padding-top:6px;padding-bottom:6px;background:var(--band)}
+.th span{font-size:calc(10.5px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--mut)}
+.nm{font-weight:600;min-width:0;word-break:break-word;line-height:calc(19px*var(--s))}
+.nm i{display:block;font-style:normal;font-weight:400;font-size:calc(12px*var(--s));color:var(--mut)}
+.score{min-height:44px;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:flex-end;padding:0 10px;font-variant-numeric:tabular-nums;background:var(--bg);font-weight:600}
+.score.f{border-color:var(--pri);box-shadow:0 0 0 3px rgba(39,89,75,.12)}
+.score.e{color:#B9B3C0;font-weight:400}
+.sel{width:44px;height:44px;display:flex;align-items:center;justify-content:center;justify-self:center}
+.ck{width:26px;height:26px;border-radius:8px;border:2px solid #B9B3C0;display:flex;align-items:center;justify-content:center}
+.ck.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.ck.gold{background:var(--gold);border-color:var(--gold);color:#fff}
+.out{font-size:calc(12.5px*var(--s));font-weight:700;justify-self:end;text-align:right}
+.out.w{color:var(--pri)}.out.l{color:#A3445A}.out.d{color:var(--gold-ink)}.out.u{color:var(--mut);font-weight:600}
+.note{display:flex;gap:8px;align-items:flex-start;font-size:calc(12.5px*var(--s));line-height:calc(17px*var(--s));color:var(--mut)}
+.confirm{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:14px;background:var(--gold-soft);border:1px solid var(--gold-line);color:var(--gold-ink);font-size:calc(14px*var(--s));line-height:calc(19px*var(--s))}
+.rating{padding:16px;display:flex;flex-direction:column;gap:12px}
+.rbig{display:flex;align-items:baseline;justify-content:center;gap:6px}
+.rbig b{font-size:calc(44px*var(--s));line-height:1;font-weight:800;font-variant-numeric:tabular-nums}
+.rbig i{font-style:normal;font-size:calc(18px*var(--s));color:var(--mut);font-weight:600}
+.rctl{display:flex;align-items:center;gap:10px}
+.rbtn{width:48px;height:48px;border-radius:24px;background:var(--pri-soft);color:var(--pri);display:flex;align-items:center;justify-content:center;font-weight:700;flex:none;font-size:calc(14px*var(--s))}
+.track{flex:1;height:44px;position:relative;display:flex;align-items:center}
+.track .tbar{position:absolute;left:0;right:0;height:8px;border-radius:4px;background:var(--track)}
+.track .tfill{position:absolute;left:0;height:8px;border-radius:4px;background:var(--gold)}
+.track .knob{position:absolute;width:28px;height:28px;border-radius:14px;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.3);margin-left:-14px;border:3px solid var(--gold)}
+.track .tick{position:absolute;width:2px;height:8px;background:rgba(255,255,255,.7)}
+.scale{display:flex;justify-content:space-between;font-size:calc(11.5px*var(--s));color:var(--mut);padding:0 58px}
+.quick{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.quick span{min-width:44px;min-height:36px;border-radius:18px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:calc(13.5px*var(--s));background:var(--card);font-variant-numeric:tabular-nums}
+.quick span.on{background:var(--gold-soft);border-color:var(--gold);color:var(--gold-ink);font-weight:700}
+.rowx{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 16px;position:relative}
+.rowx+.rowx::before{content:"";position:absolute;top:0;left:52px;right:0;height:1px;background:var(--hair)}
+.fld2{display:flex;flex-direction:column;gap:6px;padding:10px 16px}
+.fld2 label{font-size:calc(13px*var(--s));font-weight:600;color:var(--mut)}
+.inp{min-height:46px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);color:#8C9096;font-size:calc(15px*var(--s))}
+.kb{position:absolute;left:0;right:0;bottom:0;height:300px;background:#D1D3D9;z-index:30;padding:8px 6px 40px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.kb span{background:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 1px 0 rgba(0,0,0,.25);color:#000}
+.kb span.g{background:transparent;box-shadow:none;font-size:16px}
+.kbbar{position:absolute;left:0;right:0;bottom:300px;height:44px;background:#F1F1F3;border-top:1px solid #C9C9CF;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-weight:600;color:#0A60FF;font-size:15px}
+.rv{display:flex;justify-content:space-between;gap:12px;padding:10px 16px;position:relative;min-height:44px;align-items:flex-start}
+.rv+.rv::before{content:"";position:absolute;top:0;left:16px;right:0;height:1px;background:var(--hair)}
+.rv .k{color:var(--mut);font-size:calc(13.5px*var(--s));flex:none;width:96px}
+.rv .v{flex:1;text-align:right;font-weight:600;min-width:0}
+.sechd{display:flex;align-items:baseline;justify-content:space-between;padding:0 4px}
+.sechd .l{color:var(--pri);font-weight:600;font-size:calc(14px*var(--s))}
+.box2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="doc">
+<h1>Registar uma partida: proposta do percurso completo</h1>
+<div class="prose">
+<p class="lede">Cinco passos curtos em vez de quatro carregados. O Resultado passa a ter só o resultado; a avaliação, a data e os detalhes vão para um passo próprio; Rever fica legível. As regras, os cálculos, a obrigatoriedade da avaliação e as permissões não mudam.</p>
+<p class="muted">Ecrãs a 402 × 874 pt com os tokens de <code>src/ui/theme.ts</code>. Jogos e contas de teste do DeviceTests (fictícios, «Teste-…»); Wingspan com os dados verificados (Stonemaier, 2019). Pontuações e avaliações ilustrativas.</p>
+</div>
+<div class="grid">
+<div class="box"><h3>Hoje</h3><ul>
+<li>Jogo → Jogadores → <b>Resultado</b> → Rever. O Resultado junta: tipo de resultado, vitória partilhada, pontuações, vencedor, a mesma explicação duas vezes, dez estrelas em duas filas, 0/±0,5, data, hora e detalhes.</li>
+<li>«Vitória» parece a vitória do próprio utilizador.</li>
+<li>A escolha do jogo é uma caixa de pesquisa sem capas nem biblioteca.</li>
+</ul></div>
+<div class="box"><h3>Proposta</h3><ul>
+<li><b>Jogo</b> (capas, biblioteca, catálogo; depois um resumo com o modo) → <b>Jogadores</b> → <b>Resultado</b> (só resultado e tabela) → <b>Avaliação e data</b> → <b>Rever</b>.</li>
+<li>Vindo da página do jogo, de uma sessão ou de «Jogar novamente», o jogo já vem escolhido: o passo 1 é só o resumo e «Continuar».</li>
+<li>Tudo o que foi escrito fica no rascunho ao avançar, voltar ou mudar de modo/resultado (as escolhas incompatíveis ficam guardadas e reaparecem se voltares).</li>
+</ul></div>
+<div class="box"><h3>Esforço do registo rápido</h3><ul>
+<li>Competitivo a 2, sem pontuação: escolher jogo · Continuar · adicionar 1 amigo · Continuar · marcar vencedor · Continuar · tocar na avaliação · Continuar · Guardar = <b>9 toques</b> (hoje: 8, com o Resultado num só ecrã comprido e scroll).</li>
+<li>O passo a mais troca scroll por ecrãs que cabem sem deslizar.</li>
+</ul></div>
+</div>
+
+<section class="block" id="percurso"><h2>1 · Percurso competitivo</h2><div class="strip" id="s-comp"></div></section>
+<section class="block" id="resultados"><h2>2 · Resultados: vitória partilhada, empate, não definido</h2>
+<p class="muted">Uma pergunta, «Quem ganhou?», com três respostas. A vitória partilhada nasce de escolher mais do que um vencedor e pede a confirmação das regras; o empate é outra resposta, com a coluna «Empatado em 1.º» e derrota para os restantes. As pontuações nunca marcam nada.</p>
+<div class="strip" id="s-res"></div></section>
+<section class="block" id="modos"><h2>3 · Cooperativo e solo</h2><div class="strip" id="s-modos"></div></section>
+<section class="block" id="avaliacao"><h2>4 · Avaliação, data e detalhes</h2>
+<p class="muted">Valor grande «x / 10»; uma barra com marcas de 0 a 10 e botões ±0,5 de 48 pt; atalhos 0, 5, 6, 7, 8, 9, 10. «Ainda sem avaliação» é um estado próprio («— / 10»), diferente de 0. Continua obrigatória: sem ela não se passa para Rever.</p>
+<div class="strip" id="s-aval"></div></section>
+<section class="block" id="extremos"><h2>5 · Teclado, nomes longos, texto ampliado e inglês</h2><div class="strip" id="s-ext"></div></section>
+
+<section class="block" id="regras"><h2>O que não muda</h2>
+<div class="tablewrap"><table class="map">
+<tr><th>Regra</th><th>Como fica na proposta</th></tr>
+<tr><td>Competitivo: pelo menos dois participantes distintos; Solo exatamente um, fora de sessões</td><td>Validação no passo Jogadores, com o mesmo aviso e o acesso ao modo</td></tr>
+<tr><td>Resultado explícito; pontuação nunca decide</td><td>Uma só explicação curta no Resultado; nenhuma marcação automática</td></tr>
+<tr><td>Vitória partilhada só com confirmação das regras</td><td>Aparece quando há mais de um vencedor; sem ela não se avança</td></tr>
+<tr><td>Empate: pelo menos dois empatados no 1.º lugar; restantes com derrota</td><td>Coluna «Empatado em 1.º»; os restantes mostram «Derrota» antes de guardar</td></tr>
+<tr><td>Cooperativo: resultado da equipa, sem vencedor individual</td><td>Respostas «Ganhámos / Perdemos / Empate / Não definido»; tabela sem coluna de seleção</td></tr>
+<tr><td>Pontuações inteiras com sinal (zero e negativos), todas ou nenhuma; ± no teclado numérico</td><td>Coluna «Pontos» só com «Com pontuação»; ± na barra do teclado</td></tr>
+<tr><td>Avaliação obrigatória, 0–10 em meios pontos; zero ≠ sem avaliação</td><td>Controlo novo; «— / 10» até escolher; zero é um valor</td></tr>
+<tr><td>Modo não oficial com justificação; expansões usadas; sessão; fotografias; saída protegida; confirmação após guardar</td><td>Iguais; expansões e modo no resumo do jogo; fotografias nos detalhes</td></tr>
+</table></div></section>
+</div>
+
+<script>
+const G={"account": 983044, "account-group": 985161, "alert-circle-outline": 984534, "calendar-clock": 983280, "camera-plus-outline": 986844, "check": 983340, "check-circle": 984544, "checkbox-marked": 983346, "chevron-down": 983360, "chevron-right": 983362, "chevron-up": 983363, "close": 983382, "dice-5": 983502, "information-outline": 983805, "layers-outline": 985598, "lock-outline": 983873, "magnify": 983881, "plus": 984085, "text-box-outline": 985581};
+const ic=(n,s=20,c='currentColor')=>`<span class="mdi" style="--sz:${s}px;color:${c}" aria-hidden="true">${String.fromCodePoint(G[n]||63)}</span>`;
+const COVER='https://stonemaiergames.com/wp-content/uploads/2026/04/3d-wingspan.webp';
+const T={pt:{title:'Registar partida',quick:'Registo rápido',cancel:'Cancelar',steps:['Jogo','Jogadores','Resultado','Avaliação e data','Rever'],stepOf:(n,l)=>`Passo ${n} de 5 · ${l}`,prev:'Anterior',next:'Continuar',review:'Rever partida',save:'Guardar partida',
+ search:'Pesquisar no catálogo ou na biblioteca',lib:'Da tua biblioteca',cat:'No catálogo',base:'Jogo base',exp:'Expansão',change:'Mudar',mode:'Modo de jogo',comp:'Competitivo',coop:'Cooperativo',solo:'Solo',inCat:'No catálogo',force:'Forçar',expUsed:'Expansões usadas',none:'Nenhuma',
+ players:'Jogadores',you:'tu',add:'Adicionar',searchFriends:'Pesquisar amigos',mandatory:'Participas nesta partida; a tua presença é obrigatória.',
+ who:'Quem ganhou?',pick:'Escolher vencedor(es)',pickSub:'Um ou mais jogadores ganham',tie:'Empate no 1.º lugar',tieSub:'Dois ou mais partilham o 1.º; os restantes perdem',undef:'Não definido',undefSub:'Guardar sem resultado',
+ scores:'Pontuação',noScores:'Sem pontuação',withScores:'Com pontuação',player:'Jogador',points:'Pontos',winner:'Vencedor',tied:'Empatado em 1.º',
+ explain:'Escolhes o resultado; as pontuações ficam registadas mas não decidem quem ganha.',win:'Vitória',loss:'Derrota',draw:'Empate',notset:'—',
+ shared:'Vitória partilhada: as regras deste jogo permitem mais do que um vencedor.',sharedQ:'Confirmo que as regras permitem vitória partilhada',
+ rating:'A tua avaliação',ratingReq:'obrigatória',ratingHint:'Só a tua experiência; cada pessoa avalia a sua.',noRating:'Ainda sem avaliação',clear:'Limpar',
+ when:'Quando',today:'Hoje',date:'qua., 15 out. 2026',time:'21:30',edit:'Alterar',details:'Detalhes opcionais',detailsSub:'Local, duração, comentários, notas, etiquetas, fotografias',
+ loc:'Local',dur:'Duração (minutos)',com:'Comentários',notes:'Notas privadas',tags:'Etiquetas',photos:'Fotografias',addPhoto:'Adicionar fotografia',
+ rv:'Confirma antes de guardar',game:'Jogo',result:'Resultado',ratingShort:'Avaliação',whenShort:'Quando',fix:'Corrigir',ratingError:'Escolhe a tua avaliação (0 a 10) para continuar.',
+ we:'Ganhámos',weLost:'Perdemos',teamDraw:'Empate',iWon:'Ganhei',gameWon:'O jogo ganhou',team:'Resultado da equipa',teamNote:'Aplica-se a todos os jogadores; sem vencedor individual.',soloNote:'O teu resultado contra o jogo.'},
+en:{title:'Record match',quick:'Quick record',cancel:'Cancel',steps:['Game','Players','Result','Rating and date','Review'],stepOf:(n,l)=>`Step ${n} of 5 · ${l}`,prev:'Back',next:'Continue',review:'Review match',save:'Save match',
+ search:'Search the catalogue or your library',lib:'From your library',cat:'In the catalogue',base:'Base game',exp:'Expansion',change:'Change',mode:'Game mode',comp:'Competitive',coop:'Cooperative',solo:'Solo',inCat:'In catalogue',force:'Force',expUsed:'Expansions used',none:'None',
+ players:'Players',you:'you',add:'Add',searchFriends:'Search friends',mandatory:'You take part in this match; you cannot be removed.',
+ who:'Who won?',pick:'Pick the winner(s)',pickSub:'One or more players win',tie:'Tie for first',tieSub:'Two or more share first; the others lose',undef:'Not set',undefSub:'Save without a result',
+ scores:'Score',noScores:'No scores',withScores:'With scores',player:'Player',points:'Points',winner:'Winner',tied:'Tied for 1st',
+ explain:'You choose the result; scores are recorded but never decide who wins.',win:'Win',loss:'Loss',draw:'Draw',notset:'—',
+ shared:'Shared victory: this game’s rules allow more than one winner.',sharedQ:'I confirm the rules allow a shared victory',
+ rating:'Your rating',ratingReq:'required',ratingHint:'Only your own experience; each person rates theirs.',noRating:'Not rated yet',clear:'Clear',
+ when:'When',today:'Today',date:'Wed, 15 Oct 2026',time:'21:30',edit:'Change',details:'Optional details',detailsSub:'Place, duration, comments, notes, tags, photos',
+ loc:'Place',dur:'Duration (minutes)',com:'Comments',notes:'Private notes',tags:'Tags',photos:'Photos',addPhoto:'Add photo',
+ rv:'Check before saving',game:'Game',result:'Result',ratingShort:'Rating',whenShort:'When',fix:'Edit',ratingError:'Choose your rating (0 to 10) to continue.',
+ we:'We won',weLost:'We lost',teamDraw:'Draw',iWon:'I won',gameWon:'The game won',team:'Team result',teamNote:'Applies to every player; no individual winner.',soloNote:'Your result against the game.'}};
+const status=`<div class="status"><span>9:41</span><span class="batt"><i></i></span></div><div class="island"></div><div class="homebar"></div>`;
+const nav=(t,n)=>`<div class="nav"><div class="row"><span class="link">${t.cancel}</span><span class="ttl">${t.title}<span class="sub">${t.quick}</span></span><span></span></div><div class="prog">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div><div class="step">${t.stepOf(n,t.steps[n-1])}</div></div>`;
+const foot=(t,n,dis)=>`<div class="foot2">${n>1?`<div class="btn sec">${t.prev}</div>`:''}<div class="btn pri${dis?' dis':''}">${n===5?t.save:n===4?t.review:t.next}</div></div>`;
+const phone=(t,n,body,{s=1,over='',dis=false,noFoot=false,scroll=0}={})=>`<div class="phone" style="--s:${s}">${status}<div class="viewport"><div class="scroll" style="transform:translateY(${-scroll}px)"><div class="page">${body}</div></div></div>${nav(t,n)}${noFoot?'':foot(t,n,dis)}${over}</div>`;
+const fig=(html,b,span)=>`<figure class="shot">${html}<figcaption><b>${b}</b><span>${span}</span></figcaption></figure>`;
+const put=(id,h)=>document.getElementById(id).innerHTML=h;
+const cover=(img,s=52)=>img?`<span class="sthumb" style="width:${s}px;height:${s}px"><img src="${COVER}" alt=""></span>`:`<span class="sthumb" style="width:${s}px;height:${s}px">${ic('dice-5',s/2)}</span>`;
+const summary=(t,game='Meeple Teste Competitivo',sub,img=false)=>`<div class="card summary">${cover(img)}<div class="grow"><div class="b" style="font-size:calc(15px*var(--s))">${game}</div><div class="cap">${sub||`2026 · ${t.base} · ${t.comp}`}</div></div><span class="link">${t.change}</span></div>`;
+
+/* ---------- 1 · competitivo ---------- */
+const gameGrid=t=>`<div class="search2">${ic('magnify',20)}${t.search}</div>
+<div class="sechd"><span class="h">${t.lib}</span></div>
+<div class="grid3">${[['Wingspan','2019',t.base,true],['Wingspan: European Expansion','',t.exp,false],['Meeple Teste Competitivo','2026',t.base,false],['Meeple Teste Cooperativo','2026',t.base,false],['Meeple Teste Solo','2026',t.base,false]].map(([n,y,k,img])=>`<div class="gcard"><div class="gcov">${img?`<img src="${COVER}" alt="">`:ic(k===t.exp?'layers-outline':'dice-5',30)}</div><div class="gname">${n}</div><div><span class="tagx${k===t.base?' b':''}">${k}</span> <span class="cap">${y}</span></div></div>`).join('')}</div>
+<div class="sechd"><span class="h">${t.cat}</span><span class="cap">${t.search.split(' ')[0]}…</span></div>`;
+const step1b=t=>`${summary(t)}
+<div class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:10px"><div class="cap b" style="text-transform:uppercase;letter-spacing:.3px">${t.mode}</div>
+<div class="seg2"><span>${t.solo}</span><span class="on">${t.comp}</span><span>${t.coop}</span></div>
+<div class="cap">${ic('check-circle',14,'var(--pri)')} ${t.inCat} · 1–4 jogadores</div></div>
+<div class="card"><div class="rowx">${ic('layers-outline',20,'var(--lav)')}<div class="grow"><div class="b">${t.expUsed}</div><div class="cap">${t.none}</div></div>${ic('chevron-right',20,'var(--chev)')}</div></div>`;
+const step2=(t,long)=>`${summary(t)}
+<div class="sechd"><span class="h">${t.players} (${long?3:2})</span></div>
+<div class="tbl">${[['Teste-participante',1],['Teste-amiga-colecionadora',0],...(long?[['Teste-amigo-com-um-nome-de-utilizador-bastante-comprido',0]]:[])].map(([n,me])=>`<div class="tr" style="grid-template-columns:40px 1fr 44px"><span class="gthumb" style="width:36px;height:36px;border-radius:18px;background:var(--pri-soft);color:var(--pri);display:flex;align-items:center;justify-content:center;font-weight:700">T</span><span class="nm">${n}${me?`<i>${t.you} · ${t.mandatory}</i>`:''}</span><span class="sel">${me?ic('lock-outline',18,'var(--mut)'):ic('close',20,'var(--mut)')}</span></div>`).join('')}</div>
+<div class="search2">${ic('magnify',20)}${t.searchFriends}</div>
+<div class="tbl">${['Teste-amiga-meeples','Teste-amiga-tabuleiro'].map(n=>`<div class="tr" style="grid-template-columns:40px 1fr auto"><span style="width:36px;height:36px;border-radius:18px;background:#EEE6F8;color:var(--friend);display:flex;align-items:center;justify-content:center;font-weight:700">T</span><span class="nm">${n}</span><span class="link">${ic('plus',16)} ${t.add}</span></div>`).join('')}</div>`;
+const resultChoices=(t,on)=>`<div class="h">${t.who}</div><div class="choices">${[[t.pick,t.pickSub],[t.tie,t.tieSub],[t.undef,t.undefSub]].map(([a,b],i)=>`<div class="choice${i===on?' on':''}"><span class="rd"></span><div class="grow"><div class="t">${a}</div><div class="cap">${b}</div></div></div>`).join('')}</div>`;
+const scoreToggle=(t,on)=>`<div class="seg2"><span class="${on?'':'on'}">${t.noScores}</span><span class="${on?'on':''}">${t.withScores}</span></div>`;
+// rows: [name, score, selected, outcome]
+const table=(t,rows,{scores=false,col='winner',focus=-1,large=false}={})=>{
+ const cols=`minmax(0,1fr) ${scores?(large?'92px':'78px'):''} ${col?(large?'92px':'70px'):''} ${large?'84px':'64px'}`.replace(/\s+/g,' ');
+ const head=`<div class="tr th" style="grid-template-columns:${cols}"><span>${t.player}</span>${scores?`<span style="text-align:right">${t.points}</span>`:''}${col?`<span style="text-align:center">${col==='winner'?t.winner:t.tied}</span>`:''}<span style="text-align:right">${t.result}</span></div>`;
+ if(large){const c2=`${scores?'1fr ':''}${col?'92px ':''}1fr`;return `<div class="tbl">${rows.map(([n,sc,sel,out],i)=>`<div class="tr" style="grid-template-columns:${c2};row-gap:6px"><span class="nm" style="grid-column:1/-1">${n}</span>${scores?`<span class="score${i===focus?' f':''}">${sc===''?'0':sc}</span>`:''}${col?`<span class="sel"><span class="ck${sel?(col==='tied'?' gold':' on'):''}">${sel?ic('check',18,'#fff'):''}</span></span>`:''}<span class="out ${out}">${out==='w'?t.win:out==='l'?t.loss:out==='d'?t.draw:t.notset}</span></div>`).join('')}</div>`;}
+ return `<div class="tbl">${head}${rows.map(([n,sc,sel,out],i)=>`<div class="tr" style="grid-template-columns:${cols}"><span class="nm">${n}</span>${scores?`<span class="score${sc===''?' e':''}${i===focus?' f':''}">${sc===''?'0':sc}</span>`:''}${col?`<span class="sel"><span class="ck${sel?(col==='tied'?' gold':' on'):''}">${sel?ic('check',18,'#fff'):''}</span></span>`:''}<span class="out ${out}">${out==='w'?t.win:out==='l'?t.loss:out==='d'?t.draw:t.notset}</span></div>`).join('')}</div>`;
+};
+const explain=t=>`<div class="note">${ic('information-outline',16,'var(--lav)')}<span>${t.explain}</span></div>`;
+const step3=(t,o={})=>`${summary(t)}${resultChoices(t,o.on??0)}${o.on===2?'':scoreToggle(t,o.scores)}${o.body??table(t,o.rows??[['Teste-participante','',1,'w'],['Teste-amiga-colecionadora','',0,'l']],{scores:o.scores,col:o.on===1?'tied':o.on===2?null:'winner',focus:o.focus,large:o.large})}${o.extra||''}${explain(t)}`;
+const ratingCtl=(t,v,{err=false}={})=>{const pct=v==null?0:v*10;const ticks=[...Array(11).keys()].map(i=>`<i class="tick" style="left:calc(${i*10}% - 1px)"></i>`).join('');
+ return `<div class="card rating"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="h">${t.rating} <span class="tagx" style="vertical-align:middle">${t.ratingReq}</span></span>${v!=null?`<span class="link">${t.clear}</span>`:''}</div>
+ <div class="rbig">${v==null?`<b style="color:#B9B3C0">—</b><i>/ 10</i>`:`<b>${String(v).replace('.',t===T.en?'.':',')}</b><i>/ 10</i>`}</div>
+ ${v==null?`<div class="cap" style="text-align:center;margin-top:-6px">${t.noRating}</div>`:''}
+ <div class="rctl"><span class="rbtn">${t===T.en?'−0.5':'−0,5'}</span><div class="track"><span class="tbar"></span>${v!=null?`<span class="tfill" style="width:${pct}%"></span>`:''}${ticks}${v!=null?`<span class="knob" style="left:${pct}%"></span>`:''}</div><span class="rbtn">${t===T.en?'+0.5':'+0,5'}</span></div>
+ <div class="scale"><span>0</span><span>5</span><span>10</span></div>
+ <div class="quick">${[0,5,6,7,8,9,10].map(q=>`<span class="${v===q?'on':''}">${q}</span>`).join('')}</div>
+ ${err?`<div class="note" style="color:#A3445A">${ic('alert-circle-outline',16,'#A3445A')}<span>${t.ratingError}</span></div>`:`<div class="cap">${t.ratingHint}</div>`}</div>`;};
+const whenCard=t=>`<div class="card"><div class="rowx">${ic('calendar-clock',20,'var(--pri)')}<div class="grow"><div class="cap">${t.when}</div><div class="b">${t.today} · ${t.date} · ${t.time}</div></div><span class="link">${t.edit}</span></div></div>`;
+const detailsCard=(t,open)=>open?`<div class="card"><div class="rowx">${ic('text-box-outline',20,'var(--pri)')}<div class="grow b">${t.details}</div>${ic('chevron-up',22,'var(--chev)')}</div>
+ <div class="fld2"><label>${t.loc}</label><div class="inp">Casa de teste</div></div>
+ <div class="fld2"><label>${t.dur}</label><div class="inp">90</div></div>
+ <div class="fld2"><label>${t.com}</label><div class="inp">Partida renhida…</div></div>
+ <div class="fld2"><label>${t.notes}</label><div class="inp">Só para mim…</div></div>
+ <div class="fld2"><label>${t.tags}</label><div class="inp">épico, reviravolta</div></div>
+ <div class="fld2"><label>${t.photos}</label><div class="inp" style="color:var(--pri);font-weight:600;border-style:dashed">${ic('camera-plus-outline',18)} ${t.addPhoto}</div></div></div>`
+ :`<div class="card"><div class="rowx">${ic('text-box-outline',20,'var(--pri)')}<div class="grow"><div class="b">${t.details}</div><div class="cap">${t.detailsSub}</div></div>${ic('chevron-down',22,'var(--chev)')}</div></div>`;
+const step4=(t,v,o={})=>`${summary(t)}${ratingCtl(t,v,o)}${whenCard(t)}${detailsCard(t,o.open)}`;
+const rvSection=(t,title,body)=>`<div class="sechd"><span class="h" style="font-size:calc(15px*var(--s))">${title}</span><span class="l">${t.fix}</span></div>${body}`;
+const step5=(t,o={})=>`<div class="cap">${t.rv}</div>
+${rvSection(t,t.game,summary(t,o.game,o.sub,o.img).replace(`<span class="link">${t.change}</span>`,''))}
+${rvSection(t,t.result,`<div class="card"><div class="rv"><span class="k">${t.result}</span><span class="v">${o.res||`${t.winner}: Teste-participante`}</span></div><div class="rv"><span class="k">${t.scores}</span><span class="v">${o.sc||t.noScores}</span></div></div>`)}
+${o.table||table(t,[['Teste-participante','',0,'w'],['Teste-amiga-colecionadora','',0,'l']],{col:null})}
+${rvSection(t,t.ratingShort,`<div class="card"><div class="rv"><span class="k">${t.rating}</span><span class="v" style="font-size:calc(18px*var(--s))">7,5 / 10</span></div><div class="rv"><span class="k">${t.whenShort}</span><span class="v">${t.date} · ${t.time}</span></div><div class="rv"><span class="k">${t.loc}</span><span class="v">Casa de teste</span></div></div>`)}`;
+
+const t=T.pt,e=T.en;
+put('s-comp',
+ fig(phone(t,1,gameGrid(t),{dis:true}),'1 · Escolher o jogo','Biblioteca com capas, nome, ano e «Jogo base»/«Expansão»; a pesquisa procura na biblioteca e no catálogo. Sem jogo escolhido, «Continuar» fica inativo.')+
+ fig(phone(t,1,step1b(t)),'1 · Jogo escolhido','Resumo compacto com «Mudar»; modo num controlo de três (com «No catálogo» e «Forçar» como hoje); expansões usadas numa linha.')+
+ fig(phone(t,2,step2(t)),'2 · Jogadores','Tu fixo, com cadeado; os outros removíveis; amigos para adicionar por baixo.')+
+ fig(phone(t,3,step3(t)),'3 · Resultado','«Quem ganhou?»: escolher vencedor(es), empate ou não definido. Tabela alinhada: jogador, seleção, resultado de cada um. Uma só explicação.')+
+ fig(phone(t,3,step3(t,{scores:true,rows:[['Teste-participante','-17',1,'w'],['Teste-amiga-colecionadora','0',0,'l']]})),'3 · Com pontuação','Coluna «Pontos» alinhada à direita, zero e negativos; o vencedor continua a ser escolhido à mão (aqui quem tem −17).')+
+ fig(phone(t,4,step4(t,7.5)),'4 · Avaliação e data','«7,5 / 10» em destaque; barra 0–10 com ±0,5 e atalhos; data e hora numa linha; detalhes recolhidos.')+
+ fig(phone(t,5,step5(t)),'5 · Rever','Secções legíveis com «Corrigir»; resultado por jogador; avaliação e data juntas. «Guardar partida» só aqui.'));
+
+put('s-res',
+ fig(phone(t,3,step3(t,{rows:[['Teste-participante','',1,'w'],['Teste-amiga-colecionadora','',1,'w'],['Teste-amiga-meeples','',0,'l']],extra:`<div class="confirm">${ic('checkbox-marked',22,'var(--gold)')}<div><div class="b">${t.sharedQ}</div><div style="font-size:calc(12.5px*var(--s))">${t.shared}</div></div></div>`}),{scroll:170}),'Vitória partilhada','Dois vencedores marcados: aparece a confirmação das regras (obrigatória, como hoje). Continua a ser «Escolher vencedor(es)», não um empate.')+
+ fig(phone(t,3,step3(t,{on:1,rows:[['Teste-participante','',1,'d'],['Teste-amiga-colecionadora','',1,'d'],['Teste-amiga-meeples','',0,'l']]})),'Empate no 1.º lugar','Coluna «Empatado em 1.º» com marca dourada; os restantes mostram «Derrota» antes de guardar. Pelo menos dois empatados.')+
+ fig(phone(t,3,step3(t,{on:1,scores:true,rows:[['Teste-participante','42',1,'d'],['Teste-amiga-colecionadora','42',1,'d'],['Teste-amiga-meeples','38',0,'l']]})),'Empate com pontuações','Pontos iguais não marcam empate sozinhos: a seleção é tua.')+
+ fig(phone(t,3,step3(t,{on:2,body:table(t,[['Teste-participante','',0,'u'],['Teste-amiga-colecionadora','',0,'u']],{col:null})})),'Não definido','Sem colunas de seleção; cada jogador fica «—». Guardar continua possível, como hoje.'));
+
+const coopChoices=(tt,on)=>`<div class="h">${tt.team}</div><div class="cgrid">${[tt.we,tt.weLost,tt.teamDraw,tt.undef].map((a,i)=>`<div class="choice${i===on?' on':''}"><span class="rd"></span><span class="t">${a}</span></div>`).join('')}</div>`;
+const soloChoices=(tt,on)=>`<div class="h">${tt.result}</div><div class="cgrid">${[tt.iWon,tt.gameWon,tt.draw,tt.undef].map((a,i)=>`<div class="choice${i===on?' on':''}"><span class="rd"></span><span class="t">${a}</span></div>`).join('')}</div>`;
+put('s-modos',
+ fig(phone(t,3,`${summary(t,'Meeple Teste Cooperativo',`2026 · ${t.base} · ${t.coop}`)}${coopChoices(t,0)}<div class="note">${ic('account-group',16,'var(--lav)')}<span>${t.teamNote}</span></div>${scoreToggle(t,false)}${table(t,[['Teste-participante','',0,'w'],['Teste-amiga-colecionadora','',0,'w'],['Teste-amiga-meeples','',0,'w']],{col:null})}${explain(t)}`),'Cooperativo','Resultado da equipa em quatro respostas claras; todos recebem o mesmo; sem vencedor individual.')+
+ fig(phone(t,5,step5(t,{game:'Meeple Teste Cooperativo',sub:`2026 · ${t.base} · ${t.coop}`,res:t.we,table:table(t,[['Teste-participante','',0,'w'],['Teste-amiga-colecionadora','',0,'w'],['Teste-amiga-meeples','',0,'w']],{col:null})})),'Cooperativo · Rever','«Ganhámos» e uma vitória por pessoa, como nos cálculos atuais.')+
+ fig(phone(t,3,`${summary(t,'Meeple Teste Solo',`2026 · ${t.base} · ${t.solo}`)}${soloChoices(t,1)}<div class="note">${ic('account',16,'var(--lav)')}<span>${t.soloNote}</span></div>${scoreToggle(t,true)}${table(t,[['Teste-participante','64',0,'l']],{scores:true,col:null})}${explain(t)}`),'Solo','«Ganhei / O jogo ganhou / Empate / Não definido»; um jogador; pontuação opcional.'));
+
+put('s-aval',
+ fig(phone(t,4,step4(t,null)),'Ainda sem avaliação','«— / 10» e «Ainda sem avaliação»: não é zero. Barra vazia, sem marcador.')+
+ fig(phone(t,4,step4(t,null,{err:true}),{dis:false}),'Tentar continuar sem avaliar','Uma linha de erro junto do controlo; não se passa para Rever (regra atual).')+
+ fig(phone(t,4,step4(t,0)),'Zero','Zero é um valor escolhido (atalho «0»), com «Limpar» para voltar a «sem avaliação».')+
+ fig(phone(t,4,step4(t,7.5,{open:true}),{scroll:330}),'Detalhes abertos','Local, duração, comentários, notas privadas, etiquetas e fotografias, só quando os abres.'));
+
+const kb=`<div class="kbbar"><span>±</span><span>Concluir</span></div><div class="kb">${['1','2','3','4','5','6','7','8','9','','0','⌫'].map(k=>`<span class="${k===''||k==='⌫'?'g':''}">${k}</span>`).join('')}</div>`;
+put('s-ext',
+ fig(phone(t,3,step3(t,{scores:true,rows:[['Teste-participante','-17',1,'w'],['Teste-amigo-com-um-nome-de-utilizador-bastante-comprido','',0,'l'],['Teste-amiga-meeples','12',0,'l']],focus:1}),{over:kb,noFoot:true,scroll:330}),'Teclado numérico aberto','O campo ativo fica visível acima do teclado; «±» na barra do teclado para negativos; «Concluir» fecha. Nome longo em várias linhas.')+
+ fig(phone(t,2,step2(t,true)),'Nome longo · Jogadores','O nome quebra linha; nada é cortado.')+
+ fig(phone(t,3,step3(t,{scores:true,large:true,rows:[['Teste-participante','-17',1,'w'],['Teste-amiga-colecionadora','0',0,'l']]}),{s:1.3}),'Texto ampliado · Resultado','Escolhas em lista; tabela com colunas mais largas; o resultado de cada jogador passa para baixo do nome se faltar espaço.')+
+ fig(phone(t,4,step4(t,7.5),{s:1.3}),'Texto ampliado · Avaliação','Valor e controlos crescem; os atalhos passam a duas linhas.')+
+ fig(phone(e,3,step3(e,{scores:true,rows:[['Teste-participante','-17',1,'w'],['Teste-amiga-colecionadora','0',0,'l']]})),'EN · Result','«Who won?» · «Pick the winner(s)» · «Tie for first» · «Not set».')+
+ fig(phone(e,4,step4(e,7.5)),'EN · Rating and date','«7.5 / 10», «Not rated yet» when empty.')+
+ fig(phone(e,5,step5(e,{res:'Winner: Teste-participante'})),'EN · Review','Same sections in English.'));
+</script>
+</body>
+</html>
