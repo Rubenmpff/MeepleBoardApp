@@ -1,4 +1,5 @@
 import ScreenLayout from "@/src/components/ui/ScreenLayout";
+import { Glyph, type Icon } from "@/src/ui/components";
 import ScreenState from "@/src/components/ui/ScreenState";
 import i18n from "i18next";
 import { useTranslation } from "react-i18next";
@@ -28,7 +29,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+
 import {
   useLocalSearchParams,
   useRouter,
@@ -403,8 +404,8 @@ function GameHeader({
             styles.gameCoverPlaceholder,
           ]}
         >
-          <Ionicons
-            name="game-controller-outline"
+          <Glyph
+            name="controller-classic-outline"
             size={28}
             color={
               COLORS.primary
@@ -441,7 +442,7 @@ function GameHeader({
           }
         >
           <QuickMeta
-            icon="dice-outline"
+            icon="dice-5-outline"
             label={`${matchesCount} ${matchesCount ===
                 1
                 ? t("text.match")
@@ -450,7 +451,7 @@ function GameHeader({
           />
 
           <QuickMeta
-            icon="time-outline"
+            icon="clock-outline"
             label={duration(
               totalMinutes
             )}
@@ -627,8 +628,8 @@ function MatchCard({
                 styles.durationPill
               }
             >
-              <Ionicons
-                name="time-outline"
+              <Glyph
+                name="clock-outline"
                 size={11}
                 color={
                   COLORS.textMuted
@@ -667,7 +668,7 @@ function MatchCard({
             styles.metaRow
           }
         >
-          <Ionicons
+          <Glyph
             name="calendar-outline"
             size={12}
             color={
@@ -695,8 +696,8 @@ function MatchCard({
                 ·
               </Text>
 
-              <Ionicons
-                name="location-outline"
+              <Glyph
+                name="map-marker-outline"
                 size={12}
                 color={
                   COLORS.textMuted
@@ -720,8 +721,8 @@ function MatchCard({
         </View>
       </View>
 
-      <Ionicons
-        name="chevron-forward"
+      <Glyph
+        name="chevron-right"
         size={18}
         color={
           COLORS.textMuted
@@ -752,8 +753,8 @@ function StatsContent({
             styles.emptyIconWrap
           }
         >
-          <Ionicons
-            name="stats-chart-outline"
+          <Glyph
+            name="chart-bar"
             size={34}
             color={
               COLORS.primary
@@ -1037,8 +1038,8 @@ function MatchesEmptyState() {
           styles.emptyIconWrap
         }
       >
-        <Ionicons
-          name="dice-outline"
+        <Glyph
+          name="dice-5-outline"
           size={34}
           color={
             COLORS.primary
@@ -1068,7 +1069,7 @@ function QuickMeta({
   label,
 }: {
   icon:
-  keyof typeof Ionicons.glyphMap;
+  Icon;
   label: string;
 }) {
   return (
@@ -1077,7 +1078,7 @@ function QuickMeta({
         styles.quickMeta
       }
     >
-      <Ionicons
+      <Glyph
         name={icon}
         size={13}
         color={

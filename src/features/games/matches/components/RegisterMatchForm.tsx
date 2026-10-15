@@ -1,4 +1,5 @@
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
+import { Glyph } from "@/src/ui/components";
 import ScreenHeader from "@/src/components/navigation/ScreenHeader";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import DialogSurface from "@/src/components/ui/DialogSurface";
@@ -8,7 +9,7 @@ import {
   ActivityIndicator, Image, Platform, StyleSheet, ScrollView, Modal,
   KeyboardAvoidingView, Keyboard,
 } from "react-native";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import * as ImagePicker from "expo-image-picker";
 
@@ -179,9 +180,9 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
   const availableModes = useMemo((): AvailableModes => {
     if (!selectedGame) return {
-      solo:        { available: true,  source: null, label: t("modes.solo"),        icon: "person"   },
-      multiplayer: { available: true,  source: null, label: t("modes.multiplayer"), icon: "people"   },
-      cooperative: { available: false, source: null, label: t("modes.cooperative"), icon: "favorite" },
+      solo:        { available: true,  source: null, label: t("modes.solo"),        icon: "account"   },
+      multiplayer: { available: true,  source: null, label: t("modes.multiplayer"), icon: "account-multiple"   },
+      cooperative: { available: false, source: null, label: t("modes.cooperative"), icon: "heart" },
     };
     const expansion = selectedExpansions[0] ?? null;
     return getAvailableModes(selectedGame, expansion);
@@ -524,7 +525,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       {/* ══ STEP 0: Jogo ══ */}
       {step === 0 && (
         <View style={styles.card}>
-          {editingGame && <SectionTitle icon="casino" label={t("game.sectionTitle")} />}
+          {editingGame && <SectionTitle icon="dice-5" label={t("game.sectionTitle")} />}
           {editingGame ? (
             <GameSelector appearance="refresh" onSelect={(game) => { setSelectedGame(game); setSelectedExpansions([]); setEditingGame(false); }} />
           ) : (
@@ -542,12 +543,12 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       {/* Modo acessível junto do jogo, sem etapa própria. */}
       {step === 0 && selectedGame && !editingGame && (
         <View style={styles.card}>
-          <SectionTitle icon="gamepad" label={t("modes.sectionTitle")} />
+          <SectionTitle icon="gamepad-variant-outline" label={t("modes.sectionTitle")} />
           {isSessionMatch && <Text style={styles.hint}>{t("form.sessionNoSolo")}</Text>}
           <View style={styles.modeRow}>
             {([
-              { mode: "solo" as GameMode,        icon: "person",    label: t("modes.solo"),        color: COLORS.primary },
-              { mode: "multiplayer" as GameMode, icon: "people",    label: t("modes.multiplayer"), color: COLORS.primary },
+              { mode: "solo" as GameMode,        icon: "account",    label: t("modes.solo"),        color: COLORS.primary },
+              { mode: "multiplayer" as GameMode, icon: "account-multiple",    label: t("modes.multiplayer"), color: COLORS.primary },
               { mode: "cooperative" as GameMode, icon: "handshake", label: t("modes.cooperative"), color: COLORS.primary },
             ]).map(({ mode, icon, label, color }) => {
               const info = availableModes[mode];
@@ -562,7 +563,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
                   onPress={() => handleModePress(mode)} activeOpacity={0.8}
                   accessibilityRole="radio" accessibilityLabel={label} accessibilityState={{ selected: isActive, disabled: blockedSolo }}
                 >
-                  <MaterialIcons name={icon as any} size={24} color={isActive ? color : COLORS.textMuted} />
+                  <Glyph name={icon as any} size={24} color={isActive ? color : COLORS.textMuted} />
                   <Text style={[styles.modeBtnLabel, isActive && { color }, (!info.available || blockedSolo) && { color: COLORS.textMuted }]}>{label}</Text>
                   {!blockedSolo && info.available && info.source && (
                     <View style={[styles.sourceBadge, info.source === "bgg_official" && styles.sourceBadgeOfficial, info.source === "expansion" && styles.sourceBadgeExpansion]}>
@@ -572,7 +573,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
                     </View>
                   )}
                   {!blockedSolo && !info.available && <View style={styles.forceBadge}><Text style={styles.forceBadgeText}>{t("modes.force")}</Text></View>}
-                  {isActiveUnofficial && <View style={styles.unofficialSmallBadge}><MaterialIcons name="warning-amber" size={14} color={COLORS.secondary} /></View>}
+                  {isActiveUnofficial && <View style={styles.unofficialSmallBadge}><Glyph name="alert-outline" size={14} color={COLORS.secondary} /></View>}
                 </TouchableOpacity>
               );
             })}
@@ -580,7 +581,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
 
           {isUnofficial && (
             <View style={styles.unofficialWarning}>
-              <MaterialIcons name="warning" size={14} color="#f39c12" />
+              <Glyph name="alert" size={14} color="#f39c12" />
               <Text style={styles.unofficialWarningText}>
                 {t("modes.unofficialWarning", { justification: unofficialJustification })}
               </Text>
@@ -651,7 +652,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       {step === 2 && (
         <View>
           <View style={styles.card}>
-            <SectionTitle icon="emoji-events" label={t("steps.result")} />
+            <SectionTitle icon="trophy-outline" label={t("steps.result")} />
             <View style={styles.resultRow}>
               {(isSolo || isCooperative ? ["Win", "Loss", "Draw", "Undefined"] : ["Win", "Draw", "Undefined"]).map(value => <ResultButton key={value} icon={value === "Win" ? "trophy" : value === "Loss" ? "close-thick" : value === "Draw" ? "handshake" : "help-circle-outline"}
                 label={t(isCooperative ? `outcomes.team${value}` : `outcomes.${value}`)} active={result === value} activeColor={COLORS.primary}
@@ -683,7 +684,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
           <TouchableOpacity style={styles.detailsToggle} accessibilityRole="button" accessibilityState={{ expanded: showDetails }}
             onPress={() => setShowDetails(value => !value)}>
             <Text style={styles.detailsToggleText}>{t("details.optionalTitle")}</Text>
-            <MaterialIcons name={showDetails ? "expand-less" : "expand-more"} size={22} color={COLORS.primary} />
+            <Glyph name={showDetails ? "chevron-up" : "chevron-down"} size={22} color={COLORS.primary} />
           </TouchableOpacity>
           {showDetails && <View>
             <View style={styles.card}>
@@ -693,7 +694,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
             </View>
 
             <View style={styles.card}>
-              <SectionTitle icon="auto-stories" label={t("details.journalTitle")} />
+              <SectionTitle icon="book-open-page-variant-outline" label={t("details.journalTitle")} />
               <View style={{ marginTop: 8 }}>
                 <DetailField
                   label={t("details.notesLabel")}
@@ -724,13 +725,13 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
                   <View key={pi} style={styles.photoThumbWrap}>
                     <Image source={{ uri }} style={styles.photoThumb} />
                     <TouchableOpacity style={styles.photoRemoveBtn} accessibilityRole="button" accessibilityLabel={t("photos.remove")} onPress={() => handleRemovePendingPhoto(uri)}>
-                      <MaterialIcons name="close" size={14} color="#fff" />
+                      <Glyph name="close" size={14} color="#fff" />
                     </TouchableOpacity>
                   </View>
                 ))}
                 {pendingPhotos.length < MAX_PHOTOS && (
                   <TouchableOpacity style={styles.photoAddBtn} accessibilityRole="button" accessibilityLabel={t("photos.add")} onPress={handlePickPendingPhoto} activeOpacity={0.8}>
-                    <MaterialIcons name="add-a-photo" size={20} color={COLORS.primary} />
+                    <Glyph name="camera-plus-outline" size={20} color={COLORS.primary} />
                     <Text style={styles.photoAddText}>{t("photos.add")}</Text>
                   </TouchableOpacity>
                 )}
@@ -822,7 +823,7 @@ function ProgressBar({ current, total, labels }: { current: number; total: numbe
 function SectionTitle({ icon, label }: { icon: string; label: string }) {
   return (
     <View style={styles.sectionTitleRow}>
-      <MaterialIcons name={icon as any} size={18} color={COLORS.primary} />
+      <Glyph name={icon as any} size={18} color={COLORS.primary} />
       <Text style={styles.sectionTitleText}>{label}</Text>
     </View>
   );
@@ -859,7 +860,7 @@ function DetailField({ label, placeholder, value, onChangeText, keyboardType, mu
 function ReviewEdit({ label, onPress }: { label: string; onPress: () => void }) {
   return <TouchableOpacity accessibilityRole="button" accessibilityLabel={label} style={styles.reviewEdit} onPress={onPress}>
     <Text style={styles.detailsToggleText}>{label}</Text>
-    <MaterialIcons name="edit" size={16} color={COLORS.primary} />
+    <Glyph name="pencil-outline" size={16} color={COLORS.primary} />
   </TouchableOpacity>;
 }
 

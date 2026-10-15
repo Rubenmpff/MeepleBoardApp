@@ -1,9 +1,10 @@
 import GameCover from "@/src/components/ui/GameCover";
+import { Glyph } from "@/src/ui/components";
 import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionGridCard.tsx
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
 import { UI_STYLES } from "@/src/styles/clubTheme";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
@@ -58,7 +59,7 @@ export function CollectionGridCard({ entry, onPress, onLongPress, onPrimaryActio
           <View style={{ flex: 1 }} />
           {onMenuPress && (
             <Pressable accessibilityRole="button" accessibilityLabel={uiT("ui.menuGame", { name: entry.gameName })} style={styles.menuBtn} onPress={(event) => { event.stopPropagation(); onMenuPress?.(); }} hitSlop={8}>
-              <MaterialIcons name="more-vert" size={18} color="#fff" />
+              <Glyph name="dots-vertical" size={18} color="#fff" />
             </Pressable>
           )}
         </View>
@@ -72,7 +73,7 @@ export function CollectionGridCard({ entry, onPress, onLongPress, onPrimaryActio
         <View style={styles.ratingRow}>
           {hasBgg ? (
             <>
-              <Ionicons name="star" size={12} color={COLORS.star} />
+              <Glyph name="star" size={12} color={COLORS.star} />
               <Text style={styles.ratingText}>{bggText} BGG</Text>
             </>
           ) : (
@@ -83,7 +84,7 @@ export function CollectionGridCard({ entry, onPress, onLongPress, onPrimaryActio
 
         <View style={styles.playsRow}>
           {entry.timesPlayed > 0 && (
-            <Ionicons name="checkmark-circle" size={11} color={COLORS.success} />
+            <Glyph name="check-circle" size={11} color={COLORS.success} />
           )}
           <Text style={styles.playsText}>
             {entry.timesPlayed > 0 ? uiT("ui.matchesCount", { count: entry.timesPlayed }) : uiT("ui.never")}

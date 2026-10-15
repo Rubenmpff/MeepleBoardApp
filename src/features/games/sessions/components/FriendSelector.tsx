@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { Glyph } from "@/src/ui/components";
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import { FriendLite } from "@/src/features/friends/services/friendshipService";
@@ -33,7 +33,7 @@ export default function FriendSelector({ friends, loading, error, selectedIds, o
       {!!selected.length && <View style={styles.summary}>{selected.map(friend => (
         <TouchableOpacity key={friend.id} style={styles.chip} onPress={() => onChange(selectedIds.filter(id => id !== friend.id))} disabled={busy}
           accessibilityRole="button" accessibilityLabel={t("sessions.removeSelected", { name: friend.userName })} accessibilityState={{ disabled: busy }}>
-          <Text style={styles.chipText}>{friend.userName}</Text><MaterialIcons name="close" size={18} color={colors.primary} />
+          <Text style={styles.chipText}>{friend.userName}</Text><Glyph name="close" size={18} color={colors.primary} />
         </TouchableOpacity>
       ))}</View>}
       {loading ? <ActivityIndicator color={colors.primary} accessibilityLabel={t("sessions.loadingFriends")} /> : error ? (
@@ -47,7 +47,7 @@ export default function FriendSelector({ friends, loading, error, selectedIds, o
           accessibilityState={{ checked, disabled: busy || !!status }}>
           <View style={styles.avatar}><Text style={styles.avatarText}>{friend.userName[0]?.toUpperCase()}</Text></View>
           <View style={styles.name}><Text style={UI_STYLES.body}>{friend.userName}</Text>{!!status && <Text style={UI_STYLES.caption}>{status}</Text>}</View>
-          <MaterialIcons name={status ? "lock-outline" : checked ? "check-box" : "check-box-outline-blank"} size={24} color={status ? colors.textMuted : colors.primary} />
+          <Glyph name={status ? "lock-outline" : checked ? "checkbox-marked" : "checkbox-blank-outline"} size={24} color={status ? colors.textMuted : colors.primary} />
         </TouchableOpacity>;
       })}
       {!loading && !error && !!friends.length && friends.every(friend => !!unavailable[friend.id]) && <>

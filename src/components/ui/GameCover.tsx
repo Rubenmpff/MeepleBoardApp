@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { Glyph } from "@/src/ui/components";
 import { Image, StyleSheet, View, ViewStyle, ViewProps } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { colors } from "@/src/ui/theme";
 
 type Props = { uri?: string | null; style?: ViewStyle; onLayout?: ViewProps["onLayout"]; iconSize?: number; size?: number };
@@ -15,7 +15,7 @@ function Cover({ uri, style, onLayout, iconSize }: { uri?: string | null; style?
   const [failed, setFailed] = useState(false);
   return <View style={[styles.frame, style]} onLayout={onLayout} accessible={false}>
     {uri && !failed ? <Image source={{ uri }} style={styles.image} resizeMode="contain" onError={() => setFailed(true)} accessible={false} />
-      : <MaterialIcons name="casino" size={iconSize} color={colors.icon} />}
+      : <Glyph name="dice-5" size={iconSize} color={colors.icon} />}
   </View>;
 }
 

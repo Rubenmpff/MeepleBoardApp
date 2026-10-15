@@ -1,10 +1,11 @@
 import { translatedRelativeDate } from "../utils/translatedRelativeDate";
+import { Glyph } from "@/src/ui/components";
 import GameCover from "@/src/components/ui/GameCover";
 import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionListItem.tsx
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
 import { UI_STYLES } from "@/src/styles/clubTheme";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
@@ -52,7 +53,7 @@ export function CollectionListItem({ entry, onPress, onLongPress, onPrimaryActio
           <Text style={styles.name}>{entry.gameName}</Text>
           {onMenuPress && (
             <Pressable accessibilityRole="button" accessibilityLabel={uiT("ui.menuGame", { name: entry.gameName })} style={styles.menuBtn} onPress={(event) => { event.stopPropagation(); onMenuPress?.(); }} hitSlop={8}>
-              <MaterialIcons name="more-vert" size={18} color={COLORS.textMuted} />
+              <Glyph name="dots-vertical" size={18} color={COLORS.textMuted} />
             </Pressable>
           )}
         </View>
@@ -67,7 +68,7 @@ export function CollectionListItem({ entry, onPress, onLongPress, onPrimaryActio
         <View style={styles.ratingRow}>
           {hasBgg ? (
             <>
-              <Ionicons name="star" size={11} color={COLORS.star} />
+              <Glyph name="star" size={11} color={COLORS.star} />
               <Text style={styles.metaText}>{formatBggRating(entry.averageRating)} BGG</Text>
             </>
           ) : (
@@ -78,7 +79,7 @@ export function CollectionListItem({ entry, onPress, onLongPress, onPrimaryActio
 
         <View style={styles.playsRow}>
           {entry.timesPlayed > 0 && (
-            <Ionicons name="checkmark-circle" size={11} color={COLORS.success} />
+            <Glyph name="check-circle" size={11} color={COLORS.success} />
           )}
           <Text style={styles.metaText}>
             {entry.timesPlayed > 0 ? uiT("ui.matchesCount", { count: entry.timesPlayed }) : uiT("ui.never")}

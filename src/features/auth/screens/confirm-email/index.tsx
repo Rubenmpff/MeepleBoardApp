@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { AntDesign } from "@expo/vector-icons";
+import { View } from "react-native";
+import { Glyph } from "@/src/ui/components";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { AUTH_COLORS as AUTH } from "../../styles/authTheme";
@@ -157,12 +158,9 @@ export default function ConfirmEmailScreen() {
         <ScreenState loading message={t("ui.loading")} />
       ) : (
         <>
-          <AntDesign
-            name={iconName}
-            size={60}
-            color={iconColor}
-            style={styles.icon}
-          />
+          <View style={styles.icon}>
+            <Glyph name={iconName} size={60} color={iconColor} />
+          </View>
 
           <AuthMessage variant={success ? "success" : "error"}>{message}</AuthMessage>
 

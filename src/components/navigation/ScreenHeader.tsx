@@ -1,6 +1,7 @@
 import React from "react";
+import { Glyph, type Icon } from "@/src/ui/components";
 import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { colors, isLarge, space, touch, type } from "@/src/ui/theme";
@@ -11,7 +12,7 @@ type Props = {
   title: string;
   subtitle?: string;
   mode?: HeaderMode;
-  rightIcon?: keyof typeof Ionicons.glyphMap;
+  rightIcon?: Icon;
   onRightPress?: () => void;
   onLeftPress?: () => void;
   /** Kept for existing callers; every header now uses the same appearance. */
@@ -36,7 +37,7 @@ export default function ScreenHeader({ title, subtitle, mode = "back", rightIcon
 
   const right = rightIcon && onRightPress
     ? <TouchableOpacity style={styles.iconAction} onPress={onRightPress} accessibilityRole="button" accessibilityLabel={rightAccessibilityLabel}>
-      <Ionicons name={rightIcon} size={24} color={colors.primary} />
+      <Glyph name={rightIcon} size={24} color={colors.primary} />
     </TouchableOpacity>
     : null;
 

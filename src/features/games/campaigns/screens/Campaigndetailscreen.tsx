@@ -11,13 +11,12 @@ import GameCover from "@/src/components/ui/GameCover";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useWindowDimensions, View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, TextInput, RefreshControl } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import campaignService from "@/src/features/games/campaigns/services/campaignService";
 import { Campaign, CampaignMatch, JournalEntry, getCampaignStatusKey, getCampaignMemberStatusKey } from "@/src/features/games/campaigns/types/Campaign";
 import { StarRating } from "@/src/shared/components/StarRating";
-import { Avatar, Card, EmptyState, Note, Row, Section, Segmented } from "@/src/ui/components";
+import { Avatar, Card, EmptyState, Note, Row, Section, Segmented, Glyph } from "@/src/ui/components";
 import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
 import { formatRating } from "@/src/ui/format";
 import { RootState } from "@/src/store/store";
@@ -227,7 +226,7 @@ export default function CampaignDetailScreen() {
         ] as { key: Tab; label: string }[]} value={tab} onChange={setTab} />
 
         {tab === "matches" && <View style={styles.tabContent}>
-          {isMember && <PrimaryButton title={t("detail.sessions.newEncounter")} icon={<MaterialIcons name="add" size={20} color={colors.onPrimary} />}
+          {isMember && <PrimaryButton title={t("detail.sessions.newEncounter")} icon={<Glyph name="plus" size={20} color={colors.onPrimary} />}
             onPress={() => router.push({
               pathname: "/(app)/games/campaigns/encounter/create" as any,
               params: {
@@ -258,7 +257,7 @@ export default function CampaignDetailScreen() {
                           {!myEntry && isMember && readable && <Text style={[styles.pill, styles.pending]}>{t("detail.sessions.evaluate")}</Text>}
                         </View>
                       </View>
-                      {readable ? <MaterialIcons name={isExp ? "expand-less" : "expand-more"} size={22} color={colors.chevron} /> : <Text style={type.caption}>{t("detail.sessions.participantsOnly")}</Text>}
+                      {readable ? <Glyph name={isExp ? "chevron-up" : "chevron-down"} size={22} color={colors.chevron} /> : <Text style={type.caption}>{t("detail.sessions.participantsOnly")}</Text>}
                     </TouchableOpacity>
                     {isExp && readable && <View style={styles.journal}>
                       {entries.map((entry: JournalEntry) => <View key={entry.id} style={styles.entry}>
@@ -292,7 +291,7 @@ export default function CampaignDetailScreen() {
         </View>}
 
         {tab === "members" && <View style={styles.tabContent}>
-          {isMember && <PrimaryButton title={t("detail.members.invite")} variant="secondary" icon={<MaterialIcons name="person-add" size={20} color={colors.primary} />}
+          {isMember && <PrimaryButton title={t("detail.members.invite")} variant="secondary" icon={<Glyph name="account-plus-outline" size={20} color={colors.primary} />}
             onPress={() => Alert.alert(t("common.comingSoon"), t("detail.members.inviteSoon"))} />}
           <Card>
             {campaign.members.map((m, index) => <View key={m.userId} style={[styles.member, index > 0 && styles.divider]}>
@@ -303,7 +302,7 @@ export default function CampaignDetailScreen() {
               </View>
               {isMember && !m.isCreator && m.userId !== currentUser?.id && <TouchableOpacity onPress={() => handleRemoveMember(m.userId, m.userName)} style={styles.iconButton}
                 accessibilityRole="button" accessibilityLabel={t("ui.removeMember", { name: m.userName })}>
-                <MaterialIcons name="person-remove" size={20} color={colors.danger} />
+                <Glyph name="account-remove-outline" size={20} color={colors.danger} />
               </TouchableOpacity>}
             </View>)}
           </Card>
@@ -322,7 +321,7 @@ export default function CampaignDetailScreen() {
             {campaign.notes ? <Card padded><Text style={type.body}>{campaign.notes}</Text></Card>
               : <EmptyState title={t("detail.notes.emptyTitle")} message={t("detail.notes.emptyMessage")} />}
             {isMember && <PrimaryButton title={campaign.notes ? t("detail.notes.edit") : t("detail.notes.write")} variant="secondary"
-              icon={<MaterialIcons name="edit" size={18} color={colors.primary} />} onPress={() => setEditingNotes(true)} />}
+              icon={<Glyph name="pencil-outline" size={18} color={colors.primary} />} onPress={() => setEditingNotes(true)} />}
           </>}
         </View>}
 

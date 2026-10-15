@@ -1,4 +1,5 @@
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
+import { Glyph } from "@/src/ui/components";
 import { ROUTES } from "@/src/constants/routes";
 /**
  * CreateSessionScreen.tsx
@@ -18,7 +19,6 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Keyboard, ScrollView, Platform, Switch } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
-import { MaterialIcons } from "@expo/vector-icons";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import { useGameSessions } from "../hooks/useGameSessions";
@@ -152,7 +152,7 @@ export default function CreateSessionScreen() {
         <Text style={styles.headerSub}>{t("sessions.createWarmIntro")}</Text>
         {/* ── Card: Detalhes ── */}
         <View style={styles.card}>
-          <CardTitle icon="event" label={t("sessions.about")} />
+          <CardTitle icon="calendar" label={t("sessions.about")} />
           <Field label={t("sessions.plannedGameOptional")}>
             <PlannedGameField game={plannedGame} note={plannedGame && plannedGame.id === fromPage?.id ? t("sessions.plannedFromGame") : undefined} onChange={() => { Keyboard.dismiss(); setPickingGame(true); }} />
           </Field>
@@ -177,7 +177,7 @@ export default function CreateSessionScreen() {
         </View>
         {/* ── Card: Data da sessão ── */}
         <View style={styles.card}>
-          <CardTitle icon="schedule" label={t("sessions.when")} />
+          <CardTitle icon="clock-outline" label={t("sessions.when")} />
           <View style={styles.dateRow}>
             <DateButton
               icon="calendar-today" label={t("sessions.date")}
@@ -185,7 +185,7 @@ export default function CreateSessionScreen() {
               onPress={() => showPicker("session_date")}
             />
             <DateButton
-              icon="access-time" label={t("sessions.time")}
+              icon="clock-outline" label={t("sessions.time")}
               value={formatTime(sessionDate, locale)}
               onPress={() => showPicker("session_time")}
               flex={0.55}
@@ -219,7 +219,7 @@ export default function CreateSessionScreen() {
           {/* The whole row toggles, not only the switch. */}
           <TouchableOpacity style={styles.deadlineHeader} activeOpacity={0.7}
             onPress={toggleDeadline} accessibilityRole="switch" accessibilityLabel={t("sessions.deadline")} accessibilityState={{ checked: useDeadline }}>
-            <MaterialIcons name="timer" size={18} color={COLORS.primary} />
+            <Glyph name="timer-outline" size={18} color={COLORS.primary} />
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={styles.cardTitleText}>{t("sessions.deadline")}</Text>
               <Text style={styles.deadlineHint}>{useDeadline ? t("sessions.enabled") : t("sessions.disabled")}</Text>
@@ -238,7 +238,7 @@ export default function CreateSessionScreen() {
                   onPress={() => showPicker("deadline_date")}
                 />
                 <DateButton
-                  icon="access-time" label={t("sessions.time")}
+                  icon="clock-outline" label={t("sessions.time")}
                   value={formatTime(deadlineDate, locale)}
                   onPress={() => showPicker("deadline_time")}
                   flex={0.55}
@@ -279,7 +279,7 @@ export default function CreateSessionScreen() {
         {/* ── Card: Quem vem ── */}
         <View style={styles.card}>
           <CardTitle
-            icon="people"
+            icon="account-multiple"
             label={t("sessions.who")}
           />
           {inviteValidation && selectedIds.length === 0 && (
@@ -308,7 +308,7 @@ export default function CreateSessionScreen() {
 function CardTitle({ icon, label }: { icon: string; label: string }) {
   return (
     <View style={styles.cardTitleRow}>
-      <MaterialIcons name={icon as any} size={18} color={COLORS.primary} />
+      <Glyph name={icon as any} size={18} color={COLORS.primary} />
       <Text style={styles.cardTitleText}>{label}</Text>
     </View>
   );
@@ -329,7 +329,7 @@ function DateButton({ icon, label, value, onPress, flex = 1 }: {
       style={styles.dateBtn}
       onPress={onPress} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel={label + ": " + value}
     >
-      <MaterialIcons name={icon as any} size={18} color={COLORS.primary} />
+      <Glyph name={icon as any} size={18} color={COLORS.primary} />
       <View style={{ marginLeft: 8, flex: 1, minWidth: 0 }}>
         <Text style={styles.dateBtnLabel}>{label}</Text>
         <Text style={styles.dateBtnValue}>{value}</Text>

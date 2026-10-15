@@ -1,7 +1,7 @@
 import i18n from "i18next";
 import React, { useMemo, useState } from "react";
 import { FlatList, Image, RefreshControl, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -34,7 +34,7 @@ export default function FriendsScreen() {
 
   async function refresh() { setRefreshing(true); try { await refetch(true); } finally { setRefreshing(false); } }
   // Reached from Perfil: a back header, with "add friend" on the right.
-  const header = <ScreenHeader title={t("screen.title")} rightIcon="person-add-outline" rightAccessibilityLabel={t("screen.add")}
+  const header = <ScreenHeader title={t("screen.title")} rightIcon="account-plus-outline" rightAccessibilityLabel={t("screen.add")}
     onRightPress={() => router.push(ROUTES.FRIEND_SEARCH as never)} />;
   if (loading && friends.length === 0) return <SafeAreaView style={styles.screen}><View style={styles.pad}>{header}</View><ScreenState loading message={t("card.loading")} /></SafeAreaView>;
 
@@ -52,9 +52,9 @@ export default function FriendsScreen() {
         contentContainerStyle={[styles.listContent, visibleFriends.length === 0 && styles.grow]}
         ListHeaderComponent={<View style={styles.headerBlock}>
           <View style={styles.searchBox}>
-            <Ionicons name="search-outline" size={19} color={colors.placeholder} />
+            <Glyph name="magnify" size={19} color={colors.placeholder} />
             <TextInput value={query} onChangeText={setQuery} accessibilityLabel={t("screen.searchPlaceholder")} placeholder={t("screen.searchPlaceholder")} placeholderTextColor={colors.placeholder} style={[type.body, styles.searchInput]} autoCapitalize="none" />
-            {!!query && <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("card.clearSearch")} style={styles.clear} onPress={() => setQuery("")}><Ionicons name="close-circle" size={18} color={colors.placeholder} /></TouchableOpacity>}
+            {!!query && <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("card.clearSearch")} style={styles.clear} onPress={() => setQuery("")}><Glyph name="close-circle" size={18} color={colors.placeholder} /></TouchableOpacity>}
           </View>
           <Card>
             <Row first inset={52} title={t("screen.requests")} lead={<Glyph name="account-multiple-outline" size={22} color={colors.friend} />}

@@ -1,4 +1,5 @@
 import JournalPhoto from "../components/JournalPhoto";
+import { Glyph } from "@/src/ui/components";
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import { useTranslation } from "react-i18next";
@@ -16,7 +17,6 @@ import {
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 
 import matchService from "@/src/features/games/matches/services/matchService";
@@ -200,7 +200,7 @@ export default function MatchJournalScreen() {
       {entries.filter(e => e.userId !== currentUser?.id).length > 0 && (
         <View style={styles.card}>
           <View style={styles.cardTitleRow}>
-            <MaterialIcons name="people" size={16} color={COLORS.primary} />
+            <Glyph name="account-multiple" size={16} color={COLORS.primary} />
             <Text style={styles.cardTitle}>{t("journal.others")}</Text>
           </View>
           {entries.filter(e => e.userId !== currentUser?.id).map((entry) => (
@@ -239,7 +239,7 @@ export default function MatchJournalScreen() {
       {/* ── Aviso fechado ── */}
       {isClosed && !alreadySubmitted && (
         <View style={styles.infoBox}>
-          <MaterialIcons name="info-outline" size={16} color="#f39c12" />
+          <Glyph name="information-outline" size={16} color="#f39c12" />
           <Text style={styles.infoText}>{t("journal.closedHint")}</Text>
         </View>
       )}
@@ -247,7 +247,7 @@ export default function MatchJournalScreen() {
       {/* ── Formulário ── */}
       <View style={styles.card}>
         <View style={styles.cardTitleRow}>
-          <MaterialIcons name="star" size={16} color={COLORS.primary} />
+          <Glyph name="star" size={16} color={COLORS.primary} />
           <Text style={styles.cardTitle}>{alreadySubmitted ? t("journal.yourRating") : t("journal.leaveRating")}</Text>
         </View>
 
@@ -286,7 +286,7 @@ export default function MatchJournalScreen() {
             <View key={pi} style={styles.photoThumbWrap}>
               <JournalPhoto uri={url} style={styles.photoThumb} />
               <TouchableOpacity style={styles.photoRemoveBtn} accessibilityRole="button" accessibilityLabel={t("photos.remove")} onPress={() => handleRemovePhoto(url)}>
-                <MaterialIcons name="close" size={14} color="#fff" />
+                <Glyph name="close" size={14} color="#fff" />
               </TouchableOpacity>
             </View>
           ))}
@@ -302,7 +302,7 @@ export default function MatchJournalScreen() {
               {uploadingPhoto
                 ? <ActivityIndicator color={COLORS.primary} size="small" />
                 : <>
-                    <MaterialIcons name="add-a-photo" size={20} color={COLORS.primary} />
+                    <Glyph name="camera-plus-outline" size={20} color={COLORS.primary} />
                     <Text style={styles.photoAddText}>{t("photos.add")}</Text>
                   </>
               }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { Glyph } from "@/src/ui/components";
 import { BackHandler, Switch, Text, TouchableOpacity, View } from "react-native";
-import { Feather } from "@expo/vector-icons";
+
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { AUTH_COLORS as AUTH } from "../../styles/authTheme";
@@ -143,11 +144,11 @@ export default function SignInScreen() {
               : "signIn.showPassword"
           )}
         >
-          <Feather
+          <Glyph
             name={
               showPassword
-                ? "eye-off"
-                : "eye"
+                ? "eye-off-outline"
+                : "eye-outline"
             }
             size={20}
             color={

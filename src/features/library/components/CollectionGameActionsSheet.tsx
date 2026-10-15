@@ -1,22 +1,13 @@
-import SheetSurface from "@/src/components/ui/SheetSurface";
+import Sheet from "@/src/ui/Sheet";
+import { Card, Glyph, Row } from "@/src/ui/components";
+import { colors } from "@/src/ui/theme";
 import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionGameActionsSheet.tsx
 import React, { useCallback, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, Alert } from "react-native";
 import { router } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
 
-import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
-import { UI_STYLES } from "@/src/styles/clubTheme";
 import { ROUTES } from "@/src/constants/routes";
 import { useLibraryActions } from "../hooks/useLibraryActions";
 import { GameLibraryStatus } from "../types/GameLibraryStatus";
@@ -39,6 +30,7 @@ type ActionItem = {
 
 export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: Props) {
   const { t: uiT } = useTranslation("library");
+  const { t: tc } = useTranslation("common");
   const { addGame, updateGame, removeGame } = useLibraryActions();
   const [busy, setBusy] = useState(false);
 
@@ -69,7 +61,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
   actions.push({
     key: "view",
     label: uiT("ui.viewPage"),
-    icon: "info-outline",
+    icon: "information-outline",
     onPress: () => {
       router.push({ pathname: ROUTES.GAME_DETAILS, params: { id: entry.gameId } });
       onClose();
@@ -79,7 +71,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
   actions.push({
     key: "register",
     label: entry.timesPlayed > 0 ? uiT("ui.register") : uiT("ui.registerFirst"),
-    icon: "add-circle-outline",
+    icon: "plus-circle-outline",
     onPress: () => {
       router.push({ pathname: ROUTES.REGISTER_MATCH, params: { gameId: entry.gameId } } as never);
       onClose();
@@ -90,13 +82,13 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
     actions.push({
       key: "edit",
       label: uiT("ui.editEntry"),
-      icon: "edit",
+      icon: "pencil-outline",
       onPress: () => { onEdit(entry); onClose(); },
     });
     actions.push({
       key: "toWishlist",
       label: uiT("ui.moveWishlist"),
-      icon: "favorite-border",
+      icon: "heart-outline",
       onPress: () => run(() => updateGame(entry.gameId, GameLibraryStatus.Wishlist, undefined)),
     });
     actions.push({
@@ -114,7 +106,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
     actions.push({
       key: "toOwned",
       label: uiT("ui.addCollection"),
-      icon: "library-add",
+      icon: "bookshelf",
       onPress: () => run(() => updateGame(entry.gameId, GameLibraryStatus.Owned, undefined)),
     });
     actions.push({
@@ -129,7 +121,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
     actions.push({
       key: "addOwned",
       label: uiT("ui.addCollection"),
-      icon: "library-add",
+      icon: "bookshelf",
       onPress: () =>
         run(() =>
           addGame(
@@ -141,7 +133,7 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
     actions.push({
       key: "addWishlist",
       label: uiT("ui.addWishlist"),
-      icon: "favorite-border",
+      icon: "heart-outline",
       onPress: () =>
         run(() =>
           addGame(
@@ -152,52 +144,15 @@ export function CollectionGameActionsSheet({ visible, entry, onClose, onEdit }: 
     });
   }
 
+  // The common sheet: the game as title, one row per action, risky ones in red text.
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <SheetSurface style={styles.sheet}>
-          <View style={styles.handle} />
-          <Text style={styles.title} numberOfLines={1}>{entry.gameName}</Text>
-
-          {busy ? (
-            <ActivityIndicator style={{ marginVertical: 20 }} color={COLORS.primary} />
-          ) : (
-            actions.map((action) => (
-              <Pressable
-                key={action.key} accessibilityRole="button" accessibilityLabel={action.label}
-                style={styles.row}
-                onPress={action.onPress}
-                android_ripple={{ color: COLORS.border }}
-              >
-                <MaterialIcons
-                  name={action.icon as any}
-                  size={20}
-                  color={action.danger ? COLORS.error : COLORS.onBackground}
-                />
-                <Text style={[styles.rowText, action.danger && { color: COLORS.error }]}>
-                  {action.label}
-                </Text>
-              </Pressable>
-            ))
-          )}
-        </SheetSurface>
-      </Pressable>
-    </Modal>
+    <Sheet visible={visible} title={entry.gameName} onClose={onClose} closeLabel={tc("filters.cancel")} left={{ label: tc("filters.cancel"), onPress: onClose }}>
+      {busy ? <ActivityIndicator style={{ marginVertical: 20 }} color={colors.primary} />
+        : <Card>
+          {actions.map((action, index) => <Row key={action.key} first={index === 0} title={action.label} tone={action.danger ? "danger" : "default"} end="none" inset={52}
+            lead={<Glyph name={action.icon as any} size={20} color={action.danger ? colors.danger : colors.text} />} onPress={action.onPress} />)}
+        </Card>}
+    </Sheet>
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" },
-  sheet: {
-    backgroundColor: COLORS.card,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 28,
-  },
-  handle: { width: 36, height: 4, borderRadius: 2, backgroundColor: COLORS.border, alignSelf: "center", marginBottom: 12 },
-  title: { ...UI_STYLES.section, marginBottom: 8, paddingHorizontal: 4 },
-  row: { ...UI_STYLES.control, flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 13, paddingHorizontal: 4 },
-  rowText: { ...UI_STYLES.body, fontWeight: "600", color: COLORS.onBackground },
-});

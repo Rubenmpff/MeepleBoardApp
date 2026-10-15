@@ -1,7 +1,8 @@
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
+import { Glyph } from "@/src/ui/components";
 import { FocusEvent, Image, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+
 import { useTranslation } from "react-i18next";
 import AuthPlayfulDetails from "./AuthPlayfulDetails";
 import { StatusBar } from "expo-status-bar";
@@ -50,7 +51,7 @@ export default function AuthLayout({ title, children, onBack, backAccessibilityL
                 </View>}
                 <View testID="authentication-controls" style={styles.controls}>
                   {onBack ? <TouchableOpacity style={styles.back} onPress={onBack} accessibilityRole="button" accessibilityLabel={cancelForm ? t("cancel") : backAccessibilityLabel ?? t("back")}>
-                    <Feather name="chevron-left" size={20} color={colors.primary} />
+                    <Glyph name="chevron-left" size={20} color={colors.primary} />
                     <Text style={styles.backText}>{t(cancelForm ? "cancel" : "back")}</Text>
                   </TouchableOpacity> : <View />}
                   {!compact && <AuthPlayfulDetails />}

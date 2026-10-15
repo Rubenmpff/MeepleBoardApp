@@ -10,9 +10,8 @@ import GameCover from "@/src/components/ui/GameCover";
 import { useCallback, useContext, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, RefreshControl } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { Card, EmptyState, FilterChips, Row, SearchField } from "@/src/ui/components";
+import { Card, EmptyState, FilterChips, Row, SearchField, Glyph } from "@/src/ui/components";
 import { ActiveFilters, FilterSheet, ListToolbar, NoResults, OptionGroup } from "@/src/ui/Filters";
 import { recall, useAccountId, useRemember } from "@/src/shared/hooks/useAccountMemory";
 import { colors, space, type } from "@/src/ui/theme";
@@ -75,7 +74,7 @@ export default function CampaignListScreen() {
     <ScreenLayout title={t("list.title")}>
       <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(true); }} colors={[colors.primary]} tintColor={colors.primary} />}>
-        {!embedded && <PrimaryButton title={t("list.new")} icon={<MaterialIcons name="add" size={20} color={colors.onPrimary} />} onPress={goCreate} />}
+        {!embedded && <PrimaryButton title={t("list.new")} icon={<Glyph name="plus" size={20} color={colors.onPrimary} />} onPress={goCreate} />}
         {loadError ? <ScreenState error message={t("list.loadError")} onRetry={() => load()} retryLabel={t("ui.retry")} />
           : campaigns.length === 0 ? <EmptyState title={t("list.emptyTitle")} message={t("list.emptyMessage")}
             action={<PrimaryButton title={t("list.createFirst")} onPress={goCreate} />} />

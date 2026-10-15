@@ -32,7 +32,7 @@ export default function PlayScreen() {
   useEffect(() => { if (requested) setArea(requested); }, [requested]);
   return <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>
     <View style={styles.head}>
-      <ScreenHeader mode="root" title={t("tabs.play")} rightIcon="add" rightAccessibilityLabel={t(CREATE[area][1])}
+      <ScreenHeader mode="root" title={t("tabs.play")} rightIcon="plus" rightAccessibilityLabel={t(CREATE[area][1])}
         onRightPress={() => router.push(CREATE[area][0] as never)} />
       <Segmented items={[{ key: "sessions", label: t("sessions") }, { key: "campaigns", label: t("campaigns") }, { key: "matches", label: t("matches") }]} value={area} onChange={setArea} />
     </View>

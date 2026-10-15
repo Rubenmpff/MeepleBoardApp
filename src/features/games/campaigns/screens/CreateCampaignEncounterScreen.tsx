@@ -1,4 +1,5 @@
 import { MatchOutcome } from "../../matches/types/MatchForm";
+import { Glyph } from "@/src/ui/components";
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 /**
  * CreateCampaignEncounterScreen.tsx
@@ -13,7 +14,6 @@ import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, Image } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import matchService from "@/src/features/games/matches/services/matchService";
@@ -189,7 +189,7 @@ export default function CreateCampaignEncounterScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.gameChip}>
-            <MaterialIcons name="sports-esports" size={14} color={COLORS.primary} />
+            <Glyph name="controller-classic-outline" size={14} color={COLORS.primary} />
             <Text style={styles.gameChipText}>{gameName}</Text>
           </View>
         </View>
@@ -207,7 +207,7 @@ export default function CreateCampaignEncounterScreen() {
         </View>
         {/* ── Quem jogou ── */}
         <View style={styles.card}>
-          <SectionTitle icon="people" label={t("encounter.players.title")} />
+          <SectionTitle icon="account-multiple" label={t("encounter.players.title")} />
           <Text style={styles.hint}>{t("encounter.players.hint")}</Text>
           <View style={styles.playersGrid}>
             {memberIds.map(memberId => {
@@ -228,7 +228,7 @@ export default function CreateCampaignEncounterScreen() {
                   <Text style={[styles.playerChipText, isSelected && { color: COLORS.primary }]}>
                     {getMemberName(memberId)}
                   </Text>
-                  {isSelected && <MaterialIcons name="check-circle" size={14} color={COLORS.primary} />}
+                  {isSelected && <Glyph name="check-circle" size={14} color={COLORS.primary} />}
                 </TouchableOpacity>
               );
             })}
@@ -258,7 +258,7 @@ export default function CreateCampaignEncounterScreen() {
             activeOpacity={0.8} accessibilityRole="button" accessibilityLabel={t("encounter.mode.title")} accessibilityState={{ expanded: showMode }}
           >
             <View style={styles.collapsibleLeft}>
-              <MaterialIcons name="gamepad" size={16} color={COLORS.primary} />
+              <Glyph name="gamepad-variant-outline" size={16} color={COLORS.primary} />
               <Text style={styles.sectionTitleText}>{t("encounter.mode.title")}</Text>
               <View style={[styles.modePill, { backgroundColor: getModeColor() + "18" }]}>
                 <Text style={[styles.modePillText, { color: getModeColor() }]}>
@@ -266,8 +266,8 @@ export default function CreateCampaignEncounterScreen() {
                 </Text>
               </View>
             </View>
-            <MaterialIcons
-              name={showMode ? "expand-less" : "expand-more"}
+            <Glyph
+              name={showMode ? "chevron-up" : "chevron-down"}
               size={22} color={COLORS.textMuted}
             />
           </TouchableOpacity>
@@ -276,9 +276,9 @@ export default function CreateCampaignEncounterScreen() {
               {/* Botões de modo */}
               <View style={styles.modeRow}>
                 {([
-                  { key: "competitive", label: t("encounter.mode.competitive"), icon: "emoji-events", color: COLORS.primary },
-                  { key: "cooperative", label: t("encounter.mode.cooperative"), icon: "favorite",     color: COLORS.success },
-                  { key: "solo",        label: t("encounter.mode.solo"),        icon: "person",       color: COLORS.secondary },
+                  { key: "competitive", label: t("encounter.mode.competitive"), icon: "trophy-outline", color: COLORS.primary },
+                  { key: "cooperative", label: t("encounter.mode.cooperative"), icon: "heart",     color: COLORS.success },
+                  { key: "solo",        label: t("encounter.mode.solo"),        icon: "account",       color: COLORS.secondary },
                 ] as { key: GameMode; label: string; icon: string; color: string }[]).map(m => (
                   <TouchableOpacity
                     key={m.key}
@@ -295,7 +295,7 @@ export default function CreateCampaignEncounterScreen() {
                     }}
                     activeOpacity={0.8} accessibilityRole="radio" accessibilityLabel={m.label} accessibilityState={{ selected: gameMode === m.key }}
                   >
-                    <MaterialIcons name={m.icon as any} size={22} color={gameMode === m.key ? m.color : COLORS.textMuted} />
+                    <Glyph name={m.icon as any} size={22} color={gameMode === m.key ? m.color : COLORS.textMuted} />
                     <Text style={[styles.modeBtnText, gameMode === m.key && { color: m.color }]}>{m.label}</Text>
                   </TouchableOpacity>
                 ))}
@@ -327,7 +327,7 @@ export default function CreateCampaignEncounterScreen() {
         </View>
         {/* ── Detalhes opcionais ── */}
         <View style={styles.card}>
-          <SectionTitle icon="info" label={t("encounter.details.title")} />
+          <SectionTitle icon="information" label={t("encounter.details.title")} />
           <DetailField label={t("encounter.details.duration")} placeholder={t("encounter.details.durationPlaceholder")} value={duration} onChangeText={setDuration} keyboardType="numeric" />
           <DetailField label={t("encounter.details.location")} placeholder={t("encounter.details.locationPlaceholder")} value={location} onChangeText={setLocation} />
         </View>
@@ -369,13 +369,13 @@ export default function CreateCampaignEncounterScreen() {
               <View key={pi} style={styles.photoThumbWrap}>
                 <Image source={{ uri }} style={styles.photoThumb} />
                 <TouchableOpacity style={styles.photoRemoveBtn} onPress={() => handleRemovePendingPhoto(uri)} accessibilityRole="button" accessibilityLabel={tm("photos.remove")}>
-                  <MaterialIcons name="close" size={14} color="#fff" />
+                  <Glyph name="close" size={14} color="#fff" />
                 </TouchableOpacity>
               </View>
             ))}
             {pendingPhotos.length < MAX_PHOTOS && (
               <TouchableOpacity style={styles.photoAddBtn} onPress={handlePickPendingPhoto} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel={tm("photos.add")}>
-                <MaterialIcons name="add-a-photo" size={20} color={COLORS.primary} />
+                <Glyph name="camera-plus-outline" size={20} color={COLORS.primary} />
                 <Text style={styles.photoAddText}>{tm("photos.add")}</Text>
               </TouchableOpacity>
             )}
@@ -393,7 +393,7 @@ export default function CreateCampaignEncounterScreen() {
 function SectionTitle({ icon, label }: { icon: string; label: string }) {
   return (
     <View style={styles.sectionTitleRow}>
-      <MaterialIcons name={icon as any} size={16} color={COLORS.primary} />
+      <Glyph name={icon as any} size={16} color={COLORS.primary} />
       <Text style={styles.sectionTitleText}>{label}</Text>
     </View>
   );

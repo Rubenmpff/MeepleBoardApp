@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
+import { Glyph } from "@/src/ui/components";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+
 import { useRouter } from "expo-router";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
@@ -47,7 +48,7 @@ export default function UserSearchScreen() {
       <Text style={styles.searchDescription}>{t("text.findPeopleByNameOrUsername")}</Text>
 
       <View style={styles.search}>
-        <Ionicons name="search-outline" size={19} color={COLORS.textMuted} />
+        <Glyph name="magnify" size={19} color={COLORS.textMuted} />
         <TextInput accessibilityLabel={t("text.nameOrUsername")} autoFocus value={query} onChangeText={setQuery} placeholder={t("text.nameOrUsername")} placeholderTextColor={COLORS.textMuted} style={styles.input} autoCapitalize="none" />
         {loading && <ActivityIndicator size="small" color={COLORS.primary} />}
       </View>
@@ -79,7 +80,7 @@ export default function UserSearchScreen() {
         }}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <View style={styles.emptyIconWrap}><Ionicons name={query.length < 2 ? "people-outline" : "search-outline"} size={40} color={COLORS.primary} /></View>
+            <View style={styles.emptyIconWrap}><Glyph name={query.length < 2 ? "account-multiple-outline" : "magnify"} size={40} color={COLORS.primary} /></View>
             <Text style={styles.emptyText}>{query.length < 2 ? t("text.enterAtLeast2Characters") : loading ? "" : t("text.noUsersFoundWithThatName")}</Text>
           </View>
         }

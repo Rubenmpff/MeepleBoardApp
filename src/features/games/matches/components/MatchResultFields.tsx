@@ -1,5 +1,5 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, useWindowDimensions } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Glyph } from "@/src/ui/components";
 import { useTranslation } from "react-i18next";
 import { PlayerState } from "../../../users/types/PlayerState";
 import { scoreError, toggleScoreSign } from "../utils/registrationScores";
@@ -26,7 +26,7 @@ export default function MatchResultFields({ players, onChange, scoresEnabled, on
     accessibilityLabel={t(selectionKind === "draw" ? "outcomes.drawFor" : "selector.winnerFor", { name: p.username })} accessibilityState={{ selected: p.isWinner }}
     onPress={() => onChange(players.map(player => ({ ...player, isWinner: multiple ? (player.id === p.id ? !player.isWinner : player.isWinner) : player.id === p.id })))}
     style={[styles.winner, p.isWinner && styles.active]}>
-    <MaterialIcons name={p.isWinner ? "radio-button-checked" : "radio-button-unchecked"} size={24} color={p.isWinner ? COLORS.primary : COLORS.textMuted} />
+    <Glyph name={p.isWinner ? "radiobox-marked" : "radiobox-blank"} size={24} color={p.isWinner ? COLORS.primary : COLORS.textMuted} />
   </TouchableOpacity>;
 
   return <View style={{ gap: 8 }}>

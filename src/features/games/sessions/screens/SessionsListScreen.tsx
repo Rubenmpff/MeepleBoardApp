@@ -13,7 +13,7 @@ import { SESSION_STATUS_COLORS } from "@/src/styles/statusColors";
 import { useTranslation } from "react-i18next";
 import ScreenLayout, { EmbeddedScreen } from "@/src/components/ui/ScreenLayout";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
-import { FilterChips, SearchField } from "@/src/ui/components";
+import { FilterChips, SearchField, Glyph } from "@/src/ui/components";
 import { ActiveFilters, FilterSheet, ListToolbar, NoResults, OptionGroup } from "@/src/ui/Filters";
 import { recall, useAccountId, useRemember } from "@/src/shared/hooks/useAccountMemory";
 import { formatDateTime } from "@/src/ui/format";
@@ -21,7 +21,6 @@ import ScreenState from "@/src/components/ui/ScreenState";
 import { useCallback, useContext, useMemo, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, RefreshControl } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import sessionService from "@/src/features/games/sessions/services/sessionService";
 import { GameSession } from "@/src/features/games/sessions/types/GameSession";
@@ -138,7 +137,7 @@ export default function SessionsListScreen() {
   return (
     <ScreenLayout title={t("sessions.title")}>
       <View style={styles.headerRow}>
-        {!embedded && <PrimaryButton title={t("sessions.create")} icon={<MaterialIcons name="add" size={20} color={COLORS.onPrimary} />} onPress={goCreate} />}
+        {!embedded && <PrimaryButton title={t("sessions.create")} icon={<Glyph name="plus" size={20} color={COLORS.onPrimary} />} onPress={goCreate} />}
         <SearchField value={search} onChangeText={setSearch} placeholder={t("sessions.list.search")} />
         <FilterChips items={TABS.map(key => ({ key, label: t("sessions.tabs." + key), count: countFor(key) }))} value={tab} onChange={setTab} />
         <ListToolbar filterCount={planned === undefined ? 0 : 1} onFilters={() => setFiltersVisible(true)} />

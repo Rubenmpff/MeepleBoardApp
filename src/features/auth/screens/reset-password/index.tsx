@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Glyph } from "@/src/ui/components";
 import { Text, TouchableOpacity } from "react-native";
-import { Feather } from "@expo/vector-icons";
+
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { AUTH_COLORS as AUTH } from "../../styles/authTheme";
@@ -81,11 +82,11 @@ export default function ResetPasswordScreen() {
               : "resetPassword.showPassword"
           )}
         >
-          <Feather
+          <Glyph
             name={
               showPassword
-                ? "eye-off"
-                : "eye"
+                ? "eye-off-outline"
+                : "eye-outline"
             }
             size={20}
             color={
@@ -132,11 +133,11 @@ export default function ResetPasswordScreen() {
               : "resetPassword.showConfirmPassword"
           )}
         >
-          <Feather
+          <Glyph
             name={
               showConfirmPassword
-                ? "eye-off"
-                : "eye"
+                ? "eye-off-outline"
+                : "eye-outline"
             }
             size={20}
             color={

@@ -1,9 +1,9 @@
 import { translatedRelativeDate } from "../utils/translatedRelativeDate";
+import { Glyph } from "@/src/ui/components";
 import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionHighlight.tsx
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
 import { UI_STYLES } from "@/src/styles/clubTheme";
 import { CollectionEntry } from "../utils/collectionHelpers";
@@ -56,7 +56,7 @@ export function CollectionHighlight({ entries, onViewGame, onRegisterMatch }: Pr
   return (
     <View style={styles.card}>
       <TouchableOpacity style={styles.dismissBtn} accessibilityRole="button" accessibilityLabel={uiT("ui.dismiss")} onPress={() => setDismissedGameId(highlight.gameId)} hitSlop={8}>
-        <MaterialIcons name="close" size={16} color={COLORS.textMuted} />
+        <Glyph name="close" size={16} color={COLORS.textMuted} />
       </TouchableOpacity>
 
       <Text style={styles.title}>{uiT("ui.highlight", { name: highlight.gameName, days })}

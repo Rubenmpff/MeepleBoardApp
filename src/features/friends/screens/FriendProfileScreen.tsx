@@ -1,4 +1,5 @@
 import i18n from "i18next";
+import { Glyph, type Icon } from "@/src/ui/components";
 import { useTranslation } from "react-i18next";
 /**
  * FriendProfileScreen.tsx
@@ -28,7 +29,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -159,7 +160,6 @@ export default function FriendProfileScreen() {
       ]
     );
   }
-
 
   if (loading) {
     return <ScreenLayout title={t("text.profile")}><ScreenState loading message={t("card.loading")} /></ScreenLayout>;
@@ -624,8 +624,8 @@ function SummaryTab({
       {profile.sharedMatches > 0 && <Text style={{ color: COLORS.textMuted }}>{i18n.t("matches:outcomes.known", { count: profile.knownResultMatches ?? 0 })} · {i18n.t("matches:outcomes.withoutResult", { count: profile.matchesWithoutResult ?? profile.sharedMatches })}</Text>}
       {profile.sharedMatches === 0 && (
         <View style={styles.emptyCard}>
-          <Ionicons
-            name="dice-outline"
+          <Glyph
+            name="dice-5-outline"
             size={34}
             color={COLORS.primary}
           />
@@ -717,8 +717,8 @@ function SummaryTab({
                         styles.matchIcon
                       }
                     >
-                      <Ionicons
-                        name="dice-outline"
+                      <Glyph
+                        name="dice-5-outline"
                         size={18}
                         color={
                           COLORS.primary
@@ -756,8 +756,8 @@ function SummaryTab({
                       </Text>
                     </View>
 
-                    <Ionicons
-                      name="chevron-forward"
+                    <Glyph
+                      name="chevron-right"
                       size={17}
                       color={
                         COLORS.textMuted
@@ -804,7 +804,7 @@ function SummaryTab({
                         styles.matchIcon
                       }
                     >
-                      <Ionicons
+                      <Glyph
                         name="calendar-outline"
                         size={18}
                         color={
@@ -839,8 +839,8 @@ function SummaryTab({
                       </Text>
                     </View>
 
-                    <Ionicons
-                      name="chevron-forward"
+                    <Glyph
+                      name="chevron-right"
                       size={17}
                       color={
                         COLORS.textMuted
@@ -919,8 +919,8 @@ function SummaryTab({
                           styles.coverPlaceholder,
                         ]}
                       >
-                        <Ionicons
-                          name="dice-outline"
+                        <Glyph
+                          name="dice-5-outline"
                           size={26}
                           color={
                             COLORS.textMuted
@@ -942,8 +942,8 @@ function SummaryTab({
                         styles.commonBadge
                       }
                     >
-                      <Ionicons
-                        name="checkmark-circle"
+                      <Glyph
+                        name="check-circle"
                         size={12}
                         color={
                           COLORS.primary
@@ -968,8 +968,8 @@ function SummaryTab({
           <View
             style={styles.privateIcon}
           >
-            <Ionicons
-              name="lock-closed-outline"
+            <Glyph
+              name="lock-outline"
               size={20}
               color={COLORS.textMuted}
             />
@@ -1036,8 +1036,8 @@ function SharedGameCard({
             styles.coverPlaceholder,
           ]}
         >
-          <Ionicons
-            name="dice-outline"
+          <Glyph
+            name="dice-5-outline"
             size={28}
             color={COLORS.textMuted}
           />
@@ -1171,8 +1171,8 @@ function MatchesTab({
   if (items.length === 0) {
     return (
       <View style={styles.emptyCard}>
-        <Ionicons
-          name="dice-outline"
+        <Glyph
+          name="dice-5-outline"
           size={36}
           color={COLORS.primary}
         />
@@ -1220,8 +1220,8 @@ function MatchesTab({
                 styles.gameImagePlaceholder
               }
             >
-              <Ionicons
-                name="dice-outline"
+              <Glyph
+                name="dice-5-outline"
                 size={18}
                 color={
                   COLORS.textMuted
@@ -1262,8 +1262,8 @@ function MatchesTab({
             </Text>
           </View>
 
-          <Ionicons
-            name="chevron-forward"
+          <Glyph
+            name="chevron-right"
             size={18}
             color={COLORS.textMuted}
           />
@@ -1494,8 +1494,8 @@ function CollectionTab({
   if (error === "private") {
     return (
       <View style={styles.emptyCard}>
-        <Ionicons
-          name="lock-closed-outline"
+        <Glyph
+          name="lock-outline"
           size={36}
           color={COLORS.textMuted}
         />
@@ -1519,8 +1519,8 @@ function CollectionTab({
   if ((items ?? []).length === 0) {
     return (
       <View style={styles.emptyCard}>
-        <Ionicons
-          name="albums-outline"
+        <Glyph
+          name="cards-outline"
           size={36}
           color={COLORS.primary}
         />
@@ -1542,8 +1542,8 @@ function CollectionTab({
         {(items ?? []).length} {t("text.games")}</Text>
 
       <View style={styles.searchBox}>
-        <Ionicons
-          name="search-outline"
+        <Glyph
+          name="magnify"
           size={18}
           color={COLORS.textMuted}
         />
@@ -1666,8 +1666,8 @@ function CollectionGridItem({
               styles.coverPlaceholder,
             ]}
           >
-            <Ionicons
-              name="dice-outline"
+            <Glyph
+              name="dice-5-outline"
               size={28}
               color={COLORS.textMuted}
             />
@@ -1680,8 +1680,8 @@ function CollectionGridItem({
               styles.bothOwnBadge
             }
           >
-            <Ionicons
-              name="people"
+            <Glyph
+              name="account-multiple"
               size={11}
               color="#FFFFFF"
             />

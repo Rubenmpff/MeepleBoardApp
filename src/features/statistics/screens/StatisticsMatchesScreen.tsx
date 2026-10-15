@@ -7,7 +7,7 @@ import { RootState } from "@/src/store/store";
 import { useTranslation } from "react-i18next";
 import StatisticsHeader from "../StatisticsHeader";
 import GameCover from "@/src/components/ui/GameCover";
-import Button from "@/src/components/ui/ClubPrimaryButton";
+import Button from "@/src/components/ui/PrimaryButton";
 import { APP_THEME as theme } from "@/src/styles/clubTheme";
 import { MatchPage, Metric, Mode, Query, GroupContext } from "../types";
 import service from "../services/statisticsService";

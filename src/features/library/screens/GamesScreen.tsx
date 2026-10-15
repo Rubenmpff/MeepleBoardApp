@@ -24,7 +24,7 @@ export default function GamesScreen() {
   useEffect(() => { if (requested) setArea(requested); }, [requested]);
   return <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>
     <View style={styles.head}>
-      <ScreenHeader mode="root" title={t("hub.title")} rightIcon="add" rightAccessibilityLabel={t("ui.add")} onRightPress={() => setArea("discover")} />
+      <ScreenHeader mode="root" title={t("hub.title")} rightIcon="plus" rightAccessibilityLabel={t("ui.add")} onRightPress={() => setArea("discover")} />
       <Segmented items={[{ key: "library", label: t("hub.library") }, { key: "discover", label: t("hub.discover") }]} value={area} onChange={setArea} />
     </View>
     <EmbeddedScreen.Provider value={true}>

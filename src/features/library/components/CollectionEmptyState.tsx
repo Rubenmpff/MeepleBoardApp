@@ -1,11 +1,12 @@
 import { useTranslation } from "react-i18next";
+import { Glyph } from "@/src/ui/components";
 // src/features/library/components/CollectionEmptyState.tsx
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+
 import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
 import { UI_STYLES } from "@/src/styles/clubTheme";
-import PrimaryButton from "@/src/components/ui/ClubPrimaryButton";
+import PrimaryButton from "@/src/components/ui/PrimaryButton";
 
 type Variant = "collection" | "wishlist" | "played" | "search" | "all" | "filters";
 
@@ -16,7 +17,7 @@ type Props = {
 
 const CONTENT: Record<Variant, { icon: string; title: string; subtitle: string; action?: string }> = {
   collection: {
-    icon: "albums-outline",
+    icon: "cards-outline",
     title: "emptyCollection",
     subtitle: "emptyCollectionDescription",
     action: "addFirst",
@@ -28,24 +29,24 @@ const CONTENT: Record<Variant, { icon: string; title: string; subtitle: string; 
     action: "explore",
   },
   played: {
-    icon: "game-controller-outline",
+    icon: "controller-classic-outline",
     title: "emptyPlayed",
     subtitle: "emptyPlayedDescription",
   },
   all: {
-    icon: "albums-outline",
+    icon: "cards-outline",
     title: "emptyCollection",
     subtitle: "emptyCollectionDescription",
     action: "addFirst",
   },
   search: {
-    icon: "search-outline",
+    icon: "magnify",
     title: "emptySearch",
     subtitle: "",
     action: "clearSearch",
   },
   filters: {
-    icon: "options-outline",
+    icon: "tune-variant",
     title: "emptyFilters",
     subtitle: "",
     action: "clearFilters",
@@ -58,7 +59,7 @@ export function CollectionEmptyState({ variant, onActionPress }: Props) {
 
   return (
     <View style={styles.wrap}>
-      <Ionicons name={content.icon as any} size={44} color={COLORS.textMuted} style={{ alignSelf: "center" }} />
+      <View style={{ alignSelf: "center" }}><Glyph name={content.icon as any} size={44} color={COLORS.textMuted} /></View>
       <Text style={styles.title}>{uiT(`ui.${content.title}`)}
       </Text>
       {!!content.subtitle && <Text style={styles.subtitle}>{uiT(`ui.${content.subtitle}`)}

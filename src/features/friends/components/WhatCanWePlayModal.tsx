@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { Glyph } from "@/src/ui/components";
 import { ActivityIndicator, FlatList, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+
 import { useSelector } from "react-redux";
 
 import libraryService from "@/src/features/library/services/libraryService";
@@ -65,7 +66,7 @@ export function WhatCanWePlayModal({ visible, onClose, friendId, friendName, pla
             <Text style={styles.subtitle}>Jogos que ambos têm na coleção</Text>
           </View>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Ionicons name="close" size={26} color={COLORS.onBackground} />
+            <Glyph name="close" size={26} color={COLORS.onBackground} />
           </TouchableOpacity>
         </View>
 
@@ -73,7 +74,7 @@ export function WhatCanWePlayModal({ visible, onClose, friendId, friendName, pla
 
         {!loading && !!error && (
           <View style={styles.center}>
-            <Ionicons name="lock-closed-outline" size={36} color={COLORS.textMuted} />
+            <Glyph name="lock-outline" size={36} color={COLORS.textMuted} />
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
@@ -88,7 +89,7 @@ export function WhatCanWePlayModal({ visible, onClose, friendId, friendName, pla
                 {item.gameImageUrl ? (
                   <Image source={{ uri: item.gameImageUrl }} style={styles.cover} />
                 ) : (
-                  <View style={[styles.cover, styles.coverPlaceholder]}><Ionicons name="dice-outline" size={22} color={COLORS.textMuted} /></View>
+                  <View style={[styles.cover, styles.coverPlaceholder]}><Glyph name="dice-5-outline" size={22} color={COLORS.textMuted} /></View>
                 )}
                 <View style={styles.cardInfo}>
                   <Text style={styles.cardTitle} numberOfLines={1}>{item.gameName}</Text>
@@ -108,7 +109,7 @@ export function WhatCanWePlayModal({ visible, onClose, friendId, friendName, pla
             )}
             ListEmptyComponent={
               <View style={styles.center}>
-                <Ionicons name="game-controller-outline" size={40} color={COLORS.primary} />
+                <Glyph name="controller-classic-outline" size={40} color={COLORS.primary} />
                 <Text style={styles.emptyTitle}>Ainda não têm jogos em comum na coleção.</Text>
               </View>
             }

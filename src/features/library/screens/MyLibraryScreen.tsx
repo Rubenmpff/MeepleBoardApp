@@ -13,8 +13,8 @@ import { router } from "expo-router";
 import Toast from "react-native-toast-message";
 import { useTranslation } from "react-i18next";
 import { APP_THEME as theme } from "@/src/styles/clubTheme";
-import PrimaryButton from "@/src/components/ui/ClubPrimaryButton";
-import SectionCard from "@/src/components/ui/ClubSectionCard";
+import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import { Card } from "@/src/ui/components";
 
 import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
 
@@ -175,10 +175,10 @@ export default function MyLibraryScreen() {
     <View>
       <CollectionSearchBar value={search} onChangeText={setSearch} />
       {(error || playedError) && (
-        <SectionCard>
+        <Card padded>
           <Text style={styles.errorText} accessibilityRole="alert">{t("toast.loadErrorDescription")}</Text>
           <PrimaryButton title={t("screen.retry")} onPress={() => { void onRefresh(); }} variant="secondary" />
-        </SectionCard>
+        </Card>
       )}
 
       <CollectionTabs active={activeTab} onChange={setActiveTab} counts={{ total: counts.total, owned: counts.owned, wishlist: counts.wishlist, played: counts.played }} />

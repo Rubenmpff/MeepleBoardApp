@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
+import { Glyph } from "@/src/ui/components";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import ScreenLayout from "@/src/components/ui/ScreenLayout";
@@ -92,7 +93,7 @@ function SectionTitle({ title, count }: { title: string; count: number }) {
   return <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>{title}</Text><View style={styles.badge}><Text style={styles.badgeText}>{count}</Text></View></View>;
 }
 function Empty({ text }: { text: string }) {
-  return <View style={styles.empty}><Ionicons name="checkmark-circle-outline" size={22} color={COLORS.textMuted} /><Text style={styles.emptyText}>{text}</Text></View>;
+  return <View style={styles.empty}><Glyph name="check-circle-outline" size={22} color={COLORS.textMuted} /><Text style={styles.emptyText}>{text}</Text></View>;
 }
 
 const cardShadow = {

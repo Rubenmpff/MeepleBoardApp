@@ -1,5 +1,6 @@
 // src/features/users/components/PlayerSelector.tsx
 import React, { useEffect, useMemo, useState } from "react";
+import { Glyph } from "@/src/ui/components";
 import {
   View,
   Text,
@@ -8,7 +9,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useTranslation } from "react-i18next";
-import { MaterialIcons } from "@expo/vector-icons";
 
 import { User } from "../types/User";
 import { PlayerState } from "../types/PlayerState";
@@ -210,9 +210,9 @@ export default function PlayerSelector({
           <View style={{ flex: 1, minWidth: 0 }}><Text style={styles.compactName}>{p.username}</Text>
             {shouldLockMe && isMe(p.id) && <Text style={styles.requiredHint}>{t("selector.participationRequired")}</Text>}
           </View>
-          {shouldLockMe && isMe(p.id) ? <MaterialIcons name="lock-outline" size={20} color={COLORS.textMuted} /> :
+          {shouldLockMe && isMe(p.id) ? <Glyph name="lock-outline" size={20} color={COLORS.textMuted} /> :
             <TouchableOpacity style={styles.clearBtn} accessibilityRole="button" accessibilityLabel={t("selector.removePlayer", { name: p.username })} onPress={() => removePlayer(p.id)}>
-              <MaterialIcons name="close" size={22} color={COLORS.textMuted} />
+              <Glyph name="close" size={22} color={COLORS.textMuted} />
             </TouchableOpacity>}
         </View>)}
       </View>}
@@ -220,7 +220,7 @@ export default function PlayerSelector({
       {/* Search bar */}
       <Text style={styles.section}>{t("selector.addPlayers")}</Text>
       <View style={styles.searchWrap}>
-        <MaterialIcons name="search" size={18} color={COLORS.textMuted} />
+        <Glyph name="magnify" size={18} color={COLORS.textMuted} />
         <TextInput
           placeholder={mode === "session" ? t("selector.searchMembers") : t("selector.searchFriends")}
           accessibilityLabel={mode === "session" ? t("selector.searchMembers") : t("selector.searchFriends")}
@@ -234,7 +234,7 @@ export default function PlayerSelector({
         />
         {!!query && (
           <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("selector.clear")} onPress={clearSearch} style={styles.clearBtn} hitSlop={8}>
-            <MaterialIcons name="close" size={18} color={COLORS.textMuted} />
+            <Glyph name="close" size={18} color={COLORS.textMuted} />
           </TouchableOpacity>
         )}
       </View>

@@ -23,13 +23,12 @@ import {
   useFocusEffect,
 } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { MaterialIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import Toast from "react-native-toast-message";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { EmbeddedScreen } from "@/src/components/ui/ScreenLayout";
-import { Card, Row } from "@/src/ui/components";
+import { Card, Row, Glyph } from "@/src/ui/components";
 import { colors as ui } from "@/src/ui/theme";
 import { ROUTES as APP_ROUTES } from "@/src/constants/routes";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -1215,8 +1214,8 @@ export default function GameSearchScreen() {
           styles.offlineBanner
         }
       >
-        <MaterialIcons
-          name="cloud-off"
+        <Glyph
+          name="cloud-off-outline"
           size={14}
           color="#856404"
         />
@@ -1404,8 +1403,8 @@ export default function GameSearchScreen() {
                         styles.recentCardImgPlaceholder,
                       ]}
                     >
-                      <MaterialIcons
-                        name="casino" size={26} color={ui.icon}
+                      <Glyph
+                        name="dice-5" size={26} color={ui.icon}
                       />
                     </View>
                   )}
@@ -1495,8 +1494,8 @@ export default function GameSearchScreen() {
                           styles.recentCardImgPlaceholder,
                         ]}
                       >
-                        <MaterialIcons
-                          name="casino" size={26} color={ui.icon}
+                        <Glyph
+                          name="dice-5" size={26} color={ui.icon}
                         />
                       </View>
                     )}

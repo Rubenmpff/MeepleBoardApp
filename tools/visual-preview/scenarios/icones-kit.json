@@ -1,0 +1,12 @@
+{"name":"icones-kit","screens":[
+ {"id":"01-biblioteca","route":"/library"},
+ {"id":"02-biblioteca-lista","route":"/library","steps":[{"click":"Vista em lista","wait":800}]},
+ {"id":"03-registar","route":"/games/register-match"},
+ {"id":"04-registar-jogo","route":"/games/register-match?gameId={{game:Meeple Teste Competitivo}}","wait":2500},
+ {"id":"05-criar-sessao","route":"/games/sessions/create"},
+ {"id":"06-criar-sessao-fim","route":"/games/sessions/create","scroll":"end"},
+ {"id":"07-criar-campanha","route":"/games/campaigns/create"},
+ {"id":"08-campanha","route":"/games/campaigns/{{campaign}}"},
+ {"id":"09-diario","route":"/games/matches/{{match}}/journal","wait":2500},
+ {"id":"10-descobrir","route":"/library","params":{"area":"discover"}}
+]}

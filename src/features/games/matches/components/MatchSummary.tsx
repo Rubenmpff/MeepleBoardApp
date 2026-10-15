@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Glyph } from "@/src/ui/components";
 import { useTranslation } from "react-i18next";
 import { MatchDto } from "../types/MatchForm";
 import GameCover from "@/src/components/ui/GameCover";
@@ -22,7 +22,7 @@ export default function MatchSummary({ match }: { match: MatchDto }) {
     </View>
     {(match.players ?? []).map(player => <View key={player.userId} style={styles.player}>
       <View style={styles.playerName}>
-        {(match.result != null ? player.outcome === "Win" : match.winnerId === player.userId) && <MaterialIcons name="emoji-events" size={15} color={COLORS.primary} />}
+        {(match.result != null ? player.outcome === "Win" : match.winnerId === player.userId) && <Glyph name="trophy-outline" size={15} color={COLORS.primary} />}
         <Text style={[styles.body, (match.result != null ? player.outcome === "Win" : match.winnerId === player.userId) && styles.winner]}>{player.userName?.trim() || t("sessions.playerNameUnavailable")}</Text>
       </View>
       <Text style={styles.meta}>{player.outcome ? t(`outcomes.${player.outcome}`) : t("outcomes.legacyUnknown")}</Text>

@@ -1,4 +1,5 @@
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
+import { Glyph } from "@/src/ui/components";
 /**
  * CreateCampaignScreen.tsx
  *
@@ -9,7 +10,6 @@ import ScreenLayout from "@/src/components/ui/ScreenLayout";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import { useCallback, useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
@@ -148,8 +148,8 @@ export default function CreateCampaignScreen() {
                 paramGameId ? 1 : 0.75
               } accessibilityRole="button" accessibilityLabel={t("ui.changeGame")}
             >
-              <MaterialIcons
-                name="sports-esports"
+              <Glyph
+                name="controller-classic-outline"
                 size={14}
                 color={COLORS.primary}
               />
@@ -159,7 +159,7 @@ export default function CreateCampaignScreen() {
                 {gameName}
               </Text>
               {!paramGameId && (
-                <MaterialIcons
+                <Glyph
                   name="close"
                   size={14}
                   color={COLORS.primary}
@@ -171,8 +171,8 @@ export default function CreateCampaignScreen() {
         {!selectedGame && (
           <View style={styles.card}>
             <View style={styles.cardTitleRow}>
-              <MaterialIcons
-                name="sports-esports"
+              <Glyph
+                name="controller-classic-outline"
                 size={18}
                 color={COLORS.primary}
               />
@@ -187,7 +187,7 @@ export default function CreateCampaignScreen() {
         )}
         {selectedGame && !selectedGame.supportsCampaign && (
           <View style={styles.warningBanner}>
-            <MaterialIcons name="info-outline" size={16} color={COLORS.secondary} />
+            <Glyph name="information-outline" size={16} color={COLORS.secondary} />
             <Text style={styles.warningBannerText}>
               {t("create.notCampaignGameWarning")}
             </Text>
@@ -197,7 +197,7 @@ export default function CreateCampaignScreen() {
           <>
             <View style={styles.card}>
               <View style={styles.cardTitleRow}>
-                <MaterialIcons
+                <Glyph
                   name="flag"
                   size={18}
                   color={COLORS.primary}
@@ -264,8 +264,8 @@ export default function CreateCampaignScreen() {
               </View>
             </View>
             <View style={styles.infoBox}>
-              <MaterialIcons
-                name="info-outline"
+              <Glyph
+                name="information-outline"
                 size={16}
                 color={COLORS.primary}
               />
