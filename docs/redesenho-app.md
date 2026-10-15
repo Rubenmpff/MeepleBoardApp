@@ -87,14 +87,14 @@ Também corrigido: o eixo do gráfico «Partidas por mês» passa a ter largura 
 
 ## Verificador da API
 
-`tools/DeviceTestApi/verify-library-statuses.cjs` está commitado sozinho no ramo `tools/verify-library-statuses` do repositório da API (commit `89d8adf`, a partir de `eebbab1`). Uma cópia igual continua por adicionar na árvore de trabalho, ao lado das alterações por commitar das Estatísticas. Para integrar sem perder a cópia nem tocar nessas alterações:
+`tools/DeviceTestApi/verify-library-statuses.cjs` está commitado sozinho no ramo `tools/verify-library-statuses` do repositório da API (commit `6588fa5`, a partir de `eebbab1`). Uma cópia igual continua por adicionar na árvore de trabalho, ao lado das alterações por commitar das Estatísticas. Para integrar sem perder a cópia nem tocar nessas alterações:
 
 ```sh
 cd MeepleBoardApi
 f=tools/DeviceTestApi/verify-library-statuses.cjs
 git show tools/verify-library-statuses:$f | cmp - $f && echo "cópia igual ao commit"
 mv $f ~/verify-library-statuses.cjs.bak      # o git recusa trazer um ficheiro por cima de uma cópia por adicionar
-git cherry-pick 89d8adf                       # só acrescenta este ficheiro; as alterações por commitar ficam como estão
+git cherry-pick 6588fa5                       # só acrescenta este ficheiro; as alterações por commitar ficam como estão
 cmp ~/verify-library-statuses.cjs.bak $f && rm ~/verify-library-statuses.cjs.bak
 git status --short                            # as mesmas alterações das Estatísticas continuam por commitar
 ```
