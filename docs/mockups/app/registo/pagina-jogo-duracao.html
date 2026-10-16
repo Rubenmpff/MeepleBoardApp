@@ -219,6 +219,7 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 .segm{display:flex;background:var(--track);border-radius:12px;padding:3px;gap:2px}
 .segm span{flex:1;min-height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:calc(14px*var(--s))}
 .segm span.on{background:var(--card);font-weight:600;box-shadow:0 1px 2px rgba(48,40,61,.16)}
+.bggref{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px dashed var(--line);border-radius:14px;font-size:calc(13.5px*var(--s))}.bggref .who{display:flex;align-items:center;gap:6px;font-size:calc(12px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--mut)}.bggref .who i{width:8px;height:8px;border-radius:4px;display:inline-block}.bggref b{font-variant-numeric:tabular-nums}
 .dnote{display:flex;gap:6px;align-items:flex-start;font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut);padding:0 2px}
 table.dtab{width:100%;border-collapse:collapse;font-size:calc(14px*var(--s));font-variant-numeric:tabular-nums}
 table.dtab th{font-size:calc(11.5px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--mut);text-align:right;padding:8px 10px}
@@ -410,11 +411,12 @@ const DUR={
  solo:{me:['35 min','1 partida','estimada',true],mb:null}};
 function durSec(t,o){
  const d=DUR[o.solo?'solo':'multi'];
- const tile=(dot,label,v)=>`<div class="dt"><div class="who"><i style="background:${dot}"></i>${label}</div>${v?`<div class="v${v[3]?' few':''}">${v[0]}</div><div class="m"><b style="color:var(--ink);font-weight:600">${v[1]}</b> · ${v[2]}</div>`:`<div class="v few" style="color:var(--mut)">Dados insuficientes</div><div class="m">Ainda poucas partidas partilhadas</div>`}</div>`;
+ const tile=(dot,label,v)=>`<div class="dt"><div class="who"><i style="background:${dot}"></i>${label}</div>${v?`<div class="v${v[3]?' few':''}">${v[0]}</div><div class="m"><b style="color:var(--ink);font-weight:600">${v[1]}</b> · ${v[2]}</div>`:`<div class="v few" style="color:var(--mut);font-size:calc(14.5px*var(--s))">Ainda sem dados suficientes</div><div class="m">Aparece quando houver partidas partilhadas suficientes.</div>`}</div>`;
  return sec('Duração das partidas','',`<div class="segm"><span class="${o.solo?'':'on'}">Multijogador</span><span class="${o.solo?'on':''}">Solo</span></div>
  <div class="dtiles${o.large?' col':''}">${tile('var(--gold)',d.me[3]?'A tua partida':'A tua média',d.me)}${tile('var(--pri)','Média MeepleBoard',d.mb)}</div>
+ <div class="bggref"><span class="who"><i style="background:var(--ink)"></i>Indicada pelo BGG</span><span class="grow"></span><b>40–70 min</b></div>
  <div class="card"><div class="row">${ic('chart-box-outline',20,'var(--lav)')}<span class="grow t-body">Ver detalhes</span>${ic('chevron-right',20,'var(--chev)')}</div></div>
- <div class="dnote">${ic('information-outline',14)}<span>Tempo a jogar nas partidas registadas no MeepleBoard. A duração indicada pelo BGG (40–70 min) está na ficha, no topo.</span></div>`);
+ <div class="dnote">${ic('information-outline',14)}<span>As duas médias vêm das partidas registadas no MeepleBoard. A duração do BGG é da ficha do BoardGameGeek e nunca entra nelas.</span></div>`);
 }
 const kv=(k,v)=>`<div class="row"><span class="grow t-body">${k}</span><span class="t-body b" style="font-variant-numeric:tabular-nums;text-align:right">${v}</span></div>`;
 const blk=(dot,title,rows,foot)=>`<div class="blk"><div class="sechead"><h3 style="display:flex;align-items:center;gap:8px"><i style="width:10px;height:10px;border-radius:5px;background:${dot};display:inline-block"></i>${title}</h3></div><div class="card">${rows}</div>${foot?`<div class="dnote">${ic('information-outline',14)}<span>${foot}</span></div>`:''}</div>`;
@@ -425,8 +427,8 @@ const details=`<div class="body" style="padding-top:110px;gap:22px">
  <div class="blk"><div class="sechead"><h3>Por número de jogadores</h3></div><div class="card"><table class="dtab"><tr><th>Jogadores</th><th>A tua</th><th>MeepleBoard</th></tr>
  <tr><td>2</td><td>48 min<small>3 partidas</small></td><td>45 min<small>17 partidas</small></td></tr>
  <tr><td>3</td><td>1 h 05 min<small>2 partidas</small></td><td>1 h 00 min<small>14 partidas</small></td></tr>
- <tr><td>4</td><td>2 h 40 min<small>1 partida</small></td><td>Dados insuficientes<small>—</small></td></tr>
- <tr><td>5</td><td>—<small>sem partidas</small></td><td>Dados insuficientes<small>—</small></td></tr></table></div>
+ <tr><td>4</td><td>2 h 40 min<small>1 partida</small></td><td>Sem dados suficientes<small>—</small></td></tr>
+ <tr><td>5</td><td>—<small>sem partidas</small></td><td>Sem dados suficientes<small>—</small></td></tr></table></div>
  <div class="dnote">${ic('information-outline',14)}<span>Cada grupo só mostra a média MeepleBoard com pelo menos 5 partidas elegíveis, de 3 ou mais pessoas, nenhuma com mais de metade. É uma proteção mínima, não uma garantia de anonimato.</span></div></div>
  <div class="blk"><div class="sechead"><h3>Como se calcula</h3></div><div class="card" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;font-size:calc(13.5px*var(--s));line-height:calc(19px*var(--s))">
  <span><b>Média:</b> soma das durações a dividir pelo número de partidas. Cada partida conta uma vez.</span>
@@ -456,10 +458,10 @@ put('s-pref',
  fig({body:settings(false),custom:snav,scroll:150},'Desligada por omissão','Uma linha com interruptor e o que é utilizado, o que nunca é, quando conta, como aparece e o que acontece ao desligar.')+
  fig({body:settings(true),custom:snav,scroll:150},'Ligada','Ligar não muda nada de imediato para os outros: cada partida só conta quando todos os participantes também ligaram.'));
 put('s-jogo',
- fig({owned:true,dur:true,scroll:1290},'Página do jogo · multijogador','Só o essencial: média, número de partidas e o método numa indicação fiel («medidas», «estimadas», «método não indicado» ou «métodos mistos»). As contagens por método ficam em «Ver detalhes». Valores fictícios.')+
- fig({owned:true,dur:true,solo:true,scroll:1290},'Solo e poucos dados','Com uma partida: «A tua partida», não média. A média MeepleBoard diz «Dados insuficientes» abaixo da proteção mínima.')+
+ fig({owned:true,dur:true,scroll:1290},'Página do jogo · multijogador','Três referências separadas: a tua média, a média MeepleBoard e, à parte e marcada, a duração indicada pelo BGG. Só o essencial: média, número de partidas e o método numa indicação fiel («medidas», «estimadas», «método não indicado» ou «métodos mistos»). As contagens por método ficam em «Ver detalhes». Valores fictícios.')+
+ fig({owned:true,dur:true,solo:true,scroll:1290},'Solo e poucos dados','Com uma partida: «A tua partida», não média. A média MeepleBoard mostra «Ainda sem dados suficientes», discreto, sem número e sem usar o BGG.')+
  fig({body:details,custom:bar},'Ver detalhes','Mediana, metade central, partidas muito afastadas e o que fica de fora, para a tua média e para a MeepleBoard.')+
- fig({body:details,custom:bar,scroll:640},'Ver detalhes · por jogadores','A proteção mínima aplica-se a cada grupo; os que não a cumprem dizem «Dados insuficientes».')+
+ fig({body:details,custom:bar,scroll:640},'Ver detalhes · por jogadores','A proteção mínima aplica-se a cada grupo; os que não a cumprem dizem «Sem dados suficientes».')+
  fig({body:details,custom:bar,scroll:1180},'Ver detalhes · como se calcula','Definições exatas da média, mediana, metade central e partidas muito afastadas; o que fica de fora; BGG à parte.')+
  fig({owned:true,dur:true,large:true,s:1.24,scroll:1760},'Texto ampliado','As duas médias passam a uma coluna.'));
 </script>
