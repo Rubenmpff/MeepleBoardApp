@@ -287,4 +287,4 @@ Os estados visuais de carregamento, erro e vazio foram uniformizados. As pendên
 
 ## Avaliações, diário e experiências (2026-10-16)
 
-Implementado em DeviceTests; ver [avaliacoes-diario-experiencias.md](avaliacoes-diario-experiencias.md). Corrige a média que não era recalculada ao apagar partidas. A chave do autor das denúncias é restritiva, como nas denúncias de recursos: apagar uma conta com denúncias feitas exige tratá-las primeiro. Validação no iPhone pendente.
+Implementado em DeviceTests; ver [avaliacoes-diario-experiencias.md](avaliacoes-diario-experiencias.md). Corrige a média que não era recalculada ao apagar partidas. **Atualização (2026-10-16):** a limitação da eliminação de contas com denúncias está resolvida. A conta é anonimizada e as denúncias continuam a contar; ver `MeepleBoardApi/docs/eliminacao-contas.md`. Validação no iPhone pendente.

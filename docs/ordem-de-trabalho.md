@@ -6,7 +6,9 @@ Abrange a app e a API. Cada etapa só começa quando a anterior está fechada. T
 
 O utilizador valida o percurso descrito em [avaliacoes-diario-experiencias.md](avaliacoes-diario-experiencias.md). Só se corrige o que as capturas mostrarem, sem funcionalidades novas nem mudanças de composição. A etapa fecha quando o utilizador a aprovar.
 
-## 2. Segurança (antes de qualquer publicação em produção)
+## 2. Segurança (antes de qualquer publicação em produção) — feita a 2026-10-16
+
+API `f781fd4` e `f906eb6`. Estas rotas exigem agora autenticação e, conforme o caso, perfil de administrador ou ser o criador da partida. Testes em `Authorization.Tests` (94 HTTP). Detalhe em `MeepleBoardApi/docs/autorizacao-partidas-diarios.md`. A pesquisa BGG passou a exigir conta.
 
 Problemas da revisão técnica de 2026-10-16:
 
@@ -15,7 +17,9 @@ Problemas da revisão técnica de 2026-10-16:
 - **GameController e BGGController**: criação de jogos (aprovados de imediato) e importação do BGG anónimas. Falta decidir se a pesquisa BGG pode ficar anónima.
 - Testes HTTP em `tests/Authorization.Tests` para estas rotas e para as rotas das experiências.
 
-## 3. Eliminação de contas com denúncias
+## 3. Eliminação de contas com denúncias — feita a 2026-10-16
+
+API `5e4a656`. Decisão: anonimizar a conta, e as avaliações saem da média MeepleBoard. Afinal eram 12 chaves restritivas, não só as das denúncias. Detalhe, verificação e limitações (token já emitido válido até 24 h) em `MeepleBoardApi/docs/eliminacao-contas.md`.
 
 Hoje, a chave do autor de uma denúncia (de experiências e de recursos) é restritiva: apagar uma conta que fez denúncias falha. É preciso definir o que acontece a essas denúncias e aplicar a regra às duas áreas.
 
