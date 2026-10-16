@@ -78,6 +78,8 @@
     "loadError": "Não foi possível carregar.",
     "retry": "Tentar novamente",
     "about": "Sobre e créditos",
-    "aboutHint": "Versão e dados do BoardGameGeek"
+    "aboutHint": "Versão e dados do BoardGameGeek",
+    "moderation": "Moderação",
+    "moderationHint": "Comentários reportados"
   }
 }

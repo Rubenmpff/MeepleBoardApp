@@ -1,0 +1,62 @@
+{
+ "name": "avaliacoes",
+ "screens": [
+  {
+   "id": "0-partida-por-avaliar",
+   "route": "/games/matches/{{match}}"
+  },
+  {
+   "id": "0b-diario-por-avaliar",
+   "route": "/games/matches/{{match}}/journal"
+  },
+  {
+   "id": "1-partida-avaliada",
+   "route": "/games/matches/fb4be11b-4138-4a42-96cd-e06cba475675"
+  },
+  {
+   "id": "2-diario-fechado",
+   "route": "/games/matches/fb4be11b-4138-4a42-96cd-e06cba475675/journal"
+  },
+  {
+   "id": "3-diario-fim",
+   "route": "/games/matches/fb4be11b-4138-4a42-96cd-e06cba475675/journal",
+   "scroll": "end"
+  },
+  {
+   "id": "4-publicar",
+   "route": "/games/matches/fb4be11b-4138-4a42-96cd-e06cba475675/publish"
+  },
+  {
+   "id": "5-jogo-topo",
+   "route": "/games/details/{{game:Wingspan}}"
+  },
+  {
+   "id": "6-como-se-calcula",
+   "route": "/games/details/{{game:Wingspan}}",
+   "steps": [
+    {
+     "click": "MeepleBoard: 6,7 em 10, 7 avaliações, 4 jogadores",
+     "wait": 600
+    }
+   ]
+  },
+  {
+   "id": "7-experiencias",
+   "route": "/games/details/{{game:Wingspan}}",
+   "steps": [
+    {
+     "scrollTo": "Experiências da comunidade",
+     "offset": 120
+    }
+   ]
+  },
+  {
+   "id": "8-pocas-avaliacoes",
+   "route": "/games/details/{{game:Meeple Teste Solo}}"
+  },
+  {
+   "id": "9-rankings",
+   "route": "/games/rankings"
+  }
+ ]
+}

@@ -1,3 +1,9 @@
+/**
+ * Diary of a match for one participant. The rating is the only thing it asks: 0–10 in half points, zero included,
+ * given once — once saved it is closed (the API refuses another value). The personal note is optional and private;
+ * tags and photos are seen by the match's players, as before. Publishing the experience is a separate, optional step.
+ * Other participants rate whenever they like: their pending rating is shown as a discreet count, never a task.
+ */
 import JournalPhoto from "../components/JournalPhoto";
 import { Glyph } from "@/src/ui/components";
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
@@ -6,31 +12,29 @@ import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ScreenHeader from "@/src/components/navigation/ScreenHeader";
 import ScreenState from "@/src/components/ui/ScreenState";
-/**
- * MatchJournalScreen.tsx
- * src/features/games/screens/MatchJournalScreen.tsx
- */
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  KeyboardAvoidingView, Platform, View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, TextInput, TouchableOpacity, Image,
+  KeyboardAvoidingView, Platform, View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, TextInput, TouchableOpacity,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { useSelector } from "react-redux";
 
 import matchService from "@/src/features/games/matches/services/matchService";
 import { MatchDto } from "@/src/features/games/matches/types/MatchForm";
 import { JournalEntry } from "@/src/features/games/campaigns/types/Campaign";
-import { StarRating } from "@/src/shared/components/StarRating";
-import RatingField from "@/src/shared/components/RatingField";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
+import RatingControl from "@/src/features/games/matches/components/RatingControl";
+import Sheet from "@/src/ui/Sheet";
+import experienceService from "@/src/features/games/experiences/services/experienceService";
+import { Publication } from "@/src/features/games/experiences/types/Experience";
+import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
 import { RootState } from "@/src/store/store";
+import { ROUTES } from "@/src/constants/routes";
 
 export default function MatchJournalScreen() {
   const { t, i18n } = useTranslation("matches");
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const currentUser = useSelector((state: RootState) => state.auth.user);
 
   const [match, setMatch] = useState<MatchDto | null>(null);
@@ -42,27 +46,32 @@ export default function MatchJournalScreen() {
   const [notes, setNotes] = useState("");
   const [tags, setTags] = useState("");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  // New state goes after the existing state.
+  const [confirming, setConfirming] = useState(false);
+  const [publication, setPublication] = useState<Publication | null>(null);
 
   const myEntry = entries.find(e => e.userId === currentUser?.id);
-  const alreadySubmitted = myEntry?.personalRating != null;
-  const isClosed = match?.journalStatus === "Closed";
+  const savedRating = myEntry?.personalRating ?? null;
+  const alreadySubmitted = savedRating != null;
   const myPhotos = myEntry?.photoUrls ?? [];
   const myPhotoCount = myPhotos.length + (myEntry?.unavailablePhotoCount ?? 0);
   const MAX_PHOTOS = 5;
+  const totalPlayers = match?.players?.length ?? 0;
+  const ratedCount = entries.filter(e => e.personalRating != null && match?.players?.some(p => p.userId === e.userId)).length;
+  const locale = i18n.language === "pt" ? "pt-PT" : "en-GB";
+  const number = (v: number) => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 }).format(v);
 
-  const [loadError, setLoadError] = useState(false);
   const savedDraft = useRef(JSON.stringify([undefined, "", ""]));
-  const navigationGuard = useUnsavedChanges(!loading && JSON.stringify([personalRating, notes, tags]) !== savedDraft.current, saving || uploadingPhoto, "/games/pending-journal");
+  const dirty = JSON.stringify([alreadySubmitted ? savedRating ?? undefined : personalRating, notes, tags]) !== savedDraft.current;
+  const navigationGuard = useUnsavedChanges(!loading && dirty, saving || uploadingPhoto, "/games/pending-journal");
 
   const load = useCallback(async () => {
     if (!id) return;
     try {
       setLoadError(false);
       setLoading(true);
-      const [matchData, entriesData] = await Promise.all([
-        matchService.getById(id),
-        matchService.getJournalEntries(id),
-      ]);
+      const [matchData, entriesData] = await Promise.all([matchService.getById(id), matchService.getJournalEntries(id)]);
       setMatch(matchData);
       setEntries(entriesData);
       const mine = entriesData.find(e => e.userId === currentUser?.id);
@@ -72,6 +81,7 @@ export default function MatchJournalScreen() {
         setNotes(mine.notes ?? "");
         setTags(mine.tags ?? "");
       }
+      if (mine?.personalRating != null) experienceService.getMine(id).then(setPublication).catch(() => setPublication(null));
     } catch {
       setLoadError(true);
       Alert.alert(t("ui.error"), t("ui.loadError"));
@@ -82,291 +92,188 @@ export default function MatchJournalScreen() {
 
   useEffect(() => { load(); }, [load]);
 
-  const handleSave = async () => {
+  // A new rating is confirmed first; texts alone are saved straight away (the saved rating is sent unchanged).
+  const save = async (rating: number | null) => {
     if (!id) return;
-    if (personalRating === undefined) {
-      Alert.alert(t("journal.requiredTitle"), t("journal.required"));
-      return;
-    }
     setSaving(true);
     try {
-      const payload = {
-        personalRating: personalRating,
-        notes: notes.trim() || null,
-        tags: tags.trim() || null,
-      };
-      await matchService.upsertJournalEntry(id, payload);
-      savedDraft.current = JSON.stringify([personalRating, notes, tags]);
-      Alert.alert(t("journal.savedTitle"), t("journal.saved"),
-        [{ text: "OK", onPress: load }]);
+      await matchService.upsertJournalEntry(id, { personalRating: rating, notes: notes.trim() || null, tags: tags.trim() || null });
+      savedDraft.current = JSON.stringify([rating ?? undefined, notes, tags]);
+      setConfirming(false);
+      await load();
     } catch (err: any) {
       Alert.alert(t("ui.error"), err?.message ?? t("journal.saveError"));
     } finally {
       setSaving(false);
     }
   };
+  const handleSave = () => {
+    if (alreadySubmitted) return save(savedRating);
+    if (personalRating !== undefined) { setConfirming(true); return; }
+    return save(null);
+  };
 
   const handlePickPhoto = async () => {
     if (!id) return;
-    if (myPhotoCount >= MAX_PHOTOS) {
-      Alert.alert(t("photos.limitTitle"), t("photos.limit", { count: MAX_PHOTOS }));
-      return;
-    }
-
+    if (myPhotoCount >= MAX_PHOTOS) { Alert.alert(t("photos.limitTitle"), t("photos.limit", { count: MAX_PHOTOS })); return; }
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert(t("photos.permissionTitle"), t("photos.permission"));
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.8,
-      allowsEditing: false,
-    });
+    if (!permission.granted) { Alert.alert(t("photos.permissionTitle"), t("photos.permission")); return; }
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.8, allowsEditing: false });
     if (result.canceled || !result.assets?.[0]?.uri) return;
-
     setUploadingPhoto(true);
-    try {
-      await matchService.uploadJournalPhoto(id, result.assets[0].uri);
-      await load();
-    } catch (err: any) {
-      Alert.alert(t("ui.error"), err?.message ?? t("photos.uploadError"));
-    } finally {
-      setUploadingPhoto(false);
-    }
+    try { await matchService.uploadJournalPhoto(id, result.assets[0].uri); await load(); }
+    catch (err: any) { Alert.alert(t("ui.error"), err?.message ?? t("photos.uploadError")); }
+    finally { setUploadingPhoto(false); }
   };
 
   const handleRemovePhoto = (url: string) => {
     if (!id) return;
     Alert.alert(t("photos.removeTitle"), t("photos.removeConfirm"), [
       { text: t("journal.cancel"), style: "cancel" },
-      {
-        text: t("journal.remove"), style: "destructive",
-        onPress: async () => {
-          try {
-            await matchService.removeJournalPhoto(id, url);
-            await load();
-          } catch (err: any) {
-            Alert.alert(t("ui.error"), err?.message ?? t("photos.removeError"));
-          }
-        },
-      },
+      { text: t("journal.remove"), style: "destructive", onPress: async () => {
+        try { await matchService.removeJournalPhoto(id, url); await load(); }
+        catch (err: any) { Alert.alert(t("ui.error"), err?.message ?? t("photos.removeError")); }
+      } },
     ]);
   };
 
-  if (loading) return <SafeAreaView style={styles.screen}><View style={styles.header}><ScreenHeader mode="cancel" title={t("ui.journalTitle")} onLeftPress={navigationGuard.cancel} /></View><ScreenState loading message={t("ui.loading")} /></SafeAreaView>;
-  if (!match || loadError) return <SafeAreaView style={styles.screen}><View style={styles.header}><ScreenHeader mode="cancel" title={t("ui.journalTitle")} onLeftPress={navigationGuard.cancel} /></View><ScreenState error={loadError} message={t(loadError ? "ui.loadError" : "ui.notFound")} onRetry={load} retryLabel={t("ui.retry")} /></SafeAreaView>;
+  const header = <View style={styles.header}><ScreenHeader mode="cancel" title={t("diary.title")} onLeftPress={navigationGuard.cancel} /></View>;
+  if (loading) return <SafeAreaView style={styles.screen}>{header}<ScreenState loading message={t("ui.loading")} /></SafeAreaView>;
+  if (!match || loadError) return <SafeAreaView style={styles.screen}>{header}<ScreenState error={loadError} message={t(loadError ? "ui.loadError" : "ui.notFound")} onRetry={load} retryLabel={t("ui.retry")} /></SafeAreaView>;
 
-  const submittedCount = entries.filter(e => e.personalRating != null).length;
-  const totalPlayers = match.players?.length ?? 0;
+  const others = entries.filter(e => e.userId !== currentUser?.id);
+  const saved = myEntry?.createdAt ? new Date(myEntry.createdAt) : null;
+  const savedOn = saved ? `${saved.getDate()} ${new Intl.DateTimeFormat(locale, { month: "short" }).format(saved)} ${saved.getFullYear()}` : "";
+  const publicationLine = publication?.hidden ? t("diary.hidden")
+    : publication?.showRating && publication.commentPublished ? t("diary.publishedBoth")
+    : publication?.showRating ? t("diary.publishedRating") : publication?.commentPublished ? t("diary.publishedComment")
+    : publication?.comment ? t("diary.draft") : null;
 
   return (
-    <SafeAreaView style={styles.screen}>
-    <View style={styles.header}><ScreenHeader mode="cancel" title={t("ui.journalTitle")} onLeftPress={navigationGuard.cancel} /></View>
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+    <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>
+    {header}
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
     <ScrollView keyboardDismissMode="on-drag" style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-
-      {/* ── Header ── */}
-      <View style={styles.matchHeader}>
-        <Text style={styles.gameName}>{match.gameName}</Text>
-        <Text style={styles.matchDate}>
-          {new Date(match.matchDate).toLocaleDateString(i18n.language === "pt" ? "pt-PT" : "en-GB", { day: "numeric", month: "long", year: "numeric" })}
-        </Text>
-        <View style={styles.statusRow}>
-          <View style={[styles.statusPill, { backgroundColor: isClosed ? COLORS.primary + "20" : COLORS.success + "20" }]}>
-            <Text style={[styles.statusText, { color: isClosed ? COLORS.primary : COLORS.success }]}>
-              {isClosed ? t("journal.closed") : t("journal.open")}
-            </Text>
-          </View>
-          <Text style={styles.progressText}>{t("journal.progress", { submitted: submittedCount, total: totalPlayers })}</Text>
-        </View>
-        {match.players && match.players.length > 0 && (
-          <View style={styles.playersRow}>
-            {match.players.map((p, i) => {
-              const hasEvaluated = entries.some(e => e.userId === p.userId && e.personalRating != null);
-              return (
-                <View key={i} style={styles.playerChip}>
-                  <View style={[styles.playerDot, { backgroundColor: hasEvaluated ? COLORS.success : "#ddd" }]} />
-                  <Text style={styles.playerChipText}>{p.userName}</Text>
-                </View>
-              );
-            })}
-          </View>
-        )}
+      <View>
+        <Text style={type.title}>{match.gameName}</Text>
+        <Text style={type.caption}>{[new Date(match.matchDate).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" }),
+          totalPlayers ? t("diary.ratedCount", { rated: ratedCount, total: totalPlayers }) : null].filter(Boolean).join(" · ")}</Text>
       </View>
 
-      {/* ── Avaliações dos outros ── */}
-      {entries.filter(e => e.userId !== currentUser?.id).length > 0 && (
-        <View style={styles.card}>
-          <View style={styles.cardTitleRow}>
-            <Glyph name="account-multiple" size={16} color={COLORS.primary} />
-            <Text style={styles.cardTitle}>{t("journal.others")}</Text>
-          </View>
-          {entries.filter(e => e.userId !== currentUser?.id).map((entry) => (
-            <View key={entry.id} style={styles.entryRow}>
-              <View style={styles.entryAvatar}>
-                <Text style={styles.entryAvatarText}>{entry.userName[0]?.toUpperCase()}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={styles.entryHeader}>
-                  <Text style={styles.entryUserName}>{entry.userName}</Text>
-                </View>
-                {entry.personalRating != null && (
-                  <StarRating appearance="refresh" value={entry.personalRating} readonly size={16} showLabel={false} />
-                )}
-
-                {entry.photoUrls && entry.photoUrls.length > 0 && (
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photoScroll}>
-                    {entry.photoUrls.map((url, pi) => (
-                      <JournalPhoto key={pi} uri={url} style={styles.photoThumb} />
-                    ))}
-                  </ScrollView>
-                )}
-                {entry.tags && (
-                  <View style={styles.tagsRow}>
-                    {entry.tags.split(",").map((tag, ti) => (
-                      <View key={ti} style={styles.tagChip}><Text style={styles.tagChipText}>#{tag.trim()}</Text></View>
-                    ))}
-                  </View>
-                )}
-              </View>
-            </View>
-          ))}
+      {alreadySubmitted ? <View style={styles.card}>
+        <View style={styles.row}>
+          <Text style={[type.head, styles.flex]}>{t("diary.yourRating")}</Text>
+          <View style={styles.badge}><Glyph name="lock-outline" size={14} color={colors.muted} /><Text style={[type.micro, strong]}>{t("diary.locked")}</Text></View>
         </View>
-      )}
+        <Text style={styles.score} accessibilityLabel={t("rating.spoken", { value: number(savedRating!) })}>{number(savedRating!)}<Text style={styles.scale}> / 10</Text></Text>
+        <Text style={type.caption}>{t("diary.lockedHint", { date: savedOn })}</Text>
+      </View> : <RatingControl value={personalRating} onChange={setPersonalRating} note={t("diary.ruleNote")} />}
 
-      {/* ── Aviso fechado ── */}
-      {isClosed && !alreadySubmitted && (
-        <View style={styles.infoBox}>
-          <Glyph name="information-outline" size={16} color="#f39c12" />
-          <Text style={styles.infoText}>{t("journal.closedHint")}</Text>
-        </View>
-      )}
-
-      {/* ── Formulário ── */}
       <View style={styles.card}>
-        <View style={styles.cardTitleRow}>
-          <Glyph name="star" size={16} color={COLORS.primary} />
-          <Text style={styles.cardTitle}>{alreadySubmitted ? t("journal.yourRating") : t("journal.leaveRating")}</Text>
+        <View style={styles.row}>
+          <Glyph name="lock-outline" size={18} color={colors.muted} />
+          <Text style={[type.head, styles.flex]}>{t("diary.note")}</Text>
+          <View style={styles.badge}><Text style={[type.micro, strong]}>{t("diary.onlyYou")}</Text></View>
         </View>
-
-        <RatingField showTitle={false} value={personalRating} onChange={setPersonalRating} />
-
-        <Text style={[styles.fieldLabel, { marginTop: 16 }]}>{t("journal.notes")}</Text>
-        <TextInput
-          style={styles.notesInput}
-          value={notes} onChangeText={setNotes}
-          placeholder={t("journal.notesPlaceholder")} accessibilityLabel={t("journal.notes")}
-          placeholderTextColor={COLORS.textMuted} multiline numberOfLines={4}
-          textAlignVertical="top" maxLength={2000}
-        />
-
-        <Text style={[styles.fieldLabel, { marginTop: 12 }]}>{t("journal.tags")}</Text>
-        <TextInput
-          style={styles.tagsInput}
-          value={tags} onChangeText={setTags}
-          placeholder={t("journal.tagsPlaceholder")} accessibilityLabel={t("journal.tags")}
-          placeholderTextColor={COLORS.textMuted} maxLength={500}
-        />
-        {tags.trim() !== "" && (
-          <View style={styles.tagsPreview}>
-            {tags.split(",").filter(t => t.trim()).map((tag, ti) => (
-              <View key={ti} style={styles.tagChip}><Text style={styles.tagChipText}>#{tag.trim()}</Text></View>
-            ))}
-          </View>
-        )}
-
-        <Text style={[styles.fieldLabel, { marginTop: 16 }]}>
-          {t("photos.label")} {myPhotoCount > 0 ? `— ${myPhotoCount}/${MAX_PHOTOS}` : ""}
-        </Text>
-        {!!myEntry?.unavailablePhotoCount && <Text style={UI_STYLES.muted}>{t("photos.legacyUnavailable", { count: myEntry.unavailablePhotoCount })}</Text>}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photoScroll}>
-          {myPhotos.map((url, pi) => (
-            <View key={pi} style={styles.photoThumbWrap}>
-              <JournalPhoto uri={url} style={styles.photoThumb} />
-              <TouchableOpacity style={styles.photoRemoveBtn} accessibilityRole="button" accessibilityLabel={t("photos.remove")} onPress={() => handleRemovePhoto(url)}>
-                <Glyph name="close" size={14} color="#fff" />
-              </TouchableOpacity>
-            </View>
-          ))}
-          {myPhotoCount < MAX_PHOTOS && (
-            <TouchableOpacity
-              style={styles.photoAddBtn}
-              accessibilityRole="button" accessibilityLabel={t("photos.add")}
-              accessibilityState={{ disabled: uploadingPhoto, busy: uploadingPhoto }}
-              onPress={handlePickPhoto}
-              disabled={uploadingPhoto}
-              activeOpacity={0.8}
-            >
-              {uploadingPhoto
-                ? <ActivityIndicator color={COLORS.primary} size="small" />
-                : <>
-                    <Glyph name="camera-plus-outline" size={20} color={COLORS.primary} />
-                    <Text style={styles.photoAddText}>{t("photos.add")}</Text>
-                  </>
-              }
-            </TouchableOpacity>
-          )}
-        </ScrollView>
-
-        <View style={{ marginTop: 24 }}>
-          <PrimaryButton title={t(alreadySubmitted ? "journal.update" : "journal.save")}
-            onPress={handleSave} disabled={personalRating === undefined} loading={saving} />
-        </View>
+        <TextInput style={styles.input} value={notes} onChangeText={setNotes} placeholder={t("diary.notePlaceholder")} accessibilityLabel={t("diary.note")}
+          placeholderTextColor={colors.placeholder} multiline numberOfLines={4} textAlignVertical="top" maxLength={2000} />
       </View>
 
-      <View style={{ height: 40 }} />
+      <View style={styles.card}>
+        <View style={styles.row}><Glyph name="account-multiple" size={18} color={colors.icon} /><Text style={[type.head, styles.flex]}>{t("diary.shared")}</Text></View>
+        <Text style={type.caption}>{t("diary.sharedHint")}</Text>
+        <TextInput style={[styles.input, { minHeight: touch + 2 }]} value={tags} onChangeText={setTags} placeholder={t("journal.tagsPlaceholder")} accessibilityLabel={t("journal.tags")}
+          placeholderTextColor={colors.placeholder} maxLength={500} />
+        {tags.trim() !== "" && <View style={styles.tags}>{tags.split(",").filter(tag => tag.trim()).map((tag, ti) => <View key={ti} style={styles.tagChip}><Text style={styles.tagChipText}>#{tag.trim()}</Text></View>)}</View>}
+        <Text style={[type.caption, strong, { color: colors.text }]}>{t("photos.label")} {myPhotoCount > 0 ? `— ${myPhotoCount}/${MAX_PHOTOS}` : ""}</Text>
+        {!!myEntry?.unavailablePhotoCount && <Text style={type.caption}>{t("photos.legacyUnavailable", { count: myEntry.unavailablePhotoCount })}</Text>}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {myPhotos.map((url, pi) => <View key={pi} style={styles.photoThumbWrap}>
+            <JournalPhoto uri={url} style={styles.photoThumb} />
+            <TouchableOpacity style={styles.photoRemoveBtn} accessibilityRole="button" accessibilityLabel={t("photos.remove")} onPress={() => handleRemovePhoto(url)}>
+              <Glyph name="close" size={14} color="#fff" />
+            </TouchableOpacity>
+          </View>)}
+          {myPhotoCount < MAX_PHOTOS && <TouchableOpacity style={styles.photoAddBtn} accessibilityRole="button" accessibilityLabel={t("photos.add")}
+            accessibilityState={{ disabled: uploadingPhoto, busy: uploadingPhoto }} onPress={handlePickPhoto} disabled={uploadingPhoto} activeOpacity={0.8}>
+            {uploadingPhoto ? <ActivityIndicator color={colors.primary} size="small" /> : <>
+              <Glyph name="camera-plus-outline" size={20} color={colors.primary} />
+              <Text style={styles.photoAddText}>{t("photos.add")}</Text>
+            </>}
+          </TouchableOpacity>}
+        </ScrollView>
+      </View>
+
+      {alreadySubmitted && <TouchableOpacity style={[styles.card, styles.row]} accessibilityRole="button"
+        onPress={() => router.push({ pathname: ROUTES.MATCH_PUBLISH, params: { id: match.id } } as never)}>
+        <Glyph name={!publication?.hidden && (publication?.showRating || publication?.commentPublished) ? "earth" : "comment-text-outline"} size={20} color={colors.primary} />
+        <View style={styles.flex}>
+          <Text style={[type.body, strong]}>{t("diary.publish")}</Text>
+          <Text style={type.caption}>{publicationLine ?? t("diary.optional")}</Text>
+        </View>
+        <Glyph name="chevron-right" size={20} color={colors.chevron} />
+      </TouchableOpacity>}
+
+      {others.length > 0 && <View style={{ gap: space.sm }}>
+        <Text style={type.head}>{t("diary.others")}</Text>
+        <View style={[styles.card, { gap: 0, paddingVertical: space.xs }]}>
+          {others.map((entry, i) => <View key={entry.id} style={[styles.entry, i > 0 && styles.divider]}>
+            <View style={styles.avatar}><Text style={styles.avatarText}>{entry.userName[0]?.toUpperCase()}</Text></View>
+            <View style={styles.flex}>
+              <Text style={[type.body, strong]}>{entry.userName}</Text>
+              {!!entry.tags && <Text style={type.caption}>{entry.tags.split(",").map(tag => `#${tag.trim()}`).join(" ")}</Text>}
+              {entry.personalRating == null && <Text style={type.caption}>{t("diary.notRatedYet")}</Text>}
+              {!!entry.photoUrls?.length && <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: space.xs }}>
+                {entry.photoUrls.map((url, pi) => <JournalPhoto key={pi} uri={url} style={styles.photoThumbSmall} />)}
+              </ScrollView>}
+            </View>
+            {entry.personalRating != null && <Text style={[type.body, strong]}>{number(entry.personalRating)} / 10</Text>}
+          </View>)}
+        </View>
+        <Text style={type.micro}>{t("diary.eachWhenever")}</Text>
+      </View>}
     </ScrollView>
+    <View style={styles.footer}>
+      <PrimaryButton title={!alreadySubmitted && personalRating !== undefined ? t("diary.confirmRating") : t("diary.save")} onPress={handleSave} loading={saving} disabled={!dirty} />
+    </View>
     </KeyboardAvoidingView>
+    <Sheet visible={confirming} title={t("diary.confirmTitle")} onClose={() => setConfirming(false)} closeLabel={t("diary.adjust")}>
+      <View style={styles.confirm}>
+        <Text style={[styles.score, styles.center]}>{personalRating !== undefined ? number(personalRating) : "—"}<Text style={styles.scale}> / 10</Text></Text>
+        <Text style={[type.body, styles.center]}>{t("diary.confirmText")}</Text>
+        <PrimaryButton title={t("diary.confirmSave")} onPress={() => save(personalRating ?? null)} loading={saving} />
+        <PrimaryButton title={t("diary.adjust")} variant="secondary" onPress={() => setConfirming(false)} />
+      </View>
+    </Sheet>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: 16 },
-  screen: { flex: 1, backgroundColor: COLORS.background },
-  content: { padding: 16, paddingBottom: 40 },
-
-  matchHeader: { ...UI_STYLES.card, padding: 16, marginBottom: 16 },
-  gameName: { ...UI_STYLES.title, marginBottom: 4 },
-  matchDate: { ...UI_STYLES.caption, color: COLORS.textMuted, marginBottom: 12 },
-  statusRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 12, marginBottom: 12 },
-  statusPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
-  statusText: { fontSize: 12, fontWeight: "700" },
-  progressText: { ...UI_STYLES.caption, color: COLORS.textMuted },
-  playersRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  playerChip: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "#f5f5f5", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 },
-  playerDot: { width: 8, height: 8, borderRadius: 4 },
-  playerChipText: { fontSize: 12, fontWeight: "600", color: COLORS.textMuted },
-
-  card: { ...UI_STYLES.card, padding: 16, marginBottom: 16 },
-  cardTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 },
-  cardTitle: { ...UI_STYLES.section, flexShrink: 1 },
-
-  entryRow: { flexDirection: "row", gap: 10, marginBottom: 14, paddingBottom: 14, borderBottomWidth: 0.5, borderBottomColor: "#f0f0f0" },
-  entryAvatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: COLORS.primary + "20", alignItems: "center", justifyContent: "center" },
-  entryAvatarText: { fontSize: 14, fontWeight: "800", color: COLORS.primary },
-  entryHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 6 },
-  entryUserName: { ...UI_STYLES.body, fontWeight: "700" },
-  entryNotes: { ...UI_STYLES.body, marginVertical: 8 },
-
-  photoScroll: { marginTop: 8 },
-  photoThumb: { width: 96, height: 96, borderRadius: 12, marginRight: 12, backgroundColor: COLORS.border },
-  photoThumbWrap: { position: "relative", marginRight: 8 },
-  photoRemoveBtn: { ...UI_STYLES.iconButton, position: "absolute", top: 0, right: 12, backgroundColor: "rgba(0,0,0,0.75)" },
-  photoAddBtn: { width: 96, height: 96, borderRadius: 12, borderWidth: 1, borderColor: COLORS.primary, alignItems: "center", justifyContent: "center", backgroundColor: COLORS.primarySoft },
-  photoAddText: { ...UI_STYLES.caption, color: COLORS.primary, fontWeight: "700", marginTop: 4 },
-
-  infoBox: { flexDirection: "row", alignItems: "flex-start", gap: 8, backgroundColor: "#fff8e1", borderRadius: 12, padding: 12, marginBottom: 12, borderWidth: 1, borderColor: "#ffe082" },
-  infoText: { ...UI_STYLES.body, flex: 1, color: "#856404" },
-
-  fieldLabel: { ...UI_STYLES.body, fontWeight: "700", marginBottom: 8 },
-  notesInput: { ...UI_STYLES.field, minHeight: 120, textAlignVertical: "top" },
-  tagsInput: { ...UI_STYLES.field },
-  tagsPreview: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 8 },
-  tagsRow: { flexDirection: "row", flexWrap: "wrap", gap: 4, marginTop: 4 },
-  tagChip: { backgroundColor: COLORS.primary + "14", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
-  tagChipText: { fontSize: 11, color: COLORS.primary, fontWeight: "600" },
-
+  header: { paddingHorizontal: space.lg },
+  screen: { flex: 1, backgroundColor: colors.background },
+  content: { padding: space.lg, paddingBottom: 40, gap: space.lg },
+  card: { backgroundColor: colors.card, borderRadius: radius.hero, borderCurve: "continuous", borderWidth: 1, borderColor: colors.line, padding: space.lg, gap: space.sm },
+  row: { flexDirection: "row", alignItems: "center", gap: space.sm },
+  flex: { flex: 1, minWidth: 0 },
+  center: { textAlign: "center" },
+  badge: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: colors.track, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 },
+  score: { fontSize: 40, lineHeight: 46, fontWeight: "800", color: colors.text, fontVariant: ["tabular-nums"] },
+  scale: { fontSize: 17, fontWeight: "600", color: colors.muted },
+  input: { minHeight: 96, borderWidth: 1, borderColor: colors.line, borderRadius: radius.control, backgroundColor: colors.background, paddingHorizontal: space.md, paddingVertical: space.sm, ...type.body },
+  tags: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
+  tagChip: { backgroundColor: colors.primarySoft, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
+  tagChipText: { ...type.micro, color: colors.primary, fontWeight: "600" },
+  entry: { flexDirection: "row", alignItems: "center", gap: space.md, paddingVertical: space.sm },
+  divider: { borderTopWidth: 1, borderTopColor: colors.hair },
+  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#EEE6F8", alignItems: "center", justifyContent: "center" },
+  avatarText: { ...type.body, ...strong, color: colors.friend },
+  photoThumb: { width: 96, height: 96, borderRadius: 12, backgroundColor: colors.line },
+  photoThumbSmall: { width: 64, height: 64, borderRadius: 10, marginRight: 8, backgroundColor: colors.line },
+  photoThumbWrap: { position: "relative", marginRight: 12 },
+  photoRemoveBtn: { position: "absolute", top: 0, right: 0, width: touch, height: touch, borderRadius: touch / 2, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.75)" },
+  photoAddBtn: { width: 96, height: 96, borderRadius: 12, borderWidth: 1, borderColor: colors.primary, alignItems: "center", justifyContent: "center", backgroundColor: colors.primarySoft },
+  photoAddText: { ...type.caption, color: colors.primary, fontWeight: "700", marginTop: 4 },
+  footer: { padding: space.lg, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.background },
+  confirm: { gap: space.md, paddingVertical: space.sm },
 });

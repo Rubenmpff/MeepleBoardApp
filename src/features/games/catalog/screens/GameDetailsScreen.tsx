@@ -36,6 +36,7 @@ import gameService, { GameFriendOwner } from "../services/gameService";
 import GameHero, { GameFacts } from "../components/GameHero";
 import GameExperience from "../components/GameExperience";
 import GameDurationsSection, { bggDuration } from "@/src/features/games/durations/components/GameDurationsSection";
+import GameExperiencesSection from "@/src/features/games/experiences/components/GameExperiencesSection";
 import FriendOwners from "../components/FriendOwners";
 import GameExpansions from "../components/GameExpansions";
 import matchService from "../../matches/services/matchService";
@@ -199,6 +200,8 @@ export default function GameDetailsScreen() {
       company={period ? { limited: period.limited, onOpen: openCompany } : undefined} />
 
     <GameDurationsSection game={game} onOpenDetails={() => router.push({ pathname: ROUTES.GAME_DURATIONS, params: { id: game.id, name: game.name, bgg: bggDuration(game) ?? "" } } as never)} />
+
+    <GameExperiencesSection gameId={game.id} />
 
     <FriendOwners owners={friendOwners} loading={friendsLoading} error={friendsError} onRetry={() => { void fetchFriends(); }}
       onOpen={userId => router.push({ pathname: ROUTES.USER_PROFILE, params: { id: userId } } as never)} />

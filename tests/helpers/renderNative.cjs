@@ -99,6 +99,7 @@ async function renderNative(source, exportName, props = {}, options = {}) {
     useFriends: () => ({ friends: options.friends || [], loading: !!options.friendsLoading, error: options.friendsError,
       refetch: async force => calls.push(['refetchFriends', force]) }),
     useGameSearch: () => ({ searchGame: async name => { calls.push(['searchGame', name]); return options.searchResult ?? null; }, loading: false }),
+    useGameExperiences: id => { calls.push(['gameExperiences', id]); return { data: options.experiences ?? null, loading: false, error: !!options.experiencesError, reload: async () => calls.push(['reloadExperiences']) }; },
     useGameDurations: id => { calls.push(['gameDurations', id]); return { data: options.durations ?? null, loading: !!options.durationsLoading, error: !!options.durationsError, reload: async () => calls.push(['reloadDurations']) }; },
     useRegisterMatch: () => ({ loading: !!options.saving, error: options.error,
       submitMatch: async payload => { calls.push(['submitMatch', payload]); return options.createdMatch || null; } }),

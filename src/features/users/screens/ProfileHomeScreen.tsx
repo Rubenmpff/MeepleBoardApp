@@ -15,6 +15,7 @@ import { localISO, periodQuery } from "@/src/features/statistics/utils/period";
 import { useFriends } from "@/src/features/friends/hooks/useFriends";
 import { getIncomingRequests } from "@/src/features/friends/services/friendshipService";
 import { usePendingJournal } from "@/src/features/games/matches/hooks/usePendingJournal";
+import resourceService from "@/src/features/games/resources/services/resourceService";
 
 // Perfil: who I am, my year, my friends (with requests) and my account (settings, pending ratings, about and credits).
 export default function ProfileHomeScreen() {
@@ -28,6 +29,9 @@ export default function ProfileHomeScreen() {
   const [requests, setRequests] = useState<number | null>(null);
   const loadRequests = useCallback(() => { getIncomingRequests().then(list => setRequests(list.length)).catch(() => setRequests(null)); }, []);
   useEffect(loadRequests, [loadRequests]);
+  // Administrators (the role that already manages resources) also moderate reported experience comments.
+  const [canModerate, setCanModerate] = useState(false);
+  useEffect(() => { Promise.resolve(resourceService.canManage?.()).then(v => setCanModerate(!!v)).catch(() => setCanModerate(false)); }, []);
   useFocusEffect(useCallback(() => { loadRequests(); }, [loadRequests]));
   const n = (v: number) => new Intl.NumberFormat(i18n.language).format(v);
   const top = [...friends].sort((a, b) => b.sharedMatchesCount - a.sharedMatchesCount).slice(0, 3);
@@ -67,6 +71,7 @@ export default function ProfileHomeScreen() {
         <Card>
           <Row first inset={52} lead={<Glyph name="cog-outline" size={22} color={colors.muted} />} title={t("settings")} subtitle={t("me.settingsHint")} onPress={() => router.push(ROUTES.SETTINGS as never)} />
           <Row inset={52} lead={<Glyph name="star-outline" size={22} color={colors.muted} />} title={t("me.pendingJournal")} value={pendingRatings ? n(pendingRatings) : undefined} onPress={() => router.push(ROUTES.PENDING_JOURNAL as never)} />
+          {canModerate && <Row inset={52} lead={<Glyph name="shield-check-outline" size={22} color={colors.muted} />} title={t("me.moderation")} subtitle={t("me.moderationHint")} onPress={() => router.push(ROUTES.EXPERIENCE_MODERATION as never)} />}
           <Row inset={52} lead={<Glyph name="information-outline" size={22} color={colors.muted} />} title={t("me.about")} subtitle={t("me.aboutHint")} onPress={() => router.push(ROUTES.ABOUT as never)} />
         </Card>
       </Section>

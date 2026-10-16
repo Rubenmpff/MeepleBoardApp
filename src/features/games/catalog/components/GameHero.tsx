@@ -4,7 +4,9 @@
  * is recalculated here. BoardGameGeek data keeps its source and a way to the original page; the facts carry the
  * official «Powered by BGG» logo on its own line under the source.
  */
+import { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import Sheet from "@/src/ui/Sheet";
 import { useTranslation } from "react-i18next";
 import { Glyph, type Icon } from "@/src/ui/components";
 import PoweredByBgg from "@/src/ui/PoweredByBgg";
@@ -33,8 +35,12 @@ export default function GameHero({ game, language, onOpenBgg, topInset }: HeroPr
   </View>;
 }
 
+/** Below this, the MeepleBoard rating shows a discreet «Poucas avaliações». */
+export const FEW_RATINGS = 5;
+
 function Scores({ game, language, large, onOpenBgg }: { game: Game; language: string; large: boolean; onOpenBgg: () => void }) {
   const { t } = useTranslation("games");
+  const [how, setHow] = useState(false);
   const count = (n: number) => new Intl.NumberFormat(locale(language)).format(n);
   const bgg = game.averageRating ? formatRating(game.averageRating, language) : null;
   const meeple = game.meepleBoardScore != null ? formatRating(game.meepleBoardScore / 10, language) : null;
@@ -60,10 +66,31 @@ function Scores({ game, language, large, onOpenBgg }: { game: Game; language: st
     return onPress ? <TouchableOpacity style={[styles.tile, large && styles.tileLarge]} onPress={onPress} accessibilityRole="link" accessibilityLabel={accessibilityLabel} accessibilityHint={t("details.bgg.hint")}>{body}</TouchableOpacity>
       : <View style={[styles.tile, large && styles.tileLarge]} accessible accessibilityLabel={accessibilityLabel}>{body}</View>;
   };
+  // MeepleBoard: from the first rating, always with the counts; «Poucas avaliações» below 5; «Como se calcula» opens the explanation.
+  const meepleTile = (value: string | null) => {
+    const ratings = t("ratingsInfo.ratings", { count: game.meepleBoardRatingsCount ?? 0 }), raters = t("ratingsInfo.raters", { count: game.meepleBoardRaters ?? 0 });
+    const few = (game.meepleBoardRatingsCount ?? 0) < FEW_RATINGS;
+    return <TouchableOpacity style={[styles.tile, large && styles.tileLarge]} onPress={() => setHow(true)} accessibilityRole="button"
+      accessibilityLabel={value ? [t("ratingsInfo.tileLabel", { value, ratings, raters }), few ? t("ratingsInfo.few") : null].filter(Boolean).join(". ") : `${t("details.ratings.meepleBoard")}: ${t("details.ratings.noData")}`}
+      accessibilityHint={t("ratingsInfo.how")}>
+      <View style={styles.who}><View style={[styles.dot, { backgroundColor: colors.primary }]} /><Text style={styles.label} numberOfLines={1}>{t("details.ratings.meepleBoard")}</Text></View>
+      {value ? <>
+        <Text style={styles.value}>{value}<Text style={styles.scale}> /10</Text></Text>
+        <Text style={type.micro}><Text style={[strong, { color: colors.text }]}>{ratings}</Text> · {raters}</Text>
+        {few && <View style={styles.few}><Text style={[type.micro, strong]}>{t("ratingsInfo.few")}</Text></View>}
+        <Text style={[type.micro, strong, { color: colors.primary, marginTop: 2 }]}>{t("ratingsInfo.how")}</Text>
+      </> : <Text style={[type.body, styles.muted]}>{t("details.ratings.noData")}</Text>}
+    </TouchableOpacity>;
+  };
   return <View style={[styles.scores, large && styles.scoresLarge]}>
     {/* Links to BGG only with a BGG rating to show; the facts and the description keep their own source links. */}
     {tile(t("details.ratings.bgg"), t("details.ratings.bggShort"), colors.text, bgg, bggDetail, game.bggId && bgg ? onOpenBgg : undefined)}
-    {tile(t("details.ratings.meepleBoard"), t("details.ratings.meepleBoard"), colors.primary, meeple, t("details.ratings.meepleBoardShort"))}
+    {meepleTile(meeple)}
+    <Sheet visible={how} title={t("ratingsInfo.howTitle")} onClose={() => setHow(false)} closeLabel={t("ratingsInfo.close")}>
+      <View style={{ gap: space.md, paddingBottom: space.md }}>
+        {(["howMean", "howCounts", "howNames", "howUnofficial", "howMine", "howBgg"] as const).map(k => <Text key={k} style={type.body}>{t(`ratingsInfo.${k}`)}</Text>)}
+      </View>
+    </Sheet>
   </View>;
 }
 
@@ -123,6 +150,7 @@ const styles = StyleSheet.create({
   value: { fontSize: 26, lineHeight: 31, fontWeight: "700", color: colors.text, fontVariant: ["tabular-nums"] },
   scale: { fontSize: 13, fontWeight: "400", color: colors.muted },
   muted: { color: colors.muted },
+  few: { alignSelf: "flex-start", backgroundColor: colors.track, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 1, marginTop: 2 },
   factsWrap: { gap: space.sm },
   facts: { flexDirection: "row", flexWrap: "wrap", backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: radius.hero, borderCurve: "continuous", overflow: "hidden" },
   fact: { alignItems: "center", gap: 2, paddingVertical: 10, paddingHorizontal: 6 },

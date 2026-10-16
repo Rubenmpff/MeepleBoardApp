@@ -290,7 +290,8 @@
     "empty": "No games have been rated yet. Review a match in the journal!",
     "emptyMine": "You have not rated any games yet. Review a match in the journal!",
     "loadError": "Unable to load the rankings.",
-    "yourRating": "Your average ★ {{value}}"
+    "yourRating": "Your average ★ {{value}}",
+    "subtitleMinimum": "MeepleBoard average of official matches. Games need at least 5 ratings from 3 players; equal averages share the position."
   },
   "resources": {
     "loading": "Loading resources…",
@@ -453,6 +454,86 @@
       "PrintModel": "3D models",
       "Unboxing": "unboxings",
       "Material": "other material"
+    }
+  },
+  "ratingsInfo": {
+    "ratings_one": "{{count}} rating",
+    "ratings_other": "{{count}} ratings",
+    "raters_one": "{{count}} player",
+    "raters_other": "{{count}} players",
+    "few": "Few ratings",
+    "how": "How it is calculated",
+    "howTitle": "How it is calculated",
+    "howMean": "MeepleBoard rating: the average of all ratings of this game's matches. Each match someone plays counts once for that person, so those who play more contribute more. It is not an average of averages.",
+    "howCounts": "Ratings and players: how many ratings count and from how many different people.",
+    "howNames": "No names: the average shows no names or matches. With few ratings, someone who knows who played may work out ratings. Only what you publish appears with your name.",
+    "howUnofficial": "Unofficial matches (forced mode) are not in this average; they are in yours.",
+    "howMine": "Your average: the average of all your ratings of this game, including unofficial matches.",
+    "howBgg": "BGG: the BoardGameGeek rating, kept apart; not used in these figures.",
+    "close": "Close",
+    "tileLabel": "MeepleBoard: {{value}} out of 10, {{ratings}}, {{raters}}"
+  },
+  "experiences": {
+    "title": "Community experiences",
+    "seeAll": "See all ({{count}})",
+    "note": "Published by the players, with their names. They never show who they played with or where.",
+    "empty": "No published experiences yet. After rating a match, you can share yours.",
+    "yours": "Yours",
+    "edited": "Edited",
+    "modes": {
+      "SOLO": "Solo",
+      "COMPETITIVE": "Competitive",
+      "COOPERATIVE": "Cooperative",
+      "UNKNOWN": "Mode not confirmed"
+    },
+    "players_one": "{{count}} player",
+    "players_other": "{{count}} players",
+    "listTitle": "Experiences",
+    "listCount": "{{count}} published experiences · newest first",
+    "more": "More options",
+    "manage": "Manage publication",
+    "report": "Report comment",
+    "reportTitle": "Report comment",
+    "detail": "Detail (optional)",
+    "reportNote": "The author never sees who reported. Administrators review.",
+    "send": "Send",
+    "cancel": "Cancel",
+    "reported": "Thank you. An administrator will review this comment.",
+    "loadError": "Experiences could not be loaded.",
+    "retry": "Try again",
+    "readMore": "Read more",
+    "ratingLabel": "{{value}} out of 10",
+    "reasons": {
+      "Abusive": "Offensive or abusive",
+      "Spam": "Spam or advertising",
+      "PersonalData": "Someone's personal data",
+      "OffTopic": "Not about the game",
+      "Other": "Other",
+      "AutoReports": "several reports"
+    }
+  },
+  "moderation": {
+    "title": "Moderation · Experiences",
+    "count_one": "{{count}} comment with open reports",
+    "count_other": "{{count}} comments with open reports",
+    "none": "No open reports.",
+    "keep": "Keep",
+    "hide": "Hide…",
+    "restore": "Restore",
+    "keepHidden": "Keep hidden",
+    "hiddenUntil": "Hidden until review",
+    "hidden": "Hidden",
+    "hideTitle": "Hide comment",
+    "hideHint": "Choose the reason. The author sees it; the rating does not change.",
+    "loadError": "Reports could not be loaded.",
+    "retry": "Try again",
+    "reasons": {
+      "Abusive": "Offensive or abusive",
+      "Spam": "Spam or advertising",
+      "PersonalData": "Someone's personal data",
+      "OffTopic": "Not about the game",
+      "Other": "Other",
+      "AutoReports": "several reports"
     }
   }
 }

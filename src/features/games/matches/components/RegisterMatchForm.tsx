@@ -663,7 +663,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     {/* ══ 4 · Avaliação e data ══ */}
     {step === 3 && <View style={styles.stack}>
       {summary}
-      <RatingControl value={personalRating} onChange={setPersonalRating} showError={showRatingErrors} />
+      <RatingControl value={personalRating} onChange={setPersonalRating} showError={showRatingErrors} note={t("rating.closedOnSave")} />
       <DurationField value={duration} onChange={setDuration} showError={showRatingErrors} />
       <View style={styles.card}>
         <View style={styles.rowButton}>
@@ -730,6 +730,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       <ReviewSection title={t("review.rating")} onFix={() => setStep(3)}>
         <View style={styles.card}>
           <SummaryRow label={t("rating.title")} value={personalRating === undefined ? "—" : `${new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 }).format(personalRating)} / 10`} large />
+          <Text style={[type.micro, { textAlign: "right" }]}>{t("review.ratingClosed")}</Text>
           <SummaryRow label={t("review.duration")} value={durationReview} />
           <SummaryRow label={t("review.when")} value={whenText} />
           {location.trim() !== "" && <SummaryRow label={t("summary.location")} value={location.trim()} />}

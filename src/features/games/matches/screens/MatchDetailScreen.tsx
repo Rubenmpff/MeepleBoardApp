@@ -1,7 +1,8 @@
 /**
  * Factual summary of a match, the same for everyone who can see it: game, date, mode,
  * result, players with outcomes and scores, and the shared summary. Participants also
- * get the way into their own journal (rating, notes, photos). The duration shows how it was obtained; the match
+ * see «A tua avaliação» right after the result: once given it is closed, with the private note and publishing as
+ * secondary actions; before that, «Avaliar». The others' ratings are a discreet count, never a task. The duration shows how it was obtained; the match
  * creator can correct it (same permission as editing the match).
  */
 import React, { useCallback, useEffect, useState } from "react";
@@ -23,6 +24,10 @@ import GameCover from "@/src/components/ui/GameCover";
 import { matchResultText } from "../../sessions/utils/matchResultKey";
 import matchService from "../services/matchService";
 import DurationField from "../components/DurationField";
+import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import experienceService from "@/src/features/games/experiences/services/experienceService";
+import { Publication } from "@/src/features/games/experiences/types/Experience";
+import { JournalEntry } from "@/src/features/games/campaigns/types/Campaign";
 import { checkDuration, DurationDraft, draftFrom, durationPayload, emptyDuration, formatDuration } from "../utils/matchDuration";
 import { MatchDto } from "../types/MatchForm";
 
@@ -45,11 +50,18 @@ export default function MatchDetailScreen() {
   const [durationDraft, setDurationDraft] = useState<DurationDraft>(emptyDuration);
   const [savingDuration, setSavingDuration] = useState(false);
   const [durationError, setDurationError] = useState(false);
+  const [entries, setEntries] = useState<JournalEntry[] | null>(null);
+  const [publication, setPublication] = useState<Publication | null>(null);
 
   const load = useCallback(async () => {
     if (!id) return;
     setNotFound(false); setLoadError(false); setLoading(true);
-    try { const data = await matchService.getById(id); if (!data) setNotFound(true); setMatch(data); }
+    try {
+      const data = await matchService.getById(id); if (!data) setNotFound(true); setMatch(data);
+      // The diary of a participant: own rating and the discreet count; failures leave the card out.
+      matchService.getJournalEntries(id).then(setEntries).catch(() => setEntries(null));
+      experienceService.getMine(id).then(setPublication).catch(() => setPublication(null));
+    }
     catch { setLoadError(true); }
     finally { setLoading(false); }
   }, [id]);
@@ -69,6 +81,31 @@ export default function MatchDetailScreen() {
   const participant = players.some(p => isMine(p.userId));
   const mode = match.gameMode ? t(match.gameMode === "SOLO" ? "modes.solo" : match.gameMode === "COOPERATIVE" ? "modes.cooperative" : "modes.multiplayer") : t("outcomes.modeUnknown");
   const facts = [formatDateTime(match.matchDate, i18n.language), mode, match.location || null].filter(Boolean).join(" · ");
+  const myEntry = entries?.find(e => e.userId === currentUser?.id);
+  const rated = myEntry?.personalRating != null;
+  const ratedCount = (entries ?? []).filter(e => e.personalRating != null && players.some(p => p.userId === e.userId)).length;
+  const value = rated ? new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 }).format(myEntry!.personalRating!) : null;
+  const openJournal = () => router.push({ pathname: ROUTES.MATCH_JOURNAL, params: { id: match.id } } as never);
+  const publishLine = publication?.hidden ? t("diary.hidden") : publication?.showRating && publication.commentPublished ? t("diary.publishedBoth")
+    : publication?.showRating ? t("diary.publishedRating") : publication?.commentPublished ? t("diary.publishedComment") : null;
+  const RatingCard = () => <View style={styles.ratingCard}>
+    <View style={styles.ratingHead}>
+      <Text style={styles.ratingLabel}>{t("detailCard.label")}</Text>
+      {rated && <View style={styles.lockBadge}><Glyph name="lock-outline" size={13} color={colors.muted} /><Text style={[type.micro, strong]}>{t("detailCard.saved")}</Text></View>}
+    </View>
+    <Text style={[styles.ratingValue, !rated && { color: "#B9B3C0" }]} accessibilityLabel={value ? t("rating.spoken", { value }) : t("rating.notRated")}>{value ?? "—"}<Text style={styles.ratingScale}> / 10</Text></Text>
+    <Text style={type.caption}>{rated ? t("detailCard.savedHint") : t("detailCard.notRated")}</Text>
+    {rated ? <>
+      <View style={styles.hr} />
+      <Row first inset={52} lead={<Glyph name="lock-outline" size={20} color={myEntry?.notes ? colors.muted : colors.primary} />}
+        title={myEntry?.notes ? t("detailCard.noteSet") : t("detailCard.addNote")} subtitle={myEntry?.notes ? `${t("detailCard.onlyYou")} · ${myEntry.notes}` : undefined}
+        tone={myEntry?.notes ? "default" : "link"} onPress={openJournal} />
+      <Row inset={52} lead={<Glyph name={publishLine && !publication?.hidden ? "earth" : "comment-text-outline"} size={20} color={colors.icon} />}
+        title={publishLine ?? t("diary.publish")} subtitle={publishLine ? undefined : t("diary.optional")}
+        onPress={() => router.push({ pathname: ROUTES.MATCH_PUBLISH, params: { id: match.id } } as never)} />
+    </> : <PrimaryButton title={t("detailCard.rate")} icon={<Glyph name="star" size={18} color={colors.onPrimary} />} onPress={openJournal} />}
+    <Text style={type.micro}>{t("diary.ratedCount", { rated: ratedCount, total: players.length })}</Text>
+  </View>;
   const isCreator = !!currentUser?.id && match.creatorId === currentUser.id;
   const method = match.durationMethod;
   const durationText = method === "Unknown" ? t("duration.reviewUnknown") : typeof match.durationInMinutes === "number"
@@ -109,6 +146,8 @@ export default function MatchDetailScreen() {
           <Text style={[type.head, styles.flex]}>{matchResultText(match, t)}</Text>
         </Hero>
 
+        {participant && entries && <RatingCard />}
+
         <Section title={t("steps.players")} note={String(players.length)}>
           <Card>
             {players.map((p, index) => <Row key={p.id ?? p.userId} first={index === 0} inset={68} strongTitle
@@ -130,12 +169,7 @@ export default function MatchDetailScreen() {
 
         {!!match.scoreSummary && <Section title={t("ui.summary")}><Card padded><Text style={type.body}>{match.scoreSummary}</Text></Card></Section>}
 
-        {participant && <Section title={t("ui.yourJournal")}>
-          <Card>
-            <Row first inset={52} lead={<Glyph name="star-outline" size={22} color={colors.pendingIcon} />} title={t("ui.openJournal")} subtitle={t("ui.openJournalHint")}
-              onPress={() => router.push({ pathname: ROUTES.MATCH_JOURNAL, params: { id: match.id } } as never)} />
-          </Card>
-        </Section>}
+
       </ScreenScroll>
       <Sheet visible={editingDuration} title={t("duration.editTitle")} onClose={() => setEditingDuration(false)} closeLabel={t("duration.cancel")}
         left={{ label: t("duration.cancel"), onPress: () => setEditingDuration(false) }} right={{ label: t("duration.save"), onPress: saveDuration, disabled: !canSave, bold: true }}>
@@ -150,6 +184,13 @@ export default function MatchDetailScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
+  ratingCard: { marginHorizontal: space.lg, marginBottom: space.lg, padding: space.lg, gap: space.sm, borderRadius: 16, borderCurve: "continuous", borderWidth: 1, borderColor: colors.pendingLine, backgroundColor: colors.pendingSoft },
+  ratingHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  ratingLabel: { ...type.micro, ...strong, letterSpacing: 0.4, textTransform: "uppercase" },
+  lockBadge: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: colors.card, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 },
+  ratingValue: { fontSize: 40, lineHeight: 46, fontWeight: "800", color: colors.text, fontVariant: ["tabular-nums"] },
+  ratingScale: { fontSize: 17, fontWeight: "600", color: colors.muted },
+  hr: { height: 1, backgroundColor: colors.pendingLine, marginHorizontal: -space.lg },
   header: { paddingHorizontal: space.lg },
   content: { paddingTop: space.xs },
   flex: { flex: 1, minWidth: 0 },

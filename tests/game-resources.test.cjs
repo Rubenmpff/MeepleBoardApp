@@ -83,14 +83,15 @@ test('without BGG data the page says so briefly; missing facts are left out and 
   const view = await page({ 0: { ...game, bggId: null, averageRating: null, meepleBoardScore: null, minPlayTime: null, maxPlayTime: null, minAge: null, averageWeight: null }, 3: null });
   assert.ok(view.html.includes('Ainda sem avaliações') && !view.html.includes('—'));
   assert.ok(!view.controls.some(c => c.accessibilityLabel === 'Abrir a página do jogo no BoardGameGeek'));
-  for (const text of ['Texto original do BoardGameGeek', 'Ficha do BoardGameGeek', 'minutos', 'idade', 'complexidade']) assert.ok(!view.html.includes(text), text);
+  // Fact labels as rendered (exact text), so «comunidade» in other sections does not match «idade».
+  for (const text of ['Texto original do BoardGameGeek', 'Ficha do BoardGameGeek', '>minutos<', '>idade<', '>complexidade<']) assert.ok(!view.html.includes(text), text);
   assert.ok(view.html.includes('1–5') && view.html.includes('jogadores'), 'players stay');
   const onlyMeeple = await page({ 0: { ...game, averageRating: null } });
   assert.ok(onlyMeeple.html.includes('Sem avaliações') && onlyMeeple.html.includes('8,2'), 'a missing BGG rating next to an existing MeepleBoard one');
   assert.ok(!onlyMeeple.controls.some(c => c.accessibilityLabel?.startsWith('BoardGameGeek:')), 'without a BGG rating the tile is not a link (fictitious ids have no BGG page)');
   // BGG without an age: that block is simply absent; one playing time shows once.
   const partial = await page({ 0: { ...game, minAge: null, minPlayTime: 30, maxPlayTime: 30, averageWeight: null } });
-  assert.ok(partial.html.includes('Ficha do BoardGameGeek') && !partial.html.includes('idade') && !partial.html.includes('complexidade') && !partial.html.includes('30–30'));
+  assert.ok(partial.html.includes('Ficha do BoardGameGeek') && !partial.html.includes('>idade<') && !partial.html.includes('>complexidade<') && !partial.html.includes('30–30'));
   const noDescription = await page({ 0: { ...game, description: '' } });
   assert.ok(!noDescription.html.includes('Descrição') && !noDescription.html.includes('Sem descrição'), 'no empty description block');
 });

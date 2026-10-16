@@ -9,11 +9,12 @@ import { useTranslation } from "react-i18next";
 import { Glyph } from "@/src/ui/components";
 import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
 
-type Props = { value?: number; onChange: (value: number | undefined) => void; showError?: boolean };
+/** note: the closed-rating rule, shown above the hint (the registration and the diary word it differently). */
+type Props = { value?: number; onChange: (value: number | undefined) => void; showError?: boolean; note?: string };
 
 const clamp = (v: number) => Math.min(10, Math.max(0, Math.round(v * 2) / 2));
 
-export default function RatingControl({ value, onChange, showError = false }: Props) {
+export default function RatingControl({ value, onChange, showError = false, note }: Props) {
   const { t, i18n } = useTranslation("matches");
   const [width, setWidth] = useState(0);
   const format = (v: number) => new Intl.NumberFormat(i18n.language, { minimumFractionDigits: v % 1 ? 1 : 0, maximumFractionDigits: 1 }).format(v);
@@ -51,6 +52,7 @@ export default function RatingControl({ value, onChange, showError = false }: Pr
     <View style={styles.marks} importantForAccessibility="no-hide-descendants" accessibilityElementsHidden>
       {["0", "5", "10"].map(m => <Text key={m} style={type.micro}>{m}</Text>)}
     </View>
+    {!!note && <View style={styles.rule}><Glyph name="lock-outline" size={16} color={colors.pendingText} /><Text style={[type.caption, styles.ruleText]}>{note}</Text></View>}
     {showError && value === undefined
       ? <View style={styles.message} accessibilityLiveRegion="polite"><Glyph name="alert-circle-outline" size={16} color={colors.danger} /><Text style={[type.caption, { color: colors.danger, flex: 1 }]}>{t("rating.error")}</Text></View>
       : <Text style={type.caption}>{t("rating.hint")}</Text>}
@@ -83,4 +85,6 @@ const styles = StyleSheet.create({
     shadowColor: "#30283D", shadowOpacity: 0.2, shadowRadius: 3, shadowOffset: { width: 0, height: 1 } },
   marks: { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 48 + space.md },
   message: { flexDirection: "row", alignItems: "center", gap: 6 },
+  rule: { flexDirection: "row", alignItems: "flex-start", gap: 8, padding: space.sm + 2, borderRadius: radius.control, backgroundColor: colors.pendingSoft, borderWidth: 1, borderColor: colors.pendingLine },
+  ruleText: { flex: 1, color: colors.pendingText },
 });

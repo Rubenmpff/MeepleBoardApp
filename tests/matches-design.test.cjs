@@ -133,7 +133,12 @@ test('detail and journal retry preserve service calls and show load failures sep
 
 test('journal zero remains saveable and existing half-rating rounding is unchanged', async () => {
   for (const rating of [0, 7.5]) {
-    const view = await renderNative(journal, 'default', {}, { states: { 0: match, 2: false, 4: rating, 5: ' Notes ', 6: ' tag ' }, services: { upsertJournalEntry: undefined } });
+    // A new rating is confirmed in a sheet (state 9) before it is saved and closed.
+    const choose = await renderNative(journal, 'default', {}, { states: { 0: match, 2: false, 4: rating, 5: ' Notes ', 6: ' tag ' } });
+    await choose.press('Confirmar avaliação'); assert.deepEqual(choose.updates.find(([i]) => i === 9), [9, true]);
+    assert.equal(choose.calls.some(c => c[0] === 'upsertJournalEntry'), false, 'nothing saved before confirming');
+    const view = await renderNative(journal, 'default', {}, { states: { 0: match, 2: false, 4: rating, 5: ' Notes ', 6: ' tag ', 9: true }, services: { upsertJournalEntry: undefined } });
+    assert.match(view.html, /não pode ser alterada/);
     await view.press('Guardar avaliação');
     assert.deepEqual(view.calls.find(c => c[0] === 'upsertJournalEntry')[2], { personalRating: rating, notes: 'Notes', tags: 'tag' });
   }
@@ -141,7 +146,7 @@ test('journal zero remains saveable and existing half-rating rounding is unchang
   await unrated.press('Cancelar');
   assert.deepEqual(unrated.routes, ['back']);
   assert.equal(unrated.guards[0].enabled, false);
-  assert.equal(unrated.controls.find(c => c.accessibilityLabel === 'Guardar avaliação').disabled, true);
+  assert.equal(unrated.controls.find(c => c.accessibilityLabel === 'Guardar').disabled, true, 'nothing to save yet');
 });
 
 test('half-star and whole-star controls keep toggle-to-zero behaviour and large touch areas', async () => {
@@ -192,8 +197,8 @@ test('journal photo cap and confirmed removal preserve existing behaviour', asyn
 
 test('new screen and selector strings are translated in English', async () => {
   const view = await renderNative(journal, 'default', {}, { states: { 0: match, 2: false }, language: 'en' });
-  assert.match(view.html, /Match journal/);
-  assert.match(view.html, /Save review/);
+  assert.match(view.html, /Match diary/);
+  assert.match(view.html, /Save/);
   assert.doesNotMatch(view.html, /Guardar|Adicionar|Notas|Fotografias/);
   const selection = await renderNative(selector, 'default', { users: [], players: [], onChange() {} }, { language: 'en' });
   assert.match(selection.html, /Add players/);

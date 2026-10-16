@@ -78,6 +78,8 @@
     "loadError": "Could not load.",
     "retry": "Try again",
     "about": "About and credits",
-    "aboutHint": "Version and BoardGameGeek data"
+    "aboutHint": "Version and BoardGameGeek data",
+    "moderation": "Moderation",
+    "moderationHint": "Reported comments"
   }
 }

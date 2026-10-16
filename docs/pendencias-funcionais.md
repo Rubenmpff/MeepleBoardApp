@@ -282,3 +282,7 @@ Nesta etapa, Mais substituiu o drawer, os separadores deixaram de usar swipe e R
 TypeScript sem erros, **132 testes automatizados aprovados** e exportação iOS concluída. Os novos testes cobrem aliases/parâmetros, retorno sem histórico, Cancelar/Anterior, descarte PT/EN, bloqueio durante gravação e saída após sucesso. Não exercitam gestos/histórico nativos, permissões reais, API ou base de dados. Validação no iPhone/Expo Go pendente. Ver também [navegacao-simplificada.md](navegacao-simplificada.md).
 
 Os estados visuais de carregamento, erro e vazio foram uniformizados. As pendências acima não foram corrigidas por essa uniformização. A validação visual no iPhone/Expo Go está pendente, incluindo teclado, seletores nativos de data/hora, texto ampliado, fotografias e registo dentro das sessões. Os cenários que escrevem dados devem ser executados pelo utilizador num ambiente de teste separado.
+
+## Avaliações, diário e experiências (2026-10-16)
+
+Implementado em DeviceTests; ver [avaliacoes-diario-experiencias.md](avaliacoes-diario-experiencias.md). Corrige a média que não era recalculada ao apagar partidas. A chave do autor das denúncias é restritiva, como nas denúncias de recursos: apagar uma conta com denúncias feitas exige tratá-las primeiro. Validação no iPhone pendente.

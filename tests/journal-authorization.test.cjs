@@ -10,8 +10,11 @@ for (const language of ['pt', 'en']) test(`Journal keeps own notes private and e
   assert.ok(!ui.html.includes('FOREIGN_PRIVATE'));
   assert.ok(ui.html.includes('shared-tag'));
   assert.ok(ui.inputs.some(input => input.value === 'OWN_PRIVATE'));
-  assert.ok(ui.controls.some(control => control.accessibilityLabel === ui.i18n.t('journal.update', { ns: 'matches' })));
-  assert.ok(ui.inputs.some(input => input.accessibilityLabel === ui.i18n.t('journal.notes', { ns: 'matches' })));
+  // The saved rating (zero) is closed: shown, not editable; the private note and tags still save.
+  assert.ok(ui.html.includes(ui.i18n.t('diary.locked', { ns: 'matches' })));
+  assert.ok(!ui.controls.some(control => control.accessibilityLabel === ui.i18n.t('rating.plus', { ns: 'matches' })));
+  assert.ok(ui.controls.some(control => control.accessibilityLabel === ui.i18n.t('diary.save', { ns: 'matches' })));
+  assert.ok(ui.inputs.some(input => input.accessibilityLabel === ui.i18n.t('diary.note', { ns: 'matches' })));
 });
 
 const campaign = { id: 'campaign-test', name: 'Isolated campaign', gameId: 'game-test', status: 'Active', creatorId: 'me', members: [{ userId: 'me', userName: 'Me', status: 'Accepted' }], matches: [{ id: 'encounter', matchId: 'match-test', matchDate: '2026-10-06T12:00:00Z', sessionTitle: 'Encounter', canReadJournal: true }] };

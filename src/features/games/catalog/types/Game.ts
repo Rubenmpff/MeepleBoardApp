@@ -31,6 +31,11 @@ export interface Game {
 
   /** Rating interno do MeepleBoard (0-100), calculado a partir da média das avaliações pessoais (diário) de todas as partidas deste jogo. Null se ainda não houver avaliações. */
   meepleBoardScore?: number | null;
+  /** Ratings and distinct people behind the MeepleBoard rating (official matches, one per experience). */
+  meepleBoardRatingsCount?: number;
+  meepleBoardRaters?: number;
+  /** Position in the MeepleBoard ranking (equal means share it); only in ranking responses. */
+  meepleBoardRank?: number | null;
 
   /** Nº de pessoas que avaliaram no BGG — medida de "quão conhecido" o jogo é. */
   ratingsCount?: number;

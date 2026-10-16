@@ -290,7 +290,8 @@
     "empty": "Ainda não há jogos avaliados. Avalia uma partida no diário!",
     "emptyMine": "Ainda não avaliaste nenhum jogo. Avalia uma partida no diário!",
     "loadError": "Não foi possível carregar os rankings.",
-    "yourRating": "A tua média ★ {{value}}"
+    "yourRating": "A tua média ★ {{value}}",
+    "subtitleMinimum": "Média MeepleBoard das partidas oficiais. Entram jogos com pelo menos 5 avaliações de 3 jogadores; médias iguais partilham a posição."
   },
   "resources": {
     "loading": "A carregar recursos…",
@@ -453,6 +454,86 @@
       "PrintModel": "modelos 3D",
       "Unboxing": "unboxings",
       "Material": "materiais adicionais"
+    }
+  },
+  "ratingsInfo": {
+    "ratings_one": "{{count}} avaliação",
+    "ratings_other": "{{count}} avaliações",
+    "raters_one": "{{count}} jogador",
+    "raters_other": "{{count}} jogadores",
+    "few": "Poucas avaliações",
+    "how": "Como se calcula",
+    "howTitle": "Como se calcula",
+    "howMean": "Avaliação MeepleBoard: média de todas as avaliações das partidas deste jogo. Cada partida em que alguém joga conta uma vez para essa pessoa, por isso quem joga mais vezes contribui mais. Não é uma média de médias.",
+    "howCounts": "Avaliações e jogadores: quantas avaliações entram e de quantas pessoas diferentes.",
+    "howNames": "Sem nomes: a média não mostra nomes nem partidas. Com poucas avaliações, quem sabe quem jogou pode deduzir notas. Só aparece com o teu nome o que publicares.",
+    "howUnofficial": "Partidas não oficiais (modo forçado) não entram nesta média; entram na tua.",
+    "howMine": "A tua média: a média de todas as tuas avaliações deste jogo, incluindo partidas não oficiais.",
+    "howBgg": "BGG: a avaliação do BoardGameGeek, à parte; não entra nestas contas.",
+    "close": "Fechar",
+    "tileLabel": "MeepleBoard: {{value}} em 10, {{ratings}}, {{raters}}"
+  },
+  "experiences": {
+    "title": "Experiências da comunidade",
+    "seeAll": "Ver todas ({{count}})",
+    "note": "Publicadas pelos jogadores, com o nome deles. Não mostram com quem jogaram nem onde.",
+    "empty": "Ainda sem experiências publicadas. Depois de avaliares uma partida, podes partilhar a tua.",
+    "yours": "A tua",
+    "edited": "Editado",
+    "modes": {
+      "SOLO": "Solo",
+      "COMPETITIVE": "Competitivo",
+      "COOPERATIVE": "Cooperativo",
+      "UNKNOWN": "Modo por confirmar"
+    },
+    "players_one": "{{count}} jogador",
+    "players_other": "{{count}} jogadores",
+    "listTitle": "Experiências",
+    "listCount": "{{count}} experiências publicadas · mais recentes primeiro",
+    "more": "Mais opções",
+    "manage": "Gerir publicação",
+    "report": "Reportar comentário",
+    "reportTitle": "Reportar comentário",
+    "detail": "Detalhe (opcional)",
+    "reportNote": "Quem escreveu não vê quem reportou. A administração revê.",
+    "send": "Enviar",
+    "cancel": "Cancelar",
+    "reported": "Obrigado. A administração vai rever este comentário.",
+    "loadError": "Não foi possível carregar as experiências.",
+    "retry": "Tentar novamente",
+    "readMore": "Ler mais",
+    "ratingLabel": "{{value}} em 10",
+    "reasons": {
+      "Abusive": "Ofensivo ou abusivo",
+      "Spam": "Spam ou publicidade",
+      "PersonalData": "Dados pessoais de alguém",
+      "OffTopic": "Não é sobre o jogo",
+      "Other": "Outro",
+      "AutoReports": "várias denúncias"
+    }
+  },
+  "moderation": {
+    "title": "Moderação · Experiências",
+    "count_one": "{{count}} comentário com denúncias abertas",
+    "count_other": "{{count}} comentários com denúncias abertas",
+    "none": "Sem denúncias por rever.",
+    "keep": "Manter",
+    "hide": "Ocultar…",
+    "restore": "Repor",
+    "keepHidden": "Manter oculto",
+    "hiddenUntil": "Oculto até revisão",
+    "hidden": "Oculto",
+    "hideTitle": "Ocultar comentário",
+    "hideHint": "Escolhe o motivo. O autor vê-o; a avaliação não muda.",
+    "loadError": "Não foi possível carregar as denúncias.",
+    "retry": "Tentar novamente",
+    "reasons": {
+      "Abusive": "Ofensivo ou abusivo",
+      "Spam": "Spam ou publicidade",
+      "PersonalData": "Dados pessoais de alguém",
+      "OffTopic": "Não é sobre o jogo",
+      "Other": "Outro",
+      "AutoReports": "várias denúncias"
     }
   }
 }

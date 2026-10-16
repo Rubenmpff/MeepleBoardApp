@@ -95,7 +95,7 @@ export default function RankingsScreen() {
         <Text style={[type.caption, styles.explain]}>
           {tab === "minha"
             ? t("rankings.subtitleMine", { defaultValue: "Ordenado pelas tuas próprias avaliações" })
-            : t("rankings.subtitle", { defaultValue: "Ordenado pela nota média da comunidade MeepleBoard" })}
+            : t("rankings.subtitleMinimum")}
         </Text>
       </View>
 
@@ -136,7 +136,8 @@ export default function RankingsScreen() {
             activeOpacity={0.85}
           >
             <View style={styles.rankBadge}>
-              <Text style={styles.rankBadgeText}>{index + 1}</Text>
+              {/* Equal MeepleBoard means share the position (from the API); the personal tab keeps its order. */}
+              <Text style={styles.rankBadgeText}>{tab === "geral" ? item.meepleBoardRank ?? index + 1 : index + 1}</Text>
             </View>
 
             {item.imageUrl ? (
@@ -153,6 +154,7 @@ export default function RankingsScreen() {
                 {tab === "minha"
                   ? item.personalAverageRating != null ? t("rankings.yourRating", { value: formatRating(item.personalAverageRating, i18n.language) }) : ""
                   : [item.meepleBoardScore != null ? t("listItem.meepleBoardRating", { value: formatRating(item.meepleBoardScore / 10, i18n.language) }) : null,
+                    item.meepleBoardRatingsCount ? t("ratingsInfo.ratings", { count: item.meepleBoardRatingsCount }) : null,
                     item.averageRating != null ? t("listItem.bggRating", { value: formatRating(item.averageRating, i18n.language) }) : null].filter(Boolean).join(" · ")}
               </Text>
             </View>
