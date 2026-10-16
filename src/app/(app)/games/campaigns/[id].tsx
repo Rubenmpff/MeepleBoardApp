@@ -1,1 +1,1 @@
-export { default } from "@/src/features/games/campaigns/screens/Campaigndetailscreen";
+export { default } from "@/src/features/games/campaigns/screens/CampaignDetailScreen";

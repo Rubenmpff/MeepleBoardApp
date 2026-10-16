@@ -5,7 +5,7 @@ const { renderNative } = require('./helpers/renderNative.cjs');
 const S = 'src/features/games/sessions/screens/';
 const C = 'src/features/games/campaigns/screens/';
 const list = S + 'SessionsListScreen.tsx', create = S + 'CreateSessionScreen.tsx', detail = S + 'GameSessionDetailScreen.tsx';
-const campaigns = C + 'CampaignListScreen.tsx', createCampaign = C + 'Createcampaignscreen.tsx', campaignDetail = C + 'Campaigndetailscreen.tsx', encounter = C + 'CreateCampaignEncounterScreen.tsx';
+const campaigns = C + 'CampaignListScreen.tsx', createCampaign = C + 'CreateCampaignScreen.tsx', campaignDetail = C + 'CampaignDetailScreen.tsx', encounter = C + 'CreateCampaignEncounterScreen.tsx';
 const future = new Date(Date.now() + 3 * 86400000), deadline = new Date(future.getTime() - 86400000);
 const session = { id: 'session-test', name: 'Test-only session', organizerId: 'me', organizerUserName: 'Test player', status: 'Upcoming', scheduledStartDate: future.toISOString(), effectiveDeadline: deadline.toISOString(), acceptedGuestCount: 0,
   players: [{ userId: 'me', userName: 'Test player', isOrganizer: true, status: 'Accepted' }, { userId: 'other', userName: 'Other player', status: 0 }], matches: [] };
