@@ -54,3 +54,12 @@ Sugestões a validar por ecrã antes de mudar código:
 - **Perfil/Definições/Mais:** agrupar por intenção, apresentar privacidade e preferências com rótulos e confirmação clara; manter todos os acessos e testar texto ampliado.
 
 Esta lista é um ponto de partida, não uma afirmação de que a auditoria visual completa já ocorreu. Cada etapa deve apresentar problema observado, mockup/proposta, impacto, regras preservadas e percurso de validação no iPhone. Dados reais significam contratos e resultados efetivamente guardados; desenvolvimento continua exclusivamente com dados fictícios no ambiente de testes até autorização para outros ambientes.
+
+## 5. Rankings de jogadores por jogo (plano futuro, não desenvolvido)
+
+Registado a 2026-10-16, a pedido; sem proposta nem implementação até ser retomado.
+
+- Rankings por jogo: mundial e entre amigos.
+- Visibilidade escolhida por cada pessoa: «Só eu / Amigos / Público».
+- Critérios: mais vitórias, mais partidas e melhores pontuações.
+- A definir quando for retomado: partidas elegíveis (modos, partidas oficiais), amostras mínimas, desempates e o que significa «melhor pontuação» em jogos de pontuação diferente.
