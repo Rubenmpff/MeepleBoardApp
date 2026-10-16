@@ -228,9 +228,9 @@ table.dtab td small{display:block;font-size:calc(11.5px*var(--s));color:var(--mu
 </style>
 </head>
 <body>
-<div class="doc"><section class="block" id="jogo"><h2>Na página do jogo</h2><div class="strip" id="s-jogo"></div></section></div>
+<div class="doc"><section class="block" id="jogo"><h2>Na página do jogo</h2><div class="strip" id="s-jogo"></div></section><section class="block" id="pref"><h2>Definições</h2><div class="strip" id="s-pref"></div></section></div>
 <script>
-const G={"chart-box-outline":988494,"home-outline":984737,"dice-multiple-outline":987478,"account-circle":983049,"cog-outline":985275,"chevron-left":983361,"chevron-right":983362,"chevron-down":983360,"plus":984085,"bookshelf":987743,"check-circle":984544,"account-group":985161,"clock-outline":983376,"human-male-child":988044,"weight":984481,"open-in-new":984012,"star":984270,"star-outline":984274,"book-open-variant":988407,"play":984074,"printer-3d":984107,"dots-horizontal":983512,"flag-outline":983613,"calendar-plus":983283,"translate":984522,"package-variant":984022,"trophy-outline":984378,"notebook-outline":986815,"dice-5":983502,"cards-outline":984633,"account-heart-outline":986083,"information-outline":983805,"layers-outline":985598,"share-variant":984215,"check":983340,"lightbulb-outline":983862,"calendar-star":985555,"heart-outline":983765,"file-document-outline":985582,"play-circle-outline":984077,"flag-checkered":983612,"timer-sand":984351,"puzzle-outline":985702,"account-check-outline":986082,"chart-timeline-variant":986771,"magnify":983881,"close":983382,"calendar-outline":985959,"map-marker-outline":985049,"account-multiple-outline":983055,"radiobox-marked":984126,"radiobox-blank":984125,"circle-off-outline":987347,"pencil-outline":986294,"tune":984622};
+const G={"shield-account-outline":985618,"chart-box-outline":988494,"home-outline":984737,"dice-multiple-outline":987478,"account-circle":983049,"cog-outline":985275,"chevron-left":983361,"chevron-right":983362,"chevron-down":983360,"plus":984085,"bookshelf":987743,"check-circle":984544,"account-group":985161,"clock-outline":983376,"human-male-child":988044,"weight":984481,"open-in-new":984012,"star":984270,"star-outline":984274,"book-open-variant":988407,"play":984074,"printer-3d":984107,"dots-horizontal":983512,"flag-outline":983613,"calendar-plus":983283,"translate":984522,"package-variant":984022,"trophy-outline":984378,"notebook-outline":986815,"dice-5":983502,"cards-outline":984633,"account-heart-outline":986083,"information-outline":983805,"layers-outline":985598,"share-variant":984215,"check":983340,"lightbulb-outline":983862,"calendar-star":985555,"heart-outline":983765,"file-document-outline":985582,"play-circle-outline":984077,"flag-checkered":983612,"timer-sand":984351,"puzzle-outline":985702,"account-check-outline":986082,"chart-timeline-variant":986771,"magnify":983881,"close":983382,"calendar-outline":985959,"map-marker-outline":985049,"account-multiple-outline":983055,"radiobox-marked":984126,"radiobox-blank":984125,"circle-off-outline":987347,"pencil-outline":986294,"tune":984622};
 const ic=(n,s=20,c='currentColor')=>`<span class="mdi" style="--sz:${s}px;color:${c}" aria-hidden="true">${String.fromCodePoint(G[n]||63)}</span>`;
 const COVER='https://stonemaiergames.com/wp-content/uploads/2026/04/3d-wingspan.webp';
 const YT=id=>`https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
@@ -406,11 +406,11 @@ const credits=(en)=>{const x=en?{
  <div class="card"><div class="row">${ic('open-in-new',20,'var(--pri)')}<div class="grow"><div class="link">${x.open}</div><div class="t-cap">${x.host}</div></div></div></div></div>`;};
 
 const DUR={
- multi:{me:['1 h 02 min','6 partidas','sobretudo estimadas'],mb:['55 min','41 partidas','sobretudo estimadas']},
+ multi:{me:['1 h 02 min','6 partidas','métodos mistos'],mb:['55 min','41 partidas','métodos mistos']},
  solo:{me:['35 min','1 partida','estimada',true],mb:null}};
 function durSec(t,o){
  const d=DUR[o.solo?'solo':'multi'];
- const tile=(dot,label,v)=>`<div class="dt"><div class="who"><i style="background:${dot}"></i>${label}</div>${v?`<div class="v${v[3]?' few':''}">${v[0]}</div><div class="m"><b style="color:var(--ink);font-weight:600">${v[1]}</b> · ${v[2]}</div>`:`<div class="v few" style="color:var(--mut)">Dados insuficientes</div><div class="m">Ainda poucas partidas elegíveis</div>`}</div>`;
+ const tile=(dot,label,v)=>`<div class="dt"><div class="who"><i style="background:${dot}"></i>${label}</div>${v?`<div class="v${v[3]?' few':''}">${v[0]}</div><div class="m"><b style="color:var(--ink);font-weight:600">${v[1]}</b> · ${v[2]}</div>`:`<div class="v few" style="color:var(--mut)">Dados insuficientes</div><div class="m">Ainda poucas partidas partilhadas</div>`}</div>`;
  return sec('Duração das partidas','',`<div class="segm"><span class="${o.solo?'':'on'}">Multijogador</span><span class="${o.solo?'on':''}">Solo</span></div>
  <div class="dtiles${o.large?' col':''}">${tile('var(--gold)',d.me[3]?'A tua partida':'A tua média',d.me)}${tile('var(--pri)','Média MeepleBoard',d.mb)}</div>
  <div class="card"><div class="row">${ic('chart-box-outline',20,'var(--lav)')}<span class="grow t-body">Ver detalhes</span>${ic('chevron-right',20,'var(--chev)')}</div></div>
@@ -434,11 +434,29 @@ const details=`<div class="body" style="padding-top:110px;gap:22px">
  <span><b>Metade central:</b> entre o 1.º e o 3.º quartil; metade das partidas está neste intervalo.</span>
  <span><b>Muito afastadas:</b> mais de 1,5 vezes a largura da metade central abaixo do 1.º ou acima do 3.º quartil. Contam na média.</span>
  <span><b>Ficam de fora:</b> «Não sei», partidas sem duração e durações de 0 min antigas. Nunca contam como zero.</span>
- <span><b>Método não indicado:</b> partidas antigas com duração, de quando ainda não se perguntava se era medida ou estimada.</span></div></div>
+ <span><b>Método não indicado:</b> partidas antigas com duração, de quando ainda não se perguntava se era medida ou estimada. Não são tratadas como estimadas.</span><span><b>Média MeepleBoard:</b> só partidas em que todos os participantes aceitaram contribuir; cada partida conta uma vez.</span></div></div>
+ <div class="card"><div class="row">${ic('shield-account-outline',20,'var(--lav)')}<div class="grow"><div class="t-body">As tuas partidas na média MeepleBoard</div><div class="t-cap">Desligado · Alterar em Definições → Privacidade</div></div>${ic('chevron-right',20,'var(--chev)')}</div></div>
  <div class="dnote">${ic('information-outline',14)}<span>A duração do BGG (40–70 min) é da ficha do BoardGameGeek e não entra nestes cálculos.</span></div></div>`;
 const bar=`<div class="bar"><div class="row"><span class="act">${ic('chevron-left',28)}</span><span class="ttl">Duração · Wingspan</span><span class="act"></span></div></div>`;
+const sw=on=>`<span style="width:51px;height:31px;border-radius:16px;background:${on?'var(--pri)':'#E3DEE8'};position:relative;flex:none"><i style="position:absolute;top:2px;${on?'right':'left'}:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25)"></i></span>`;
+const chk=(l,d,on)=>`<div class="row"><div class="grow"><div class="t-body">${l}</div>${d?`<div class="t-cap">${d}</div>`:''}</div>${on?ic('check',22,'var(--pri)'):''}</div>`;
+const settings=(on)=>`<div class="body" style="padding-top:110px;gap:22px">
+ <div class="blk"><div class="sechead"><h3 style="font-size:calc(15px*var(--s));text-transform:uppercase;letter-spacing:.3px;color:var(--mut)">Privacidade da coleção</h3></div><div class="card">${chk('Privada','Só tu vês a tua coleção.',false)}${chk('Apenas amigos','Só amigos aceites veem a tua coleção.',true)}${chk('Pública','Qualquer utilizador pode ver a tua coleção.',false)}</div></div>
+ <div class="blk"><div class="sechead"><h3 style="font-size:calc(15px*var(--s));text-transform:uppercase;letter-spacing:.3px;color:var(--mut)">Privacidade das estatísticas</h3></div>
+ <div class="card"><div class="row" style="min-height:64px"><div class="grow"><div class="t-body">Contribuir para a duração da comunidade</div><div class="t-cap">${on?'Ligado':'Desligado'}</div></div>${sw(on)}</div></div>
+ <div class="card" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;font-size:calc(13.5px*var(--s));line-height:calc(19px*var(--s))">
+ <span><b>O que é utilizado:</b> a duração e o método (medida, estimativa ou não indicado), o jogo, o modo e o número de jogadores das partidas em que participaste.</span>
+ <span><b>O que nunca é utilizado:</b> nomes, datas, locais, resultados, pontuações, avaliações e notas.</span>
+ <span><b>Quando conta:</b> só nas partidas em que todos os participantes ligaram esta opção. Inclui partidas anteriores.</span>
+ <span><b>Como aparece:</b> só como média anónima por jogo, sem partidas individuais, e só com partidas suficientes de várias pessoas.</span>
+ <span><b>Se desligares:</b> as tuas partidas deixam de contar a partir desse momento. A tua média pessoal não muda.</span></div></div>
+ <div class="card"><div class="row"><span class="grow" style="color:#B3261E;font-weight:600">Terminar sessão</span></div></div></div>`;
+const snav=`<div class="nav"><div class="row"><span class="link" style="display:flex;align-items:center">${ic('chevron-left',26)}Perfil</span><span class="ttl">Definições</span><span></span></div></div>`;
+put('s-pref',
+ fig({body:settings(false),custom:snav,scroll:150},'Desligada por omissão','Uma linha com interruptor e o que é utilizado, o que nunca é, quando conta, como aparece e o que acontece ao desligar.')+
+ fig({body:settings(true),custom:snav,scroll:150},'Ligada','Ligar não muda nada de imediato para os outros: cada partida só conta quando todos os participantes também ligaram.'));
 put('s-jogo',
- fig({owned:true,dur:true,scroll:1290},'Página do jogo · multijogador','Só o essencial: média, número de partidas e a qualidade dos dados numa palavra («medidas», «inclui estimativas», «sobretudo estimadas»). As contagens por método ficam em «Ver detalhes». A média MeepleBoard depende da decisão sobre as partidas elegíveis. Valores fictícios.')+
+ fig({owned:true,dur:true,scroll:1290},'Página do jogo · multijogador','Só o essencial: média, número de partidas e o método numa indicação fiel («medidas», «estimadas», «método não indicado» ou «métodos mistos»). As contagens por método ficam em «Ver detalhes». Valores fictícios.')+
  fig({owned:true,dur:true,solo:true,scroll:1290},'Solo e poucos dados','Com uma partida: «A tua partida», não média. A média MeepleBoard diz «Dados insuficientes» abaixo da proteção mínima.')+
  fig({body:details,custom:bar},'Ver detalhes','Mediana, metade central, partidas muito afastadas e o que fica de fora, para a tua média e para a MeepleBoard.')+
  fig({body:details,custom:bar,scroll:640},'Ver detalhes · por jogadores','A proteção mínima aplica-se a cada grupo; os que não a cumprem dizem «Dados insuficientes».')+
