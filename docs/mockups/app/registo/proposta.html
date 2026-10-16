@@ -259,6 +259,15 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 .scale{display:flex;justify-content:space-between;font-size:calc(11.5px*var(--s));color:var(--mut);padding:0 58px}
 .rowx{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 16px;position:relative}
 .rowx+.rowx::before{content:"";position:absolute;top:0;left:52px;right:0;height:1px;background:var(--hair)}
+.dur{display:flex;flex-direction:column;gap:10px;padding:14px 16px}
+.drow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dbox{display:flex;align-items:baseline;gap:4px}
+.dbox span.v{min-width:calc(52px*var(--s));min-height:46px;border:1px solid var(--line);border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:calc(20px*var(--s));font-weight:700;font-variant-numeric:tabular-nums;padding:0 8px}
+.dbox span.v.ph{color:#B9B3C0;font-weight:500}.dbox span.v.focus{border-color:var(--pri);box-shadow:0 0 0 2px var(--pri-soft)}
+.dbox i{font-style:normal;color:var(--mut);font-size:calc(14px*var(--s))}
+.dk{margin-left:auto;min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:var(--card);display:flex;align-items:center;gap:6px;font-weight:600;font-size:calc(14px*var(--s))}
+.dk.on{background:var(--pri-soft);border-color:var(--pri);color:var(--pri)}
+.dur.off .dbox span.v{opacity:.45}
 .fld2{display:flex;flex-direction:column;gap:6px;padding:10px 16px}
 .fld2 label{font-size:calc(13px*var(--s));font-weight:600;color:var(--mut)}
 .inp{min-height:46px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);color:#8C9096;font-size:calc(15px*var(--s))}
@@ -290,7 +299,7 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 <div class="doc">
 <h1>Registar uma partida: proposta do percurso completo</h1>
 <div class="prose">
-<p class="lede">Cinco passos curtos em vez de quatro carregados. O Resultado passa a ter só o resultado; a avaliação, a data e os detalhes vão para um passo próprio; Rever fica legível. As regras, os cálculos, a obrigatoriedade da avaliação e as permissões não mudam.</p>
+<p class="lede">Cinco passos curtos em vez de quatro carregados. O Resultado passa a ter só o resultado; a avaliação, a duração, a data e os detalhes vão para um passo próprio; Rever fica legível. As regras, os cálculos, a obrigatoriedade da avaliação e as permissões não mudam.</p>
 <p class="muted">Ecrãs a 402 × 874 pt com os tokens de <code>src/ui/theme.ts</code>. Jogos e contas de teste do DeviceTests (fictícios, «Teste-…»); Wingspan com os dados verificados (Stonemaier, 2019). Pontuações e avaliações ilustrativas.</p>
 </div>
 <div class="grid">
@@ -302,7 +311,7 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 <div class="box"><h3>Proposta</h3><ul>
 <li><b>Jogo</b> (capas, biblioteca, catálogo; depois um resumo com o modo) → <b>Jogadores</b> → <b>Resultado</b> (só resultado e tabela) → <b>Avaliação e data</b> → <b>Rever</b>.</li>
 <li><b>Jogo já escolhido</b> (página do jogo, sessão, «Jogar novamente»): se o modo é o único do catálogo e não há expansões tuas por indicar, abre diretamente em <b>Jogadores</b>, com o resumo do jogo e «Mudar». Se faltar escolher o modo ou as expansões, mostra essa configuração primeiro.</li>
-<li><b>Mudar de modo ou de resposta</b> conserva o que continua válido (jogadores, pontuações, avaliação, data, detalhes) e <b>limpa no momento</b> as seleções que deixam de fazer sentido (vencedores, empatados, resultado da equipa, confirmação de vitória partilhada), com um aviso e «Desfazer». Nada incompatível fica escondido para ser guardado.</li>
+<li><b>Mudar de modo ou de resposta</b> conserva o que continua válido (jogadores, pontuações, avaliação, duração, data, detalhes) e <b>limpa no momento</b> as seleções que deixam de fazer sentido (vencedores, empatados, resultado da equipa, confirmação de vitória partilhada), com um aviso e «Desfazer». Nada incompatível fica escondido para ser guardado.</li>
 </ul></div>
 <div class="box"><h3>Esforço do registo rápido</h3><ul>
 <li>Competitivo a 2, sem pontuação: escolher jogo · Continuar · adicionar 1 amigo · Continuar · marcar vencedor · Continuar · tocar na avaliação · Continuar · Guardar = <b>9 toques</b> (hoje: 8, com o Resultado num só ecrã comprido e scroll).</li>
@@ -317,6 +326,22 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 <p class="muted">Uma pergunta, «Quem ganhou?», com três respostas. A vitória partilhada nasce de escolher mais do que um vencedor e pede a confirmação das regras; o empate é outra resposta, com a coluna «Empatado em 1.º» e derrota para os restantes. As pontuações nunca marcam nada.</p>
 <div class="strip" id="s-res"></div></section>
 <section class="block" id="modos"><h2>3 · Cooperativo e solo</h2><div class="strip" id="s-modos"></div></section>
+<section class="block" id="duracao"><h2>Duração da partida</h2><p class="muted">No passo «Avaliação e data», fora dos detalhes opcionais. Resposta obrigatória nas partidas novas: um valor (estimativa ou medida) ou «Não sei». Editar uma partida antiga sem duração não obriga a responder. Reutiliza o campo existente <code>DurationInMinutes</code>; acrescenta só como foi obtida.</p><div class="strip" id="s-dur"></div></section>
+<section class="block" id="duracao-jogo"><h2>Duração na página do jogo</h2><p class="muted">Composição aprovada da página, com uma secção nova em «Sobre», depois de «A tua experiência». A duração do BGG continua na ficha, no topo, identificada como dado do BGG. Ecrãs em <code>pagina-jogo-duracao.html</code>; valores fictícios.</p><div class="strip" id="s-durjogo"></div></section>
+<section class="block" id="duracao-regras"><h2>Duração: dados, médias e regras</h2>
+<div class="tablewrap"><table class="map">
+<tr><th>Ponto</th><th>Proposta</th></tr>
+<tr><td>O que já existe e se reutiliza</td><td><code>Match.DurationInMinutes</code> (minutos, opcional) e a sua validação; as Estatísticas pessoais já somam os minutos registados e contam partidas com e sem duração, e já separam modos; o registo já envia <code>durationInMinutes</code>. Não se cria outro campo de minutos.</td></tr>
+<tr><td>O único dado novo</td><td>Como a duração foi obtida, numa coluna opcional: <b>Medida</b>, <b>Estimativa</b> ou <b>Não sei</b>. Vazio = partida antiga, a quem nunca se perguntou. Nas partidas novas a app exige uma das três; a API valida a coerência (Medida/Estimativa com minutos ≥ 1; «Não sei» sem minutos) e aceita partidas antigas como estão.</td></tr>
+<tr><td>Introdução</td><td>Horas e minutos; nunca pré-preenchida (nem com o BGG, nem com o tempo do formulário). Com valor, fica «Estimativa» até a pessoa escolher «Medida». Hoje a API aceita 0 minutos e a app não: nas partidas novas, 0 deixa de ser aceite (quem não sabe escolhe «Não sei»); os 0 já gravados ficam como estão e aparecem como valor invulgar, sem serem alterados.</td></tr>
+<tr><td>A tua média</td><td>Partidas em que participaste, com minutos. Mostra o número de partidas usadas, quantas são estimadas e quantas ficaram de fora. Com 1 partida mostra o valor dessa partida, não «média».</td></tr>
+<tr><td>Média MeepleBoard</td><td>Agregado anónimo do jogo, como a nota MeepleBoard de hoje: cada partida conta uma vez (pela partida, não pelos participantes), sem nomes nem partidas individuais. Só aparece com pelo menos <b>5 partidas com duração</b> nesse grupo, para não revelar a duração de uma partida concreta nem dar uma média pouco fiável; abaixo disso mostra «Ainda poucas partidas (n)».</td></tr>
+<tr><td>Grupos</td><td><b>Solo</b> (modo solo, 1 jogador) e <b>Multijogador</b> (competitivo e cooperativo) separados; por número de jogadores numa folha própria (1, 2, 3, 4, 5+), cada célula com as suas contagens e o mesmo mínimo de 5 para a média MeepleBoard. Nunca se juntam solo e multijogador numa só média.</td></tr>
+<tr><td>Valores desconhecidos</td><td>Partidas antigas sem duração e «Não sei» continuam válidas, ficam de fora das médias e nunca contam como zero. As contagens mostram quantas ficaram de fora.</td></tr>
+<tr><td>Valores extremos</td><td>Nada é excluído nem corrigido em silêncio. No registo, acima de 6 h ou abaixo de 5 min aparece um aviso a pedir confirmação. Nas médias, com 5 ou mais valores: mostra também «a maioria entre» (do 1.º ao 3.º quartil) e, se houver valores muito afastados, quantos são e a mediana, a par da média.</td></tr>
+<tr><td>Medidos e estimados</td><td>Contam os dois na média; o número de estimados fica sempre à vista. Uma média só com estimativas diz «estimada».</td></tr>
+<tr><td>BGG</td><td>«40–70 minutos» continua na ficha, com «Ficha do BoardGameGeek» e o logótipo. As médias MeepleBoard nunca aparecem como dado do BGG nem o substituem.</td></tr>
+</table></div></section>
 <section class="block" id="avaliacao"><h2>4 · Avaliação, data e detalhes</h2>
 <p class="muted">Valor grande «x / 10», uma barra com marcas de 0 a 10 e botões ±0,5 de 48 pt; sem atalhos. A barra funciona sem arrastar: tocar num ponto escolhe o meio ponto mais próximo; com VoiceOver é um controlo ajustável (deslizar para cima/baixo = ±0,5, lido como «7,5 de 10»). Toda a escala de 0 a 10 em meios pontos. «Ainda sem avaliação» («— / 10») é diferente de 0. Continua obrigatória.</p>
 <div class="strip" id="s-aval"></div></section>
@@ -333,7 +358,8 @@ table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--do
 <tr><td>Pontuações inteiras com sinal (zero e negativos), todas ou nenhuma; ± no teclado numérico</td><td>Coluna «Pontos» só com «Com pontuação»; ± na barra do teclado</td></tr>
 <tr><td>Avaliação obrigatória, 0–10 em meios pontos; zero ≠ sem avaliação</td><td>Controlo novo; «— / 10» até escolher; zero é um valor</td></tr>
 <tr><td>Modo não oficial com justificação; expansões usadas; sessão; fotografias; saída protegida; confirmação após guardar</td><td>Iguais; expansões e modo no resumo do jogo; fotografias nos detalhes</td></tr>
-<tr><td>Mudar de modo ou de resultado</td><td>Conserva jogadores, pontuações, avaliação, data e detalhes; limpa logo vencedores, empatados, resultado da equipa e a confirmação de vitória partilhada, com «Desfazer». Solo com mais de um jogador fica bloqueado com o aviso atual em Jogadores, sem remover ninguém em silêncio.</td></tr>
+<tr><td>Duração em minutos, opcional, dentro dos detalhes</td><td>Visível no passo 4, em horas e minutos, com resposta obrigatória (valor ou «Não sei») e «Estimativa»/«Medida»; o mesmo campo de minutos</td></tr>
+<tr><td>Mudar de modo ou de resultado</td><td>Conserva jogadores, pontuações, avaliação, duração, data e detalhes; limpa logo vencedores, empatados, resultado da equipa e a confirmação de vitória partilhada, com «Desfazer». Solo com mais de um jogador fica bloqueado com o aviso atual em Jogadores, sem remover ninguém em silêncio.</td></tr>
 </table></div></section>
 </div>
 
@@ -342,26 +368,26 @@ const G={"account": 983044, "account-group": 985161, "alert-circle-outline": 984
 const ic=(n,s=20,c='currentColor')=>`<span class="mdi" style="--sz:${s}px;color:${c}" aria-hidden="true">${String.fromCodePoint(G[n]||63)}</span>`;
 const COVER='https://stonemaiergames.com/wp-content/uploads/2026/04/3d-wingspan.webp';
 const T={pt:{title:'Registar partida',quick:'Registo rápido',cancel:'Cancelar',steps:['Jogo','Jogadores','Resultado','Avaliação e data','Rever'],stepOf:(n,l)=>`Passo ${n} de 5 · ${l}`,prev:'Anterior',next:'Continuar',review:'Rever partida',save:'Guardar partida',
- search:'Pesquisar no catálogo ou na biblioteca',owned:'Tenho',chosen:'Escolhido',notOwned:'não está na tua biblioteca',notOwnedNote:'Não está na tua biblioteca. Podes registar a partida na mesma; a biblioteca não muda.',noneFor:q=>`Nenhum jogo encontrado para «${q}»`,noneHint:'Verifica a ortografia ou tenta o nome original em inglês.',lib:'Da tua biblioteca',cat:'No catálogo',base:'Jogo base',exp:'Expansão',change:'Mudar',mode:'Modo de jogo',comp:'Competitivo',coop:'Cooperativo',solo:'Solo',inCat:'No catálogo',force:'Forçar',expUsed:'Expansões usadas',none:'Nenhuma',
+ search:'Pesquisar no catálogo ou na biblioteca',durTitle:'Duração da partida',durUnknown:'Não sei',durMeasured:'Medida',durEstimate:'Estimativa',durHint:'Só o tempo a jogar, sem preparação nem pausas longas. Uma estimativa serve.',durUnknownHint:'Fica sem duração e não entra nas médias.',durError:'Indica a duração ou escolhe «Não sei».',durShort:'Duração',durRv:'1 h 05 min · estimativa',owned:'Tenho',chosen:'Escolhido',notOwned:'não está na tua biblioteca',notOwnedNote:'Não está na tua biblioteca. Podes registar a partida na mesma; a biblioteca não muda.',noneFor:q=>`Nenhum jogo encontrado para «${q}»`,noneHint:'Verifica a ortografia ou tenta o nome original em inglês.',lib:'Da tua biblioteca',cat:'No catálogo',base:'Jogo base',exp:'Expansão',change:'Mudar',mode:'Modo de jogo',comp:'Competitivo',coop:'Cooperativo',solo:'Solo',inCat:'No catálogo',force:'Forçar',expUsed:'Expansões usadas',none:'Nenhuma',
  players:'Jogadores',you:'tu',add:'Adicionar',searchFriends:'Pesquisar amigos',mandatory:'Participas nesta partida; a tua presença é obrigatória.',
  who:'Quem ganhou?',pick:'Escolher vencedor(es)',pickSub:'Um ou mais jogadores ganham',tie:'Empate no 1.º lugar',tieSub:'Dois ou mais partilham o 1.º; os restantes perdem',undef:'Não definido',undefSub:'Guardar sem resultado',
  scores:'Pontuação',noScores:'Sem pontuação',withScores:'Com pontuação',player:'Jogador',points:'Pontos',winner:'Vencedor',tied:'Empatado em 1.º',
  explain:'Escolhes o resultado; as pontuações ficam registadas mas não decidem quem ganha.',win:'Vitória',loss:'Derrota',draw:'Empate',notset:'—',
  shared:'Vitória partilhada: as regras deste jogo permitem mais do que um vencedor.',sharedQ:'Confirmo que as regras permitem vitória partilhada',
  rating:'A tua avaliação',ratingReq:'obrigatória',ratingHint:'Só a tua experiência; cada pessoa avalia a sua.',noRating:'Ainda sem avaliação',clear:'Limpar',
- when:'Quando',today:'Hoje',date:'qua., 15 out. 2026',time:'21:30',edit:'Alterar',details:'Detalhes opcionais',detailsSub:'Local, duração, comentários, notas, etiquetas, fotografias',
+ when:'Quando',today:'Hoje',date:'qua., 15 out. 2026',time:'21:30',edit:'Alterar',details:'Detalhes opcionais',detailsSub:'Local, comentários, notas, etiquetas, fotografias',
  loc:'Local',dur:'Duração (minutos)',com:'Comentários',notes:'Notas privadas',tags:'Etiquetas',photos:'Fotografias',addPhoto:'Adicionar fotografia',
  rv:'Confirma antes de guardar',game:'Jogo',result:'Resultado',ratingShort:'Avaliação',whenShort:'Quando',fix:'Corrigir',ratingError:'Escolhe a tua avaliação (0 a 10) para continuar.',
  we:'Ganhámos',weLost:'Perdemos',teamDraw:'Empate',iWon:'Ganhei',gameWon:'Perdi',team:'Resultado da equipa',teamNote:'Aplica-se a todos os jogadores; sem vencedor individual.',soloNote:'O teu resultado contra o jogo.'},
 en:{title:'Record match',quick:'Quick record',cancel:'Cancel',steps:['Game','Players','Result','Rating and date','Review'],stepOf:(n,l)=>`Step ${n} of 5 · ${l}`,prev:'Back',next:'Continue',review:'Review match',save:'Save match',
- search:'Search the catalogue or your library',owned:'Owned',chosen:'Chosen',notOwned:'not in your library',notOwnedNote:'Not in your library. You can still record the match; your library does not change.',noneFor:q=>`No games found for «${q}»`,noneHint:'Check the spelling or try the original English name.',lib:'From your library',cat:'In the catalogue',base:'Base game',exp:'Expansion',change:'Change',mode:'Game mode',comp:'Competitive',coop:'Cooperative',solo:'Solo',inCat:'In catalogue',force:'Force',expUsed:'Expansions used',none:'None',
+ search:'Search the catalogue or your library',durTitle:'Match duration',durUnknown:'Not sure',durMeasured:'Timed',durEstimate:'Estimate',durHint:'Playing time only, without setup or long breaks. An estimate is fine.',durUnknownHint:'Saved without a duration; not used in averages.',durError:'Enter the duration or choose «Not sure».',durShort:'Duration',durRv:'1 h 05 min · estimate',owned:'Owned',chosen:'Chosen',notOwned:'not in your library',notOwnedNote:'Not in your library. You can still record the match; your library does not change.',noneFor:q=>`No games found for «${q}»`,noneHint:'Check the spelling or try the original English name.',lib:'From your library',cat:'In the catalogue',base:'Base game',exp:'Expansion',change:'Change',mode:'Game mode',comp:'Competitive',coop:'Cooperative',solo:'Solo',inCat:'In catalogue',force:'Force',expUsed:'Expansions used',none:'None',
  players:'Players',you:'you',add:'Add',searchFriends:'Search friends',mandatory:'You take part in this match; you cannot be removed.',
  who:'Who won?',pick:'Pick the winner(s)',pickSub:'One or more players win',tie:'Tie for first',tieSub:'Two or more share first; the others lose',undef:'Not set',undefSub:'Save without a result',
  scores:'Score',noScores:'No scores',withScores:'With scores',player:'Player',points:'Points',winner:'Winner',tied:'Tied for 1st',
  explain:'You choose the result; scores are recorded but never decide who wins.',win:'Win',loss:'Loss',draw:'Draw',notset:'—',
  shared:'Shared victory: this game’s rules allow more than one winner.',sharedQ:'I confirm the rules allow a shared victory',
  rating:'Your rating',ratingReq:'required',ratingHint:'Only your own experience; each person rates theirs.',noRating:'Not rated yet',clear:'Clear',
- when:'When',today:'Today',date:'Wed, 15 Oct 2026',time:'21:30',edit:'Change',details:'Optional details',detailsSub:'Place, duration, comments, notes, tags, photos',
+ when:'When',today:'Today',date:'Wed, 15 Oct 2026',time:'21:30',edit:'Change',details:'Optional details',detailsSub:'Place, comments, notes, tags, photos',
  loc:'Place',dur:'Duration (minutes)',com:'Comments',notes:'Private notes',tags:'Tags',photos:'Photos',addPhoto:'Add photo',
  rv:'Check before saving',game:'Game',result:'Result',ratingShort:'Rating',whenShort:'When',fix:'Edit',ratingError:'Choose your rating (0 to 10) to continue.',
  we:'We won',weLost:'We lost',teamDraw:'Draw',iWon:'I won',gameWon:'I lost',team:'Team result',teamNote:'Applies to every player; no individual winner.',soloNote:'Your result against the game.'}};
@@ -410,19 +436,27 @@ const ratingCtl=(t,v,{err=false}={})=>{const pct=v==null?0:v*10;const ticks=[...
 const whenCard=t=>`<div class="card"><div class="rowx">${ic('calendar-clock',20,'var(--pri)')}<div class="grow"><div class="cap">${t.when}</div><div class="b">${t.today} · ${t.date} · ${t.time}</div></div><span class="link">${t.edit}</span></div></div>`;
 const detailsCard=(t,open)=>open?`<div class="card"><div class="rowx">${ic('text-box-outline',20,'var(--pri)')}<div class="grow b">${t.details}</div>${ic('chevron-up',22,'var(--chev)')}</div>
  <div class="fld2"><label>${t.loc}</label><div class="inp">Casa de teste</div></div>
- <div class="fld2"><label>${t.dur}</label><div class="inp">90</div></div>
  <div class="fld2"><label>${t.com}</label><div class="inp">Partida renhida…</div></div>
  <div class="fld2"><label>${t.notes}</label><div class="inp">Só para mim…</div></div>
  <div class="fld2"><label>${t.tags}</label><div class="inp">épico, reviravolta</div></div>
  <div class="fld2"><label>${t.photos}</label><div class="inp" style="color:var(--pri);font-weight:600;border-style:dashed">${ic('camera-plus-outline',18)} ${t.addPhoto}</div></div></div>`
  :`<div class="card"><div class="rowx">${ic('text-box-outline',20,'var(--pri)')}<div class="grow"><div class="b">${t.details}</div><div class="cap">${t.detailsSub}</div></div>${ic('chevron-down',22,'var(--chev)')}</div></div>`;
-const step4=(t,v,o={})=>`${summary(t)}${ratingCtl(t,v,o)}${whenCard(t)}${detailsCard(t,o.open)}`;
+// Duration: required answer — a value (estimate by default, «Medida» when timed) or an explicit «Não sei». Never prefilled.
+const durCard=(t,d={})=>{const unk=d.kind==='unknown',has=d.h!=null||d.m!=null;
+ const box=(v,u,ph,focus)=>`<span class="dbox"><span class="v${v==null?' ph':''}${focus?' focus':''}">${v==null?ph:v}</span><i>${u}</i></span>`;
+ return `<div class="card dur${unk?' off':''}"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="h">${t.durTitle} <span class="tagx" style="vertical-align:middle">${t.ratingReq}</span></span>${has||unk?`<span class="link">${t.clear}</span>`:''}</div>
+ <div class="drow">${box(unk?null:d.h,'h','–',d.focus==='h')}${box(unk?null:d.m,'min','–',d.focus==='m')}<span class="dk${unk?' on':''}">${unk?ic('check',16):''}${t.durUnknown}</span></div>
+ ${has&&!unk?`<div class="seg2"><span class="${d.kind==='measured'?'on':''}">${t.durMeasured}</span><span class="${d.kind!=='measured'?'on':''}">${t.durEstimate}</span></div>`:''}
+ ${d.err?`<div class="note" style="color:#A3445A">${ic('alert-circle-outline',16,'#A3445A')}<span>${t.durError}</span></div>`
+  :d.confirm?`<div class="note" style="color:var(--gold-ink)">${ic('alert-circle-outline',16,'var(--gold-ink)')}<span>${d.confirm}</span></div>`
+  :`<div class="cap">${unk?t.durUnknownHint:t.durHint}</div>`}</div>`;};
+const step4=(t,v,o={})=>`${summary(t)}${ratingCtl(t,v,o)}${durCard(t,o.dur||{h:1,m:'05',kind:'estimate'})}${whenCard(t)}${detailsCard(t,o.open)}`;
 const rvSection=(t,title,body)=>`<div class="sechd"><span class="h" style="font-size:calc(15px*var(--s))">${title}</span><span class="l">${t.fix}</span></div>${body}`;
 const step5=(t,o={})=>`<div class="cap">${t.rv}</div>
 ${rvSection(t,t.game,summary(t,o.game,o.sub,o.img).replace(`<span class="link">${t.change}</span>`,''))}
 ${rvSection(t,t.result,`<div class="card"><div class="rv"><span class="k">${t.result}</span><span class="v">${o.res||`${t.winner}: Teste-participante`}</span></div><div class="rv"><span class="k">${t.scores}</span><span class="v">${o.sc||t.noScores}</span></div></div>`)}
 ${o.table||table(t,[['Teste-participante','',0,'w'],['Teste-amiga-colecionadora','',0,'l']],{col:null})}
-${rvSection(t,t.ratingShort,`<div class="card"><div class="rv"><span class="k">${t.rating}</span><span class="v" style="font-size:calc(18px*var(--s))">7,5 / 10</span></div><div class="rv"><span class="k">${t.whenShort}</span><span class="v">${t.date} · ${t.time}</span></div><div class="rv"><span class="k">${t.loc}</span><span class="v">Casa de teste</span></div></div>`)}`;
+${rvSection(t,t.ratingShort,`<div class="card"><div class="rv"><span class="k">${t.rating}</span><span class="v" style="font-size:calc(18px*var(--s))">7,5 / 10</span></div><div class="rv"><span class="k">${t.durShort}</span><span class="v">${o.durRv||t.durRv}</span></div><div class="rv"><span class="k">${t.whenShort}</span><span class="v">${t.date} · ${t.time}</span></div><div class="rv"><span class="k">${t.loc}</span><span class="v">Casa de teste</span></div></div>`)}`;
 
 const t=T.pt,e=T.en;
 const coopChoices=(tt,on)=>`<div class="h">${tt.team}</div><div class="cgrid">${[tt.we,tt.weLost,tt.teamDraw,tt.undef].map((a,i)=>`<div class="choice${i===on?' on':''}"><span class="rd"></span><span class="t">${a}</span></div>`).join('')}</div>`;
@@ -451,7 +485,7 @@ put('s-comp',
  fig(phone(t,2,step2(t)),'2 · Jogadores','Tu fixo, com cadeado; os outros removíveis; amigos para adicionar por baixo.')+
  fig(phone(t,3,step3(t)),'3 · Resultado','«Quem ganhou?»: escolher vencedor(es), empate ou não definido. Tabela alinhada: jogador, seleção, resultado de cada um. Uma só explicação.')+
  fig(phone(t,3,step3(t,{scores:true,rows:[['Teste-participante','-17',1,'w'],['Teste-amiga-colecionadora','0',0,'l']]})),'3 · Com pontuação','Coluna «Pontos» alinhada à direita, zero e negativos; o vencedor continua a ser escolhido à mão (aqui quem tem −17).')+
- fig(phone(t,4,step4(t,7.5)),'4 · Avaliação e data','«7,5 / 10» em destaque; barra 0–10 (tocar ou ±0,5; ajustável com VoiceOver); data e hora numa linha; detalhes recolhidos.')+
+ fig(phone(t,4,step4(t,7.5)),'4 · Avaliação e data','«7,5 / 10» em destaque; barra 0–10 (tocar ou ±0,5; ajustável com VoiceOver); duração obrigatória (valor ou «Não sei»), visível; data e hora numa linha; detalhes recolhidos.')+
  fig(phone(t,5,step5(t)),'5 · Rever','Secções legíveis com «Corrigir»; resultado por jogador; avaliação e data juntas. «Guardar partida» só aqui.'));
 
 put('s-res',
@@ -465,11 +499,19 @@ put('s-modos',
  fig(phone(t,5,step5(t,{game:'Meeple Teste Cooperativo',sub:`2026 · ${t.base} · ${t.coop}`,res:t.we,table:table(t,[['Teste-participante','',0,'w'],['Teste-amiga-colecionadora','',0,'w'],['Teste-amiga-meeples','',0,'w']],{col:null})})),'Cooperativo · Rever','«Ganhámos» e uma vitória por pessoa, como nos cálculos atuais.')+
  fig(phone(t,3,`${summary(t,'Meeple Teste Solo',`2026 · ${t.base} · ${t.solo}`)}${soloChoices(t,1)}<div class="note">${ic('account',16,'var(--lav)')}<span>${t.soloNote}</span></div>${scoreToggle(t,true)}${table(t,[['Teste-participante','64',0,'l']],{scores:true,col:null})}${explain(t)}`),'Solo','«Ganhei / Perdi / Empate / Não definido»: funciona também em jogos sem adversário automático. Um jogador; pontuação opcional.'));
 
+put('s-dur',
+ fig(phone(t,4,step4(t,7.5,{dur:{}}),{scroll:120}),'Por responder','Sem valor prévio: nem a duração do BGG, nem o tempo desde que o formulário abriu. Horas e minutos em dois campos numéricos; «Não sei» ao lado.')+
+ fig(phone(t,4,step4(t,7.5,{dur:{h:1,m:'05',kind:'estimate',focus:'m'}}),{scroll:120}),'Estimativa (por omissão)','Ao escrever um valor fica marcado como «Estimativa»; só passa a «Medida» se a pessoa o escolher (cronometrou). Assim nenhum valor estimado é apresentado como medido.')+
+ fig(phone(t,4,step4(t,7.5,{dur:{h:0,m:'48',kind:'measured'}}),{scroll:120}),'Medida','«Medida» quando a partida foi cronometrada. Nas médias conta igual, mas o número de valores medidos e estimados fica à vista.')+
+ fig(phone(t,4,step4(t,7.5,{dur:{kind:'unknown'}}),{scroll:120}),'«Não sei»','Resposta explícita: a partida fica sem duração, válida, e não conta para as médias (nem como zero).')+
+ fig(phone(t,4,step4(t,7.5,{dur:{err:true}}),{scroll:120}),'Tentar continuar sem responder','Erro junto da duração; «Rever partida» só depois de um valor ou «Não sei». Mesma regra da avaliação.')+
+ fig(phone(t,4,step4(t,7.5,{dur:{h:9,m:'30',kind:'estimate',confirm:'9 h 30 min é invulgar para este jogo. Confirma, ou corrige.'}}),{scroll:120}),'Valor invulgar','Acima de 6 h ou abaixo de 5 min, um aviso pede confirmação; não bloqueia nem altera o valor.')+
+ fig(phone(t,5,step5(t,{durRv:'Não sei'})),'Rever · «Não sei»','A revisão mostra a resposta: «1 h 05 min · estimativa», «48 min · medida» ou «Não sei».'));
 put('s-aval',
  fig(phone(t,4,step4(t,null)),'Ainda sem avaliação','«— / 10» e «Ainda sem avaliação»: não é zero. Barra vazia, sem marcador.')+
  fig(phone(t,4,step4(t,null,{err:true}),{dis:false}),'Tentar continuar sem avaliar','Uma linha de erro junto do controlo; não se passa para Rever (regra atual).')+
  fig(phone(t,4,step4(t,0)),'Zero','Zero é um valor escolhido (tocar no início da barra ou −0,5 a partir de 0,5), com «Limpar» para voltar a «sem avaliação».')+
- fig(phone(t,4,step4(t,7.5,{open:true}),{scroll:330}),'Detalhes abertos','Local, duração, comentários, notas privadas, etiquetas e fotografias, só quando os abres.'));
+ fig(phone(t,4,step4(t,7.5,{open:true}),{scroll:330}),'Detalhes abertos','Local, comentários, notas privadas, etiquetas e fotografias, só quando os abres.'));
 
 const kb=`<div class="kbbar"><span>±</span><span>Concluir</span></div><div class="kb">${['1','2','3','4','5','6','7','8','9','','0','⌫'].map(k=>`<span class="${k===''||k==='⌫'?'g':''}">${k}</span>`).join('')}</div>`;
 put('s-ext',

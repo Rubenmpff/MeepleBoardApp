@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duração na página do jogo</title>
+<style>
+:root{--doc-bg:#F3F1F5;--doc-ink:#2A2433;--doc-muted:#5E6570;--doc-card:#FFFFFF;--doc-line:#E2DDE7;--doc-accent:#27594B;--doc-new:#FFF7DE;--doc-new-ink:#6E4D00;
+ --doc-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--doc-bg:#17141B;--doc-ink:#ECE8F0;--doc-muted:#A9A3B2;--doc-card:#221E28;--doc-line:#37303F;--doc-accent:#8CC4AE;--doc-new:#3A3220;--doc-new-ink:#F1D79A}}
+:root[data-theme="dark"]{color-scheme:dark;--doc-bg:#17141B;--doc-ink:#ECE8F0;--doc-muted:#A9A3B2;--doc-card:#221E28;--doc-line:#37303F;--doc-accent:#8CC4AE;--doc-new:#3A3220;--doc-new-ink:#F1D79A}
+@font-face{font-family:"MCI";src:url(../../../../node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf) format("truetype");font-display:block}
+*{box-sizing:border-box}
+body{margin:0;background:var(--doc-bg);color:var(--doc-ink);font:16px/1.55 var(--doc-font);padding:0 20px 72px}
+.doc{max-width:1240px;margin:0 auto}.prose{max-width:720px}
+h1{font-size:34px;line-height:1.15;letter-spacing:-.4px;margin:44px 0 12px;text-wrap:balance}
+h2{font-size:24px;line-height:1.25;margin:0 0 8px;text-wrap:balance}h3{font-size:17px;margin:0 0 6px}
+p{margin:0 0 12px}.lede{font-size:18px}.muted{color:var(--doc-muted)}
+section.block{margin-top:56px;padding-top:32px;border-top:1px solid var(--doc-line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:16px}
+.box{background:var(--doc-card);border:1px solid var(--doc-line);border-radius:14px;padding:18px 20px}
+ul,ol{margin:0;padding-left:20px}li{margin:4px 0}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;padding:1px 8px;border-radius:999px;background:var(--doc-line);color:var(--doc-ink)}
+.tag.new{background:var(--doc-new);color:var(--doc-new-ink)}.tag.ok{background:#E7F0E7;color:#27594B}
+table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--doc-card);border:1px solid var(--doc-line);border-radius:14px;overflow:hidden}
+.map th,.map td{text-align:left;padding:9px 12px;border-top:1px solid var(--doc-line);vertical-align:top}.map th{color:var(--doc-muted);font-weight:600;border-top:0}
+.tablewrap{overflow-x:auto}
+.strip{display:flex;gap:28px;overflow-x:auto;padding:20px 4px 12px}
+.shot{flex:none;display:flex;flex-direction:column;gap:10px;margin:0;max-width:402px}
+.shot figcaption{font-size:14px;line-height:20px}.shot figcaption b{display:block;font-size:15px}.shot figcaption span{color:var(--doc-muted)}
+
+/* ---------- Telemóvel 402 × 874 pt; tokens = src/ui/theme.ts ---------- */
+.phone{--s:1;--bg:#FBFBF8;--card:#FFFFFF;--hero:#F1EBFA;--band:#F6F2FA;--ink:#30283D;--mut:#58616A;--pri:#27594B;--pri-soft:#E7F0E7;--line:#EAE5EF;--hair:#EFEAF2;--track:#EFEDF1;
+ --gold-soft:#FFF7DE;--gold-line:#F1E3B5;--gold-ink:#6E4D00;--gold:#DCA52B;--friend:#7A5AAE;--lav:#9C86C9;--chev:#8C9096;
+ width:402px;height:874px;position:relative;overflow:hidden;border-radius:44px;background:var(--bg);color:var(--ink);flex:none;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;font-size:15px;line-height:20px;
+ box-shadow:0 0 0 1px rgba(30,20,40,.10),0 30px 60px -30px rgba(40,20,60,.45)}
+.phone *{box-sizing:border-box}
+.mdi{font-family:"MCI";font-style:normal;line-height:1;display:inline-block;flex:none;font-size:calc(var(--sz)*var(--s))}
+.t-large{font-size:calc(28px*var(--s));line-height:calc(33px*var(--s));font-weight:700;letter-spacing:-.4px}
+.t-title{font-size:calc(22px*var(--s));line-height:calc(28px*var(--s));font-weight:700}
+.t-head{font-size:calc(17px*var(--s));line-height:calc(22px*var(--s));font-weight:600}
+.t-body{font-size:calc(15px*var(--s));line-height:calc(21px*var(--s))}
+.t-cap{font-size:calc(13px*var(--s));line-height:calc(18px*var(--s));color:var(--mut)}
+.t-micro{font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut)}
+.b{font-weight:600}.grow{flex:1;min-width:0}.num{font-variant-numeric:tabular-nums}.link{color:var(--pri);font-weight:600}
+.status{position:absolute;top:0;left:0;right:0;height:54px;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:16px 34px 0 54px;font-weight:600;font-size:17px;pointer-events:none}
+.island{position:absolute;top:11px;left:50%;width:124px;height:36px;margin-left:-62px;border-radius:20px;background:#0E0C10;z-index:31}
+.batt{width:26px;height:12px;border:1.5px solid var(--ink);border-radius:4px;padding:1.5px}.batt i{display:block;height:100%;width:80%;background:var(--ink);border-radius:1.5px}
+.homebar{position:absolute;bottom:8px;left:50%;width:138px;height:5px;margin-left:-69px;border-radius:3px;background:#17131B;z-index:40}
+.viewport{position:absolute;inset:0;overflow:hidden}
+.scroll{position:absolute;left:0;right:0;top:0}
+/* floating buttons over the hero */
+.float{position:absolute;top:58px;z-index:12;width:40px;height:40px;border-radius:20px;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;color:var(--pri);box-shadow:0 1px 3px rgba(40,20,60,.18)}
+.float.l{left:12px}.float.r{right:12px}
+/* compact header after scrolling */
+.bar{position:absolute;top:0;left:0;right:0;z-index:12;background:var(--bg);padding-top:54px;border-bottom:1px solid var(--line)}
+.bar .row{height:44px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 6px}
+.bar .row .ttl{text-align:center;font-weight:600;font-size:calc(17px*var(--s));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .act{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;color:var(--pri)}
+.bar .tabs{margin:0 16px 8px}
+/* hero */
+.hero{position:relative;padding:62px 20px 22px;background:linear-gradient(180deg,#EADFF8 0%,var(--hero) 58%,var(--bg) 100%);text-align:center}
+.hero>*:not(.glow){position:relative}
+.hero .glow{position:absolute;left:50%;top:70px;width:300px;height:220px;margin-left:-150px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.75),rgba(255,255,255,0));pointer-events:none}
+.cover{position:relative;display:inline-flex;align-items:flex-end;justify-content:center;height:calc(188px*var(--s));max-height:220px;margin:4px auto 14px}
+.cover img{height:100%;width:auto;display:block;filter:drop-shadow(0 14px 18px rgba(48,40,61,.28))}
+.cover.ph{width:150px;height:150px;border-radius:18px;background:#E3D8F3;align-items:center;color:var(--lav);box-shadow:inset 0 0 0 1px rgba(156,134,201,.25)}
+.hero h2{margin:0;font-size:calc(28px*var(--s));line-height:calc(33px*var(--s));font-weight:700;letter-spacing:-.4px;text-wrap:balance}
+.hero .sub{margin-top:4px}
+.scores{display:flex;gap:10px;margin-top:16px;text-align:left}
+.score{flex:1;min-width:0;background:var(--card);border-radius:16px;padding:10px 12px;box-shadow:0 1px 0 rgba(48,40,61,.06),0 0 0 1px var(--line)}
+.score .who{display:flex;align-items:center;gap:6px;font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--mut)}
+.score .val{display:flex;align-items:baseline;gap:3px;margin-top:2px}
+.score .val b{font-size:calc(26px*var(--s));line-height:calc(30px*var(--s));font-weight:700;font-variant-numeric:tabular-nums}
+.score .val i{font-style:normal;color:var(--mut);font-size:calc(13px*var(--s))}
+.score.none .val{font-size:calc(14px*var(--s));color:var(--mut);font-weight:400;margin-top:6px}
+.dot{width:8px;height:8px;border-radius:4px;display:inline-block}
+.scores.col{flex-direction:column}
+/* facts */
+.facts{display:grid;grid-template-columns:repeat(4,1fr);margin:0 16px;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.facts.col{grid-template-columns:1fr 1fr}
+.fact{padding:10px 6px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;border-left:1px solid var(--hair)}
+.facts.col .fact:nth-child(odd){border-left:0}.facts.col .fact:nth-child(n+3){border-top:1px solid var(--hair)}
+.fact:first-child{border-left:0}
+.fact .v{font-weight:700;font-size:calc(16px*var(--s));line-height:calc(20px*var(--s));font-variant-numeric:tabular-nums}
+.fact .k{font-size:calc(11.5px*var(--s));line-height:calc(15px*var(--s));color:var(--mut)}
+/* actions */
+.actions{display:flex;gap:8px;margin:12px 16px 0}
+.actions.col{flex-direction:column}
+.btn{white-space:nowrap;min-height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;font-weight:600;font-size:calc(15px*var(--s));line-height:calc(19px*var(--s));text-align:center}
+.btn.pri{background:var(--pri);color:#fff;flex:1.5}.btn.sec{background:var(--pri-soft);color:var(--pri);flex:1}
+.btn.icon{flex:none;width:46px;padding:0}
+/* tabs */
+.tabs{display:flex;background:var(--track);border-radius:12px;padding:3px;gap:2px}
+.tabs span{flex:1;min-height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:calc(14.5px*var(--s));color:var(--ink)}
+.tabs span.on{background:var(--card);font-weight:600;box-shadow:0 1px 2px rgba(48,40,61,.16)}
+.tabsWrap{margin:18px 16px 0}
+/* body */
+.body{padding:20px 16px 120px;display:flex;flex-direction:column;gap:26px}
+.blk{display:flex;flex-direction:column;gap:10px}
+.sechead{display:flex;align-items:baseline;gap:10px;padding:0 2px}
+.sechead h3{margin:0;font-size:calc(19px*var(--s));line-height:calc(24px*var(--s));font-weight:700;letter-spacing:-.2px}
+.sechead .more{margin-left:auto;color:var(--pri);font-weight:600;font-size:calc(14px*var(--s));white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.pad{padding:14px 16px}
+.row{display:flex;align-items:center;gap:12px;min-height:52px;padding:10px 16px;position:relative}
+.row+.row::before{content:"";position:absolute;top:0;left:16px;right:0;height:1px;background:var(--hair)}
+.row.inset+.row.inset::before{left:64px}
+.chev{color:var(--chev)}
+.desc{font-size:calc(15px*var(--s));line-height:calc(22px*var(--s))}
+.fade{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.source{display:flex;align-items:center;gap:6px;margin-top:8px}
+.quiet{display:flex;align-items:center;gap:10px;padding:2px 2px;color:var(--mut);font-size:calc(14px*var(--s));line-height:calc(19px*var(--s))}
+.quiet .mdi{color:var(--lav)}
+.quiet .link{margin-left:auto;white-space:nowrap}
+/* experience */
+.stats{display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:12px 8px;text-align:center;border-left:1px solid var(--hair)}.stat:first-child{border-left:0}
+.stat b{display:block;font-size:calc(20px*var(--s));line-height:calc(24px*var(--s));font-variant-numeric:tabular-nums}
+.stat span{font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut)}
+.mine{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--hair)}
+.mine .big{font-size:calc(24px*var(--s));line-height:calc(28px*var(--s));font-weight:700;font-variant-numeric:tabular-nums}
+.mine .big i{font-style:normal;font-size:calc(13px*var(--s));font-weight:400;color:var(--mut)}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border-radius:999px;background:var(--pri-soft);color:var(--pri);font-weight:600;font-size:calc(13.5px*var(--s));white-space:nowrap}
+.pending{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--gold-soft);color:var(--gold-ink);border-top:1px solid var(--gold-line);font-size:calc(14px*var(--s));line-height:calc(19px*var(--s))}
+.mrow{display:flex;align-items:center;gap:12px;padding:10px 16px;border-top:1px solid var(--hair);min-height:52px}
+.res{width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none}
+.res.w{background:var(--pri-soft);color:var(--pri)}.res.l{background:#FBE7E8;color:#B5454B}
+/* friends */
+.friends{display:flex;gap:6px;overflow:hidden;padding:2px 0}
+.friend{width:84px;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.av{width:56px;height:56px;border-radius:28px;background:#EEE6F8;color:var(--friend);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:calc(20px*var(--s));box-shadow:0 0 0 2px var(--bg),0 0 0 3px #DCCFF0;flex:none}
+.friend .nm{font-size:calc(12px*var(--s));line-height:calc(15px*var(--s));display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.friend.more .av{background:var(--track);color:var(--mut);box-shadow:none}
+/* learn */
+.langbar{display:flex;align-items:center;gap:8px}
+.lang{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-weight:600;font-size:calc(14px*var(--s))}
+.grouphead{display:flex;flex-direction:column;gap:0;padding:0 2px}
+.grouphead .k{font-size:calc(11.5px*var(--s));letter-spacing:.4px;text-transform:uppercase;font-weight:700;color:var(--mut)}
+.grouphead .n{font-size:calc(19px*var(--s));line-height:calc(24px*var(--s));font-weight:700}
+.kind{font-size:calc(13px*var(--s));font-weight:600;color:var(--mut);padding:0 2px}
+.rules{display:flex;gap:14px;align-items:center;padding:14px 16px}
+.rules .tile{width:56px;height:72px;border-radius:8px;background:linear-gradient(160deg,#F1EBFA,#E3D8F3);display:flex;align-items:center;justify-content:center;color:var(--friend);flex:none;box-shadow:inset 0 0 0 1px rgba(156,134,201,.3)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:calc(11.5px*var(--s));font-weight:700;letter-spacing:.2px;padding:2px 8px;border-radius:999px;background:var(--pri-soft);color:var(--pri)}
+.badge.n{background:var(--track);color:var(--mut)}
+.carousel{display:flex;gap:12px;overflow:hidden;margin:0 -16px;padding:0 16px}
+.vcard{width:100%;flex:none}.carousel .vcard:not(:only-child){width:248px}
+.thumb{position:relative;border-radius:14px;overflow:hidden;background:#E3D8F3}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .play{position:absolute;left:10px;bottom:10px;width:34px;height:34px;border-radius:17px;background:rgba(20,14,26,.66);color:#fff;display:flex;align-items:center;justify-content:center}
+.vcard .thumb{aspect-ratio:16/9}
+.meta{margin-top:8px;display:flex;flex-direction:column;gap:2px}
+.vtitle{font-weight:600;font-size:calc(15px*var(--s));line-height:calc(20px*var(--s));display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mgrid.col{grid-template-columns:1fr}
+.mcard{display:flex;flex-direction:column}
+.mcard .thumb{aspect-ratio:4/3}
+.mcard .vtitle{-webkit-line-clamp:2}
+.dots{position:absolute;right:6px;top:6px;width:32px;height:32px;border-radius:16px;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.compact{display:flex;gap:12px;align-items:center;padding:10px 16px}
+.compact .thumb{width:104px;height:62px;flex:none;border-radius:10px}
+.compact .thumb .play{width:26px;height:26px;left:6px;bottom:6px}
+.suggest{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px dashed #D6CDE3;border-radius:14px;color:var(--pri);font-weight:600}
+.foot{font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut);padding:0 2px}
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(35,25,45,.36);z-index:50}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:51;background:var(--bg);border-radius:22px 22px 0 0;padding:6px 16px 34px}
+.grab{width:36px;height:5px;border-radius:3px;background:#D6D1DC;margin:0 auto 8px}
+.sheethead{display:flex;align-items:center;min-height:44px}
+.new{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:1px 6px;border-radius:6px;background:var(--gold-soft);color:var(--gold-ink);border:1px solid var(--gold-line);vertical-align:middle}
+.ideas{border-color:var(--gold-line)}
+/* scope additions */
+.facts.three{grid-template-columns:repeat(3,1fr)}
+.srcline{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 16px 0;font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut);text-align:center}
+.plan{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;margin:4px 16px 0;color:var(--pri);font-weight:600;font-size:calc(15px*var(--s))}
+.xt{width:40px;height:40px;border-radius:10px;background:#EEE6F8;display:flex;align-items:center;justify-content:center;color:var(--lav);flex:none}
+.xt.img{background:#fff;box-shadow:inset 0 0 0 1px var(--line)}.xt img{width:34px;height:34px;object-fit:contain}
+.nav{position:absolute;top:0;left:0;right:0;z-index:12;background:var(--bg);padding-top:54px}
+.nav .row{height:44px;display:grid;grid-template-columns:96px 1fr 96px;align-items:center;padding:0 8px}
+.nav .ttl{text-align:center;font-weight:600;font-size:calc(17px*var(--s))}
+.form{padding:108px 16px 120px;display:flex;flex-direction:column;gap:16px}
+.ctitle{display:flex;align-items:center;gap:8px;font-weight:700;font-size:calc(16px*var(--s));padding:14px 16px 4px}
+.fld{padding:8px 16px 12px;display:flex;flex-direction:column;gap:6px}
+.fld label{font-size:calc(13px*var(--s));font-weight:600;color:var(--mut)}
+.input{min-height:46px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);font-size:calc(15px*var(--s));line-height:calc(20px*var(--s))}
+.input.ph{color:#8C9096}
+.gpick{display:flex;align-items:center;gap:12px;min-height:58px;border:1px solid var(--line);border-radius:12px;padding:8px 10px 8px 8px;background:var(--bg)}
+.gpick.none{border-style:dashed;color:var(--pri);font-weight:600;padding-left:14px}
+.search{display:flex;align-items:center;gap:8px;min-height:40px;border-radius:11px;background:var(--track);padding:0 12px;color:var(--mut);margin-bottom:12px}
+.radio{color:var(--pri)}.radio.off{color:#B9B3C0}
+.lbl{font-size:calc(12px*var(--s));letter-spacing:.4px;text-transform:uppercase;font-weight:700;color:var(--mut);padding:14px 4px 6px}
+/* «Powered by BGG»: the official file, unchanged (colours, proportions and its own transparent margins) */
+.pbgg{display:block;height:calc(44px*var(--s));width:auto;max-width:none;flex:none}
+.pbgg.big{height:calc(52px*var(--s))}
+.sizes{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;padding:20px;background:#FAFAF7;border:1px solid var(--doc-line);border-radius:14px;color:#2A2433}
+.sizes figure{margin:0;display:flex;flex-direction:column;gap:6px;font-size:13px}.sizes img{display:block;width:auto;max-width:none}
+.sizes figcaption span{color:#5E6570}
+.srcrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 16px 0;padding:8px 10px 8px 12px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+.srcrow .txt{display:flex;align-items:center;gap:6px;min-width:0;font-size:calc(12.5px*var(--s));line-height:calc(16px*var(--s));color:var(--mut)}
+.srcrow.col{flex-direction:column;align-items:flex-start}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:88px;background:var(--bg);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-top:8px;z-index:12}
+.tabbar>span{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--mut)}.tabbar>span.on{color:var(--pri);font-weight:700}
+.tabbar .new{width:52px;height:34px;border-radius:10px;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center}
+.ptitle{font-size:calc(32px*var(--s));font-weight:800;letter-spacing:-.4px;margin:0 2px}
+.cr{display:flex;flex-direction:column;gap:12px;padding:16px}
+.cr p{margin:0;font-size:calc(14.5px*var(--s));line-height:calc(20px*var(--s))}
+.three{display:flex;flex-direction:column}
+.three .row .dot{width:10px;height:10px;border-radius:50%;flex:none}
+
+.dtiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dtiles.col{grid-template-columns:1fr}
+.dt{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
+.dt .who{display:flex;align-items:center;gap:6px;font-size:calc(12px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--mut)}
+.dt .who i{width:8px;height:8px;border-radius:4px;display:inline-block}
+.dt .v{font-size:calc(24px*var(--s));line-height:calc(29px*var(--s));font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+.dt .v.few{font-size:calc(16px*var(--s));line-height:calc(21px*var(--s));font-weight:600}
+.dt .m{font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut)}
+.segm{display:flex;background:var(--track);border-radius:12px;padding:3px;gap:2px}
+.segm span{flex:1;min-height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:calc(14px*var(--s))}
+.segm span.on{background:var(--card);font-weight:600;box-shadow:0 1px 2px rgba(48,40,61,.16)}
+.dnote{display:flex;gap:6px;align-items:flex-start;font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut);padding:0 2px}
+table.dtab{width:100%;border-collapse:collapse;font-size:calc(14px*var(--s));font-variant-numeric:tabular-nums}
+table.dtab th{font-size:calc(11.5px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--mut);text-align:right;padding:8px 10px}
+table.dtab th:first-child,table.dtab td:first-child{text-align:left}
+table.dtab td{padding:10px;border-top:1px solid var(--hair);text-align:right;vertical-align:top}
+table.dtab td small{display:block;font-size:calc(11.5px*var(--s));color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="doc"><section class="block" id="jogo"><h2>Na página do jogo</h2><div class="strip" id="s-jogo"></div></section></div>
+<script>
+const G={"home-outline":984737,"dice-multiple-outline":987478,"account-circle":983049,"cog-outline":985275,"chevron-left":983361,"chevron-right":983362,"chevron-down":983360,"plus":984085,"bookshelf":987743,"check-circle":984544,"account-group":985161,"clock-outline":983376,"human-male-child":988044,"weight":984481,"open-in-new":984012,"star":984270,"star-outline":984274,"book-open-variant":988407,"play":984074,"printer-3d":984107,"dots-horizontal":983512,"flag-outline":983613,"calendar-plus":983283,"translate":984522,"package-variant":984022,"trophy-outline":984378,"notebook-outline":986815,"dice-5":983502,"cards-outline":984633,"account-heart-outline":986083,"information-outline":983805,"layers-outline":985598,"share-variant":984215,"check":983340,"lightbulb-outline":983862,"calendar-star":985555,"heart-outline":983765,"file-document-outline":985582,"play-circle-outline":984077,"flag-checkered":983612,"timer-sand":984351,"puzzle-outline":985702,"account-check-outline":986082,"chart-timeline-variant":986771,"magnify":983881,"close":983382,"calendar-outline":985959,"map-marker-outline":985049,"account-multiple-outline":983055,"radiobox-marked":984126,"radiobox-blank":984125,"circle-off-outline":987347,"pencil-outline":986294,"tune":984622};
+const ic=(n,s=20,c='currentColor')=>`<span class="mdi" style="--sz:${s}px;color:${c}" aria-hidden="true">${String.fromCodePoint(G[n]||63)}</span>`;
+const COVER='https://stonemaiergames.com/wp-content/uploads/2026/04/3d-wingspan.webp';
+const YT=id=>`https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+const PR={org2:'https://media.printables.com/media/prints/171161/images/1617495_2feff869-7f47-4e8d-98e5-6f75641e5ca6/thumbs/inside/320x240/jpg/img_3731_1.webp',
+ org1:'https://media.printables.com/media/prints/45671/images/453591_f86a9875-2114-4bea-881d-a3496a3a0ba7/thumbs/inside/320x240/jpg/large_display_wingspan_large_45671.webp',
+ tower:'https://media.printables.com/media/prints/31398/images/310102_d4157a70-ac03-4645-8c35-692347f6f1d4/thumbs/inside/320x240/jpg/20200217_171748488_ios.webp',
+ holder:'https://media.printables.com/media/prints/042266f0-afd1-44aa-a3a7-de34417ed300/images/12805146_8ef032b7-f652-44d2-ac8f-625579bbf535_c1b56d36-a06e-46ac-8e8c-af8f6d474157/thumbs/inside/320x240/jpg/photo_loaded.webp',
+ duet:'https://media.printables.com/media/prints/360381/images/3050433_9e9e1d59-7456-442b-8461-0fcf1bf5097b/thumbs/inside/320x240/jpg/20230105_222654_2.webp'};
+
+const T={
+pt:{back:'Voltar',year:'2019 · Jogo base',bgg:'BGG',mb:'MeepleBoard',of:'/10',bggVotes:'116 mil avaliações · nº 38',mbHint:'média das partidas',noRatings:'Ainda sem avaliações',
+ players:'jogadores',minutes:'minutos',age:'idade',weight:'complexidade',record:'Registar partida',addLib:'Biblioteca',owned:'Tenho',tabs:['Sobre','Como jogar','Recursos'],
+ desc:'Descrição',readMore:'Ler mais',bggText:'Texto original do BoardGameGeek, sem tradução',bggEntry:'Ficha no BoardGameGeek',
+ exp:'A tua experiência',matches:'partidas',wins:'vitórias',last:'última',lastV:'12 out.',yourRating:'A tua avaliação',yourHint:'média das tuas avaliações em 5 partidas',journal:'Diário',
+ pending:'1 partida por avaliar',rate:'Avaliar',m1:'12 out. · Vitória · 4 jogadores',m2:'3 out. · 2.º lugar · 3 jogadores',seeMatches:'Ver as 7 partidas',campaign:'Temporada de outono',campaignMeta:'Campanha ativa · 3 partidas',newCampaign:'Nova campanha',
+ friends:'Amigos que têm o jogo',seeAll:'Ver todos',friendsNote:'Só amigos com o jogo em «Tenho» e a biblioteca visível.',
+ expansions:'Expansões',expList:['European Expansion','Oceania Expansion'],
+ lang:'Inglês',langNote:'Idioma dos recursos',base:'Jogo base',expansion:'Expansão',rules:'Regras oficiais',rulesT:'Wingspan — Rules & FAQ',publisher:'Da editora',en:'Inglês',videos:'Vídeos de explicação',
+ none:'Ainda sem partidas completas nem unboxings.',suggest:'Sugerir recurso',ext:'Links para as páginas originais; o MeepleBoard não aloja ficheiros.',
+ models:'Modelos 3D',org:'Organizadores',acc:'Acessórios',rep:'Peças de substituição',free:'Gratuito',fits:'Também European e Oceania',noneRes:'Ainda sem unboxings nem materiais adicionais.',
+ nothingPt:'Nada em Português.',seeEn:'Ver em Inglês (4)',open:'Abrir em Printables',report:'Reportar problema',close:'Fechar',
+ emptyExp:'Ainda não jogaste. Regista a primeira partida e avalia-a no diário.',emptyFriends:'Nenhum amigo tem este jogo.',emptyLearn:'Ainda sem regras nem vídeos para este jogo.',emptyRes:'Ainda sem modelos 3D nem outros recursos.',
+ group:'Bom para o vosso grupo?',groupBody:'Teste-membro, Teste-participante e tu: 3 jogadores · cabe em 1–5 · complexidade média.',session:'Combinar sessão',sessionBody:'Com Wingspan indicado; convidar quem o tem.',
+ factsSrc:'Ficha do BoardGameGeek',company:'Companhia neste jogo',companyHint:'Desde a tua 1.ª partida de Wingspan até hoje',expOwned:'Tens 1 de 2',
+ createTitle:'Criar Sessão',cancel:'Cancelar',intro:'Combina a próxima sessão à mesa.',aboutS:'Sobre a sessão',gameF:'Jogo previsto (opcional)',change:'Alterar',fromPage:'Escolhido na página do jogo',nameF:'Nome *',nameHint:'Ex: Noite de Wingspan',locF:'Local (opcional)',locHint:'Ex: Casa do Ruben, LeiriaCon...',when:'Quando',date:'Data',time:'Hora',who:'Quem vem',
+ pickTitle:'Jogo da sessão',done:'Concluir',searchCat:'Pesquisar no catálogo',noGame:'Sem jogo definido',noGameHint:'Decidem à mesa',fromLib:'Da tua biblioteca',chooseGame:'Escolher jogo',
+ sessions:'Sessões',upcoming:'Próximas',gameRow:'Jogo previsto',undecided:'Por definir'},
+en:{back:'Back',year:'2019 · Base game',bgg:'BGG',mb:'MeepleBoard',of:'/10',bggVotes:'116K ratings · #38',mbHint:'average of matches',noRatings:'No ratings yet',
+ players:'players',minutes:'minutes',age:'age',weight:'weight',record:'Record match',addLib:'Library',owned:'Owned',tabs:['About','How to play','Resources'],
+ desc:'Description',readMore:'Read more',bggText:'Original BoardGameGeek text, not translated',bggEntry:'BoardGameGeek entry',
+ exp:'Your experience',matches:'matches',wins:'wins',last:'last',lastV:'12 Oct',yourRating:'Your rating',yourHint:'average of your ratings in 5 matches',journal:'Journal',
+ pending:'1 match to rate',rate:'Rate',m1:'12 Oct · Win · 4 players',m2:'3 Oct · 2nd · 3 players',seeMatches:'See all 7 matches',campaign:'Autumn season',campaignMeta:'Active campaign · 3 matches',newCampaign:'New campaign',
+ friends:'Friends who own it',seeAll:'See all',friendsNote:'Only friends who own it and whose library is visible.',
+ expansions:'Expansions',expList:['European Expansion','Oceania Expansion'],
+ lang:'English',langNote:'Resource language',base:'Base game',expansion:'Expansion',rules:'Official rules',rulesT:'Wingspan — Rules & FAQ',publisher:'Publisher',en:'English',videos:'How-to-play videos',
+ none:'No playthroughs or unboxings yet.',suggest:'Suggest a resource',ext:'Links to the original pages; MeepleBoard hosts no files.',
+ models:'3D models',org:'Organisers',acc:'Accessories',rep:'Replacement parts',free:'Free',fits:'Also European and Oceania',noneRes:'No unboxings or extra material yet.',
+ nothingPt:'Nothing in Portuguese.',seeEn:'See in English (4)',open:'Open in Printables',report:'Report a problem',close:'Close',
+ emptyExp:'You have not played yet. Record your first match and rate it in its journal.',emptyFriends:'None of your friends owns this game.',emptyLearn:'No rules or videos for this game yet.',emptyRes:'No 3D models or other resources yet.',
+ group:'Right for your group?',groupBody:'',session:'Plan a session',sessionBody:'',
+ factsSrc:'Details from BoardGameGeek',company:'Company in this game',companyHint:'From your first Wingspan match to today',expOwned:'You own 1 of 2',
+ createTitle:'Create session',cancel:'Cancel',intro:'Bring everyone together around the table.',aboutS:'About the session',gameF:'Planned game (optional)',change:'Change',fromPage:'Chosen on the game page',nameF:'Name *',nameHint:'e.g. Wingspan night',locF:'Location (optional)',locHint:'e.g. Home, a game convention…',when:'When',date:'Date',time:'Time',who:'Who\'s coming',
+ pickTitle:'Session game',done:'Done',searchCat:'Search the catalogue',noGame:'No game set',noGameHint:'Decide at the table',fromLib:'From your library',chooseGame:'Choose game',
+ sessions:'Sessions',upcoming:'Upcoming',gameRow:'Planned game',undecided:'To be decided'}};
+
+const FR=['amiga-colecionadora','amiga-meeples','amiga-tabuleiro','amigo-com-um-nome-de-utilizador-bastante-comprido','amigo-dados'].map(n=>'Teste-'+n);
+
+function hero(t,o){
+ const L=o.large,E=o.empty||o.noScores;
+ const cover=E?`<div class="cover ph">${ic('dice-5',58)}</div>`:`<div class="cover"><img src="${COVER}" alt=""></div>`;
+ const bgg=E?'':`<div class="score"><div class="who"><span class="dot" style="background:#30283D"></span>${t.bgg} ${ic('open-in-new',12,'var(--mut)')}</div><div class="val"><b>8,0</b><i>${t.of}</i></div><div class="t-micro">${t.bggVotes}</div></div>`;
+ const mb=E?'':`<div class="score"><div class="who"><span class="dot" style="background:var(--pri)"></span>${t.mb}</div><div class="val"><b>7,4</b><i>${t.of}</i></div><div class="t-micro">${t.mbHint}</div></div>`;
+ const scores=E?`<div class="quiet" style="justify-content:center;margin-top:12px">${ic('star-outline',18)}${t.noRatings}</div>`:`<div class="scores${L?' col':''}">${bgg}${mb}</div>`;
+ return `<div class="hero"><div class="glow"></div>${cover}<h2>${o.name||'Wingspan'}</h2><div class="t-cap sub">${o.sub||t.year}</div>${scores}</div>`;
+}
+function facts(t,o){
+ const f=o.partial?[['2–4',t.players,'account-group'],['30',t.minutes,'clock-outline'],['2,1/5',t.weight,'puzzle-outline']]:[['1–5',t.players,'account-group'],['40–70',t.minutes,'clock-outline'],['10+',t.age,'human-male-child'],['2,5/5',t.weight,'puzzle-outline']];
+ if(o.empty) return `<div class="quiet" style="margin:0 18px">${ic('account-group',18)}<span><b style="color:var(--ink)">1–4</b> ${t.players} · Solo</span></div>`;
+ return `<div class="facts${o.large?' col':o.partial?' three':''}">${f.map(([v,k,i])=>`<div class="fact">${ic(i,18,'var(--lav)')}<span class="v">${v}</span><span class="k">${k}</span></div>`).join('')}</div>${srcline(t,o)}`;
+}
+function actions(t,o){
+ const lib=o.owned?`<div class="btn sec">${ic('check-circle',18)}${t.owned}${ic('chevron-down',18)}</div>`:`<div class="btn sec">${ic('bookshelf',18)}${t.addLib}</div>`;
+ return `<div class="actions${o.large?' col':''}"><div class="btn pri">${ic('plus',20)}${t.record}</div>${lib}</div><div class="plan">${ic('calendar-plus',18)}${t.session}</div>`;
+}
+const tabs=(t,on)=>`<div class="tabs">${t.tabs.map((x,i)=>`<span class="${i===on?'on':''}">${x}</span>`).join('')}</div>`;
+const sec=(title,more,body)=>`<div class="blk"><div class="sechead"><h3>${title}</h3>${more?`<span class="more">${more}</span>`:''}</div>${body}</div>`;
+
+function about(t,o){
+ if(o.empty) return `
+ ${sec(t.exp,'',`<div class="quiet">${ic('notebook-outline',18)}<span>${t.emptyExp}</span></div>`)}
+ ${sec(t.friends,'',`<div class="quiet">${ic('account-heart-outline',18)}<span>${t.emptyFriends}</span></div>`)}`;
+ const desc=sec(t.desc,'',`<div><div class="desc fade">You are bird enthusiasts—researchers, bird watchers, ornithologists, and collectors—seeking to discover and attract the best birds to your network of wildlife preserves. Each bird extends a chain of powerful combinations in one of your habitats (actions).</div>
+  <div style="display:flex;align-items:center;gap:12px;margin-top:6px"><span class="link">${t.readMore}</span></div>
+  <div class="source t-micro">${ic('information-outline',14,'var(--mut)')}${t.bggText}</div><div class="t-cap" style="margin-top:6px"><span class="link">${t.bggEntry} ${ic('open-in-new',13,'var(--pri)')}</span></div></div>`);
+ const exp=sec(t.exp,'',`<div class="card">
+  <div class="stats"><div class="stat"><b>7</b><span>${t.matches}</span></div><div class="stat"><b>4</b><span>${t.wins}</span></div><div class="stat"><b>${t.lastV}</b><span>${t.last}</span></div></div>
+  <div class="mine"><div class="grow"><div class="t-micro b" style="text-transform:uppercase;letter-spacing:.3px">${t.yourRating}</div><div class="big">7,5 <i>${t.of}</i></div><div class="t-cap">${t.yourHint}</div></div><span class="pill">${ic('notebook-outline',16)}${t.journal}</span></div>
+  <div class="pending">${ic('star-outline',18,'var(--gold)')}<span class="grow b">${t.pending}</span><span class="b">${t.rate} ›</span></div>
+  <div class="mrow"><span class="res w">1.º</span><span class="grow t-body">${t.m1}</span>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="mrow"><span class="res l">2.º</span><span class="grow t-body">${t.m2}</span>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="mrow"><span class="grow link">${t.seeMatches}</span>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="mrow">${ic('account-multiple-outline',20,'var(--friend)')}<div class="grow"><div class="t-body b">${t.company}</div><div class="t-cap">${t.companyHint}</div></div>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="mrow">${ic('flag-checkered',20,'var(--friend)')}<div class="grow"><div class="t-body b">${t.campaign}</div><div class="t-cap">${t.campaignMeta}</div></div>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="mrow">${ic('plus',20,'var(--pri)')}<span class="grow link">${t.newCampaign}</span></div></div>`);
+ const fr=sec(t.friends,`${t.seeAll} (5)`,`<div class="friends">${FR.slice(0,3).map((n,i)=>`<div class="friend"><div class="av" style="background:${['#EEE6F8','#E3F0EA','#FBEFD9'][i]};color:${['#7A5AAE','#27594B','#8A6200'][i]}">${n.slice(0,1)}</div><div class="nm">${n}</div></div>`).join('')}<div class="friend more"><div class="av">+2</div><div class="nm">${t.seeAll}</div></div></div><div class="t-micro" style="padding:0 2px">${t.friendsNote}</div>`);
+ const ex=sec(t.expansions,t.expOwned,`<div class="card">${t.expList.map((x,i)=>`<div class="row inset"><span class="xt">${ic('layers-outline',22)}</span><div class="grow"><div class="t-body b">${x}</div><div class="t-cap">${t.expansion}</div></div>${i===0?`<span class="badge">${ic('check',12)}${t.owned}</span>`:''}${ic('chevron-right',20,'var(--chev)')}</div>`).join('')}</div>`);
+ return desc+exp+(o.dur?durSec(t,o):'')+fr+(o.noExp?'':ex);
+}
+function learn(t,o){
+ const lb=`<div class="langbar"><span class="t-cap">${t.langNote}</span><span class="lang">${ic('translate',16,'var(--pri)')}${o.pt?'Português':t.lang}${ic('chevron-down',16)}</span></div>`;
+ if(o.empty) return lb+`<div class="quiet">${ic('book-open-variant',18)}<span>${t.emptyLearn}</span></div><div class="suggest">${ic('plus',18)}${t.suggest}</div>`;
+ if(o.pt) return lb+`<div class="card pad" style="display:flex;align-items:center;gap:12px">${ic('translate',22,'var(--lav)')}<div class="grow"><div class="t-body b">${t.nothingPt}</div><div class="t-cap">Regras e vídeos existem noutros idiomas.</div></div><span class="pill">${t.seeEn}</span></div>`+learnBody(t,o,true);
+ return lb+learnBody(t,o);
+}
+function learnBody(t,o,dim){
+ const v=(id,title)=>`<div class="vcard"><div class="thumb"><img src="${YT(id)}" alt=""><span class="play">${ic('play',20,'#fff')}</span><span class="dots">${ic('dots-horizontal',18)}</span></div><div class="meta"><div class="vtitle">${title}</div><div class="t-cap">Watch It Played · YouTube · ${t.en}</div></div></div>`;
+ const c=(id,title,exp)=>`<div class="compact"><div class="thumb"><img src="${YT(id)}" alt=""><span class="play">${ic('play',16,'#fff')}</span></div><div class="grow"><div class="vtitle">${title}</div><div class="t-cap">Watch It Played · ${t.en}</div></div>${ic('dots-horizontal',20,'var(--mut)')}</div>`;
+ return `<div style="display:flex;flex-direction:column;gap:20px${dim?';opacity:.0;height:0;overflow:hidden':''}">
+ <div class="grouphead"><span class="k">${t.base}</span></div>
+ <div class="card rules"><div class="tile">${ic('book-open-variant',28)}</div><div class="grow"><div class="t-body b">${t.rulesT}</div><div class="t-cap">Stonemaier Games</div><div style="display:flex;gap:6px;margin-top:6px"><span class="badge">${ic('check',12)}${t.publisher}</span><span class="badge n">${t.en}</span></div></div>${ic('dots-horizontal',20,'var(--mut)')}</div>
+ <div class="kind">${t.videos}</div>
+ <div class="carousel">${v('lgDgcLI2B0U','Wingspan - How To Play')}</div>
+ <div class="grouphead"><span class="k">${t.expansion}</span><span class="n">European Expansion</span></div>
+ <div class="card">${c('_4RgWn4pxZU','How To Play - Wingspan: European Expansion')}</div>
+ <div class="grouphead"><span class="k">${t.expansion}</span><span class="n">Oceania Expansion</span></div>
+ <div class="card">${c('wWx7bLkGlnY','How To Play - Wingspan: Oceania Expansion')}</div>
+ <div class="quiet">${ic('play-circle-outline',18)}<span>${t.none}</span><span class="link">${t.suggest.split(' ')[0]} ›</span></div>
+ <div class="foot">${t.ext}</div></div>`;
+}
+function resources(t,o){
+ const lb=`<div class="langbar"><span class="t-cap">${t.langNote}</span><span class="lang">${ic('translate',16,'var(--pri)')}${t.lang}${ic('chevron-down',16)}</span></div>`;
+ if(o.empty) return lb+`<div class="quiet">${ic('printer-3d',18)}<span>${t.emptyRes}</span></div><div class="suggest">${ic('plus',18)}${t.suggest}</div><div class="foot">${t.ext}</div>`;
+ const m=(img,title,who,extra)=>`<div class="mcard"><div class="thumb"><img src="${img}" alt=""><span class="dots">${ic('dots-horizontal',18)}</span></div><div class="meta"><div class="vtitle">${title}</div><div class="t-cap">${who} · ${t.free}</div>${extra?`<div class="t-micro">${extra}</div>`:''}</div></div>`;
+ const g=o.large?' col':'';
+ return lb+`<div class="grouphead"><span class="k">${t.base}</span><span class="n">${t.models}</span></div>
+ <div class="kind">${t.org}</div>
+ <div class="mgrid${g}">${m(PR.org1,'Wingspan Organizer','Fabmaszter')}${m(PR.org2,'Wingspan Organizer (Basegame + European + Oceania)','real1up',t.fits)}</div>
+ <div class="kind">${t.acc}</div>
+ <div class="mgrid${g}">${m(PR.tower,'Collapsible bird-feeder dice tower','fuchsr')}${m(PR.holder,'Wingspan Card Holder — 3 Slots','Miloslav Brožek','Bird cards, sleeved 55 × 90 mm')}</div>
+ <div class="grouphead"><span class="k">${t.expansion}</span><span class="n">Wingspan Asia</span></div>
+ <div class="kind">${t.rep}</div>
+ <div class="mgrid${g}">${m(PR.duet,'Duet Token Replacement','TidyGamer','Duet mode')}<div></div></div>
+ <div class="quiet">${ic('package-variant',18)}<span>${t.noneRes}</span></div>
+ <div class="suggest">${ic('plus',18)}${t.suggest}</div>
+ <div class="foot">${t.ext}</div>`;
+}
+function page(o){
+ const t=T[o.lang||'pt'];const on=o.tab||0;
+ const content=on===0?about(t,o):on===1?learn(t,o):resources(t,o);
+ return `${hero(t,o)}${facts(t,o)}${actions(t,o)}<div class="tabsWrap">${tabs(t,on)}</div><div class="body">${content}</div>`;
+}
+function phone(o){
+ const t=T[o.lang||'pt'];
+ const status=`<div class="status"><span>9:41</span><span style="display:flex;align-items:center;gap:6px"><span class="batt"><i></i></span></span></div><div class="island"></div><div class="homebar"></div>`;
+ const top=o.custom?'':o.scroll?`<div class="bar"><div class="row"><span class="act">${ic('chevron-left',28)}</span><span class="ttl">${o.name||'Wingspan'}</span><span class="act">${ic('dots-horizontal',22)}</span></div><div class="tabs-wrap" style="margin:0 16px 8px">${tabs(t,o.tab||0)}</div></div>`
+  :`<span class="float l" aria-label="${t.back}">${ic('chevron-left',26)}</span><span class="float r">${ic('share-variant',20)}</span>`;
+ const sheet=o.sheet?`<div class="scrim"></div><div class="sheet"><div class="grab"></div><div class="sheethead"><span class="grow t-head" style="text-align:center;padding-left:52px">Wingspan Organizer</span><span class="link" style="min-width:52px;text-align:right">${t.close}</span></div>
+  <div class="card"><div class="row">${ic('open-in-new',20,'var(--pri)')}<span class="grow link">${t.open}</span></div><div class="row">${ic('flag-outline',20,'var(--mut)')}<span class="grow t-body">${t.report}</span>${ic('chevron-right',20,'var(--chev)')}</div></div></div>`:'';
+ const extra=o.custom||'';
+ return `<div class="phone" style="--s:${o.s||1}">${status}<div class="viewport"><div class="scroll" style="transform:translateY(${-(o.scroll||0)}px)">${o.body||page(o)}</div></div>${top}${sheet}${extra}</div>`;
+}
+const fig=(o,b,span)=>`<figure class="shot">${phone(o)}<figcaption><b>${b}</b><span>${span}</span></figcaption></figure>`;
+const put=(id,html)=>document.getElementById(id).innerHTML=html;
+const LOGO='../../../../assets/brand/bgg/powered-by-bgg.webp';
+const PB=(big)=>`<img class="pbgg${big?' big':''}" src="${LOGO}" alt="Powered by BGG">`;
+function srcline(t,o){
+ if(o.empty) return '';
+ return `<div class="srcrow col" style="gap:4px;padding:10px 12px 6px"><span class="txt">${ic('information-outline',14)}<span>${t.factsSrc}</span></span>${PB()}</div>`;
+}
+const tp=T.pt;
+const backNav=(t,title,back)=>`<div class="nav"><div class="row"><span class="link" style="display:flex;align-items:center">${ic('chevron-left',26)}${back}</span><span class="ttl">${title}</span><span></span></div></div>`;
+const tabbar=`<div class="tabbar"><span>${ic('home-outline',24)}Início</span><span>${ic('dice-multiple-outline',24)}Jogos</span><span><span class="new">${ic('plus',24)}</span>Novo</span><span>${ic('calendar-star',24)}Jogar</span><span class="on">${ic('account-circle',24)}Perfil</span></div>`;
+const profileEnd=`<div class="body" style="padding-top:110px;gap:18px">
+ <div class="blk"><div class="sechead"><h3>Amigos</h3><span class="more" style="color:var(--mut);font-weight:400">9 amigos</span></div><div class="card">
+  ${[['Teste-autor',139],['Teste-amiga-colecionadora',4],['Teste-amiga-meeples',2]].map(([n,c])=>`<div class="row inset"><span class="xt" style="border-radius:50%;background:#E3F0EA;color:#27594B;font-weight:700;justify-content:center">T</span><div class="grow"><div class="t-body b">${n}</div><div class="t-cap">${c} partidas juntos</div></div>${ic('chevron-right',20,'var(--chev)')}</div>`).join('')}
+  <div class="row"><span class="grow link">Ver todos e procurar pessoas</span>${ic('chevron-right',20,'var(--pri)')}</div></div></div>
+ <div class="blk"><div class="sechead"><h3>Conta</h3></div><div class="card">
+  <div class="row">${ic('cog-outline',22,'var(--ink)')}<div class="grow"><div class="t-body">Definições</div><div class="t-cap">Idioma e privacidade da coleção</div></div>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="row">${ic('star-outline',22,'var(--ink)')}<span class="grow t-body">Avaliações pendentes</span><b>101</b>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="row" style="background:var(--gold-soft)">${ic('information-outline',22,'var(--ink)')}<div class="grow"><div class="t-body">Sobre e créditos</div><div class="t-cap">Versão e dados do BoardGameGeek</div></div>${ic('chevron-right',20,'var(--chev)')}</div>
+ </div></div></div>`;
+const credits=(en)=>{const x=en?{
+ app:'MeepleBoard',ver:'Version 1.0.0',h:'Game data',p1:'Names, covers, year, players, playing time, age, complexity, descriptions, categories, mechanics, expansions and the BGG rating come from the BoardGameGeek XML API.',
+ p2:'Descriptions stay in the original language. Matches, ratings, libraries and friends are MeepleBoard data and are not sent to BoardGameGeek.',
+ rh:'Three ratings',r:[['#30283D','BGG','Average of BoardGameGeek users'],['var(--pri)','MeepleBoard','Average of matches recorded in the app'],['var(--gold)','Yours','Only yours, from your matches']],open:'Open BoardGameGeek',host:'boardgamegeek.com'}:{
+ app:'MeepleBoard',ver:'Versão 1.0.0',h:'Dados dos jogos',p1:'Os nomes, capas, ano, jogadores, duração, idade, complexidade, descrições, categorias, mecânicas, expansões e a nota BGG vêm da API XML do BoardGameGeek.',
+ p2:'As descrições ficam na língua original. Partidas, avaliações, bibliotecas e amigos são dados do MeepleBoard e não são enviados ao BoardGameGeek.',
+ rh:'Três avaliações',r:[['#30283D','BGG','Média dos utilizadores do BoardGameGeek'],['var(--pri)','MeepleBoard','Média das partidas registadas na app'],['var(--gold)','A tua','Só tua, das tuas partidas']],open:'Abrir BoardGameGeek',host:'boardgamegeek.com'};
+ return `<div class="body" style="padding-top:110px;gap:18px">
+ <div class="card"><div class="row">${ic('dice-5',26,'var(--lav)')}<div class="grow"><div class="t-body b">${x.app}</div><div class="t-cap">${x.ver}</div></div></div></div>
+ <div class="blk"><div class="sechead"><h3>${x.h}</h3></div><div class="card cr">${PB(true)}<p>${x.p1}</p><p class="t-cap" style="color:var(--mut)">${x.p2}</p></div></div>
+ <div class="blk"><div class="sechead"><h3>${x.rh}</h3></div><div class="card three">${x.r.map(([c,a,b])=>`<div class="row"><span class="dot" style="background:${c}"></span><div class="grow"><div class="t-body b">${a}</div><div class="t-cap">${b}</div></div></div>`).join('')}</div></div>
+ <div class="card"><div class="row">${ic('open-in-new',20,'var(--pri)')}<div class="grow"><div class="link">${x.open}</div><div class="t-cap">${x.host}</div></div></div></div></div>`;};
+
+const DUR={
+ multi:{me:['1 h 02 min','6 de 7 partidas · 2 estimadas'],mb:['58 min','41 partidas com duração · 12 estimadas'],range:'A maioria entre 45 min e 1 h 10 min.',odd:'Inclui 1 valor invulgar (4 h 10 min), que conta na média; a mediana é 55 min.'},
+ solo:{me:['35 min','1 partida · estimada',true],mb:null,mbFew:'Ainda poucas partidas (3)'}};
+function durSec(t,o){
+ const k=o.solo?'solo':'multi',d=DUR[k];
+ const tile=(cls,dot,label,v,m,few)=>`<div class="dt"><div class="who"><i style="background:${dot}"></i>${label}</div>${v?`<div class="v${few?' few':''}">${v}</div><div class="m">${m}</div>`:`<div class="v few" style="color:var(--mut)">${m}</div><div class="m">mínimo de 5 partidas com duração</div>`}</div>`;
+ return sec('Duração das partidas','',`<div class="segm"><span class="${o.solo?'':'on'}">Multijogador</span><span class="${o.solo?'on':''}">Solo</span></div>
+ <div class="dtiles${o.large?' col':''}">${tile('','var(--gold)',d.me[2]?'A tua partida':'A tua média',d.me[0],d.me[1],d.me[2])}${d.mb?tile('','var(--pri)','Média MeepleBoard',d.mb[0],d.mb[1]):tile('','var(--pri)','Média MeepleBoard',null,d.mbFew)}</div>
+ ${d.range?`<div class="dnote">${ic('information-outline',14)}<span>${d.range} ${d.odd}</span></div>`:`<div class="dnote">${ic('information-outline',14)}<span>Com 1 partida mostra o valor dessa partida, não uma média.</span></div>`}
+ <div class="card"><div class="row">${ic('account-group',20,'var(--lav)')}<span class="grow t-body">Por número de jogadores</span>${ic('chevron-right',20,'var(--chev)')}</div></div>
+ <div class="dnote">${ic('information-outline',14)}<span>Tempo a jogar, das partidas registadas no MeepleBoard. A duração indicada pelo BGG (40–70 min) está na ficha, no topo.</span></div>`);
+}
+const sheet=`<div class="scrim"></div><div class="sheet"><div class="grab"></div><div class="sheethead"><span class="grow t-head" style="text-align:center;padding-left:52px">Duração por número de jogadores</span><span class="link" style="min-width:52px;text-align:right">Fechar</span></div>
+ <div class="card"><table class="dtab"><tr><th>Jogadores</th><th>A tua média</th><th>MeepleBoard</th></tr>
+ <tr><td>1 · solo</td><td>35 min<small>1 partida · estimada</small></td><td>—<small>3 partidas, poucas</small></td></tr>
+ <tr><td>2</td><td>48 min<small>3 partidas · 1 estimada</small></td><td>46 min<small>17 partidas · 4 estimadas</small></td></tr>
+ <tr><td>3</td><td>1 h 05 min<small>2 partidas</small></td><td>1 h 02 min<small>14 · 5 estimadas</small></td></tr>
+ <tr><td>4</td><td>1 h 25 min<small>1 partida · estimada</small></td><td>1 h 15 min<small>8 · 3 estimadas</small></td></tr>
+ <tr><td>5</td><td>—<small>sem partidas</small></td><td>—<small>2 partidas, poucas</small></td></tr></table></div>
+ <div class="dnote" style="margin-top:10px">${ic('information-outline',14)}<span>Cada partida conta uma vez, seja qual for o número de participantes. Partidas sem duração ou com «Não sei» ficam de fora e não contam como zero.</span></div></div>`;
+put('s-jogo',
+ fig({owned:true,dur:true,scroll:1290},'Duração · multijogador','Nova secção em «Sobre», depois de «A tua experiência». Duas médias separadas (a tua, a MeepleBoard), cada uma com o número de partidas e de estimadas. Valores fictícios.')+
+ fig({owned:true,dur:true,solo:true,scroll:1290},'Duração · solo e amostra pequena','Solo à parte. Com poucas partidas: o teu valor aparece como «A tua partida · 1 partida», não como média; a média MeepleBoard só aparece com pelo menos 5 partidas com duração.')+
+ fig({owned:true,dur:true,scroll:1290,custom:`<div class="bar"><div class="row"><span class="act">${ic('chevron-left',28)}</span><span class="ttl">Wingspan</span><span class="act">${ic('dots-horizontal',22)}</span></div></div>`+sheet},'Por número de jogadores','Folha com a tua média e a MeepleBoard por número de jogadores, com contagens. Sem dados: «—», nunca 0.')+
+ fig({owned:true,dur:true,large:true,s:1.24,scroll:1760},'Texto ampliado','As duas médias passam a uma coluna.'));
+</script>
+</body>
+</html>
