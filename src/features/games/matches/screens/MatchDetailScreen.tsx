@@ -1,7 +1,8 @@
 /**
  * Factual summary of a match, the same for everyone who can see it: game, date, mode,
  * result, players with outcomes and scores, and the shared summary. Participants also
- * get the way into their own journal (rating, notes, photos).
+ * get the way into their own journal (rating, notes, photos). The duration shows how it was obtained; the match
+ * creator can correct it (same permission as editing the match).
  */
 import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -13,6 +14,7 @@ import ScreenHeader from "@/src/components/navigation/ScreenHeader";
 import ScreenState from "@/src/components/ui/ScreenState";
 import ScreenScroll from "@/src/ui/Screen";
 import { Avatar, Card, Glyph, Hero, Row, Section } from "@/src/ui/components";
+import Sheet from "@/src/ui/Sheet";
 import { colors, space, strong, type } from "@/src/ui/theme";
 import { formatDateTime } from "@/src/ui/format";
 import { ROUTES } from "@/src/constants/routes";
@@ -20,6 +22,8 @@ import { RootState } from "@/src/store/store";
 import GameCover from "@/src/components/ui/GameCover";
 import { matchResultText } from "../../sessions/utils/matchResultKey";
 import matchService from "../services/matchService";
+import DurationField from "../components/DurationField";
+import { checkDuration, DurationDraft, draftFrom, durationPayload, emptyDuration, formatDuration } from "../utils/matchDuration";
 import { MatchDto } from "../types/MatchForm";
 
 export default function MatchDetailScreen() {
@@ -37,6 +41,10 @@ export default function MatchDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [editingDuration, setEditingDuration] = useState(false);
+  const [durationDraft, setDurationDraft] = useState<DurationDraft>(emptyDuration);
+  const [savingDuration, setSavingDuration] = useState(false);
+  const [durationError, setDurationError] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -60,8 +68,26 @@ export default function MatchDetailScreen() {
   const won = (p: (typeof players)[number]) => (match.result != null ? p.outcome === "Win" : p.isWinner);
   const participant = players.some(p => isMine(p.userId));
   const mode = match.gameMode ? t(match.gameMode === "SOLO" ? "modes.solo" : match.gameMode === "COOPERATIVE" ? "modes.cooperative" : "modes.multiplayer") : t("outcomes.modeUnknown");
-  const facts = [formatDateTime(match.matchDate, i18n.language), mode,
-    typeof match.durationInMinutes === "number" ? duration(match.durationInMinutes) : null, match.location || null].filter(Boolean).join(" · ");
+  const facts = [formatDateTime(match.matchDate, i18n.language), mode, match.location || null].filter(Boolean).join(" · ");
+  const isCreator = !!currentUser?.id && match.creatorId === currentUser.id;
+  const method = match.durationMethod;
+  const durationText = method === "Unknown" ? t("duration.reviewUnknown") : typeof match.durationInMinutes === "number"
+    ? t("duration.review", { value: match.durationInMinutes > 0 ? formatDuration(match.durationInMinutes) : "0 min",
+      method: t(method === "Measured" ? "duration.reviewMeasured" : method === "Estimated" ? "duration.reviewEstimated" : "duration.reviewNotStated") })
+    : t("duration.none");
+  const draftCheck = checkDuration(durationDraft);
+  const canSave = !savingDuration && (draftCheck.state === "unknown" || (draftCheck.state === "value" && (!draftCheck.unusual || durationDraft.confirmed)));
+  const openDuration = () => { setDurationDraft(draftFrom(match.durationInMinutes, match.durationMethod ?? null)); setDurationError(false); setEditingDuration(true); };
+  const saveDuration = async () => {
+    if (!canSave) return;
+    const payload = durationPayload(durationDraft);
+    setSavingDuration(true); setDurationError(false);
+    try {
+      await matchService.updateDuration(match.id, payload.durationInMinutes ?? null, payload.durationMethod ?? null);
+      setEditingDuration(false); await load();
+    } catch { setDurationError(true); }
+    finally { setSavingDuration(false); }
+  };
 
   return (
     <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>
@@ -94,6 +120,14 @@ export default function MatchDetailScreen() {
           </Card>
         </Section>
 
+        <Section title={t("summary.duration")}>
+          <Card>
+            <Row first title={durationText} lead={<Glyph name="timer-outline" size={22} color={colors.icon} />}
+              subtitle={isCreator ? t("duration.edit") : undefined} onPress={isCreator ? openDuration : undefined}
+              accessibilityLabel={isCreator ? `${durationText}. ${t("duration.edit")}` : durationText} />
+          </Card>
+        </Section>
+
         {!!match.scoreSummary && <Section title={t("ui.summary")}><Card padded><Text style={type.body}>{match.scoreSummary}</Text></Card></Section>}
 
         {participant && <Section title={t("ui.yourJournal")}>
@@ -103,13 +137,15 @@ export default function MatchDetailScreen() {
           </Card>
         </Section>}
       </ScreenScroll>
+      <Sheet visible={editingDuration} title={t("duration.editTitle")} onClose={() => setEditingDuration(false)} closeLabel={t("duration.cancel")}
+        left={{ label: t("duration.cancel"), onPress: () => setEditingDuration(false) }} right={{ label: t("duration.save"), onPress: saveDuration, disabled: !canSave, bold: true }}>
+        <View style={{ gap: space.md }}>
+          <DurationField value={durationDraft} onChange={setDurationDraft} required={false} />
+          {durationError && <Text style={[type.caption, { color: colors.danger }]}>{t("duration.saveError")}</Text>}
+        </View>
+      </Sheet>
     </SafeAreaView>
   );
-}
-
-function duration(minutes: number) {
-  const h = Math.floor(minutes / 60), m = minutes % 60;
-  return h ? `${h} h${m ? ` ${m} min` : ""}` : `${m} min`;
 }
 
 const styles = StyleSheet.create({

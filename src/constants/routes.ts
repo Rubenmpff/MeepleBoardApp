@@ -5,6 +5,9 @@ export const ROUTES = {
 
   GAME_DETAILS: "/games/details/[id]",
 
+
+  GAME_DURATIONS: "/games/durations/[id]",
+
   SEARCH_GAMES: "/games/search",
 
   REGISTER_MATCH: "/games/register-match",

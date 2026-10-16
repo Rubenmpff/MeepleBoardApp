@@ -5,7 +5,8 @@ const form = 'src/features/games/matches/components/RegisterMatchForm.tsx';
 const me = { id: 'me', userName: 'Author' };
 const players = [{ id: 'me', username: 'Author', score: '-17', isWinner: true }, { id: 'peer', username: 'Peer', score: '0', isWinner: false }];
 const session = { id: 'session', status: 'Active', name: 'Test', players: players.map(p => ({ userId: p.id, userName: p.username, status: 'Accepted' })) };
-const baseline = { 0: session, 2: 3, 3: { id: 'game', name: 'Test', minPlayers: 2, maxPlayers: 4 }, 4: false, 8: players, 12: 7.5, 23: true };
+// Review is step 4; the duration (state 10) is answered.
+const baseline = { 0: session, 2: 4, 10: { hours: '', minutes: '', method: 'Unknown', confirmed: false }, 3: { id: 'game', name: 'Test', minPlayers: 2, maxPlayers: 4 }, 4: false, 8: players, 12: 7.5, 23: true };
 const render = (states = {}, props = {}, options = {}) => renderNative(form, 'default', { currentUser: me, ...props }, { ...options, states: { ...baseline, ...states } });
 test('competitive one player or repeated ID cannot save in quick or session; mode stays unchanged', async () => {
   for (const props of [{}, { sessionId: session.id }]) for (const selected of [[players[0]], [players[0], players[0]]]) {
@@ -29,8 +30,8 @@ test('one-player hint offers explicit mode choice in quick only; session Solo is
   await blocked.press('Guardar partida'); assert.equal(blocked.calls.some(c => c[0] === 'submitMatch'), false);
 });
 test('rating is required outside optional fields, and missing/invalid ratings never save', async () => {
-  const result = await render({ 2: 2, 26: false });
-  assert.match(result.html, /A tua avaliação · obrigatória/); assert.match(result.html, /Cada pessoa avalia/);
+  const result = await render({ 2: 3, 26: false });
+  assert.match(result.html, /A tua avaliação.*OBRIGATÓRIA/); assert.match(result.html, /cada pessoa avalia/);
   for (const rating of [undefined, null, NaN, -.5, 10.5, 7.25]) {
     const view = await render({ 12: rating }); await view.press('Guardar partida');
     assert.equal(view.calls.some(c => c[0] === 'submitMatch'), false);
@@ -39,7 +40,7 @@ test('rating is required outside optional fields, and missing/invalid ratings ne
 test('zero/halves are reviewed and submitted only as own rating; failed save preserves rating and retry payload', async () => {
   for (const rating of [0, .5, 7.5, 10]) {
     const view = await render({ 12: rating }, {}, { submitError: new Error('offline') });
-    assert.match(view.html, new RegExp(`${rating}/10`));
+    assert.match(view.html, new RegExp(`${String(rating).replace('.', ',')} / 10`));
     await view.press('Guardar partida'); await view.press('Guardar partida');
     const submits = view.calls.filter(c => c[0] === 'submitMatch');
     assert.equal(submits.length, 2); assert.equal(submits[0][1].personalRating, rating);

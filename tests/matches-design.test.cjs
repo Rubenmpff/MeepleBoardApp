@@ -10,11 +10,13 @@ const me = { id: 'me', userName: 'Test player' };
 const game = { id: 'game-id', name: 'Test-only game', minPlayers: 1, maxPlayers: 4 };
 const players = [{ id: 'me', username: 'Test player', score: '0', isWinner: true }, { id: 'other', username: 'Other player', score: '-17', isWinner: false }];
 const match = { id: 'match-id', gameId: game.id, gameName: game.name, matchDate: '2026-09-01', players: [{ userId: 'me', userName: me.userName, score: 0, isWinner: true }, { userId: 'other', userName: 'Other player' }], journalStatus: 'Open' };
-const formStates = { 2: 3, 3: game, 4: false, 8: players, 12: 7.5, 23: true };
+// Review is step 4; the duration (state 10) is answered with «Não sei» unless a test sets it.
+const unknownDuration = { hours: '', minutes: '', method: 'Unknown', confirmed: false };
+const formStates = { 2: 4, 3: game, 4: false, 8: players, 10: unknownDuration, 12: 7.5, 23: true };
 const submit = async (states = {}, props = {}, options = {}) => renderNative(form, 'default', { currentUser: me, ...props }, { states: { ...formStates, ...states }, ...options });
 
 test('registration preserves zero and negative scores, manual winner, expansion and optional details', async () => {
-  const view = await submit({ 5: [{ id: 'exp', bggId: 123, name: 'Test expansion' }], 9: ' Table ', 10: '45', 11: ' Summary ', 12: 7.5, 13: ' Notes ', 14: ' tag ' });
+  const view = await submit({ 5: [{ id: 'exp', bggId: 123, name: 'Test expansion' }], 9: ' Table ', 10: { hours: '', minutes: '45', method: 'Estimated', confirmed: false }, 11: ' Summary ', 12: 7.5, 13: ' Notes ', 14: ' tag ' });
   await view.press('Guardar partida');
   const payload = view.calls.find(c => c[0] === 'submitMatch')[1];
   assert.equal(payload.players[0].score, 0);
@@ -22,6 +24,8 @@ test('registration preserves zero and negative scores, manual winner, expansion 
   assert.equal(payload.winnerId, 'me');
   assert.deepEqual(payload.expansions, [{ bggId: 123, name: 'Test expansion' }]);
   assert.equal(payload.durationInMinutes, 45);
+  assert.equal(payload.durationMethod, 'Estimated');
+  assert.equal(view.load('src/features/games/matches/utils/mapMatchFormToRequest.ts').mapMatchFormToRequest(payload).durationMethod, 'Estimated');
   assert.equal(payload.location, 'Table');
   assert.equal(payload.personalRating, 7.5);
   assert.equal(payload.notes, 'Notes');
@@ -60,9 +64,12 @@ test('step continuation retains game and player requirements', async () => {
   assert.equal(initial.controls.find(c => c.accessibilityLabel === 'Continuar').disabled, true);
   const noPlayers = await submit({ 2: 1, 8: [] });
   assert.equal(noPlayers.controls.find(c => c.accessibilityLabel === 'Continuar').disabled, true);
-  const selected = await submit({ 2: 2 });
-  await selected.press('Rever partida');
-  assert.deepEqual(selected.updates.find(c => c[0] === 2), [2, 3]);
+  const result = await submit({ 2: 2 });
+  await result.press('Continuar');
+  assert.deepEqual(result.updates.find(c => c[0] === 2), [2, 3]);
+  const rated = await submit({ 2: 3 });
+  await rated.press('Rever partida');
+  assert.deepEqual(rated.updates.find(c => c[0] === 2), [2, 4]);
 });
 
 test('player score editing retains raw zero and blank values and current-player lock', async () => {

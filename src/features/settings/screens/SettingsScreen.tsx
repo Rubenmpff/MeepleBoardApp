@@ -6,20 +6,24 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
 import ScreenLayout from "@/src/components/ui/ScreenLayout";
 import { Card, Note, Row, Section } from "@/src/ui/components";
-import { colors, space } from "@/src/ui/theme";
+import { colors, space, type } from "@/src/ui/theme";
 import { authService } from "@/src/features/auth/services/authService";
 import {
   AppLanguage,
   changeAppLanguage,
   getStoredLanguage,
 } from "@/src/i18n";
-import { getCurrentUser, updateLibraryPrivacy } from "@/src/features/users/services/userService";
+import { getCurrentUser, updateDurationSharing, updateLibraryPrivacy } from "@/src/features/users/services/userService";
 import { LibraryPrivacy } from "@/src/features/users/types/User";
 import { forgetAccountMemory } from "@/src/shared/hooks/useAccountMemory";
 
@@ -70,6 +74,10 @@ export default function SettingsScreen() {
   const [isChangingPrivacy, setIsChangingPrivacy] =
     useState(false);
 
+  // Contribution to community duration statistics: off by default, changed only by this account.
+  const [sharesDurations, setSharesDurations] = useState<boolean | null>(null);
+  const [isChangingSharing, setIsChangingSharing] = useState(false);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -86,6 +94,7 @@ export default function SettingsScreen() {
         const me = await getCurrentUser();
         if (isMounted) {
           setLibraryPrivacy(me.libraryPrivacy ?? LibraryPrivacy.Public);
+          setSharesDurations(me.contributesDurationStats ?? false);
         }
       } catch (error) {
         console.error("Erro ao carregar a privacidade da coleção:", error);
@@ -115,6 +124,21 @@ export default function SettingsScreen() {
       Alert.alert(tCommon("error"), t("privacy.changeError"));
     } finally {
       setIsChangingPrivacy(false);
+    }
+  }
+
+  async function handleSharingChange(enabled: boolean) {
+    if (isChangingSharing || sharesDurations === null || enabled === sharesDurations) return;
+    setSharesDurations(enabled);
+    setIsChangingSharing(true);
+    try {
+      await updateDurationSharing(enabled);
+    } catch (error) {
+      console.error("Erro ao alterar a contribuição para as durações:", error);
+      setSharesDurations(!enabled);
+      Alert.alert(tCommon("error"), t("durationSharing.changeError"));
+    } finally {
+      setIsChangingSharing(false);
     }
   }
 
@@ -209,6 +233,27 @@ export default function SettingsScreen() {
           <Note inset>{t("privacy.description")}</Note>
         </Section>
 
+        <Section title={t("durationSharing.title")}>
+          <Card>
+            {/* The whole row toggles, so the touch target is the row, not only the 51 × 31 switch. */}
+            <TouchableOpacity style={styles.switchRow} accessibilityRole="switch" accessibilityLabel={t("durationSharing.label")}
+              accessibilityState={{ checked: !!sharesDurations, disabled: sharesDurations === null || isChangingSharing }}
+              disabled={sharesDurations === null || isChangingSharing} onPress={() => handleSharingChange(!sharesDurations)}>
+              <View style={styles.switchText}>
+                <Text style={type.body}>{t("durationSharing.label")}</Text>
+                <Text style={type.caption}>{t(sharesDurations ? "durationSharing.on" : "durationSharing.off")}</Text>
+              </View>
+              <Switch value={!!sharesDurations} onValueChange={handleSharingChange} disabled={sharesDurations === null || isChangingSharing}
+                accessible={false} importantForAccessibility="no" trackColor={{ true: colors.primary, false: colors.track }} />
+            </TouchableOpacity>
+          </Card>
+          <Card padded>
+            <View style={styles.explain}>
+              {(["used", "never", "when", "how", "offEffect"] as const).map(key => <Text key={key} style={type.caption}>{t(`durationSharing.${key}`)}</Text>)}
+            </View>
+          </Card>
+        </Section>
+
         <Section>
           <Card>
             <Row first title={t("logout.button")} tone="danger" end="none" accessibilityLabel={t("logout.button")} onPress={handleLogout} />
@@ -222,4 +267,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   container: { padding: space.lg, paddingTop: space.xs, paddingBottom: 32, gap: space.xl },
+  switchRow: { flexDirection: "row", alignItems: "center", gap: space.md, minHeight: 64, paddingHorizontal: space.lg, paddingVertical: space.sm },
+  switchText: { flex: 1, minWidth: 0, gap: 2 },
+  explain: { gap: space.sm },
 });

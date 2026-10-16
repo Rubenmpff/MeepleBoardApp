@@ -1,4 +1,5 @@
 // src/features/games/types/MatchForm.ts
+import type { DurationMethod } from "../utils/matchDuration";
 
 import { MatchPlayerDto } from "./MatchPlayer";
 
@@ -25,6 +26,8 @@ export interface MatchFormData {
   winnerId?: string;
   isSoloGame: boolean;
   durationInMinutes?: number;
+  /** How the duration was obtained; «Unknown» = «Não sei» (no minutes). */
+  durationMethod?: DurationMethod;
   location?: string;
   scoreSummary?: string;
   /** Explicit only for new registration; old read DTOs stay unchanged. */
@@ -70,6 +73,8 @@ export interface MatchDto {
   winnerIds?: string[];
   sharedVictoryAllowed?: boolean | null;
   durationInMinutes?: number;
+  /** Null for matches recorded before the question existed («método não indicado»). */
+  durationMethod?: DurationMethod | null;
   location?: string;
   scoreSummary?: string;
   players: MatchPlayerDto[];

@@ -1,98 +1,134 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, useWindowDimensions } from "react-native";
-import { Glyph } from "@/src/ui/components";
+/**
+ * The result table of the registration: one row per player with points (when scores are on), the selection
+ * column (winner, or tied for 1st) and the result each player gets. Scores are recorded but never decide who
+ * wins. With large text, or a name too long to sit beside points, selection and result, the name takes its own line. On iOS the number pad gets a bar with «±» and «Concluir».
+ */
+import { useState } from "react";
+import { InputAccessoryView, Keyboard, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
+import { Glyph, Segmented } from "@/src/ui/components";
+import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
 import { PlayerState } from "../../../users/types/PlayerState";
+import { MatchOutcome } from "../types/MatchForm";
 import { scoreError, toggleScoreSign } from "../utils/registrationScores";
-import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
-import { UI_STYLES } from "@/src/styles/uiStyles";
 
 type Props = {
   players: PlayerState[];
   onChange: (players: PlayerState[]) => void;
   scoresEnabled: boolean;
   onScoresEnabled: (enabled: boolean) => void;
-  competitive: boolean;
+  /** Selection column: winners, players tied for 1st, or none (team, solo or undefined results). */
+  selection: "winner" | "tied" | null;
+  outcomeFor: (id: string) => MatchOutcome;
   showErrors: boolean;
-  selectionKind?: "winner" | "draw";
-  multiple?: boolean;
 };
 
-export default function MatchResultFields({ players, onChange, scoresEnabled, onScoresEnabled, competitive, showErrors, selectionKind = "winner", multiple = false }: Props) {
+const ACCESSORY = "match-score-sign";
+
+export default function MatchResultFields({ players, onChange, scoresEnabled, onScoresEnabled, selection, outcomeFor, showErrors }: Props) {
   const { t } = useTranslation("matches");
   const { width, fontScale } = useWindowDimensions();
-  const expanded = width < 360 || fontScale > 1.3;
+  const longest = Math.max(0, ...players.map(p => (p.username ?? "").length));
+  const large = width < 360 || fontScale > 1.3 || (scoresEnabled && !!selection && longest * 8.5 > width - 290);
+  const [focused, setFocused] = useState<string | null>(null);
   const updateScore = (id: string, score: string) => onChange(players.map(p => p.id === id ? { ...p, score } : p));
-  const winnerControl = (p: PlayerState) => competitive && <TouchableOpacity accessibilityRole={multiple ? "checkbox" : "radio"}
-    accessibilityLabel={t(selectionKind === "draw" ? "outcomes.drawFor" : "selector.winnerFor", { name: p.username })} accessibilityState={{ selected: p.isWinner }}
-    onPress={() => onChange(players.map(player => ({ ...player, isWinner: multiple ? (player.id === p.id ? !player.isWinner : player.isWinner) : player.id === p.id })))}
-    style={[styles.winner, p.isWinner && styles.active]}>
-    <Glyph name={p.isWinner ? "radiobox-marked" : "radiobox-blank"} size={24} color={p.isWinner ? COLORS.primary : COLORS.textMuted} />
-  </TouchableOpacity>;
+  const toggle = (id: string) => onChange(players.map(p => p.id === id ? { ...p, isWinner: !p.isWinner } : p));
+  const outcomeText = (o: MatchOutcome) => o === "Win" ? t("result.win") : o === "Loss" ? t("result.loss") : o === "Draw" ? t("result.draw") : "—";
 
-  return <View style={{ gap: 8 }}>
-    <View style={styles.options}>
-      {[false, true].map(enabled => <TouchableOpacity key={String(enabled)} accessibilityRole="radio"
-        accessibilityState={{ selected: scoresEnabled === enabled }} onPress={() => onScoresEnabled(enabled)}
-        style={[styles.option, scoresEnabled === enabled && styles.active]}>
-        <Text style={[styles.optionText, scoresEnabled === enabled && { color: COLORS.primary }]}>{t(enabled ? "form.withScores" : "form.withoutScores")}</Text>
-      </TouchableOpacity>)}
+  const scoreCell = (p: PlayerState) => {
+    const error = scoreError(p.score);
+    const visibleError = !!error && (showErrors || !!p.score?.trim());
+    return <TextInput style={[styles.score, large && styles.scoreLarge, visibleError && { borderColor: colors.danger }]}
+      accessibilityLabel={t("form.scoreFor", { name: p.username })} value={p.score ?? ""} onChangeText={value => updateScore(p.id, value)}
+      keyboardType="number-pad" placeholder="0" placeholderTextColor={colors.placeholder} autoCorrect={false} selectTextOnFocus returnKeyType="done"
+      inputAccessoryViewID={Platform.OS === "ios" ? ACCESSORY : undefined} onFocus={() => setFocused(p.id)} />;
+  };
+  const selectCell = (p: PlayerState) => selection && <TouchableOpacity accessibilityRole="checkbox" accessibilityState={{ checked: p.isWinner }}
+    accessibilityLabel={t(selection === "tied" ? "outcomes.drawFor" : "selector.winnerFor", { name: p.username })}
+    onPress={() => toggle(p.id)} style={styles.selectTouch}>
+    <View style={[styles.check, p.isWinner && (selection === "tied" ? styles.checkTied : styles.checkOn)]}>
+      {p.isWinner && <Glyph name="check" size={18} color="#FFFFFF" />}
     </View>
-    <Text style={styles.hint}>{t(competitive ? selectionKind === "draw" ? "outcomes.drawHelp" : "form.winnerHelp" : "outcomes.noIndividualWinner")}</Text>
-    {scoresEnabled && <Text style={styles.hint}>{t("form.scoreHelp")}</Text>}
-    {competitive && <Text style={styles.columnLabel}>{t(selectionKind === "draw" ? "outcomes.drawColumn" : "form.winnerColumn")}</Text>}
-    {players.map(p => {
-      const error = scoresEnabled ? scoreError(p.score) : undefined;
-      const visibleError = error && (showErrors || !!p.score?.trim());
-      return <View key={p.id} style={[styles.player, p.isWinner && competitive && styles.selectedPlayer]}>
-        <View style={[styles.playerRow, expanded && styles.expandedRow]}>
-          <View style={[styles.nameRow, expanded && styles.expandedNameRow]}>
+  </TouchableOpacity>;
+  const outcomeCell = (p: PlayerState) => { const o = outcomeFor(p.id);
+    return <Text style={[styles.outcome, o === "Win" && styles.win, o === "Loss" && styles.loss, o === "Draw" && styles.draw]}>{outcomeText(o)}</Text>; };
+
+  return <View style={styles.wrap}>
+    <Segmented role="button" items={[{ key: "off", label: t("form.withoutScores") }, { key: "on", label: t("form.withScores") }]}
+      value={scoresEnabled ? "on" : "off"} onChange={key => onScoresEnabled(key === "on")} />
+    <View style={styles.table}>
+      {!large && <View style={[styles.row, styles.head]}>
+        <Text style={[styles.th, styles.nameCol]}>{t("result.player")}</Text>
+        {scoresEnabled && <Text style={[styles.th, styles.scoreCol, styles.right]}>{t("form.points")}</Text>}
+        {selection && <Text style={[styles.th, styles.selectCol, styles.centerText]}>{t(selection === "tied" ? "result.tied" : "result.winner")}</Text>}
+        <Text style={[styles.th, styles.outcomeCol, styles.right]}>{t("result.title")}</Text>
+      </View>}
+      {players.map((p, i) => {
+        const error = scoresEnabled ? scoreError(p.score) : undefined;
+        const visibleError = !!error && (showErrors || !!p.score?.trim());
+        return <View key={p.id} style={[styles.player, i > 0 && styles.divider]}>
+          {large ? <>
             <Text style={styles.name}>{p.username || t("sessions.playerNameUnavailable")}</Text>
-            {expanded && winnerControl(p)}
-          </View>
-          {scoresEnabled && <View style={[styles.scoreBlock, expanded && styles.expandedScore]}>
-            <Text style={styles.label}>{t("form.points")}</Text>
-            <View style={styles.scoreRow}>
-              <TouchableOpacity style={styles.sign} accessibilityRole="button" accessibilityLabel={t("form.toggleSign", { name: p.username })}
-                onPress={() => updateScore(p.id, toggleScoreSign(p.score))}>
-                <Text style={styles.signText}>±</Text>
-              </TouchableOpacity>
-              <TextInput style={[styles.input, visibleError && { borderColor: COLORS.error }]}
-                accessibilityLabel={t("form.scoreFor", { name: p.username })}
-                value={p.score ?? ""} onChangeText={value => updateScore(p.id, value)}
-                keyboardType="number-pad" placeholder="—" placeholderTextColor={COLORS.textMuted}
-                autoCorrect={false} selectTextOnFocus returnKeyType="done" />
+            <View style={styles.row}>
+              {scoresEnabled && <View style={styles.flex}>{scoreCell(p)}</View>}
+              {selectCell(p)}
+              <View style={[styles.flex, styles.alignEnd]}>{outcomeCell(p)}</View>
             </View>
+          </> : <View style={styles.row}>
+            <Text style={[styles.name, styles.nameCol]}>{p.username || t("sessions.playerNameUnavailable")}</Text>
+            {scoresEnabled && <View style={styles.scoreCol}>{scoreCell(p)}</View>}
+            {selection && <View style={[styles.selectCol, styles.alignCenter]}>{selectCell(p)}</View>}
+            <View style={[styles.outcomeCol, styles.alignEnd]}>{outcomeCell(p)}</View>
           </View>}
-          {!expanded && winnerControl(p)}
-        </View>
-        {visibleError && <Text accessibilityLiveRegion="polite" style={styles.error}>{t(error === "required" ? "form.scoreRequired" : "form.scoreInvalid")}</Text>}
-      </View>;
-    })}
-    {competitive && showErrors && players.filter(p => p.isWinner).length < (selectionKind === "draw" ? 2 : 1) && <Text accessibilityLiveRegion="polite" style={styles.error}>{t(selectionKind === "draw" ? "outcomes.twoDrawPlayers" : "validation.selectWinner")}</Text>}
+          {visibleError && <Text accessibilityLiveRegion="polite" style={styles.error}>{t(error === "required" ? "form.scoreRequired" : "form.scoreInvalid")}</Text>}
+        </View>;
+      })}
+    </View>
+    {Platform.OS === "ios" && <InputAccessoryView nativeID={ACCESSORY}>
+      <View style={styles.accessory}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("form.toggleSign", { name: players.find(p => p.id === focused)?.username ?? "" })}
+          onPress={() => focused && updateScore(focused, toggleScoreSign(players.find(p => p.id === focused)?.score))} style={styles.accessoryButton}>
+          <Text style={styles.accessoryText}>±</Text>
+        </TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" onPress={() => Keyboard.dismiss()} style={styles.accessoryButton}>
+          <Text style={styles.accessoryText}>{t("form.done")}</Text>
+        </TouchableOpacity>
+      </View>
+    </InputAccessoryView>}
   </View>;
 }
 
 const styles = StyleSheet.create({
-  options: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  option: { ...UI_STYLES.control, padding: 10, borderWidth: 1, borderColor: COLORS.border, flexGrow: 1, alignItems: "center" },
-  optionText: { ...UI_STYLES.body, fontWeight: "700", color: COLORS.onBackground },
-  active: { borderColor: COLORS.primary, backgroundColor: COLORS.primarySoft },
-  hint: { ...UI_STYLES.caption, color: COLORS.textMuted },
-  columnLabel: { ...UI_STYLES.caption, color: COLORS.onBackground, fontWeight: "700", textAlign: "right" },
-  player: { paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: COLORS.border, gap: 4 },
-  selectedPlayer: { borderBottomColor: COLORS.primary },
-  playerRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  expandedRow: { flexDirection: "column", alignItems: "stretch" },
-  nameRow: { flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: 8 },
-  expandedNameRow: { flex: 0, width: "100%" },
-  name: { ...UI_STYLES.body, color: COLORS.onBackground, fontWeight: "700", flex: 1, minWidth: 0 },
-  winner: { width: 44, minHeight: 44, borderRadius: 22, borderWidth: 1, borderColor: COLORS.border, alignItems: "center", justifyContent: "center" },
-  label: { ...UI_STYLES.caption, color: COLORS.textMuted },
-  scoreBlock: { width: 132, gap: 2 },
-  expandedScore: { width: "100%" },
-  scoreRow: { flexDirection: "row", gap: 4, alignItems: "center" },
-  sign: { ...UI_STYLES.control, minWidth: 44, paddingHorizontal: 8, backgroundColor: COLORS.primarySoft, alignItems: "center" },
-  signText: { fontSize: 22, color: COLORS.primary, fontWeight: "700" },
-  input: { ...UI_STYLES.field, minHeight: 44, paddingHorizontal: 8, paddingVertical: 8, flex: 1, minWidth: 0, fontWeight: "700", textAlign: "right" },
-  error: { ...UI_STYLES.caption, color: COLORS.error },
+  wrap: { gap: space.md },
+  table: { backgroundColor: colors.card, borderRadius: radius.hero, borderCurve: "continuous", borderWidth: 1, borderColor: colors.line, overflow: "hidden" },
+  head: { backgroundColor: colors.tint, paddingVertical: space.sm },
+  th: { ...type.micro, ...strong, letterSpacing: 0.3, textTransform: "uppercase" },
+  row: { flexDirection: "row", alignItems: "center", gap: space.sm, paddingHorizontal: space.md },
+  player: { paddingVertical: space.sm, gap: space.xs },
+  divider: { borderTopWidth: 1, borderTopColor: colors.hair },
+  nameCol: { flex: 1, minWidth: 0 },
+  scoreCol: { width: 78 },
+  selectCol: { width: 72 },
+  outcomeCol: { width: 84 },
+  name: { ...type.body, ...strong, paddingHorizontal: 0 },
+  right: { textAlign: "right" },
+  centerText: { textAlign: "center" },
+  alignCenter: { alignItems: "center" },
+  alignEnd: { alignItems: "flex-end" },
+  flex: { flex: 1 },
+  score: { minHeight: touch, borderWidth: 1, borderColor: colors.line, borderRadius: radius.control, backgroundColor: colors.background, paddingHorizontal: space.sm,
+    fontSize: 16, fontWeight: "700", color: colors.text, textAlign: "right", fontVariant: ["tabular-nums"] },
+  scoreLarge: { minWidth: 92 },
+  selectTouch: { minWidth: touch, minHeight: touch, alignItems: "center", justifyContent: "center" },
+  check: { width: 28, height: 28, borderRadius: 8, borderWidth: 2, borderColor: colors.line, alignItems: "center", justifyContent: "center", backgroundColor: colors.card },
+  checkOn: { backgroundColor: colors.primary, borderColor: colors.primary },
+  checkTied: { backgroundColor: colors.gold, borderColor: colors.gold },
+  outcome: { ...type.caption, ...strong },
+  win: { color: colors.primary },
+  loss: { color: "#A3445A" },
+  draw: { color: colors.pendingText },
+  error: { ...type.caption, color: colors.danger, paddingHorizontal: space.md },
+  accessory: { flexDirection: "row", justifyContent: "space-between", backgroundColor: colors.tint, borderTopWidth: 1, borderTopColor: colors.line, paddingHorizontal: space.sm },
+  accessoryButton: { minHeight: touch, minWidth: 64, alignItems: "center", justifyContent: "center" },
+  accessoryText: { ...type.body, ...strong, color: colors.primary },
 });

@@ -16,3 +16,8 @@ export const getCurrentUser = async (): Promise<User> => {
 export const updateLibraryPrivacy = async (privacy: LibraryPrivacy): Promise<void> => {
   await api.patch("/users/me/library-privacy", { libraryPrivacy: privacy });
 };
+
+/** Turns this account's contribution to community duration statistics on or off. */
+export const updateDurationSharing = async (enabled: boolean): Promise<void> => {
+  await api.patch("/users/me/duration-sharing", { enabled });
+};

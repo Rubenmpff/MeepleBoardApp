@@ -7,15 +7,17 @@ const me = { id: 'me', userName: 'Author' };
 const game = { id: 'game', name: 'Fixture game', imageUrl: 'fixture://cover', minPlayers: 2, maxPlayers: 4 };
 const players = [{ id: 'me', username: 'Author', score: '-17', isWinner: true }, { id: 'peer', username: 'Peer', score: '0', isWinner: false }];
 const session = { id: 'session', name: 'Private context', status: 'Active', players: [{ userId: 'me', userName: 'Author', status: 'Accepted' }, { userId: 'peer', userName: 'Peer', status: 'Accepted' }, { userId: 'declined', userName: 'Declined', status: 'Declined' }, { userId: 'pending', userName: 'Pending', status: 'Pending' }] };
+// Steps: 0 Jogo, 1 Jogadores, 2 Resultado, 3 Avaliação e data, 4 Rever. State 10 is the duration answer; 36 opens «Quando».
+const answered = { hours: '', minutes: '', method: 'Unknown', confirmed: false };
 const states = { 0: session, 2: 2, 3: game, 4: false, 8: players, 12: 7.5, 23: true, 24: new Date('2026-10-01T14:30:00Z') };
 const render = (overrides = {}, options = {}, props = {}) => renderNative(form, 'default', { currentUser: me, sessionId: session.id, ...props }, { ...options, states: { ...states, ...overrides } });
 
-test('four steps keep cover and mode accessible, and review lists names/zero/negatives with correction links', async () => {
-  const view = await render({ 2: 3, 9: 'Table', 10: '45', 13: 'Private notes', 14: 'test', 15: ['fixture://photo'] });
-  assert.match(view.html, /Passo 4 de 4 · Rever/);
+test('five steps keep cover and mode accessible, and review lists names/zero/negatives with correction links', async () => {
+  const view = await render({ 2: 4, 9: 'Table', 10: { hours: '', minutes: '45', method: 'Estimated', confirmed: false }, 13: 'Private notes', 14: 'test', 15: ['fixture://photo'] });
+  assert.match(view.html, /Passo 5 de 5 · Rever/); assert.match(view.html, /45 min · estimativa/);
   assert.match(view.html, /Fixture game/); assert.match(view.html, /Author.*-17/); assert.match(view.html, /Peer.*0/);
   assert.equal(view.images[0].resizeMode, 'contain');
-  for (const [label, step] of [['Corrigir Jogo', 0], ['Corrigir Jogadores', 1], ['Corrigir Resultado', 2], ['Corrigir Detalhes', 2], ['Corrigir Modo', 0]]) {
+  for (const [label, step] of [['Corrigir Jogo', 0], ['Corrigir jogadores', 1], ['Corrigir Resultado', 2], ['Corrigir Avaliação', 3]]) {
     await view.press(label); assert.deepEqual(view.updates.filter(([i]) => i === 2).at(-1), [2, step]);
   }
   assert.match(view.html, /Private notes/);
@@ -25,10 +27,10 @@ test('four steps keep cover and mode accessible, and review lists names/zero/neg
 test('every active score is mandatory; blank, decimal, invalid and overflow never reach submit', async () => {
   for (const score of ['', ' ', '1.2', '1,2', 'NaN', '-', '2147483648', '-2147483649']) {
     const view = await render({ 8: [players[0], { ...players[1], score }] });
-    await view.press('Rever partida');
+    await view.press('Continuar');
     assert.equal(view.updates.some(([i]) => i === 2), false);
     assert.deepEqual(view.updates.find(([i]) => i === 27), [27, true]);
-    const guarded = await render({ 2: 3, 8: [players[0], { ...players[1], score }] });
+    const guarded = await render({ 2: 4, 10: answered, 8: [players[0], { ...players[1], score }] });
     await guarded.press('Guardar partida'); assert.equal(guarded.calls.some(c => c[0] === 'submitMatch'), false);
   }
 });
@@ -37,7 +39,7 @@ test('no scores omits all values including invalid saved draft text; toggling pr
   const view = await render({ 23: false, 8: [players[0], { ...players[1], score: 'unfinished' }] });
   await view.press('Com pontuação'); assert.deepEqual(view.updates.find(([i]) => i === 23), [23, true]);
   assert.equal(view.updates.some(([i]) => i === 8), false);
-  const review = await render({ 2: 3, 23: false, 8: [players[0], { ...players[1], score: 'unfinished' }] });
+  const review = await render({ 2: 4, 10: answered, 23: false, 8: [players[0], { ...players[1], score: 'unfinished' }] });
   await review.press('Guardar partida');
   const payload = review.calls.find(c => c[0] === 'submitMatch')[1];
   assert.equal(payload.scoresEnabled, false); assert.ok(payload.players.every(p => p.score === undefined));
@@ -50,8 +52,8 @@ test('no scores omits all values including invalid saved draft text; toggling pr
 
 test('manual winner is required even with one competitive player and never follows higher score', async () => {
   const missing = await render({ 8: [{ ...players[0], isWinner: false }] });
-  await missing.press('Rever partida'); assert.equal(missing.updates.some(([i]) => i === 2), false);
-  const valid = await render({ 2: 3 }); await valid.press('Guardar partida');
+  await missing.press('Continuar'); assert.equal(missing.updates.some(([i]) => i === 2), false);
+  const valid = await render({ 2: 4, 10: answered }); await valid.press('Guardar partida');
   const payload = valid.calls.find(c => c[0] === 'submitMatch')[1];
   assert.equal(payload.winnerId, 'me'); assert.deepEqual(payload.players.map(p => p.score), [-17, 0]);
   assert.equal(payload.matchDate, '2026-10-01T14:30:00.000Z');
@@ -60,7 +62,8 @@ test('manual winner is required even with one competitive player and never follo
 test('iPhone sign button edits negatives and pending minus without inventing zero or choosing winner', async () => {
   for (const [score, expected] of [['17', '-17'], ['-17', '17'], ['', '-'], ['0', '-0']]) {
     const changes = [];
-    const view = await renderNative(result, 'default', { players: [{ ...players[0], score }], onChange: p => changes.push(p), scoresEnabled: true, onScoresEnabled() {}, competitive: true, showErrors: false });
+    // The «±» key sits in the bar above the number pad and acts on the focused score (state 0 = focused player).
+    const view = await renderNative(result, 'default', { players: [{ ...players[0], score }], onChange: p => changes.push(p), scoresEnabled: true, onScoresEnabled() {}, selection: 'winner', outcomeFor: () => 'Win', showErrors: false }, { states: { 0: 'me' } });
     await view.press('Alterar sinal da pontuação de Author');
     assert.equal(changes[0][0].score, expected); assert.equal(changes[0][0].isWinner, true);
     const input = view.inputs.find(p => p.accessibilityLabel === 'Pontuação de Author');
@@ -80,16 +83,16 @@ test('session selection locks current actor and exposes only accepted participan
 });
 
 test('optional details and native date controls occur before review; invalid future date and duration block it', async () => {
-  const view = await render({ 25: 'date', 26: true });
+  const view = await render({ 2: 3, 25: 'date', 26: true, 36: true });
   assert.equal(view.datePickers.length, 1);
   view.datePickers[0].onChange({}, new Date('2026-10-02T14:30:00Z'));
   assert.equal(view.updates.some(([i]) => i === 24), false);
   await view.press('Concluir');
   assert.equal(view.updates.some(([i]) => i === 24), true);
   assert.deepEqual(view.updates.find(([i]) => i === 25), [25, null]);
-  assert.equal(view.inputs.some(p => p.accessibilityLabel?.includes('Duração (minutos)')), true);
-  for (const values of [{ 24: new Date(Date.now() + 3600000) }, { 10: '1.5' }, { 10: '-1' }]) {
-    const invalid = await render(values); await invalid.press('Rever partida');
+  assert.equal(view.inputs.some(p => p.accessibilityLabel === 'Minutos da partida'), true, 'duration is outside the optional details');
+  for (const values of [{ 24: new Date(Date.now() + 3600000), 10: answered }, { 10: { hours: '', minutes: '1.5', method: 'Estimated', confirmed: false } }, { 10: { hours: '', minutes: '-1', method: 'Estimated', confirmed: false } }, { 10: { hours: '', minutes: '0', method: 'Estimated', confirmed: false } }]) {
+    const invalid = await render({ 2: 3, ...values }); await invalid.press('Rever partida');
     assert.equal(invalid.updates.some(([i]) => i === 2), false); assert.equal(invalid.calls.some(c => c[0] === 'alert'), true);
   }
 });
@@ -116,6 +119,6 @@ test('quick saved confirmation protects the match and retries photos against its
 });
 
 test('cooperative preview never labels an unselected team result as a defeat', async () => {
-  const view = await render({ 2: 3, 6: 'cooperative', 8: players.map(p => ({ ...p, isWinner: false })) });
-  assert.match(view.html, /Resultado não definido/); assert.doesNotMatch(view.html, /Equipa perdeu/);
+  const view = await render({ 2: 4, 6: 'cooperative', 8: players.map(p => ({ ...p, isWinner: false })) });
+  assert.match(view.html, /Não definido/); assert.doesNotMatch(view.html, /Perdemos|Derrota/);
 });

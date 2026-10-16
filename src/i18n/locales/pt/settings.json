@@ -42,5 +42,17 @@
     "open": "Abrir BoardGameGeek",
     "openHint": "Abre boardgamegeek.com no navegador",
     "logo": "Powered by BGG. Abrir BoardGameGeek"
+  },
+  "durationSharing": {
+    "title": "Privacidade das estatísticas",
+    "label": "Contribuir para a duração da comunidade",
+    "on": "Ligado",
+    "off": "Desligado",
+    "used": "O que é utilizado: a duração e o método (medida, estimativa ou não indicado), o jogo, o modo e o número de jogadores das partidas em que participaste.",
+    "never": "O que nunca é utilizado: nomes, datas, locais, resultados, pontuações, avaliações e notas.",
+    "when": "Quando conta: só nas partidas em que todos os participantes ligaram esta opção. Inclui partidas anteriores.",
+    "how": "Como aparece: só como média anónima por jogo, sem partidas individuais, e só com partidas suficientes de várias pessoas.",
+    "offEffect": "Se desligares: as tuas partidas deixam de contar a partir desse momento. A tua média pessoal não muda.",
+    "changeError": "Não foi possível alterar esta preferência."
   }
 }

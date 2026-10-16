@@ -180,6 +180,15 @@ const matchService = {
   /**
    * Fechar o diário de uma partida manualmente (só o criador).
    */
+  /** Corrects the duration of a match and how it was obtained; only its creator may do it. */
+  async updateDuration(matchId: string, durationInMinutes: number | null, durationMethod: "Measured" | "Estimated" | "Unknown" | null): Promise<void> {
+    try {
+      await api.patch(`/matches/${matchId}/duration`, { durationInMinutes, durationMethod });
+    } catch (error: any) {
+      throw new Error(extractApiErrorMessage(error, "Não foi possível guardar a duração."));
+    }
+  },
+
   async closeJournal(matchId: string): Promise<void> {
     try {
       await api.post(`/matches/${matchId}/close-journal`, null);

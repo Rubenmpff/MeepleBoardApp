@@ -4,13 +4,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Glyph } from "./components";
 import { colors, radius, space, strong, touch, type } from "./theme";
 
-export type SheetAction = { label: string; onPress: () => void; accessibilityLabel?: string; back?: boolean; bold?: boolean };
+export type SheetAction = { label: string; onPress: () => void; accessibilityLabel?: string; back?: boolean; bold?: boolean; disabled?: boolean };
 
 // Bottom sheet over the statistics: it never pushes or changes the page below.
 // minHeight keeps a searchable sheet steady while results are filtered.
 export default function Sheet({ visible, title, onClose, closeLabel, left, right, minHeight, children }: { visible: boolean; title: string; onClose: () => void; closeLabel: string; left?: SheetAction; right?: SheetAction; minHeight?: number; children: ReactNode }) {
  const action = (a: SheetAction | undefined, align: "flex-start" | "flex-end") => <View style={[s.side, { alignItems: align }]}>
-  {a && <TouchableOpacity style={s.action} accessibilityRole="button" accessibilityLabel={a.accessibilityLabel ?? a.label} onPress={a.onPress}>
+  {a && <TouchableOpacity style={[s.action, a.disabled && { opacity: 0.4 }]} accessibilityRole="button" accessibilityLabel={a.accessibilityLabel ?? a.label} accessibilityState={{ disabled: !!a.disabled }} disabled={a.disabled} onPress={a.onPress}>
    {a.back && <Glyph name="chevron-left" size={24} color={colors.primary} />}
    <Text style={[type.body, { color: colors.primary }, a.bold && strong]}>{a.label}</Text>
   </TouchableOpacity>}

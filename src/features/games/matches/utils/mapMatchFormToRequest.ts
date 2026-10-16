@@ -18,6 +18,7 @@ export interface CreateMatchRequest {
   winnerId?: string;
   isSoloGame: boolean;
   durationInMinutes?: number;
+  durationMethod?: "Measured" | "Estimated" | "Unknown";
   location?: string;
   scoreSummary?: string;
   scoresEnabled?: boolean;
@@ -121,6 +122,7 @@ export function mapMatchFormToRequest(form: MatchFormData): CreateMatchRequest {
 
     isSoloGame: form.isSoloGame,
     durationInMinutes: form.durationInMinutes,
+    durationMethod: form.durationMethod,
     location: form.location?.trim() || undefined,
     scoreSummary: form.scoreSummary?.trim() || undefined,
 

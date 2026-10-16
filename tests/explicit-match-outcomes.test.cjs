@@ -4,7 +4,8 @@ const { renderNative } = require('./helpers/renderNative.cjs');
 const form = 'src/features/games/matches/components/RegisterMatchForm.tsx';
 const me = { id: 'me', userName: 'Author' };
 const players = [{ id: 'me', username: 'Author', score: '-17', isWinner: true }, { id: 'peer', username: 'Peer', score: '0', isWinner: true }, { id: 'third', username: 'Third', score: '100', isWinner: false }];
-const base = { 2: 3, 3: { id: 'game', name: 'Game' }, 4: false, 8: players, 12: 0, 23: true };
+// Review is step 4; the duration (state 10) needs an answer: «Não sei» here.
+const base = { 2: 4, 3: { id: 'game', name: 'Game' }, 4: false, 8: players, 10: { hours: '', minutes: '', method: 'Unknown', confirmed: false }, 12: 0, 23: true };
 const render = (overrides = {}) => renderNative(form, 'default', { currentUser: me }, { states: { ...base, ...overrides } });
 const submit = async overrides => { const view = await render(overrides); await view.press('Guardar partida'); return view; };
 test('shared win requires rules confirmation, and sends every selected winner without picking the first', async () => {
@@ -23,7 +24,7 @@ test('partial draw explicitly assigns tied-first players Draw and all others Los
   const view = await submit({ 29: 'Draw' }); const payload = view.calls.find(c => c[0] === 'submitMatch')[1];
   assert.deepEqual(payload.resultPlayerIds, ['me', 'peer']); assert.deepEqual(payload.players.map(p => p.outcome), ['Draw', 'Draw', 'Loss']);
   assert.ok(payload.players.every(p => !p.isWinner)); assert.equal(payload.winnerId, undefined);
-  assert.match(view.html, /Third.*Derrota.*100/);
+  assert.match(view.html, /Third.*100 · Derrota/);
   const blocked = await submit({ 29: 'Draw', 8: players.map((p, i) => ({ ...p, isWinner: i === 0 })) });
   assert.equal(blocked.calls.some(c => c[0] === 'submitMatch'), false);
 });
@@ -49,7 +50,7 @@ test('cooperative outcomes apply to everyone, with no individual winner ID', asy
   }
 });
 test('result selectors toggle people for a draw while preserving raw signed scores', async () => {
-  const view = await renderNative('src/features/games/matches/components/MatchResultFields.tsx', 'default', { players, competitive: true, multiple: true, selectionKind: 'draw', scoresEnabled: true, onScoresEnabled() {}, onChange: next => changes.push(next), showErrors: false });
+  const view = await renderNative('src/features/games/matches/components/MatchResultFields.tsx', 'default', { players, selection: 'tied', outcomeFor: () => 'Draw', scoresEnabled: true, onScoresEnabled() {}, onChange: next => changes.push(next), showErrors: false });
   const changes = []; await view.press('Empatado em primeiro: Peer');
   assert.deepEqual(changes[0].map(p => p.score), [-17, 0, 100].map(String)); assert.equal(changes[0][1].isWinner, false);
 });

@@ -42,5 +42,17 @@
     "open": "Open BoardGameGeek",
     "openHint": "Opens boardgamegeek.com in the browser",
     "logo": "Powered by BGG. Open BoardGameGeek"
+  },
+  "durationSharing": {
+    "title": "Statistics privacy",
+    "label": "Contribute to community match durations",
+    "on": "On",
+    "off": "Off",
+    "used": "What is used: the duration and its method (timed, estimate or not stated), the game, the mode and the number of players of matches you took part in.",
+    "never": "What is never used: names, dates, places, results, scores, ratings and notes.",
+    "when": "When it counts: only in matches where every participant turned this on. Includes earlier matches.",
+    "how": "How it appears: only as an anonymous average per game, never single matches, and only with enough matches from several people.",
+    "offEffect": "If you turn it off: your matches stop counting from that moment. Your own average does not change.",
+    "changeError": "This preference could not be changed."
   }
 }

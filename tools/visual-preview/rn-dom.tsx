@@ -87,6 +87,8 @@ export const TextInput = (p: any) => {
   const st = css(p.style, true);
   return <div data-hit="1" data-label={p.accessibilityLabel} data-input="1" style={{ ...viewBase, justifyContent: 'center', fontSize: 14 * (W.__fontScale || 1) + 'px', ...st, color: shown ? (st.color || '#000') : (p.placeholderTextColor || '#999') }}>{shown || p.placeholder}</div>;
 };
+// The iOS bar above the number pad only exists with the keyboard open; nothing to draw in a still preview.
+export const InputAccessoryView = (_: any) => null;
 export const Switch = (p: any) => <div data-hit="1" data-label={p.accessibilityLabel} onClick={() => p.onValueChange?.(!p.value)} style={{ width: 51, height: 31, borderRadius: 16, background: p.value ? (p.trackColor?.true || '#34C759') : (p.trackColor?.false || '#E9E9EA'), position: 'relative', flexShrink: 0 }}><i style={{ position: 'absolute', top: 2, left: p.value ? 22 : 2, width: 27, height: 27, borderRadius: 14, background: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,.2)' }} /></div>;
 export const ImageBackground = (p: any) => <View style={p.style}><Image source={p.source} style={[{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }, p.imageStyle]} resizeMode={p.resizeMode} />{p.children}</View>;
 export const SectionList = (p: any) => <ScrollView {...p}>{p.ListHeaderComponent}{(p.sections || []).map((section: any, si: number) => <React.Fragment key={si}>{p.renderSectionHeader?.({ section })}{section.data.map((item: any, index: number) => <React.Fragment key={index}>{p.renderItem({ item, index, section })}</React.Fragment>)}</React.Fragment>)}{p.ListFooterComponent}</ScrollView>;

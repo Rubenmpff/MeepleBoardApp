@@ -11,4 +11,6 @@ export interface User {
   userName: string;
   email?: string;
   libraryPrivacy?: LibraryPrivacy;
+  /** Whether this account's matches may count towards community duration statistics (off by default). */
+  contributesDurationStats?: boolean;
 }

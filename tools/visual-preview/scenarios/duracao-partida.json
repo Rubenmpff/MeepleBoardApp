@@ -1,0 +1,4 @@
+{"name":"duracao-partida","screens":[
+ {"id":"1-partida","route":"/games/matches/{{match}}"},
+ {"id":"2-corrigir","route":"/games/matches/{{match}}","steps":[{"scrollTo":"Duração","offset":200},{"click":"Corrigir duração","wait":800}]}
+]}

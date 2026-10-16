@@ -8,7 +8,8 @@ const value = new Date('2026-10-06T12:34:00Z');
 const me = { id: 'me', userName: 'Author' };
 const players = [{ id: 'me', username: 'Author', score: '-17', isWinner: true }, { id: 'peer', username: 'Peer', score: '0', isWinner: false }];
 const session = { id: 'session', name: 'Test context', scheduledStartDate: '2026-09-01T23:30:00Z', status: 'Active', players: [{ userId: 'me', userName: 'Author', status: 'Accepted' }, { userId: 'peer', userName: 'Peer', status: 'Accepted' }] };
-const formStates = { 0: session, 2: 2, 3: { id: 'game', name: 'Fixture game' }, 4: false, 8: players, 12: 7.5, 23: true, 24: value };
+// Date and time live in «Quando» on step 3 (state 36 opens it); state 10 is the duration answer.
+const formStates = { 0: session, 2: 3, 3: { id: 'game', name: 'Fixture game' }, 4: false, 8: players, 10: { hours: '', minutes: '', method: 'Unknown', confirmed: false }, 12: 7.5, 23: true, 24: value, 36: true };
 
 function contrast(a, b) {
   const luminance = hex => {
@@ -94,12 +95,12 @@ test('late session response cannot overwrite an explicitly confirmed draft date'
 test('quick registration starts at current date, never at a stale session day', async () => {
   const before = Date.now();
   // Use the real initializer rather than override it with an undefined fixture.
-  const quick = await renderNative(form, 'default', { currentUser: me }, { states: { 2: 2, 3: formStates[3], 4: false, 8: players, 12: 7.5 }, captureEffects: true });
+  const quick = await renderNative(form, 'default', { currentUser: me }, { states: { 2: 3, 3: formStates[3], 4: false, 8: players, 12: 7.5, 36: true }, captureEffects: true });
   await quick.press('Alterar data');
   assert.equal(quick.datePickers.length, 0);
   assert.deepEqual(quick.updates.find(([i]) => i === 25), [25, 'date']);
   assert.ok(quick.html.includes(new Date().toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })));
-  const review = await renderNative(form, 'default', { currentUser: me }, { states: { 2: 3, 3: formStates[3], 4: false, 8: players, 12: 7.5 } });
+  const review = await renderNative(form, 'default', { currentUser: me }, { states: { 2: 4, 3: formStates[3], 4: false, 8: players, 10: formStates[10], 12: 7.5 } });
   await review.press('Guardar partida');
   const savedDate = new Date(review.calls.find(c => c[0] === 'submitMatch')[1].matchDate);
   assert.ok(savedDate.getTime() >= before && savedDate.getTime() <= Date.now());
@@ -108,12 +109,14 @@ test('quick registration starts at current date, never at a stale session day', 
 test('compact winner controls remain manual with zero/negative input; larger text exposes the same accessible fields', async () => {
   for (const options of [{}, { width: 320, fontScale: 1.8 }]) {
     const changes = [];
-    const view = await renderNative(result, 'default', { players, scoresEnabled: true, competitive: true, showErrors: false, onChange: p => changes.push(p), onScoresEnabled() {} }, options);
-    assert.doesNotMatch(view.html, /Marcar como vencedor/); assert.match(view.html, /Vencedor/);
-    const winners = view.controls.filter(p => p.accessibilityRole === 'radio' && p.accessibilityLabel?.startsWith('Marcar'));
-    assert.equal(winners.length, 2); assert.deepEqual(winners.map(p => p.accessibilityState.selected), [true, false]);
+    const view = await renderNative(result, 'default', { players, scoresEnabled: true, selection: 'winner', outcomeFor: id => id === 'me' ? 'Win' : 'Loss', showErrors: false, onChange: p => changes.push(p), onScoresEnabled() {} }, options);
+    assert.doesNotMatch(view.html, /Marcar como vencedor/);
+    if (!options.fontScale) assert.match(view.html, /Vencedor/); // large text drops the header row; each row keeps its labels
+    const winners = view.controls.filter(p => p.accessibilityRole === 'checkbox' && p.accessibilityLabel?.startsWith('Marcar'));
+    assert.equal(winners.length, 2); assert.deepEqual(winners.map(p => p.accessibilityState.checked), [true, false]);
+    // Winners are chosen by hand, one or more; the scores never pick them.
     await view.press('Marcar Peer como vencedor');
-    assert.deepEqual(changes[0].map(p => p.isWinner), [false, true]);
+    assert.deepEqual(changes[0].map(p => p.isWinner), [true, true]);
     assert.deepEqual(changes[0].map(p => p.score), ['-17', '0']);
     assert.equal(view.inputs.find(p => p.accessibilityLabel === 'Pontuação de Author').value, '-17');
     assert.equal(view.inputs.find(p => p.accessibilityLabel === 'Pontuação de Peer').value, '0');
