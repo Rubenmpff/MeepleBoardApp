@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diário e experiências MeepleBoard</title>
+<style>
+:root{--doc-bg:#F3F1F5;--doc-ink:#2A2433;--doc-muted:#5E6570;--doc-card:#FFFFFF;--doc-line:#E2DDE7;--doc-accent:#27594B;--doc-new:#FFF7DE;--doc-new-ink:#6E4D00;
+ --doc-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--doc-bg:#17141B;--doc-ink:#ECE8F0;--doc-muted:#A9A3B2;--doc-card:#221E28;--doc-line:#37303F;--doc-accent:#8CC4AE;--doc-new:#3A3220;--doc-new-ink:#F1D79A}}
+:root[data-theme="dark"]{color-scheme:dark;--doc-bg:#17141B;--doc-ink:#ECE8F0;--doc-muted:#A9A3B2;--doc-card:#221E28;--doc-line:#37303F;--doc-accent:#8CC4AE;--doc-new:#3A3220;--doc-new-ink:#F1D79A}
+@font-face{font-family:"MCI";src:url(../../../../node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf) format("truetype");font-display:block}
+*{box-sizing:border-box}
+body{margin:0;background:var(--doc-bg);color:var(--doc-ink);font:16px/1.55 var(--doc-font);padding:0 20px 72px}
+.doc{max-width:1240px;margin:0 auto}.prose{max-width:720px}
+h1{font-size:34px;line-height:1.15;letter-spacing:-.4px;margin:44px 0 12px;text-wrap:balance}
+h2{font-size:24px;line-height:1.25;margin:0 0 8px;text-wrap:balance}h3{font-size:17px;margin:0 0 6px}
+p{margin:0 0 12px}.lede{font-size:18px}.muted{color:var(--doc-muted)}
+section.block{margin-top:56px;padding-top:32px;border-top:1px solid var(--doc-line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:16px}
+.box{background:var(--doc-card);border:1px solid var(--doc-line);border-radius:14px;padding:18px 20px}
+ul,ol{margin:0;padding-left:20px}li{margin:4px 0}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;padding:1px 8px;border-radius:999px;background:var(--doc-line);color:var(--doc-ink)}
+.tag.new{background:var(--doc-new);color:var(--doc-new-ink)}.tag.ok{background:#E7F0E7;color:#27594B}
+table.map{width:100%;border-collapse:collapse;font-size:15px;background:var(--doc-card);border:1px solid var(--doc-line);border-radius:14px;overflow:hidden}
+.map th,.map td{text-align:left;padding:9px 12px;border-top:1px solid var(--doc-line);vertical-align:top}.map th{color:var(--doc-muted);font-weight:600;border-top:0}
+.tablewrap{overflow-x:auto}
+.strip{display:flex;gap:28px;overflow-x:auto;padding:20px 4px 12px}
+.shot{flex:none;display:flex;flex-direction:column;gap:10px;margin:0;max-width:402px}
+.shot figcaption{font-size:14px;line-height:20px}.shot figcaption b{display:block;font-size:15px}.shot figcaption span{color:var(--doc-muted)}
+
+/* ---------- Telemóvel 402 × 874 pt; tokens = src/ui/theme.ts ---------- */
+.phone{--s:1;--bg:#FBFBF8;--card:#FFFFFF;--hero:#F1EBFA;--band:#F6F2FA;--ink:#30283D;--mut:#58616A;--pri:#27594B;--pri-soft:#E7F0E7;--line:#EAE5EF;--hair:#EFEAF2;--track:#EFEDF1;
+ --gold-soft:#FFF7DE;--gold-line:#F1E3B5;--gold-ink:#6E4D00;--gold:#DCA52B;--friend:#7A5AAE;--lav:#9C86C9;--chev:#8C9096;
+ width:402px;height:874px;position:relative;overflow:hidden;border-radius:44px;background:var(--bg);color:var(--ink);flex:none;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;font-size:15px;line-height:20px;
+ box-shadow:0 0 0 1px rgba(30,20,40,.10),0 30px 60px -30px rgba(40,20,60,.45)}
+.phone *{box-sizing:border-box}
+.mdi{font-family:"MCI";font-style:normal;line-height:1;display:inline-block;flex:none;font-size:calc(var(--sz)*var(--s))}
+.t-large{font-size:calc(28px*var(--s));line-height:calc(33px*var(--s));font-weight:700;letter-spacing:-.4px}
+.t-title{font-size:calc(22px*var(--s));line-height:calc(28px*var(--s));font-weight:700}
+.t-head{font-size:calc(17px*var(--s));line-height:calc(22px*var(--s));font-weight:600}
+.t-body{font-size:calc(15px*var(--s));line-height:calc(21px*var(--s))}
+.t-cap{font-size:calc(13px*var(--s));line-height:calc(18px*var(--s));color:var(--mut)}
+.t-micro{font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut)}
+.b{font-weight:600}.grow{flex:1;min-width:0}.num{font-variant-numeric:tabular-nums}.link{color:var(--pri);font-weight:600}
+.status{position:absolute;top:0;left:0;right:0;height:54px;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:16px 34px 0 54px;font-weight:600;font-size:17px;pointer-events:none}
+.island{position:absolute;top:11px;left:50%;width:124px;height:36px;margin-left:-62px;border-radius:20px;background:#0E0C10;z-index:31}
+.batt{width:26px;height:12px;border:1.5px solid var(--ink);border-radius:4px;padding:1.5px}.batt i{display:block;height:100%;width:80%;background:var(--ink);border-radius:1.5px}
+.homebar{position:absolute;bottom:8px;left:50%;width:138px;height:5px;margin-left:-69px;border-radius:3px;background:#17131B;z-index:40}
+.viewport{position:absolute;inset:0;overflow:hidden}
+.scroll{position:absolute;left:0;right:0;top:0}
+/* floating buttons over the hero */
+.float{position:absolute;top:58px;z-index:12;width:40px;height:40px;border-radius:20px;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;color:var(--pri);box-shadow:0 1px 3px rgba(40,20,60,.18)}
+.float.l{left:12px}.float.r{right:12px}
+/* compact header after scrolling */
+.bar{position:absolute;top:0;left:0;right:0;z-index:12;background:var(--bg);padding-top:54px;border-bottom:1px solid var(--line)}
+.bar .row{height:44px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 6px}
+.bar .row .ttl{text-align:center;font-weight:600;font-size:calc(17px*var(--s));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .act{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;color:var(--pri)}
+.bar .tabs{margin:0 16px 8px}
+/* hero */
+.hero{position:relative;padding:62px 20px 22px;background:linear-gradient(180deg,#EADFF8 0%,var(--hero) 58%,var(--bg) 100%);text-align:center}
+.hero>*:not(.glow){position:relative}
+.hero .glow{position:absolute;left:50%;top:70px;width:300px;height:220px;margin-left:-150px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.75),rgba(255,255,255,0));pointer-events:none}
+.cover{position:relative;display:inline-flex;align-items:flex-end;justify-content:center;height:calc(188px*var(--s));max-height:220px;margin:4px auto 14px}
+.cover img{height:100%;width:auto;display:block;filter:drop-shadow(0 14px 18px rgba(48,40,61,.28))}
+.cover.ph{width:150px;height:150px;border-radius:18px;background:#E3D8F3;align-items:center;color:var(--lav);box-shadow:inset 0 0 0 1px rgba(156,134,201,.25)}
+.hero h2{margin:0;font-size:calc(28px*var(--s));line-height:calc(33px*var(--s));font-weight:700;letter-spacing:-.4px;text-wrap:balance}
+.hero .sub{margin-top:4px}
+.scores{display:flex;gap:10px;margin-top:16px;text-align:left}
+.score{flex:1;min-width:0;background:var(--card);border-radius:16px;padding:10px 12px;box-shadow:0 1px 0 rgba(48,40,61,.06),0 0 0 1px var(--line)}
+.score .who{display:flex;align-items:center;gap:6px;font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--mut)}
+.score .val{display:flex;align-items:baseline;gap:3px;margin-top:2px}
+.score .val b{font-size:calc(26px*var(--s));line-height:calc(30px*var(--s));font-weight:700;font-variant-numeric:tabular-nums}
+.score .val i{font-style:normal;color:var(--mut);font-size:calc(13px*var(--s))}
+.score.none .val{font-size:calc(14px*var(--s));color:var(--mut);font-weight:400;margin-top:6px}
+.dot{width:8px;height:8px;border-radius:4px;display:inline-block}
+.scores.col{flex-direction:column}
+/* facts */
+.facts{display:grid;grid-template-columns:repeat(4,1fr);margin:0 16px;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.facts.col{grid-template-columns:1fr 1fr}
+.fact{padding:10px 6px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;border-left:1px solid var(--hair)}
+.facts.col .fact:nth-child(odd){border-left:0}.facts.col .fact:nth-child(n+3){border-top:1px solid var(--hair)}
+.fact:first-child{border-left:0}
+.fact .v{font-weight:700;font-size:calc(16px*var(--s));line-height:calc(20px*var(--s));font-variant-numeric:tabular-nums}
+.fact .k{font-size:calc(11.5px*var(--s));line-height:calc(15px*var(--s));color:var(--mut)}
+/* actions */
+.actions{display:flex;gap:8px;margin:12px 16px 0}
+.actions.col{flex-direction:column}
+.btn{white-space:nowrap;min-height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;font-weight:600;font-size:calc(15px*var(--s));line-height:calc(19px*var(--s));text-align:center}
+.btn.pri{background:var(--pri);color:#fff;flex:1.5}.btn.sec{background:var(--pri-soft);color:var(--pri);flex:1}
+.btn.icon{flex:none;width:46px;padding:0}
+/* tabs */
+.tabs{display:flex;background:var(--track);border-radius:12px;padding:3px;gap:2px}
+.tabs span{flex:1;min-height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:calc(14.5px*var(--s));color:var(--ink)}
+.tabs span.on{background:var(--card);font-weight:600;box-shadow:0 1px 2px rgba(48,40,61,.16)}
+.tabsWrap{margin:18px 16px 0}
+/* body */
+.body{padding:20px 16px 120px;display:flex;flex-direction:column;gap:26px}
+.blk{display:flex;flex-direction:column;gap:10px}
+.sechead{display:flex;align-items:baseline;gap:10px;padding:0 2px}
+.sechead h3{margin:0;font-size:calc(19px*var(--s));line-height:calc(24px*var(--s));font-weight:700;letter-spacing:-.2px}
+.sechead .more{margin-left:auto;color:var(--pri);font-weight:600;font-size:calc(14px*var(--s));white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.pad{padding:14px 16px}
+.row{display:flex;align-items:center;gap:12px;min-height:52px;padding:10px 16px;position:relative}
+.row+.row::before{content:"";position:absolute;top:0;left:16px;right:0;height:1px;background:var(--hair)}
+.row.inset+.row.inset::before{left:64px}
+.chev{color:var(--chev)}
+.desc{font-size:calc(15px*var(--s));line-height:calc(22px*var(--s))}
+.fade{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.source{display:flex;align-items:center;gap:6px;margin-top:8px}
+.quiet{display:flex;align-items:center;gap:10px;padding:2px 2px;color:var(--mut);font-size:calc(14px*var(--s));line-height:calc(19px*var(--s))}
+.quiet .mdi{color:var(--lav)}
+.quiet .link{margin-left:auto;white-space:nowrap}
+/* experience */
+.stats{display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:12px 8px;text-align:center;border-left:1px solid var(--hair)}.stat:first-child{border-left:0}
+.stat b{display:block;font-size:calc(20px*var(--s));line-height:calc(24px*var(--s));font-variant-numeric:tabular-nums}
+.stat span{font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut)}
+.mine{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--hair)}
+.mine .big{font-size:calc(24px*var(--s));line-height:calc(28px*var(--s));font-weight:700;font-variant-numeric:tabular-nums}
+.mine .big i{font-style:normal;font-size:calc(13px*var(--s));font-weight:400;color:var(--mut)}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border-radius:999px;background:var(--pri-soft);color:var(--pri);font-weight:600;font-size:calc(13.5px*var(--s));white-space:nowrap}
+.pending{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--gold-soft);color:var(--gold-ink);border-top:1px solid var(--gold-line);font-size:calc(14px*var(--s));line-height:calc(19px*var(--s))}
+.mrow{display:flex;align-items:center;gap:12px;padding:10px 16px;border-top:1px solid var(--hair);min-height:52px}
+.res{width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none}
+.res.w{background:var(--pri-soft);color:var(--pri)}.res.l{background:#FBE7E8;color:#B5454B}
+/* friends */
+.friends{display:flex;gap:6px;overflow:hidden;padding:2px 0}
+.friend{width:84px;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.av{width:56px;height:56px;border-radius:28px;background:#EEE6F8;color:var(--friend);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:calc(20px*var(--s));box-shadow:0 0 0 2px var(--bg),0 0 0 3px #DCCFF0;flex:none}
+.friend .nm{font-size:calc(12px*var(--s));line-height:calc(15px*var(--s));display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.friend.more .av{background:var(--track);color:var(--mut);box-shadow:none}
+/* learn */
+.langbar{display:flex;align-items:center;gap:8px}
+.lang{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-weight:600;font-size:calc(14px*var(--s))}
+.grouphead{display:flex;flex-direction:column;gap:0;padding:0 2px}
+.grouphead .k{font-size:calc(11.5px*var(--s));letter-spacing:.4px;text-transform:uppercase;font-weight:700;color:var(--mut)}
+.grouphead .n{font-size:calc(19px*var(--s));line-height:calc(24px*var(--s));font-weight:700}
+.kind{font-size:calc(13px*var(--s));font-weight:600;color:var(--mut);padding:0 2px}
+.rules{display:flex;gap:14px;align-items:center;padding:14px 16px}
+.rules .tile{width:56px;height:72px;border-radius:8px;background:linear-gradient(160deg,#F1EBFA,#E3D8F3);display:flex;align-items:center;justify-content:center;color:var(--friend);flex:none;box-shadow:inset 0 0 0 1px rgba(156,134,201,.3)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:calc(11.5px*var(--s));font-weight:700;letter-spacing:.2px;padding:2px 8px;border-radius:999px;background:var(--pri-soft);color:var(--pri)}
+.badge.n{background:var(--track);color:var(--mut)}
+.carousel{display:flex;gap:12px;overflow:hidden;margin:0 -16px;padding:0 16px}
+.vcard{width:100%;flex:none}.carousel .vcard:not(:only-child){width:248px}
+.thumb{position:relative;border-radius:14px;overflow:hidden;background:#E3D8F3}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .play{position:absolute;left:10px;bottom:10px;width:34px;height:34px;border-radius:17px;background:rgba(20,14,26,.66);color:#fff;display:flex;align-items:center;justify-content:center}
+.vcard .thumb{aspect-ratio:16/9}
+.meta{margin-top:8px;display:flex;flex-direction:column;gap:2px}
+.vtitle{font-weight:600;font-size:calc(15px*var(--s));line-height:calc(20px*var(--s));display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mgrid.col{grid-template-columns:1fr}
+.mcard{display:flex;flex-direction:column}
+.mcard .thumb{aspect-ratio:4/3}
+.mcard .vtitle{-webkit-line-clamp:2}
+.dots{position:absolute;right:6px;top:6px;width:32px;height:32px;border-radius:16px;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.compact{display:flex;gap:12px;align-items:center;padding:10px 16px}
+.compact .thumb{width:104px;height:62px;flex:none;border-radius:10px}
+.compact .thumb .play{width:26px;height:26px;left:6px;bottom:6px}
+.suggest{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px dashed #D6CDE3;border-radius:14px;color:var(--pri);font-weight:600}
+.foot{font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut);padding:0 2px}
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(35,25,45,.36);z-index:50}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:51;background:var(--bg);border-radius:22px 22px 0 0;padding:6px 16px 34px}
+.grab{width:36px;height:5px;border-radius:3px;background:#D6D1DC;margin:0 auto 8px}
+.sheethead{display:flex;align-items:center;min-height:44px}
+.new{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:1px 6px;border-radius:6px;background:var(--gold-soft);color:var(--gold-ink);border:1px solid var(--gold-line);vertical-align:middle}
+.ideas{border-color:var(--gold-line)}
+/* scope additions */
+.facts.three{grid-template-columns:repeat(3,1fr)}
+.srcline{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 16px 0;font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut);text-align:center}
+.plan{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;margin:4px 16px 0;color:var(--pri);font-weight:600;font-size:calc(15px*var(--s))}
+.xt{width:40px;height:40px;border-radius:10px;background:#EEE6F8;display:flex;align-items:center;justify-content:center;color:var(--lav);flex:none}
+.xt.img{background:#fff;box-shadow:inset 0 0 0 1px var(--line)}.xt img{width:34px;height:34px;object-fit:contain}
+.nav{position:absolute;top:0;left:0;right:0;z-index:12;background:var(--bg);padding-top:54px}
+.nav .row{height:44px;display:grid;grid-template-columns:96px 1fr 96px;align-items:center;padding:0 8px}
+.nav .ttl{text-align:center;font-weight:600;font-size:calc(17px*var(--s))}
+.form{padding:108px 16px 120px;display:flex;flex-direction:column;gap:16px}
+.ctitle{display:flex;align-items:center;gap:8px;font-weight:700;font-size:calc(16px*var(--s));padding:14px 16px 4px}
+.fld{padding:8px 16px 12px;display:flex;flex-direction:column;gap:6px}
+.fld label{font-size:calc(13px*var(--s));font-weight:600;color:var(--mut)}
+.input{min-height:46px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);font-size:calc(15px*var(--s));line-height:calc(20px*var(--s))}
+.input.ph{color:#8C9096}
+.gpick{display:flex;align-items:center;gap:12px;min-height:58px;border:1px solid var(--line);border-radius:12px;padding:8px 10px 8px 8px;background:var(--bg)}
+.gpick.none{border-style:dashed;color:var(--pri);font-weight:600;padding-left:14px}
+.search{display:flex;align-items:center;gap:8px;min-height:40px;border-radius:11px;background:var(--track);padding:0 12px;color:var(--mut);margin-bottom:12px}
+.radio{color:var(--pri)}.radio.off{color:#B9B3C0}
+.lbl{font-size:calc(12px*var(--s));letter-spacing:.4px;text-transform:uppercase;font-weight:700;color:var(--mut);padding:14px 4px 6px}
+/* «Powered by BGG»: the official file, unchanged (colours, proportions and its own transparent margins) */
+.pbgg{display:block;height:calc(44px*var(--s));width:auto;max-width:none;flex:none}
+.pbgg.big{height:calc(52px*var(--s))}
+.sizes{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;padding:20px;background:#FAFAF7;border:1px solid var(--doc-line);border-radius:14px;color:#2A2433}
+.sizes figure{margin:0;display:flex;flex-direction:column;gap:6px;font-size:13px}.sizes img{display:block;width:auto;max-width:none}
+.sizes figcaption span{color:#5E6570}
+.srcrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 16px 0;padding:8px 10px 8px 12px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+.srcrow .txt{display:flex;align-items:center;gap:6px;min-width:0;font-size:calc(12.5px*var(--s));line-height:calc(16px*var(--s));color:var(--mut)}
+.srcrow.col{flex-direction:column;align-items:flex-start}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:88px;background:var(--bg);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-top:8px;z-index:12}
+.tabbar>span{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--mut)}.tabbar>span.on{color:var(--pri);font-weight:700}
+.tabbar .new{width:52px;height:34px;border-radius:10px;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center}
+.ptitle{font-size:calc(32px*var(--s));font-weight:800;letter-spacing:-.4px;margin:0 2px}
+.cr{display:flex;flex-direction:column;gap:12px;padding:16px}
+.cr p{margin:0;font-size:calc(14.5px*var(--s));line-height:calc(20px*var(--s))}
+.three{display:flex;flex-direction:column}
+.three .row .dot{width:10px;height:10px;border-radius:50%;flex:none}
+
+.dtiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dtiles.col{grid-template-columns:1fr}
+.dt{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
+.dt .who{display:flex;align-items:center;gap:6px;font-size:calc(12px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--mut)}
+.dt .who i{width:8px;height:8px;border-radius:4px;display:inline-block}
+.dt .v{font-size:calc(24px*var(--s));line-height:calc(29px*var(--s));font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+.dt .v.few{font-size:calc(16px*var(--s));line-height:calc(21px*var(--s));font-weight:600}
+.dt .m{font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut)}
+.segm{display:flex;background:var(--track);border-radius:12px;padding:3px;gap:2px}
+.segm span{flex:1;min-height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:calc(14px*var(--s))}
+.segm span.on{background:var(--card);font-weight:600;box-shadow:0 1px 2px rgba(48,40,61,.16)}
+.bggref{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px dashed var(--line);border-radius:14px;font-size:calc(13.5px*var(--s))}.bggref .who{display:flex;align-items:center;gap:6px;font-size:calc(12px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--mut)}.bggref .who i{width:8px;height:8px;border-radius:4px;display:inline-block}.bggref b{font-variant-numeric:tabular-nums}
+.dnote{display:flex;gap:6px;align-items:flex-start;font-size:calc(12px*var(--s));line-height:calc(16px*var(--s));color:var(--mut);padding:0 2px}
+table.dtab{width:100%;border-collapse:collapse;font-size:calc(14px*var(--s));font-variant-numeric:tabular-nums}
+table.dtab th{font-size:calc(11.5px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--mut);text-align:right;padding:8px 10px}
+table.dtab th:first-child,table.dtab td:first-child{text-align:left}
+table.dtab td{padding:10px;border-top:1px solid var(--hair);text-align:right;vertical-align:top}
+table.dtab td small{display:block;font-size:calc(11.5px*var(--s));color:var(--mut)}
+.tagx{display:inline-block;font-size:calc(10.5px*var(--s));font-weight:700;letter-spacing:.3px;text-transform:uppercase;padding:1px 6px;border-radius:6px;background:var(--track);color:var(--mut)}
+.tagx.b{background:var(--pri-soft);color:var(--pri)}
+.rating{padding:16px;display:flex;flex-direction:column;gap:12px}
+.rbig{display:flex;align-items:baseline;justify-content:center;gap:6px}
+.rbig b{font-size:calc(44px*var(--s));line-height:1;font-weight:800;font-variant-numeric:tabular-nums}
+.rbig i{font-style:normal;font-size:calc(18px*var(--s));color:var(--mut);font-weight:600}
+.rctl{display:flex;align-items:center;gap:10px}
+.rbtn{width:48px;height:48px;border-radius:24px;background:var(--pri-soft);color:var(--pri);display:flex;align-items:center;justify-content:center;font-weight:700;flex:none;font-size:calc(14px*var(--s))}
+.track{flex:1;height:44px;position:relative;display:flex;align-items:center}
+.track .tbar{position:absolute;left:0;right:0;height:8px;border-radius:4px;background:var(--track)}
+.track .tfill{position:absolute;left:0;height:8px;border-radius:4px;background:var(--gold)}
+.track .knob{position:absolute;width:28px;height:28px;border-radius:14px;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.3);margin-left:-14px;border:3px solid var(--gold)}
+.track .tick{position:absolute;width:2px;height:8px;background:rgba(255,255,255,.7)}
+.scale{display:flex;justify-content:space-between;font-size:calc(11.5px*var(--s));color:var(--mut);padding:0 58px}
+/* diary and experiences */
+.dcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.dcard.hl{border-color:var(--gold-line);background:linear-gradient(180deg,var(--gold-soft),var(--card) 70%)}
+.lbl{font-size:calc(12px*var(--s));font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--mut)}
+.myscore{display:flex;align-items:baseline;gap:6px}.myscore b{font-size:calc(40px*var(--s));line-height:1;font-weight:800;font-variant-numeric:tabular-nums}.myscore i{font-style:normal;color:var(--mut);font-size:calc(17px*var(--s));font-weight:600}
+.acts{display:flex;gap:8px;flex-wrap:wrap}.acts .btn{flex:1}
+.lnk{display:flex;align-items:center;gap:8px;min-height:44px;color:var(--pri);font-weight:600;font-size:calc(15px*var(--s))}
+.lnk.mut{color:var(--mut);font-weight:500}
+.hr{height:1px;background:var(--hair);margin:0 -16px}
+.state{display:inline-flex;align-items:center;gap:6px;font-size:calc(12.5px*var(--s));font-weight:600;padding:3px 10px;border-radius:999px;align-self:flex-start}
+.state.pub{background:var(--pri-soft);color:var(--pri)}.state.draft{background:var(--track);color:var(--mut)}.state.hid{background:#FBEAE9;color:#A3445A}
+.ta{min-height:96px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);font-size:calc(15px*var(--s));line-height:calc(21px*var(--s))}
+.ta.f{border-color:var(--pri);box-shadow:0 0 0 2px var(--pri-soft)}
+.cnt{font-size:calc(12px*var(--s));color:var(--mut);text-align:right}
+.xp{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.xp.prev{border-style:dashed;background:var(--band)}
+.xph{display:flex;align-items:center;gap:10px}.xph .av{width:36px;height:36px;border-radius:18px;font-size:14px}
+.rate{margin-left:auto;display:inline-flex;align-items:baseline;gap:2px;font-weight:800;font-variant-numeric:tabular-nums;background:var(--gold-soft);color:var(--gold-ink);border-radius:999px;padding:3px 10px;font-size:calc(14px*var(--s))}
+.rate i{font-style:normal;font-weight:600;font-size:calc(11px*var(--s))}
+.yours{font-size:calc(11px*var(--s));font-weight:700;color:var(--pri);background:var(--pri-soft);border-radius:6px;padding:1px 6px;margin-left:6px}
+.xpt{font-size:calc(15px*var(--s));line-height:calc(22px*var(--s))}
+.meta2{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:calc(12.5px*var(--s));color:var(--mut)}
+.radio2{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 4px;border-bottom:1px solid var(--hair);font-size:calc(15px*var(--s))}
+.rd{width:22px;height:22px;border-radius:11px;border:2px solid #B9B3C0;flex:none}.rd.on{border-color:var(--pri);box-shadow:inset 0 0 0 4px var(--card);background:var(--pri)}
+.toast{position:absolute;left:16px;right:16px;bottom:110px;z-index:60;background:#30283D;color:#fff;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;font-size:14px}
+.mod{display:flex;flex-direction:column;gap:8px}.reasons{display:flex;gap:6px;flex-wrap:wrap}.reasons span{font-size:12px;font-weight:600;background:#FBEAE9;color:#A3445A;border-radius:999px;padding:2px 8px}
+.fbar{position:absolute;left:0;right:0;bottom:0;z-index:20;background:var(--bg);border-top:1px solid var(--line);padding:12px 16px 34px;display:flex;flex-direction:column-reverse;gap:8px}.fbar .btn{flex:none}.fbar .btn.sec{background:transparent;min-height:40px}
+</style>
+</head>
+<body>
+<div class="doc">
+<h1>Diário individual e experiências da comunidade</h1>
+<div class="prose">
+<p class="lede">Uma proposta consolidada: o diário fica concluído com a avaliação, e mais nada; a nota pessoal é privada; quem quiser pode escrever um comentário sobre a experiência e publicá-lo, explicitamente, na página do jogo. O comentário mostra a avaliação que já existe e não conta duas vezes.</p>
+<p class="muted">Proposta para aprovação, antes de alterar a app ou a API. Composição aprovada da página do jogo e do registo; controlo de avaliação aprovado. Nomes de contas de teste; comentários fictícios.</p>
+</div>
+<nav class="grid" aria-label="Resumo">
+ <div class="box"><h3>Diário: o que já está certo</h3><ul>
+  <li>A avaliação do registo já fica guardada como a tua avaliação dessa partida (uma entrada por pessoa e partida, com índice único).</li>
+  <li>«Por avaliar» já significa «sem avaliação»: zero conta como avaliado.</li>
+  <li>Editar substitui a avaliação; as médias usam uma entrada por pessoa.</li>
+  <li>Os amigos avaliam quando quiserem; o diário não mexe em resultado, pontuações nem duração.</li>
+  <li>As notas já são privadas: só o autor as recebe.</li>
+ </ul></div>
+ <div class="box"><h3>Diário: o que muda (só no ecrã)</h3><ul>
+  <li>No detalhe da partida, «A tua avaliação» em destaque, com «Editar avaliação» e «Adicionar nota pessoal» como ação secundária. Sai «Avaliar e escrever notas».</li>
+  <li>No diário, sai o estado «Aberto/Fechado» e os pontos por jogador; fica uma linha discreta «2 de 3 participantes avaliaram».</li>
+  <li>O diário usa o mesmo controlo de avaliação do registo. Nenhuma alteração na API.</li>
+ </ul></div>
+ <div class="box"><h3>Comentário sobre a experiência (novo)</h3><ul>
+  <li>Opcional, ligado à tua avaliação dessa partida; só aparece depois de carregares em «Publicar na comunidade».</li>
+  <li>Mostra o teu nome, a avaliação, o comentário, o modo, o número de jogadores e o mês. Nunca os outros participantes, o local, notas, etiquetas, fotografias ou a partida.</li>
+  <li>Editar, retirar a publicação (a avaliação e a nota ficam) e apagar. Reportar, com moderação pela administração.</li>
+ </ul></div>
+</nav>
+<section class="block" id="detalhe"><h2>Detalhe da partida · «A tua avaliação»</h2><p class="muted">Logo a seguir ao resultado. Depois de avaliar, a nota e «Editar avaliação»; a nota pessoal e o comentário são ações secundárias, nunca uma falta.</p><div class="strip" id="s-detalhe"></div></section>
+<section class="block" id="diario"><h2>Diário da partida</h2><p class="muted">Só a avaliação é obrigatória. A nota pessoal é privada; etiquetas e fotografias continuam visíveis aos participantes, como hoje; o comentário só sai do diário quando o publicas.</p><div class="strip" id="s-diario"></div></section>
+<section class="block" id="comentario"><h2>Comentário sobre a experiência</h2><p class="muted">Escrever, ver como fica, publicar ou guardar sem publicar; depois editar, retirar ou apagar. Retirar mantém a avaliação e a nota pessoal.</p><div class="strip" id="s-comentario"></div></section>
+<section class="block" id="jogo"><h2>Página do jogo · «Experiências da comunidade»</h2><p class="muted">Em «Sobre», depois de «Duração das partidas». Três experiências e «Ver todas»; cada uma com autor, avaliação, comentário, modo, número de jogadores e mês. Sem ligação para a partida.</p><div class="strip" id="s-jogo"></div></section>
+<section class="block" id="moderacao"><h2>Reportar e moderar</h2><p class="muted">Quem lê pode reportar; a administração revê. O autor vê quando um comentário foi ocultado e porquê.</p><div class="strip" id="s-moderacao"></div></section>
+<section class="block" id="regras"><h2>Regras</h2>
+<div class="tablewrap"><table class="map">
+<tr><th>Ponto</th><th>Proposta</th></tr>
+<tr><td>Diário concluído</td><td>Com a avaliação (0 a 10 em meios pontos; zero é avaliação). Nota pessoal, etiquetas, fotografias e comentário são opcionais e nunca tornam o diário «incompleto». «Avaliações pendentes» continua a contar só partidas sem avaliação.</td></tr>
+<tr><td>Avaliação do registo</td><td>É a tua avaliação dessa partida, sem confirmação. Editar no diário substitui-a (uma entrada por pessoa e partida); a nota MeepleBoard recalcula com a nova.</td></tr>
+<tr><td>Outros participantes</td><td>Avaliam quando quiserem. Não bloqueiam guardar a partida nem alteram resultados, pontuações ou duração. A contagem «2 de 3 participantes avaliaram» é discreta, sem nomes nem lembretes.</td></tr>
+<tr><td>Nota pessoal</td><td>Opcional e privada: só tu a vês, sempre. As notas existentes continuam privadas. Nunca é publicada, nem por mudar uma preferência.</td></tr>
+<tr><td>Comentário sobre a experiência</td><td>Opcional; até 500 caracteres; só com avaliação. Publicar é sempre uma ação explícita nesse comentário; nada é publicado automaticamente nem por preferências gerais. Guardar sem publicar deixa-o só para ti.</td></tr>
+<tr><td>O que aparece</td><td>Nome de utilizador, a avaliação atual dessa partida, o comentário, modo, número de jogadores, mês e ano, «Editado». Nunca: outros participantes, local, data exata, resultado, pontuações, notas, etiquetas, fotografias, nem forma de abrir a partida.</td></tr>
+<tr><td>Médias</td><td>O comentário não tem avaliação própria: mostra a da tua entrada. Publicar, editar, retirar ou apagar não mexe nas médias.</td></tr>
+<tr><td>Editar, retirar, apagar</td><td>Editar um comentário publicado mantém-no publicado, marcado «Editado». Retirar a publicação deixa-o como rascunho privado; a avaliação e a nota ficam. Apagar remove só o comentário. Apagar a conta ou a partida remove o comentário.</td></tr>
+<tr><td>Quem lê</td><td>Qualquer pessoa com sessão iniciada, na página do jogo. Os teus comentários aparecem com «A tua».</td></tr>
+<tr><td>Reportar</td><td>Motivos: ofensivo ou abusivo; spam ou publicidade; dados pessoais de alguém; não é sobre o jogo; outro (com detalhe opcional, 300 caracteres). Um relatório aberto por pessoa e comentário; não se reporta o próprio.</td></tr>
+<tr><td>Moderação</td><td>Administradores (o papel que já gere recursos) veem os comentários reportados com os motivos e decidem «Manter» (fecha os relatórios) ou «Ocultar» (com motivo). Com 3 relatórios de pessoas diferentes, o comentário fica oculto até ser revisto. O autor vê «Oculto pela moderação» e o motivo; pode apagar; a administração pode repor. A avaliação nunca é afetada.</td></tr>
+<tr><td>Limites</td><td>Sem ligações clicáveis (texto simples), até 20 publicações por dia por pessoa. Sem respostas, gostos nem mensagens nesta versão.</td></tr>
+</table></div></section>
+<section class="block" id="api"><h2>Impacto na API</h2>
+<div class="tablewrap"><table class="map">
+<tr><th>Peça</th><th>Proposta</th></tr>
+<tr><td>Diário</td><td>Nenhuma alteração: regras, índice único, recálculo da nota e notas privadas já existem. A contagem «x de y avaliaram» usa as entradas que os participantes já recebem.</td></tr>
+<tr><td>Tabela nova <code>MatchExperienceComments</code></td><td>Uma por entrada de diário (1:1, apaga em cascata com a entrada): texto (500), <code>PublishedAt</code>, <code>EditedAt</code>, <code>HiddenAt</code>, <code>HiddenReason</code>, <code>HiddenById</code>. Separada do diário para que a nota privada e a avaliação nunca passem pelos mesmos DTO públicos.</td></tr>
+<tr><td>Tabela nova <code>ExperienceReports</code></td><td>Comentário, quem reporta, motivo, detalhe, datas de criação e resolução, quem resolveu; um relatório aberto por pessoa e comentário (mesmo padrão dos relatórios de recursos).</td></tr>
+<tr><td>Rotas do autor</td><td><code>PUT …/matches/{id}/journal/experience</code> (texto e «publicar» explícito; exige avaliação), <code>POST …/experience/withdraw</code>, <code>DELETE …/experience</code>. Só o próprio participante.</td></tr>
+<tr><td>Leitura pública</td><td><code>GET /game/{id}/experiences?offset&amp;limit</code>: só publicados e não ocultos; devolve id do comentário, nome, avaliação, texto, modo, n.º de jogadores, mês, «editado», «é teu». Nunca id da partida, participantes, local, notas ou id do autor.</td></tr>
+<tr><td>Reportar e moderar</td><td><code>POST /experiences/{id}/reports</code>; administração: <code>GET /admin/experiences/reported</code>, <code>POST …/{id}/keep</code>, <code>POST …/{id}/hide</code>, <code>POST …/{id}/restore</code>.</td></tr>
+<tr><td>Migração</td><td>Duas tabelas novas, auditadas no anfitrião DeviceTests; nenhuma alteração às tabelas existentes.</td></tr>
+</table></div></section>
+</div>
+<script>
+const G={"lock-outline":983873,"pencil-outline":986294,"flag-outline":983613,"comment-text-outline":983433,"eye-off-outline":984785,"shield-check-outline":986312,"earth":983527,"close":983382,"trash-can-outline":985722,"check":983340,"star":984270,"account-multiple":983054,"calendar-blank-outline":985958,"alert-circle-outline":984534,"note-text-outline":987607,"tag-outline":984316,"image-outline":985462,"timer-outline":984347,"trophy":984376,"shield-account-outline":985618,"chart-box-outline":988494,"home-outline":984737,"dice-multiple-outline":987478,"account-circle":983049,"cog-outline":985275,"chevron-left":983361,"chevron-right":983362,"chevron-down":983360,"plus":984085,"bookshelf":987743,"check-circle":984544,"account-group":985161,"clock-outline":983376,"human-male-child":988044,"weight":984481,"open-in-new":984012,"star":984270,"star-outline":984274,"book-open-variant":988407,"play":984074,"printer-3d":984107,"dots-horizontal":983512,"flag-outline":983613,"calendar-plus":983283,"translate":984522,"package-variant":984022,"trophy-outline":984378,"notebook-outline":986815,"dice-5":983502,"cards-outline":984633,"account-heart-outline":986083,"information-outline":983805,"layers-outline":985598,"share-variant":984215,"check":983340,"lightbulb-outline":983862,"calendar-star":985555,"heart-outline":983765,"file-document-outline":985582,"play-circle-outline":984077,"flag-checkered":983612,"timer-sand":984351,"puzzle-outline":985702,"account-check-outline":986082,"chart-timeline-variant":986771,"magnify":983881,"close":983382,"calendar-outline":985959,"map-marker-outline":985049,"account-multiple-outline":983055,"radiobox-marked":984126,"radiobox-blank":984125,"circle-off-outline":987347,"pencil-outline":986294,"tune":984622};
+const ic=(n,s=20,c='currentColor')=>`<span class="mdi" style="--sz:${s}px;color:${c}" aria-hidden="true">${String.fromCodePoint(G[n]||63)}</span>`;
+const COVER='https://stonemaiergames.com/wp-content/uploads/2026/04/3d-wingspan.webp';
+const YT=id=>`https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+const PR={org2:'https://media.printables.com/media/prints/171161/images/1617495_2feff869-7f47-4e8d-98e5-6f75641e5ca6/thumbs/inside/320x240/jpg/img_3731_1.webp',
+ org1:'https://media.printables.com/media/prints/45671/images/453591_f86a9875-2114-4bea-881d-a3496a3a0ba7/thumbs/inside/320x240/jpg/large_display_wingspan_large_45671.webp',
+ tower:'https://media.printables.com/media/prints/31398/images/310102_d4157a70-ac03-4645-8c35-692347f6f1d4/thumbs/inside/320x240/jpg/20200217_171748488_ios.webp',
+ holder:'https://media.printables.com/media/prints/042266f0-afd1-44aa-a3a7-de34417ed300/images/12805146_8ef032b7-f652-44d2-ac8f-625579bbf535_c1b56d36-a06e-46ac-8e8c-af8f6d474157/thumbs/inside/320x240/jpg/photo_loaded.webp',
+ duet:'https://media.printables.com/media/prints/360381/images/3050433_9e9e1d59-7456-442b-8461-0fcf1bf5097b/thumbs/inside/320x240/jpg/20230105_222654_2.webp'};
+
+const T={
+pt:{back:'Voltar',year:'2019 · Jogo base',bgg:'BGG',mb:'MeepleBoard',of:'/10',bggVotes:'116 mil avaliações · nº 38',mbHint:'média das partidas',noRatings:'Ainda sem avaliações',
+ players:'jogadores',minutes:'minutos',age:'idade',weight:'complexidade',record:'Registar partida',addLib:'Biblioteca',owned:'Tenho',tabs:['Sobre','Como jogar','Recursos'],
+ desc:'Descrição',readMore:'Ler mais',bggText:'Texto original do BoardGameGeek, sem tradução',bggEntry:'Ficha no BoardGameGeek',
+ exp:'A tua experiência',matches:'partidas',wins:'vitórias',last:'última',lastV:'12 out.',yourRating:'A tua avaliação',yourHint:'média das tuas avaliações em 5 partidas',journal:'Diário',
+ pending:'1 partida por avaliar',rate:'Avaliar',m1:'12 out. · Vitória · 4 jogadores',m2:'3 out. · 2.º lugar · 3 jogadores',seeMatches:'Ver as 7 partidas',campaign:'Temporada de outono',campaignMeta:'Campanha ativa · 3 partidas',newCampaign:'Nova campanha',
+ friends:'Amigos que têm o jogo',seeAll:'Ver todos',friendsNote:'Só amigos com o jogo em «Tenho» e a biblioteca visível.',
+ expansions:'Expansões',expList:['European Expansion','Oceania Expansion'],
+ lang:'Inglês',langNote:'Idioma dos recursos',base:'Jogo base',expansion:'Expansão',rules:'Regras oficiais',rulesT:'Wingspan — Rules & FAQ',publisher:'Da editora',en:'Inglês',videos:'Vídeos de explicação',
+ none:'Ainda sem partidas completas nem unboxings.',suggest:'Sugerir recurso',ext:'Links para as páginas originais; o MeepleBoard não aloja ficheiros.',
+ models:'Modelos 3D',org:'Organizadores',acc:'Acessórios',rep:'Peças de substituição',free:'Gratuito',fits:'Também European e Oceania',noneRes:'Ainda sem unboxings nem materiais adicionais.',
+ nothingPt:'Nada em Português.',seeEn:'Ver em Inglês (4)',open:'Abrir em Printables',report:'Reportar problema',close:'Fechar',
+ emptyExp:'Ainda não jogaste. Regista a primeira partida e avalia-a no diário.',emptyFriends:'Nenhum amigo tem este jogo.',emptyLearn:'Ainda sem regras nem vídeos para este jogo.',emptyRes:'Ainda sem modelos 3D nem outros recursos.',
+ group:'Bom para o vosso grupo?',groupBody:'Teste-membro, Teste-participante e tu: 3 jogadores · cabe em 1–5 · complexidade média.',session:'Combinar sessão',sessionBody:'Com Wingspan indicado; convidar quem o tem.',
+ factsSrc:'Ficha do BoardGameGeek',company:'Companhia neste jogo',companyHint:'Desde a tua 1.ª partida de Wingspan até hoje',expOwned:'Tens 1 de 2',
+ createTitle:'Criar Sessão',cancel:'Cancelar',intro:'Combina a próxima sessão à mesa.',aboutS:'Sobre a sessão',gameF:'Jogo previsto (opcional)',change:'Alterar',fromPage:'Escolhido na página do jogo',nameF:'Nome *',nameHint:'Ex: Noite de Wingspan',locF:'Local (opcional)',locHint:'Ex: Casa do Ruben, LeiriaCon...',when:'Quando',date:'Data',time:'Hora',who:'Quem vem',
+ pickTitle:'Jogo da sessão',done:'Concluir',searchCat:'Pesquisar no catálogo',noGame:'Sem jogo definido',noGameHint:'Decidem à mesa',fromLib:'Da tua biblioteca',chooseGame:'Escolher jogo',
+ sessions:'Sessões',upcoming:'Próximas',gameRow:'Jogo previsto',undecided:'Por definir'},
+en:{back:'Back',year:'2019 · Base game',bgg:'BGG',mb:'MeepleBoard',of:'/10',bggVotes:'116K ratings · #38',mbHint:'average of matches',noRatings:'No ratings yet',
+ players:'players',minutes:'minutes',age:'age',weight:'weight',record:'Record match',addLib:'Library',owned:'Owned',tabs:['About','How to play','Resources'],
+ desc:'Description',readMore:'Read more',bggText:'Original BoardGameGeek text, not translated',bggEntry:'BoardGameGeek entry',
+ exp:'Your experience',matches:'matches',wins:'wins',last:'last',lastV:'12 Oct',yourRating:'Your rating',yourHint:'average of your ratings in 5 matches',journal:'Journal',
+ pending:'1 match to rate',rate:'Rate',m1:'12 Oct · Win · 4 players',m2:'3 Oct · 2nd · 3 players',seeMatches:'See all 7 matches',campaign:'Autumn season',campaignMeta:'Active campaign · 3 matches',newCampaign:'New campaign',
+ friends:'Friends who own it',seeAll:'See all',friendsNote:'Only friends who own it and whose library is visible.',
+ expansions:'Expansions',expList:['European Expansion','Oceania Expansion'],
+ lang:'English',langNote:'Resource language',base:'Base game',expansion:'Expansion',rules:'Official rules',rulesT:'Wingspan — Rules & FAQ',publisher:'Publisher',en:'English',videos:'How-to-play videos',
+ none:'No playthroughs or unboxings yet.',suggest:'Suggest a resource',ext:'Links to the original pages; MeepleBoard hosts no files.',
+ models:'3D models',org:'Organisers',acc:'Accessories',rep:'Replacement parts',free:'Free',fits:'Also European and Oceania',noneRes:'No unboxings or extra material yet.',
+ nothingPt:'Nothing in Portuguese.',seeEn:'See in English (4)',open:'Open in Printables',report:'Report a problem',close:'Close',
+ emptyExp:'You have not played yet. Record your first match and rate it in its journal.',emptyFriends:'None of your friends owns this game.',emptyLearn:'No rules or videos for this game yet.',emptyRes:'No 3D models or other resources yet.',
+ group:'Right for your group?',groupBody:'',session:'Plan a session',sessionBody:'',
+ factsSrc:'Details from BoardGameGeek',company:'Company in this game',companyHint:'From your first Wingspan match to today',expOwned:'You own 1 of 2',
+ createTitle:'Create session',cancel:'Cancel',intro:'Bring everyone together around the table.',aboutS:'About the session',gameF:'Planned game (optional)',change:'Change',fromPage:'Chosen on the game page',nameF:'Name *',nameHint:'e.g. Wingspan night',locF:'Location (optional)',locHint:'e.g. Home, a game convention…',when:'When',date:'Date',time:'Time',who:'Who\'s coming',
+ pickTitle:'Session game',done:'Done',searchCat:'Search the catalogue',noGame:'No game set',noGameHint:'Decide at the table',fromLib:'From your library',chooseGame:'Choose game',
+ sessions:'Sessions',upcoming:'Upcoming',gameRow:'Planned game',undecided:'To be decided'}};
+
+const FR=['amiga-colecionadora','amiga-meeples','amiga-tabuleiro','amigo-com-um-nome-de-utilizador-bastante-comprido','amigo-dados'].map(n=>'Teste-'+n);
+
+function hero(t,o){
+ const L=o.large,E=o.empty||o.noScores;
+ const cover=E?`<div class="cover ph">${ic('dice-5',58)}</div>`:`<div class="cover"><img src="${COVER}" alt=""></div>`;
+ const bgg=E?'':`<div class="score"><div class="who"><span class="dot" style="background:#30283D"></span>${t.bgg} ${ic('open-in-new',12,'var(--mut)')}</div><div class="val"><b>8,0</b><i>${t.of}</i></div><div class="t-micro">${t.bggVotes}</div></div>`;
+ const mb=E?'':`<div class="score"><div class="who"><span class="dot" style="background:var(--pri)"></span>${t.mb}</div><div class="val"><b>7,4</b><i>${t.of}</i></div><div class="t-micro">${t.mbHint}</div></div>`;
+ const scores=E?`<div class="quiet" style="justify-content:center;margin-top:12px">${ic('star-outline',18)}${t.noRatings}</div>`:`<div class="scores${L?' col':''}">${bgg}${mb}</div>`;
+ return `<div class="hero"><div class="glow"></div>${cover}<h2>${o.name||'Wingspan'}</h2><div class="t-cap sub">${o.sub||t.year}</div>${scores}</div>`;
+}
+function facts(t,o){
+ const f=o.partial?[['2–4',t.players,'account-group'],['30',t.minutes,'clock-outline'],['2,1/5',t.weight,'puzzle-outline']]:[['1–5',t.players,'account-group'],['40–70',t.minutes,'clock-outline'],['10+',t.age,'human-male-child'],['2,5/5',t.weight,'puzzle-outline']];
+ if(o.empty) return `<div class="quiet" style="margin:0 18px">${ic('account-group',18)}<span><b style="color:var(--ink)">1–4</b> ${t.players} · Solo</span></div>`;
+ return `<div class="facts${o.large?' col':o.partial?' three':''}">${f.map(([v,k,i])=>`<div class="fact">${ic(i,18,'var(--lav)')}<span class="v">${v}</span><span class="k">${k}</span></div>`).join('')}</div>${srcline(t,o)}`;
+}
+function actions(t,o){
+ const lib=o.owned?`<div class="btn sec">${ic('check-circle',18)}${t.owned}${ic('chevron-down',18)}</div>`:`<div class="btn sec">${ic('bookshelf',18)}${t.addLib}</div>`;
+ return `<div class="actions${o.large?' col':''}"><div class="btn pri">${ic('plus',20)}${t.record}</div>${lib}</div><div class="plan">${ic('calendar-plus',18)}${t.session}</div>`;
+}
+const tabs=(t,on)=>`<div class="tabs">${t.tabs.map((x,i)=>`<span class="${i===on?'on':''}">${x}</span>`).join('')}</div>`;
+const sec=(title,more,body)=>`<div class="blk"><div class="sechead"><h3>${title}</h3>${more?`<span class="more">${more}</span>`:''}</div>${body}</div>`;
+
+function about(t,o){
+ if(o.empty) return `
+ ${sec(t.exp,'',`<div class="quiet">${ic('notebook-outline',18)}<span>${t.emptyExp}</span></div>`)}
+ ${sec(t.friends,'',`<div class="quiet">${ic('account-heart-outline',18)}<span>${t.emptyFriends}</span></div>`)}`;
+ const desc=sec(t.desc,'',`<div><div class="desc fade">You are bird enthusiasts—researchers, bird watchers, ornithologists, and collectors—seeking to discover and attract the best birds to your network of wildlife preserves. Each bird extends a chain of powerful combinations in one of your habitats (actions).</div>
+  <div style="display:flex;align-items:center;gap:12px;margin-top:6px"><span class="link">${t.readMore}</span></div>
+  <div class="source t-micro">${ic('information-outline',14,'var(--mut)')}${t.bggText}</div><div class="t-cap" style="margin-top:6px"><span class="link">${t.bggEntry} ${ic('open-in-new',13,'var(--pri)')}</span></div></div>`);
+ const exp=sec(t.exp,'',`<div class="card">
+  <div class="stats"><div class="stat"><b>7</b><span>${t.matches}</span></div><div class="stat"><b>4</b><span>${t.wins}</span></div><div class="stat"><b>${t.lastV}</b><span>${t.last}</span></div></div>
+  <div class="mine"><div class="grow"><div class="t-micro b" style="text-transform:uppercase;letter-spacing:.3px">${t.yourRating}</div><div class="big">7,5 <i>${t.of}</i></div><div class="t-cap">${t.yourHint}</div></div><span class="pill">${ic('notebook-outline',16)}${t.journal}</span></div>
+  <div class="pending">${ic('star-outline',18,'var(--gold)')}<span class="grow b">${t.pending}</span><span class="b">${t.rate} ›</span></div>
+  <div class="mrow"><span class="res w">1.º</span><span class="grow t-body">${t.m1}</span>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="mrow"><span class="res l">2.º</span><span class="grow t-body">${t.m2}</span>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="mrow"><span class="grow link">${t.seeMatches}</span>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="mrow">${ic('account-multiple-outline',20,'var(--friend)')}<div class="grow"><div class="t-body b">${t.company}</div><div class="t-cap">${t.companyHint}</div></div>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="mrow">${ic('flag-checkered',20,'var(--friend)')}<div class="grow"><div class="t-body b">${t.campaign}</div><div class="t-cap">${t.campaignMeta}</div></div>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="mrow">${ic('plus',20,'var(--pri)')}<span class="grow link">${t.newCampaign}</span></div></div>`);
+ const fr=sec(t.friends,`${t.seeAll} (5)`,`<div class="friends">${FR.slice(0,3).map((n,i)=>`<div class="friend"><div class="av" style="background:${['#EEE6F8','#E3F0EA','#FBEFD9'][i]};color:${['#7A5AAE','#27594B','#8A6200'][i]}">${n.slice(0,1)}</div><div class="nm">${n}</div></div>`).join('')}<div class="friend more"><div class="av">+2</div><div class="nm">${t.seeAll}</div></div></div><div class="t-micro" style="padding:0 2px">${t.friendsNote}</div>`);
+ const ex=sec(t.expansions,t.expOwned,`<div class="card">${t.expList.map((x,i)=>`<div class="row inset"><span class="xt">${ic('layers-outline',22)}</span><div class="grow"><div class="t-body b">${x}</div><div class="t-cap">${t.expansion}</div></div>${i===0?`<span class="badge">${ic('check',12)}${t.owned}</span>`:''}${ic('chevron-right',20,'var(--chev)')}</div>`).join('')}</div>`);
+ return desc+exp+(o.dur?durSec(t,o):'')+(o.xp?xpSec(t,o):'')+fr+(o.noExp?'':ex);
+}
+function learn(t,o){
+ const lb=`<div class="langbar"><span class="t-cap">${t.langNote}</span><span class="lang">${ic('translate',16,'var(--pri)')}${o.pt?'Português':t.lang}${ic('chevron-down',16)}</span></div>`;
+ if(o.empty) return lb+`<div class="quiet">${ic('book-open-variant',18)}<span>${t.emptyLearn}</span></div><div class="suggest">${ic('plus',18)}${t.suggest}</div>`;
+ if(o.pt) return lb+`<div class="card pad" style="display:flex;align-items:center;gap:12px">${ic('translate',22,'var(--lav)')}<div class="grow"><div class="t-body b">${t.nothingPt}</div><div class="t-cap">Regras e vídeos existem noutros idiomas.</div></div><span class="pill">${t.seeEn}</span></div>`+learnBody(t,o,true);
+ return lb+learnBody(t,o);
+}
+function learnBody(t,o,dim){
+ const v=(id,title)=>`<div class="vcard"><div class="thumb"><img src="${YT(id)}" alt=""><span class="play">${ic('play',20,'#fff')}</span><span class="dots">${ic('dots-horizontal',18)}</span></div><div class="meta"><div class="vtitle">${title}</div><div class="t-cap">Watch It Played · YouTube · ${t.en}</div></div></div>`;
+ const c=(id,title,exp)=>`<div class="compact"><div class="thumb"><img src="${YT(id)}" alt=""><span class="play">${ic('play',16,'#fff')}</span></div><div class="grow"><div class="vtitle">${title}</div><div class="t-cap">Watch It Played · ${t.en}</div></div>${ic('dots-horizontal',20,'var(--mut)')}</div>`;
+ return `<div style="display:flex;flex-direction:column;gap:20px${dim?';opacity:.0;height:0;overflow:hidden':''}">
+ <div class="grouphead"><span class="k">${t.base}</span></div>
+ <div class="card rules"><div class="tile">${ic('book-open-variant',28)}</div><div class="grow"><div class="t-body b">${t.rulesT}</div><div class="t-cap">Stonemaier Games</div><div style="display:flex;gap:6px;margin-top:6px"><span class="badge">${ic('check',12)}${t.publisher}</span><span class="badge n">${t.en}</span></div></div>${ic('dots-horizontal',20,'var(--mut)')}</div>
+ <div class="kind">${t.videos}</div>
+ <div class="carousel">${v('lgDgcLI2B0U','Wingspan - How To Play')}</div>
+ <div class="grouphead"><span class="k">${t.expansion}</span><span class="n">European Expansion</span></div>
+ <div class="card">${c('_4RgWn4pxZU','How To Play - Wingspan: European Expansion')}</div>
+ <div class="grouphead"><span class="k">${t.expansion}</span><span class="n">Oceania Expansion</span></div>
+ <div class="card">${c('wWx7bLkGlnY','How To Play - Wingspan: Oceania Expansion')}</div>
+ <div class="quiet">${ic('play-circle-outline',18)}<span>${t.none}</span><span class="link">${t.suggest.split(' ')[0]} ›</span></div>
+ <div class="foot">${t.ext}</div></div>`;
+}
+function resources(t,o){
+ const lb=`<div class="langbar"><span class="t-cap">${t.langNote}</span><span class="lang">${ic('translate',16,'var(--pri)')}${t.lang}${ic('chevron-down',16)}</span></div>`;
+ if(o.empty) return lb+`<div class="quiet">${ic('printer-3d',18)}<span>${t.emptyRes}</span></div><div class="suggest">${ic('plus',18)}${t.suggest}</div><div class="foot">${t.ext}</div>`;
+ const m=(img,title,who,extra)=>`<div class="mcard"><div class="thumb"><img src="${img}" alt=""><span class="dots">${ic('dots-horizontal',18)}</span></div><div class="meta"><div class="vtitle">${title}</div><div class="t-cap">${who} · ${t.free}</div>${extra?`<div class="t-micro">${extra}</div>`:''}</div></div>`;
+ const g=o.large?' col':'';
+ return lb+`<div class="grouphead"><span class="k">${t.base}</span><span class="n">${t.models}</span></div>
+ <div class="kind">${t.org}</div>
+ <div class="mgrid${g}">${m(PR.org1,'Wingspan Organizer','Fabmaszter')}${m(PR.org2,'Wingspan Organizer (Basegame + European + Oceania)','real1up',t.fits)}</div>
+ <div class="kind">${t.acc}</div>
+ <div class="mgrid${g}">${m(PR.tower,'Collapsible bird-feeder dice tower','fuchsr')}${m(PR.holder,'Wingspan Card Holder — 3 Slots','Miloslav Brožek','Bird cards, sleeved 55 × 90 mm')}</div>
+ <div class="grouphead"><span class="k">${t.expansion}</span><span class="n">Wingspan Asia</span></div>
+ <div class="kind">${t.rep}</div>
+ <div class="mgrid${g}">${m(PR.duet,'Duet Token Replacement','TidyGamer','Duet mode')}<div></div></div>
+ <div class="quiet">${ic('package-variant',18)}<span>${t.noneRes}</span></div>
+ <div class="suggest">${ic('plus',18)}${t.suggest}</div>
+ <div class="foot">${t.ext}</div>`;
+}
+function page(o){
+ const t=T[o.lang||'pt'];const on=o.tab||0;
+ const content=on===0?about(t,o):on===1?learn(t,o):resources(t,o);
+ return `${hero(t,o)}${facts(t,o)}${actions(t,o)}<div class="tabsWrap">${tabs(t,on)}</div><div class="body">${content}</div>`;
+}
+function phone(o){
+ const t=T[o.lang||'pt'];
+ const status=`<div class="status"><span>9:41</span><span style="display:flex;align-items:center;gap:6px"><span class="batt"><i></i></span></span></div><div class="island"></div><div class="homebar"></div>`;
+ const top=o.custom?'':o.scroll?`<div class="bar"><div class="row"><span class="act">${ic('chevron-left',28)}</span><span class="ttl">${o.name||'Wingspan'}</span><span class="act">${ic('dots-horizontal',22)}</span></div><div class="tabs-wrap" style="margin:0 16px 8px">${tabs(t,o.tab||0)}</div></div>`
+  :`<span class="float l" aria-label="${t.back}">${ic('chevron-left',26)}</span><span class="float r">${ic('share-variant',20)}</span>`;
+ const sheet=o.sheet?`<div class="scrim"></div><div class="sheet"><div class="grab"></div><div class="sheethead"><span class="grow t-head" style="text-align:center;padding-left:52px">Wingspan Organizer</span><span class="link" style="min-width:52px;text-align:right">${t.close}</span></div>
+  <div class="card"><div class="row">${ic('open-in-new',20,'var(--pri)')}<span class="grow link">${t.open}</span></div><div class="row">${ic('flag-outline',20,'var(--mut)')}<span class="grow t-body">${t.report}</span>${ic('chevron-right',20,'var(--chev)')}</div></div></div>`:'';
+ const extra=o.custom||'';
+ return `<div class="phone" style="--s:${o.s||1}">${status}<div class="viewport"><div class="scroll" style="transform:translateY(${-(o.scroll||0)}px)">${o.body||page(o)}</div></div>${top}${sheet}${extra}</div>`;
+}
+const fig=(o,b,span)=>`<figure class="shot">${phone(o)}<figcaption><b>${b}</b><span>${span}</span></figcaption></figure>`;
+const put=(id,html)=>document.getElementById(id).innerHTML=html;
+const LOGO='../../../../assets/brand/bgg/powered-by-bgg.webp';
+const PB=(big)=>`<img class="pbgg${big?' big':''}" src="${LOGO}" alt="Powered by BGG">`;
+function srcline(t,o){
+ if(o.empty) return '';
+ return `<div class="srcrow col" style="gap:4px;padding:10px 12px 6px"><span class="txt">${ic('information-outline',14)}<span>${t.factsSrc}</span></span>${PB()}</div>`;
+}
+const tp=T.pt;
+const backNav=(t,title,back)=>`<div class="nav"><div class="row"><span class="link" style="display:flex;align-items:center">${ic('chevron-left',26)}${back}</span><span class="ttl">${title}</span><span></span></div></div>`;
+const tabbar=`<div class="tabbar"><span>${ic('home-outline',24)}Início</span><span>${ic('dice-multiple-outline',24)}Jogos</span><span><span class="new">${ic('plus',24)}</span>Novo</span><span>${ic('calendar-star',24)}Jogar</span><span class="on">${ic('account-circle',24)}Perfil</span></div>`;
+const profileEnd=`<div class="body" style="padding-top:110px;gap:18px">
+ <div class="blk"><div class="sechead"><h3>Amigos</h3><span class="more" style="color:var(--mut);font-weight:400">9 amigos</span></div><div class="card">
+  ${[['Teste-autor',139],['Teste-amiga-colecionadora',4],['Teste-amiga-meeples',2]].map(([n,c])=>`<div class="row inset"><span class="xt" style="border-radius:50%;background:#E3F0EA;color:#27594B;font-weight:700;justify-content:center">T</span><div class="grow"><div class="t-body b">${n}</div><div class="t-cap">${c} partidas juntos</div></div>${ic('chevron-right',20,'var(--chev)')}</div>`).join('')}
+  <div class="row"><span class="grow link">Ver todos e procurar pessoas</span>${ic('chevron-right',20,'var(--pri)')}</div></div></div>
+ <div class="blk"><div class="sechead"><h3>Conta</h3></div><div class="card">
+  <div class="row">${ic('cog-outline',22,'var(--ink)')}<div class="grow"><div class="t-body">Definições</div><div class="t-cap">Idioma e privacidade da coleção</div></div>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="row">${ic('star-outline',22,'var(--ink)')}<span class="grow t-body">Avaliações pendentes</span><b>101</b>${ic('chevron-right',20,'var(--chev)')}</div>
+  <div class="row" style="background:var(--gold-soft)">${ic('information-outline',22,'var(--ink)')}<div class="grow"><div class="t-body">Sobre e créditos</div><div class="t-cap">Versão e dados do BoardGameGeek</div></div>${ic('chevron-right',20,'var(--chev)')}</div>
+ </div></div></div>`;
+const credits=(en)=>{const x=en?{
+ app:'MeepleBoard',ver:'Version 1.0.0',h:'Game data',p1:'Names, covers, year, players, playing time, age, complexity, descriptions, categories, mechanics, expansions and the BGG rating come from the BoardGameGeek XML API.',
+ p2:'Descriptions stay in the original language. Matches, ratings, libraries and friends are MeepleBoard data and are not sent to BoardGameGeek.',
+ rh:'Three ratings',r:[['#30283D','BGG','Average of BoardGameGeek users'],['var(--pri)','MeepleBoard','Average of matches recorded in the app'],['var(--gold)','Yours','Only yours, from your matches']],open:'Open BoardGameGeek',host:'boardgamegeek.com'}:{
+ app:'MeepleBoard',ver:'Versão 1.0.0',h:'Dados dos jogos',p1:'Os nomes, capas, ano, jogadores, duração, idade, complexidade, descrições, categorias, mecânicas, expansões e a nota BGG vêm da API XML do BoardGameGeek.',
+ p2:'As descrições ficam na língua original. Partidas, avaliações, bibliotecas e amigos são dados do MeepleBoard e não são enviados ao BoardGameGeek.',
+ rh:'Três avaliações',r:[['#30283D','BGG','Média dos utilizadores do BoardGameGeek'],['var(--pri)','MeepleBoard','Média das partidas registadas na app'],['var(--gold)','A tua','Só tua, das tuas partidas']],open:'Abrir BoardGameGeek',host:'boardgamegeek.com'};
+ return `<div class="body" style="padding-top:110px;gap:18px">
+ <div class="card"><div class="row">${ic('dice-5',26,'var(--lav)')}<div class="grow"><div class="t-body b">${x.app}</div><div class="t-cap">${x.ver}</div></div></div></div>
+ <div class="blk"><div class="sechead"><h3>${x.h}</h3></div><div class="card cr">${PB(true)}<p>${x.p1}</p><p class="t-cap" style="color:var(--mut)">${x.p2}</p></div></div>
+ <div class="blk"><div class="sechead"><h3>${x.rh}</h3></div><div class="card three">${x.r.map(([c,a,b])=>`<div class="row"><span class="dot" style="background:${c}"></span><div class="grow"><div class="t-body b">${a}</div><div class="t-cap">${b}</div></div></div>`).join('')}</div></div>
+ <div class="card"><div class="row">${ic('open-in-new',20,'var(--pri)')}<div class="grow"><div class="link">${x.open}</div><div class="t-cap">${x.host}</div></div></div></div></div>`;};
+
+const DUR={
+ multi:{me:['1 h 02 min','6 partidas','métodos mistos'],mb:['55 min','41 partidas','métodos mistos']},
+ solo:{me:['35 min','1 partida','estimada',true],mb:null}};
+function durSec(t,o){
+ const d=DUR[o.solo?'solo':'multi'];
+ const tile=(dot,label,v)=>`<div class="dt"><div class="who"><i style="background:${dot}"></i>${label}</div>${v?`<div class="v${v[3]?' few':''}">${v[0]}</div><div class="m"><b style="color:var(--ink);font-weight:600">${v[1]}</b> · ${v[2]}</div>`:`<div class="v few" style="color:var(--mut);font-size:calc(14.5px*var(--s))">Ainda sem dados suficientes</div><div class="m">Aparece quando houver partidas partilhadas suficientes.</div>`}</div>`;
+ return sec('Duração das partidas','',`<div class="segm"><span class="${o.solo?'':'on'}">Multijogador</span><span class="${o.solo?'on':''}">Solo</span></div>
+ <div class="dtiles${o.large?' col':''}">${tile('var(--gold)',d.me[3]?'A tua partida':'A tua média',d.me)}${tile('var(--pri)','Média MeepleBoard',d.mb)}</div>
+ <div class="bggref"><span class="who"><i style="background:var(--ink)"></i>Indicada pelo BGG</span><span class="grow"></span><b>40–70 min</b></div>
+ <div class="card"><div class="row">${ic('chart-box-outline',20,'var(--lav)')}<span class="grow t-body">Ver detalhes</span>${ic('chevron-right',20,'var(--chev)')}</div></div>
+ <div class="dnote">${ic('information-outline',14)}<span>As duas médias vêm das partidas registadas no MeepleBoard. A duração do BGG é da ficha do BoardGameGeek e nunca entra nelas.</span></div>`);
+}
+const kv=(k,v)=>`<div class="row"><span class="grow t-body">${k}</span><span class="t-body b" style="font-variant-numeric:tabular-nums;text-align:right">${v}</span></div>`;
+const blk=(dot,title,rows,foot)=>`<div class="blk"><div class="sechead"><h3 style="display:flex;align-items:center;gap:8px"><i style="width:10px;height:10px;border-radius:5px;background:${dot};display:inline-block"></i>${title}</h3></div><div class="card">${rows}</div>${foot?`<div class="dnote">${ic('information-outline',14)}<span>${foot}</span></div>`:''}</div>`;
+const details=`<div class="body" style="padding-top:110px;gap:22px">
+ <div class="segm"><span class="on">Multijogador</span><span>Solo</span></div>
+ ${blk('var(--gold)','A tua',kv('Média','1 h 02 min')+kv('Mediana','58 min')+kv('Metade central','48 min – 1 h 10 min')+kv('Partidas usadas','6')+kv('Medidas · estimadas · não indicado','2 · 3 · 1')+kv('Fora das médias','1 «Não sei»')+kv('Muito afastadas','1 · 2 h 40 min'),'A partida muito afastada conta na média; por isso a média fica acima da mediana.')}
+ ${blk('var(--pri)','MeepleBoard',kv('Média','55 min')+kv('Mediana','50 min')+kv('Metade central','40 min – 1 h 05 min')+kv('Partidas usadas','41')+kv('Medidas · estimadas · não indicado','15 · 12 · 14')+kv('Muito afastadas','2'),'O mesmo valor para todos. Arredondado a 5 min; das partidas muito afastadas só se diz quantas são.')}
+ <div class="blk"><div class="sechead"><h3>Por número de jogadores</h3></div><div class="card"><table class="dtab"><tr><th>Jogadores</th><th>A tua</th><th>MeepleBoard</th></tr>
+ <tr><td>2</td><td>48 min<small>3 partidas</small></td><td>45 min<small>17 partidas</small></td></tr>
+ <tr><td>3</td><td>1 h 05 min<small>2 partidas</small></td><td>1 h 00 min<small>14 partidas</small></td></tr>
+ <tr><td>4</td><td>2 h 40 min<small>1 partida</small></td><td>Sem dados suficientes<small>—</small></td></tr>
+ <tr><td>5</td><td>—<small>sem partidas</small></td><td>Sem dados suficientes<small>—</small></td></tr></table></div>
+ <div class="dnote">${ic('information-outline',14)}<span>Cada grupo só mostra a média MeepleBoard com pelo menos 5 partidas elegíveis, de 3 ou mais pessoas, nenhuma com mais de metade. É uma proteção mínima, não uma garantia de anonimato.</span></div></div>
+ <div class="blk"><div class="sechead"><h3>Como se calcula</h3></div><div class="card" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;font-size:calc(13.5px*var(--s));line-height:calc(19px*var(--s))">
+ <span><b>Média:</b> soma das durações a dividir pelo número de partidas. Cada partida conta uma vez.</span>
+ <span><b>Mediana:</b> o valor do meio, com as partidas ordenadas.</span>
+ <span><b>Metade central:</b> entre o 1.º e o 3.º quartil; metade das partidas está neste intervalo.</span>
+ <span><b>Muito afastadas:</b> mais de 1,5 vezes a largura da metade central abaixo do 1.º ou acima do 3.º quartil. Contam na média.</span>
+ <span><b>Ficam de fora:</b> «Não sei», partidas sem duração e durações de 0 min antigas. Nunca contam como zero.</span>
+ <span><b>Método não indicado:</b> partidas antigas com duração, de quando ainda não se perguntava se era medida ou estimada. Não são tratadas como estimadas.</span><span><b>Média MeepleBoard:</b> só partidas em que todos os participantes aceitaram contribuir; cada partida conta uma vez.</span></div></div>
+ <div class="card"><div class="row">${ic('shield-account-outline',20,'var(--lav)')}<div class="grow"><div class="t-body">As tuas partidas na média MeepleBoard</div><div class="t-cap">Desligado · Alterar em Definições → Privacidade</div></div>${ic('chevron-right',20,'var(--chev)')}</div></div>
+ <div class="dnote">${ic('information-outline',14)}<span>A duração do BGG (40–70 min) é da ficha do BoardGameGeek e não entra nestes cálculos.</span></div></div>`;
+const bar=`<div class="bar"><div class="row"><span class="act">${ic('chevron-left',28)}</span><span class="ttl">Duração · Wingspan</span><span class="act"></span></div></div>`;
+const sw=on=>`<span style="width:51px;height:31px;border-radius:16px;background:${on?'var(--pri)':'#E3DEE8'};position:relative;flex:none"><i style="position:absolute;top:2px;${on?'right':'left'}:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25)"></i></span>`;
+const chk=(l,d,on)=>`<div class="row"><div class="grow"><div class="t-body">${l}</div>${d?`<div class="t-cap">${d}</div>`:''}</div>${on?ic('check',22,'var(--pri)'):''}</div>`;
+const settings=(on)=>`<div class="body" style="padding-top:110px;gap:22px">
+ <div class="blk"><div class="sechead"><h3 style="font-size:calc(15px*var(--s));text-transform:uppercase;letter-spacing:.3px;color:var(--mut)">Privacidade da coleção</h3></div><div class="card">${chk('Privada','Só tu vês a tua coleção.',false)}${chk('Apenas amigos','Só amigos aceites veem a tua coleção.',true)}${chk('Pública','Qualquer utilizador pode ver a tua coleção.',false)}</div></div>
+ <div class="blk"><div class="sechead"><h3 style="font-size:calc(15px*var(--s));text-transform:uppercase;letter-spacing:.3px;color:var(--mut)">Privacidade das estatísticas</h3></div>
+ <div class="card"><div class="row" style="min-height:64px"><div class="grow"><div class="t-body">Contribuir para a duração da comunidade</div><div class="t-cap">${on?'Ligado':'Desligado'}</div></div>${sw(on)}</div></div>
+ <div class="card" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;font-size:calc(13.5px*var(--s));line-height:calc(19px*var(--s))">
+ <span><b>O que é utilizado:</b> a duração e o método (medida, estimativa ou não indicado), o jogo, o modo e o número de jogadores das partidas em que participaste.</span>
+ <span><b>O que nunca é utilizado:</b> nomes, datas, locais, resultados, pontuações, avaliações e notas.</span>
+ <span><b>Quando conta:</b> só nas partidas em que todos os participantes ligaram esta opção. Inclui partidas anteriores.</span>
+ <span><b>Como aparece:</b> só como média anónima por jogo, sem partidas individuais, e só com partidas suficientes de várias pessoas.</span>
+ <span><b>Se desligares:</b> as tuas partidas deixam de contar a partir desse momento. A tua média pessoal não muda.</span></div></div>
+ <div class="card"><div class="row"><span class="grow" style="color:#B3261E;font-weight:600">Terminar sessão</span></div></div></div>`;
+const snav=`<div class="nav"><div class="row"><span class="link" style="display:flex;align-items:center">${ic('chevron-left',26)}Perfil</span><span class="ttl">Definições</span><span></span></div></div>`;
+
+const ME='Teste-participante';
+const scoreCard=(o={})=>`<div class="dcard hl"><div class="lbl">A tua avaliação</div>
+ ${o.none?`<div class="myscore"><b style="color:#B9B3C0">—</b><i>/ 10</i></div><div class="t-cap">Ainda sem avaliação. Só a avaliação é necessária.</div><div class="acts"><span class="btn pri">${ic('star',18)}Avaliar</span></div>`
+ :`<div class="myscore"><b>7,5</b><i>/ 10</i></div><div class="t-cap">Guardada no registo · só a tua experiência</div>
+ <div class="acts"><span class="btn sec">${ic('pencil-outline',18)}Editar avaliação</span></div>
+ <div class="hr"></div>
+ ${o.note?`<div class="lnk mut">${ic('lock-outline',18,'var(--mut)')}<span class="grow"><b style="color:var(--ink)">Nota pessoal</b> · só tu vês<br><span class="t-cap">Última ronda incrível, para a próxima…</span></span>${ic('chevron-right',20,'var(--chev)')}</div>`
+  :`<div class="lnk">${ic('lock-outline',18)}<span class="grow">Adicionar nota pessoal</span>${ic('chevron-right',20,'var(--chev)')}</div>`}
+ ${o.pub?`<div class="lnk mut">${ic('earth',18,'var(--pri)')}<span class="grow"><b style="color:var(--ink)">Comentário publicado</b><br><span class="t-cap">Visível na página do jogo</span></span>${ic('chevron-right',20,'var(--chev)')}</div>`
+  :`<div class="lnk mut">${ic('comment-text-outline',18,'var(--mut)')}<span class="grow">Partilhar a tua experiência <span class="t-cap">· opcional</span></span>${ic('chevron-right',20,'var(--chev)')}</div>`}`}
+ <div class="t-micro">${o.count||'2 de 3 participantes avaliaram'}</div></div>`;
+const matchTop=`<div class="body" style="padding-top:110px;gap:16px">
+ <div style="display:flex;gap:16px;align-items:center"><div class="cover" style="width:96px;height:96px;border-radius:16px;overflow:hidden;flex:none"><img src="${COVER}" alt="" style="width:100%;height:100%;object-fit:contain"></div>
+ <div class="grow"><div class="t-head" style="font-size:22px;font-weight:700">Wingspan</div><div class="t-cap">qua., 15 out. 2026 · 21:30 · Competitivo</div><div class="link" style="margin-top:6px">Ver jogo</div></div></div>
+ <div class="dcard" style="background:var(--hero);border-color:var(--hero);flex-direction:row;align-items:center">${ic('trophy',22,'var(--pri)')}<span class="t-head">Vencedor: Teste-participante</span></div>`;
+const playersCard=`<div class="blk"><div class="sechead"><h3>Jogadores</h3><span class="more" style="color:var(--mut);font-weight:400">3</span></div><div class="card">
+ ${[['Teste-participante · tu','Vitória','64'],['Teste-amiga-colecionadora','Derrota','51'],['Teste-amiga-meeples','Derrota','47']].map(([n,r,s])=>`<div class="row inset"><div class="av" style="width:40px;height:40px;font-size:15px">T</div><div class="grow"><div class="t-body b">${n}</div><div class="t-cap">${r}</div></div><b class="t-body">${s}</b></div>`).join('')}</div></div>`;
+const navBack=(title,back='Voltar')=>`<div class="nav"><div class="row"><span class="link" style="display:flex;align-items:center">${ic('chevron-left',26)}${back}</span><span class="ttl">${title}</span><span></span></div></div>`;
+const ratingCtl=v=>`<div class="card rating"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="t-head">A tua avaliação <span class="tagx" style="vertical-align:middle">obrigatória</span></span><span class="link">Limpar</span></div>
+ <div class="rbig"><b>${String(v).replace('.',',')}</b><i>/ 10</i></div>
+ <div class="rctl"><span class="rbtn">−0,5</span><div class="track"><span class="tbar"></span><span class="tfill" style="width:${v*10}%"></span>${[...Array(11).keys()].map(i=>`<i class="tick" style="left:calc(${i*10}% - 1px)"></i>`).join('')}<span class="knob" style="left:${v*10}%"></span></div><span class="rbtn">+0,5</span></div>
+ <div class="scale"><span>0</span><span>5</span><span>10</span></div><div class="t-cap">Só a tua experiência; cada pessoa avalia a sua.</div></div>`;
+const noteCard=(text)=>`<div class="dcard"><div style="display:flex;align-items:center;gap:8px">${ic('lock-outline',18,'var(--mut)')}<span class="t-head">Nota pessoal</span><span class="badge n" style="margin-left:auto">Só tu vês</span></div>
+ <div class="ta${text?'':' ph'}" style="${text?'':'color:#8C9096'}">${text||'Opcional. Estratégias, momentos, o que quiseres lembrar…'}</div></div>`;
+const sharedCard=`<div class="dcard"><div style="display:flex;align-items:center;gap:8px">${ic('account-multiple',18,'var(--lav)')}<span class="t-head">Com os participantes</span></div>
+ <div class="t-cap">Etiquetas e fotografias são vistas pelos jogadores desta partida, como hoje.</div>
+ <div class="row" style="padding:0">${ic('tag-outline',20,'var(--lav)')}<span class="grow t-body">Etiquetas</span><span class="t-cap">épico, reviravolta</span></div>
+ <div class="row" style="padding:0">${ic('image-outline',20,'var(--lav)')}<span class="grow t-body">Fotografias</span><span class="t-cap">Adicionar</span></div></div>`;
+const xpCard=(o={})=>{
+ if(o.state==='none') return `<div class="dcard"><div style="display:flex;align-items:center;gap:8px">${ic('comment-text-outline',18,'var(--pri)')}<span class="t-head">Comentário sobre a experiência</span><span class="badge n" style="margin-left:auto">Opcional</span></div>
+ <div class="t-cap">Só é publicado quando escolheres «Publicar». Aparece na página do jogo com o teu nome, esta avaliação, o modo e o número de jogadores — nunca os outros participantes, o local ou a tua nota.</div>
+ <div class="lnk">${ic('pencil-outline',18)}<span class="grow">Escrever comentário</span></div></div>`;
+ const head=`<div style="display:flex;align-items:center;gap:8px">${ic('comment-text-outline',18,'var(--pri)')}<span class="t-head">Comentário sobre a experiência</span></div>`;
+ const text='Partida muito equilibrada; as cartas de objetivo deram um final apertado. Bom a três jogadores.';
+ if(o.state==='write') return `<div class="dcard">${head}<div class="ta f">${text}<span style="border-left:2px solid var(--pri);margin-left:1px"></span></div><div class="cnt">${text.length}/500 · texto simples, sem ligações</div>
+ <div class="lbl" style="margin-top:4px">Assim vai aparecer</div>${xpItem({name:ME,rating:'7,5',text,meta:'Competitivo · 3 jogadores · out. 2026',mine:true,prev:true})}</div>`;
+ if(o.state==='draft') return `<div class="dcard">${head}<span class="state draft">${ic('lock-outline',14)}Guardado, não publicado</span><div class="xpt">${text}</div>
+ <div class="acts"><span class="btn pri">${ic('earth',18)}Publicar na comunidade</span></div><div class="lnk mut">Editar · Apagar</div></div>`;
+ if(o.state==='pub') return `<div class="dcard">${head}<span class="state pub">${ic('earth',14)}Publicado · 16 out. 2026</span><div class="xpt">${text}</div>
+ <div class="t-cap">Visível na página do jogo, com a tua avaliação atual. Editar mantém-no publicado, marcado «Editado».</div>
+ <div class="acts"><span class="btn sec">${ic('pencil-outline',18)}Editar</span><span class="btn sec">${ic('eye-off-outline',18)}Retirar</span></div><div class="lnk" style="color:#A3445A">${ic('trash-can-outline',18,'#A3445A')}Apagar comentário</div></div>`;
+ if(o.state==='hidden') return `<div class="dcard">${head}<span class="state hid">${ic('eye-off-outline',14)}Oculto pela moderação</span><div class="xpt" style="color:var(--mut)">${text}</div>
+ <div class="t-cap">Motivo: dados pessoais de outra pessoa. Não aparece na página do jogo. A tua avaliação continua a contar como sempre.</div><div class="lnk" style="color:#A3445A">${ic('trash-can-outline',18,'#A3445A')}Apagar comentário</div></div>`;
+};
+const xpItem=(o)=>`<div class="xp${o.prev?' prev':''}"><div class="xph"><div class="av" style="background:${o.bg||'#EEE6F8'};color:${o.fg||'var(--friend)'}">${o.name.replace('Teste-','')[0].toUpperCase()}</div><div class="grow"><div class="t-body b">${o.name}${o.mine?'<span class="yours">A tua</span>':''}</div></div><span class="rate">${o.rating}<i>/10</i></span>${o.prev?'':ic('dots-horizontal',20,'var(--mut)')}</div>
+ <div class="xpt">${o.text}</div><div class="meta2">${o.meta}${o.edited?' · Editado':''}</div></div>`;
+const XP=[{name:'Teste-amiga-colecionadora',rating:'9',text:'Adoro como cada pássaro muda o motor. A três joga-se depressa e há sempre uma boa jogada.',meta:'Competitivo · 3 jogadores · out. 2026',bg:'#EEE6F8',fg:'#7A5AAE'},
+ {name:'Teste-amigo-dados',rating:'6,5',text:'Bonito, mas a solo senti falta de interação. Prefiro com mais pessoas.',meta:'Solo · 1 jogador · set. 2026',bg:'#E3F0EA',fg:'#27594B',edited:true},
+ {name:ME,rating:'7,5',text:'Partida muito equilibrada; as cartas de objetivo deram um final apertado. Bom a três jogadores.',meta:'Competitivo · 3 jogadores · out. 2026',mine:true,bg:'#FBEFD9',fg:'#8A6200'}];
+function xpSec(t,o){
+ if(o.xpEmpty) return sec('Experiências da comunidade','',`<div class="quiet">${ic('comment-text-outline',18)}<span>Ainda sem experiências publicadas. Depois de avaliares uma partida, podes partilhar a tua.</span></div>`);
+ return sec('Experiências da comunidade','Ver todas (12)',`${XP.slice(0,2).map(xpItem).join('')}<div class="dnote">${ic('information-outline',14)}<span>Escritas e publicadas pelos jogadores. Não mostram com quem jogaram nem onde.</span></div>`);
+}
+const sheetOn=(title,inner,right)=>`<div class="scrim"></div><div class="sheet"><div class="grab"></div><div class="sheethead"><span class="link" style="min-width:72px">Cancelar</span><span class="grow t-head" style="text-align:center">${title}</span><span class="link" style="min-width:72px;text-align:right;font-weight:700">${right||''}</span></div>${inner}</div>`;
+const foot=(a,b)=>`<div class="fbar">${b?`<span class="btn sec">${b}</span>`:''}<span class="btn pri">${a}</span></div>`;
+put('s-detalhe',
+ fig({body:matchTop+scoreCard()+playersCard+'</div>',custom:navBack('Detalhes da partida')},'Depois de avaliar','A avaliação dada no registo aparece aqui, em destaque. «Editar avaliação» é a ação; «Adicionar nota pessoal» e «Partilhar a tua experiência» são secundárias. A contagem dos outros é uma linha discreta.')+
+ fig({body:matchTop+scoreCard({none:true,count:'1 de 3 participantes avaliaram'})+playersCard+'</div>',custom:navBack('Detalhes da partida')},'Ainda por avaliar (um amigo)','«Avaliar» é a única coisa pedida. A partida já está guardada; resultado, pontuações e duração não dependem disto.')+
+ fig({body:matchTop+scoreCard({note:true,pub:true,count:'3 de 3 participantes avaliaram'})+playersCard+'</div>',custom:navBack('Detalhes da partida')},'Com nota e comentário publicado','A nota pessoal mostra «só tu vês»; o comentário diz que está publicado. Nada disto é necessário para o diário estar concluído.'));
+put('s-diario',
+ fig({body:`<div class="body" style="padding-top:110px;gap:16px"><div><div class="t-head" style="font-size:20px;font-weight:700">Wingspan</div><div class="t-cap">15 de outubro de 2026 · 2 de 3 participantes avaliaram</div></div>${ratingCtl(7.5)}${noteCard('')}${sharedCard}${xpCard({state:'none'})}</div>`,custom:navBack('Diário da partida','Partida')+foot('Guardar')},'Diário · avaliação já dada','Sem «Aberto/Fechado» nem pontos por jogador. A avaliação é a do registo; mudar substitui-a. Nota pessoal privada; etiquetas e fotografias com os participantes, como hoje.')+
+ fig({body:`<div class="body" style="padding-top:110px;gap:16px"><div><div class="t-head" style="font-size:20px;font-weight:700">Wingspan</div><div class="t-cap">15 de outubro de 2026 · 3 de 3 participantes avaliaram</div></div>${ratingCtl(7.5)}${noteCard('Última ronda incrível, para a próxima guardar os ovos.')}${sharedCard}${xpCard({state:'none'})}</div>`,custom:navBack('Diário da partida','Partida')+foot('Guardar'),scroll:400},'Nota pessoal e comentário','A nota fica só contigo; as notas antigas continuam privadas e nenhuma preferência as publica. O comentário é uma escolha à parte, explicada antes de escrever.')+
+ fig({body:`<div class="body" style="padding-top:110px;gap:14px"><div class="blk"><div class="sechead"><h3>O que os outros acharam</h3></div><div class="card">${[['Teste-amiga-colecionadora','9','épico'],['Teste-amiga-meeples','—','']].map(([n,r,tg],i)=>`<div class="row inset"><div class="av" style="width:40px;height:40px;font-size:15px">T</div><div class="grow"><div class="t-body b">${n}</div><div class="t-cap">${r==='—'?'Ainda sem avaliação':tg?'#'+tg:''}</div></div><b class="t-body">${r==='—'?'':r+' / 10'}</b></div>`).join('')}</div><div class="t-micro">Cada pessoa avalia quando quiser.</div></div></div>`,custom:navBack('Diário da partida','Partida')},'Os outros participantes','Avaliações e etiquetas dos outros, como hoje (as notas deles nunca aparecem). Quem ainda não avaliou aparece sem destaque, sem lembretes.'));
+put('s-comentario',
+ fig({body:`<div class="body" style="padding-top:110px;gap:16px">${xpCard({state:'write'})}</div>`,custom:navBack('Comentário','Diário')+foot('Publicar na comunidade','Guardar sem publicar')},'Escrever e ver como fica','Até 500 caracteres. A pré-visualização mostra exatamente o que os outros veem: nome, avaliação, comentário, modo, jogadores, mês. Duas saídas explícitas.')+
+ fig({body:`<div class="body" style="padding-top:110px;gap:16px">${xpCard({state:'draft'})}</div>`,custom:navBack('Comentário','Diário')},'Guardado sem publicar','Fica só para ti até carregares em «Publicar na comunidade».')+
+ fig({body:`<div class="body" style="padding-top:110px;gap:16px">${xpCard({state:'pub'})}</div>`,custom:navBack('Comentário','Diário')},'Publicado','Editar, retirar a publicação ou apagar. A avaliação mostrada é sempre a atual da tua entrada; não há avaliação nova.')+
+ fig({body:`<div class="body" style="padding-top:110px;gap:16px">${xpCard({state:'pub'})}</div>`,custom:navBack('Comentário','Diário')+sheetOn('Retirar publicação',`<div class="dcard" style="border:0;padding:4px 0 8px"><div class="t-body">O comentário deixa de aparecer na página do jogo e fica guardado só para ti.</div><div class="t-cap">A tua avaliação e a tua nota pessoal ficam como estão. Podes publicá-lo outra vez.</div><span class="btn pri" style="margin-top:6px">Retirar publicação</span></div>`)},'Retirar a publicação','Confirmação curta; nada se perde além da publicação.'));
+put('s-jogo',
+ fig({owned:true,dur:true,xp:true,scroll:1750},'Na página do jogo','Depois de «Duração das partidas». Autor, avaliação, comentário, modo, jogadores e mês; sem ligação para a partida nem outros participantes. «Ver todas (12)».')+
+ fig({body:`<div class="body" style="padding-top:110px;gap:12px"><div class="t-cap">12 experiências publicadas · mais recentes primeiro</div>${XP.map(x=>xpItem(x)).join('')}</div>`,custom:navBack('Experiências')},'Ver todas','Lista simples, mais recentes primeiro. O teu comentário diz «A tua» e o menu ⋯ dá «Editar» e «Retirar»; nos outros, «Reportar».')+
+ fig({owned:true,dur:true,xp:true,xpEmpty:true,scroll:1750},'Ainda sem experiências','Estado discreto, com o convite a partilhar depois de avaliar.')+
+ fig({owned:true,dur:true,xp:true,large:true,s:1.24,scroll:2330},'Texto ampliado','O comentário e os dados crescem; a avaliação fica no topo do cartão.'));
+put('s-moderacao',
+ fig({body:`<div class="body" style="padding-top:110px;gap:12px">${XP.slice(0,2).map(xpItem).join('')}</div>`,custom:navBack('Experiências')+sheetOn('Reportar comentário',`<div style="display:flex;flex-direction:column">${['Ofensivo ou abusivo','Spam ou publicidade','Dados pessoais de alguém','Não é sobre o jogo','Outro'].map((r,i)=>`<div class="radio2"><span class="rd${i===2?' on':''}"></span>${r}</div>`).join('')}<div class="ta" style="min-height:64px;margin-top:12px;color:#8C9096">Detalhe (opcional)</div><div class="t-cap" style="margin-top:8px">O autor não vê quem reportou. A administração revê.</div></div>`,'Enviar')},'Reportar','Cinco motivos e um detalhe opcional. Um relatório por pessoa e comentário.')+
+ fig({body:`<div class="body" style="padding-top:110px;gap:12px">${xpItem(XP[0])}</div>`,custom:navBack('Experiências')+`<div class="toast">${ic('shield-check-outline',20,'#fff')}<span>Obrigado. A administração vai rever este comentário.</span></div>`},'Depois de reportar','Confirmação breve; o comentário fica escondido para quem reportou.')+
+ fig({body:`<div class="body" style="padding-top:110px;gap:12px"><div class="t-cap">2 comentários com relatórios abertos</div>${[XP[1]].map(x=>`<div class="mod">${xpItem(x)}<div class="reasons"><span>Não é sobre o jogo · 1</span></div><div class="acts"><span class="btn sec">Manter</span><span class="btn pri" style="background:#A3445A">Ocultar…</span></div></div>`).join('')}<div class="mod">${xpItem({...XP[0],name:'Teste-alheio',text:'[texto com o contacto de outra pessoa]',rating:'4'})}<div class="reasons"><span>Dados pessoais · 3</span><span>Oculto até revisão</span></div><div class="acts"><span class="btn sec">Repor</span><span class="btn pri" style="background:#A3445A">Manter oculto</span></div></div></div>`,custom:navBack('Moderação · Experiências','Perfil')},'Moderação (administração)','Comentários reportados com os motivos e contagens. «Manter» fecha os relatórios; «Ocultar» pede um motivo. Com 3 relatórios de pessoas diferentes fica oculto até revisão.')+
+ fig({body:`<div class="body" style="padding-top:110px;gap:16px">${xpCard({state:'hidden'})}</div>`,custom:navBack('Comentário','Diário')},'O que o autor vê','Oculto pela moderação, com o motivo. Pode apagar. A avaliação continua a contar.'));
+</script>
+</body>
+</html>
