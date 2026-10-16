@@ -1,5 +1,7 @@
 # Pendências funcionais do MeepleBoard
 
+**Ordem de trabalho em vigor:** ver [ordem-de-trabalho.md](ordem-de-trabalho.md) (validação no iPhone → segurança → eliminação de contas com denúncias → organização dos repositórios).
+
 ## REG-DUR01 — registo redesenhado e duração das partidas (implementado a 2026-10-16, por confirmar no iPhone)
 
 Proposta aprovada a 16/10/2026; implementado só em DeviceTests ([registo-duracao.md](registo-duracao.md); API `docs/duracao-partidas.md`). Registo em 5 passos com pesquisa e escolha do jogo, entrada direta em Jogadores, resultado por modo, mudanças que limpam com «Desfazer», avaliação sem arrastar e duração obrigatória (valor ou «Não sei»). Página do jogo com três referências de duração e «Ver detalhes»; preferência de contribuição desligada por omissão; correção da duração pelo criador. O DeviceTests tem seis partidas de Wingspan partilhadas por três amigas de teste, para ver a média MeepleBoard. Falta a confirmação visual e funcional no iPhone.
