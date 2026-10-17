@@ -60,14 +60,16 @@ Na partida e nos jogadores, a app mostra cada estado corretamente. Confirmei-o c
    - **Exemplo:** no Histórico, «17 out. 2026 · Modo não registado · Resultado antigo por confirmar», em 3 linhas com texto grande. Nas partidas da sessão e na última partida do Início, a frase do vencedor antigo junta-se às pontuações.
    - **Recomendação:** depende de R1. Depois de decidido o termo, as listas podem usar a forma curta.
    - **Por confirmar:** o peso em produção.
-3. **R3 — O subtítulo «Registo rápido» num fluxo de 5 passos.** O texto promete o que o fluxo não é. A correção é só de texto.
+3. **R3 — O subtítulo «Registo rápido» num fluxo de 5 passos.** O texto promete o que o fluxo não é. *Feito a 2026-10-17:* fora de uma sessão, o cabeçalho mostra só «Registar partida»; numa sessão, continua a mostrar o nome da sessão.
 
-**Ajustes pontuais (consistência, pouco risco):**
+**Ajustes pontuais (consistência, pouco risco).** *Feitos a 2026-10-17, com autorização*, exceto os das Estatísticas:
 
-- **Data numérica:** a folha «Hora de fim» mostra «18/10/2026», e o resto da app usa «18 out.».
-- **Maiúsculas:** «Criar Sessão» no título e no botão.
-- **Rever:** «Corrigir jogadores» aparece como título verde, e os restantes «Corrigir» ficam à direita. «Vencedor: Teste-participante» parte em duas linhas.
-- **Perfil do amigo:** «1 h 15 min» parte em duas linhas já com texto normal.
+- **Retirado:** a data «18/10/2026» na folha «Hora de fim» vem do substituto da pré-visualização para o seletor nativo. No iPhone aparece a roda nativa do iOS.
+
+
+- **Maiúsculas:** «Criar Sessão» no título e no botão. *Feito:* «Criar sessão» e «Nova campanha»; em EN, «New campaign» e «New encounter».
+- **Rever:** «Corrigir jogadores» aparece como título verde, e os restantes «Corrigir» ficam à direita. «Vencedor: Teste-participante» parte em duas linhas. *Feito:* «Jogadores» passa a secção própria com «Corrigir» à direita, como as outras. A quebra de um nome comprido é o comportamento esperado.
+- **Perfil do amigo:** «1 h 15 min» parte em duas linhas já com texto normal. *Feito:* cada coluna tem a largura do conteúdo. A 160 %, as colunas passam para uma nova linha (3 + 1) em vez de partirem o valor.
 - **Estatísticas** (cada mudança precisa de autorização):
   - «45,45%» (duas casas decimais);
   - «0,00 · moeda não indicada»;

@@ -20,6 +20,8 @@ Este documento cresceu por etapas, e alguns pontos aparecem como abertos em sec�
 
 ## CONTA01 — eliminação da própria conta na app (pendente; não implementar nesta ronda)
 
+**Pendência para o lançamento** (confirmado a 2026-10-17): sem CONTA01, a app não está pronta para publicar na loja. A avaliação visual de UI/UX não equivale a aprovação técnica para produção.
+
 Registada a 2026-10-17. A app não tem forma de a pessoa eliminar a própria conta: não há ecrã nem chamada. Hoje só um administrador elimina contas (`DELETE /MeepleBoard/users/{id}`), e a API anonimiza a conta numa transação, com os tokens anteriores a deixarem de dar acesso (`MeepleBoardApi/docs/eliminacao-contas.md`).
 
 **Falta decidir:**
