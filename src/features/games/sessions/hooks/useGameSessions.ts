@@ -7,6 +7,8 @@
  * - Fecha sessão ativa
  */
 
+import { friendlyErrorMessage } from "@/src/services/api";
+import i18n from "i18next";
 import { useCallback, useEffect, useState } from "react";
 import { GameSession } from "../types/GameSession";
 import sessionService, { CreateSessionPayload } from "../services/sessionService";
@@ -40,7 +42,7 @@ export function useGameSessions() {
       setSessions((prev) => [newSession, ...prev]);
       return newSession;
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || "Erro a criar sessão.";
+      const msg = friendlyErrorMessage(err, i18n.t("matches:sessions.createError"));
       console.error("❌ Erro ao criar sessão:", err);
       setError(String(msg));
       return null;
@@ -60,7 +62,7 @@ export function useGameSessions() {
       );
       return true;
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || "Erro ao encerrar sessão.";
+      const msg = friendlyErrorMessage(err, i18n.t("matches:sessions.closeError"));
       console.error("❌ Erro ao encerrar sessão:", err);
       setError(String(msg));
       return false;

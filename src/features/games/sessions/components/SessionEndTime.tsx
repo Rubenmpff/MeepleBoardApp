@@ -3,6 +3,7 @@
  * it starts at the scheduled time (accepting never moves it) and ends 24 h later. The organizer of a
  * running session can extend it or choose another end time, up to 48 h after the scheduled time.
  */
+import { friendlyErrorMessage } from "@/src/services/api";
 import { useState } from "react";
 import { Alert, Platform, StyleSheet, Text, View } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
@@ -58,7 +59,7 @@ export default function SessionEndTime({ session, canChange, onChanged }: { sess
       setOpen(false);
       Alert.alert(t("sessions.end.saved"));
     } catch (err: any) {
-      Alert.alert(t("sessions.end.error"), err?.response?.data?.message ?? err?.message ?? "");
+      Alert.alert(t("sessions.end.error"), friendlyErrorMessage(err, t("sessions.end.error")));
     } finally { setSaving(false); }
   }
 

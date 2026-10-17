@@ -510,6 +510,11 @@
       "OffTopic": "Não é sobre o jogo",
       "Other": "Outro",
       "AutoReports": "várias denúncias"
+    },
+    "errors": {
+      "report": "Não foi possível enviar a denúncia.",
+      "change": "Não foi possível alterar a publicação.",
+      "moderate": "Não foi possível guardar a decisão."
     }
   },
   "moderation": {

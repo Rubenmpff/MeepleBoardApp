@@ -6,6 +6,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 
+import i18n from "i18next";
 import getEnvVars from "../constants/env";
 import { tokenService } from "./tokenService";
 
@@ -252,6 +253,60 @@ api.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
+  }
+);
+
+// ======================================================
+// MENSAGENS DE ERRO PARA PESSOAS
+// ======================================================
+
+// Texto que não deve chegar a ninguém: mensagens do axios, exceções, páginas HTML.
+const TECHNICAL = /request failed|status code|network error|exception|stack|system\.|<html|sql|\n\s+at /i;
+
+/** True for text that must not reach people (axios messages, exceptions, HTML, very long texts). */
+export function isTechnicalText(text: string): boolean {
+  return text.length > 300 || TECHNICAL.test(text);
+}
+
+function serverText(data: any): string | null {
+  const text = typeof data === "string" ? data : typeof data?.message === "string" ? data.message : null;
+  return text && text.trim() && !isTechnicalText(text) ? text.trim() : null;
+}
+
+/**
+ * A message for people, in the app language, never technical.
+ * - Without an answer: network or timeout.
+ * - In Portuguese, the API's own explanation (written for people, in Portuguese), when it has one.
+ * - Otherwise by status, or the given context message for invalid data and conflicts (e.g. «Não foi possível publicar»).
+ * Request errors are worked out again each time, so a context message given by the screen is used; other errors
+ * (thrown by the app with its own translated text) keep their message.
+ */
+export function friendlyErrorMessage(error: unknown, fallback?: string): string {
+  const e = error as any;
+  const t = (key: string) => i18n.t(`common:errors.${key}`);
+  if (!e?.isAxiosError) return typeof e?.message === "string" && e.message.trim() && !TECHNICAL.test(e.message) ? e.message : fallback ?? t("generic");
+  if (!e.response) return e.code === "ECONNABORTED" ? t("timeout") : t("network");
+  const own = serverText(e.response.data);
+  if (own && (i18n.language ?? "").startsWith("pt")) return own;
+  const status: number = e.response.status;
+  if (status === 401) return t("unauthorized");
+  if (status === 403) return t("forbidden");
+  if (status === 404) return t("notFound");
+  if (status === 429) return t("tooMany");
+  if (status >= 500) return t("server");
+  return fallback ?? t(status === 409 ? "conflict" : status === 400 ? "invalid" : "generic");
+}
+
+// Every failed request carries a friendly message; cancellations stay untouched (callers recognise «canceled»).
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error && !axios.isCancel(error) && error.isAxiosError && !error.friendly) {
+      error.technicalMessage = error.message;
+      error.message = friendlyErrorMessage(error);
+      error.friendly = true;
+    }
+    return Promise.reject(error);
   }
 );
 

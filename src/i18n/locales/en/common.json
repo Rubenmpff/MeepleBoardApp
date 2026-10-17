@@ -31,5 +31,17 @@
     "clearFilters": "Clear filters",
     "unknownLeftOut_one": "{{count}} without this information was left out.",
     "unknownLeftOut_other": "{{count}} without this information were left out."
+  },
+  "errors": {
+    "network": "Couldn't reach the server. Check your internet connection and try again.",
+    "timeout": "The server took too long to respond. Try again.",
+    "unauthorized": "Your session has ended. Please sign in again.",
+    "forbidden": "You don't have permission to do this.",
+    "notFound": "It no longer exists or couldn't be found.",
+    "conflict": "Couldn't finish because of an earlier change. Refresh and try again.",
+    "tooMany": "Too many requests. Wait a moment and try again.",
+    "server": "The server ran into a problem. Try again in a moment.",
+    "invalid": "The information sent isn't valid.",
+    "generic": "Something went wrong. Try again."
   }
 }

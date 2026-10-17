@@ -510,6 +510,11 @@
       "OffTopic": "Not about the game",
       "Other": "Other",
       "AutoReports": "several reports"
+    },
+    "errors": {
+      "report": "Couldn't send the report.",
+      "change": "Couldn't change the publication.",
+      "moderate": "Couldn't save the decision."
     }
   },
   "moderation": {

@@ -1,3 +1,4 @@
+import { friendlyErrorMessage } from "@/src/services/api";
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 import { Glyph } from "@/src/ui/components";
 /**
@@ -115,13 +116,7 @@ export default function CreateCampaignScreen() {
         "❌ Failed to create campaign:",
         error
       );
-      const apiMessage =
-        error?.response?.data?.message;
-      const message =
-        typeof apiMessage === "string" &&
-        apiMessage.trim()
-          ? apiMessage
-          : t("create.errorFallback");
+      const message = friendlyErrorMessage(error, t("create.errorFallback"));
       Alert.alert(
         t("common.error"),
         message

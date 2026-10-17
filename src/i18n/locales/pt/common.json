@@ -31,5 +31,17 @@
     "clearFilters": "Limpar filtros",
     "unknownLeftOut_one": "{{count}} sem esta informação ficou de fora.",
     "unknownLeftOut_other": "{{count}} sem esta informação ficaram de fora."
+  },
+  "errors": {
+    "network": "Não foi possível contactar o servidor. Verifica a ligação à internet e tenta novamente.",
+    "timeout": "O servidor demorou demasiado a responder. Tenta novamente.",
+    "unauthorized": "A tua sessão terminou. Inicia sessão novamente.",
+    "forbidden": "Não tens permissão para fazer isto.",
+    "notFound": "Já não existe ou não foi encontrado.",
+    "conflict": "Não foi possível concluir por causa de uma alteração anterior. Atualiza e tenta novamente.",
+    "tooMany": "Demasiados pedidos. Aguarda um momento e tenta novamente.",
+    "server": "O servidor encontrou um problema. Tenta novamente dentro de momentos.",
+    "invalid": "Os dados enviados não são válidos.",
+    "generic": "Ocorreu um erro inesperado. Tenta novamente."
   }
 }

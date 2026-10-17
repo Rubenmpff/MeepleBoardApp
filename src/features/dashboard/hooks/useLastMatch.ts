@@ -1,3 +1,5 @@
+import { friendlyErrorMessage } from "@/src/services/api";
+import i18n from "i18next";
 import { useCallback, useEffect, useState } from "react";
 import { getLastMatch } from "@/src/features/games/matches/services/matchService";
 import { LastMatch } from "../../games/matches/types/MatchForm";
@@ -16,8 +18,7 @@ export const useLastMatch = () => {
       setError(null);
     } catch (err: unknown) {
       console.error("❌ Erro ao buscar última partida:", err);
-      const message =
-        err instanceof Error ? err.message : "Erro ao buscar a última partida.";
+      const message = friendlyErrorMessage(err, i18n.t("dashboard:lastMatch.loadError"));
       setError(message);
     } finally {
       setLoading(false);

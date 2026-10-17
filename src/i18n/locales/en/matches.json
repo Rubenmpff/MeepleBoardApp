@@ -405,7 +405,8 @@
       "plannedFilter": "Planned game",
       "plannedAny": "Any game",
       "noneFound": "No sessions match this search or filter."
-    }
+    },
+    "createError": "Couldn't create the session."
   },
   "form": {
     "withScores": "With scores",
@@ -713,5 +714,15 @@
       "Other": "Other",
       "AutoReports": "several reports"
     }
+  },
+  "errors": {
+    "register": "Couldn't record the match.",
+    "lastMatch": "Couldn't load the last match.",
+    "history": "Couldn't load the history.",
+    "pending": "Couldn't load the matches waiting for your rating.",
+    "load": "Couldn't load the match.",
+    "journalAccess": "You don't have access to this diary or it couldn't be loaded.",
+    "closeJournal": "Couldn't close the diary.",
+    "incomplete": "Some match details are missing. Review the steps and try again."
   }
 }

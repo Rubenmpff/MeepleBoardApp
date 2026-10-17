@@ -1,6 +1,7 @@
 // src/features/games/services/matchService.ts
 
-import api from "@/src/services/api";
+import api, { friendlyErrorMessage } from "@/src/services/api";
+import i18n from "i18next";
 import { MatchDto, MatchFormData, LastMatch } from "../types/MatchForm";
 import { JournalEntry, UpsertJournalEntryPayload } from "../../campaigns/types/Campaign";
 import { mapMatchFormToRequest } from "../utils/mapMatchFormToRequest";
@@ -16,37 +17,25 @@ export function matchList(res: { status: number; data: unknown }, what: string):
 }
 
 function extractApiErrorMessage(error: any, fallback: string) {
-  const data = error?.response?.data;
-  if (typeof data === "string" && data.trim()) return data;
-  const msg = data?.message;
-  if (typeof msg === "string" && msg.trim()) return msg;
-  const errors = data?.errors;
-  if (errors && typeof errors === "object") {
-    const firstKey = Object.keys(errors)[0];
-    const firstVal = firstKey ? errors[firstKey] : null;
-    if (Array.isArray(firstVal) && firstVal[0]) return String(firstVal[0]);
-  }
-  const errMsg = error?.message;
-  if (typeof errMsg === "string" && errMsg.trim()) return errMsg;
-  return fallback;
+  return friendlyErrorMessage(error, fallback);
 }
 
 const matchService = {
   /** Regista uma nova partida (quick ou sessão). */
   async registerMatch(data: MatchFormData): Promise<MatchDto> {
-    if (!data) throw new Error("Dados da partida são obrigatórios.");
-    if (!data.gameId) throw new Error("gameId é obrigatório.");
-    if (!data.gameName) throw new Error("gameName é obrigatório.");
-    if (!data.matchDate) throw new Error("matchDate é obrigatório.");
+    if (!data) throw new Error(i18n.t("matches:errors.incomplete"));
+    if (!data.gameId) throw new Error(i18n.t("matches:errors.incomplete"));
+    if (!data.gameName) throw new Error(i18n.t("matches:errors.incomplete"));
+    if (!data.matchDate) throw new Error(i18n.t("matches:errors.incomplete"));
     if (!Array.isArray(data.players) || data.players.length === 0)
-      throw new Error("A partida deve ter pelo menos um jogador.");
+      throw new Error(i18n.t("matches:errors.incomplete"));
 
     const payload = mapMatchFormToRequest(data);
     try {
       const res = await api.post<MatchDto>("/matches", payload);
       return res.data;
     } catch (error: any) {
-      throw new Error(extractApiErrorMessage(error, "Erro ao registar partida."));
+      throw new Error(extractApiErrorMessage(error, i18n.t("matches:errors.register")));
     }
   },
 
@@ -57,7 +46,7 @@ const matchService = {
       return res.data;
     } catch (error: any) {
       if (error?.response?.status === 404) return null;
-      throw new Error(extractApiErrorMessage(error, "Erro ao obter última partida."));
+      throw new Error(extractApiErrorMessage(error, i18n.t("matches:errors.lastMatch")));
     }
   },
 
@@ -67,7 +56,7 @@ const matchService = {
     try {
       res = await api.get<MatchDto[]>(`/matches/history/game/${gameId}`);
     } catch (error: any) {
-      throw new Error(extractApiErrorMessage(error, "Erro ao carregar histórico."));
+      throw new Error(extractApiErrorMessage(error, i18n.t("matches:errors.history")));
     }
     return matchList(res, "o histórico");
   },
@@ -93,7 +82,7 @@ const matchService = {
     try {
       res = await api.get<MatchDto[]>("/matches/pending-journal");
     } catch (error: any) {
-      throw new Error(extractApiErrorMessage(error, "Erro ao carregar partidas pendentes."));
+      throw new Error(extractApiErrorMessage(error, i18n.t("matches:errors.pending")));
     }
     return matchList(res, "as partidas pendentes");
   },
@@ -105,7 +94,7 @@ const matchService = {
       return res.data;
     } catch (error: any) {
       if (error?.response?.status === 404) return null;
-      throw new Error(extractApiErrorMessage(error, "Erro ao carregar partida."));
+      throw new Error(extractApiErrorMessage(error, i18n.t("matches:errors.load")));
     }
   },
 
@@ -115,7 +104,7 @@ const matchService = {
       const res = await api.get<JournalEntry[]>(`/campaigns/matches/${matchId}/journal`);
       return res.data ?? [];
     } catch (error: any) {
-      throw new Error(extractApiErrorMessage(error, "Não tens acesso ao diário ou não foi possível carregá-lo."));
+      throw new Error(extractApiErrorMessage(error, i18n.t("matches:errors.journalAccess")));
     }
   },
 
@@ -134,7 +123,7 @@ const matchService = {
       );
       return res.data;
     } catch (error: any) {
-      throw new Error(extractApiErrorMessage(error, "Erro ao guardar avaliação."));
+      throw new Error(extractApiErrorMessage(error, i18n.t("matches:journal.saveError")));
     }
   },
 
@@ -160,7 +149,7 @@ const matchService = {
       );
       return res.data;
     } catch (error: any) {
-      throw new Error(extractApiErrorMessage(error, "Erro ao enviar a foto."));
+      throw new Error(extractApiErrorMessage(error, i18n.t("matches:photos.uploadError")));
     }
   },
 
@@ -173,7 +162,7 @@ const matchService = {
       );
       return res.data;
     } catch (error: any) {
-      throw new Error(extractApiErrorMessage(error, "Erro ao remover a foto."));
+      throw new Error(extractApiErrorMessage(error, i18n.t("matches:photos.removeError")));
     }
   },
 
@@ -185,7 +174,7 @@ const matchService = {
     try {
       await api.patch(`/matches/${matchId}/duration`, { durationInMinutes, durationMethod });
     } catch (error: any) {
-      throw new Error(extractApiErrorMessage(error, "Não foi possível guardar a duração."));
+      throw new Error(extractApiErrorMessage(error, i18n.t("matches:duration.saveError")));
     }
   },
 
@@ -193,7 +182,7 @@ const matchService = {
     try {
       await api.post(`/matches/${matchId}/close-journal`, null);
     } catch (error: any) {
-      throw new Error(extractApiErrorMessage(error, "Erro ao fechar diário."));
+      throw new Error(extractApiErrorMessage(error, i18n.t("matches:errors.closeJournal")));
     }
   },
 };

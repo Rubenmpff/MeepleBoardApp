@@ -405,7 +405,8 @@
       "plannedFilter": "Jogo previsto",
       "plannedAny": "Qualquer jogo",
       "noneFound": "Nenhuma sessão com esta pesquisa ou filtro."
-    }
+    },
+    "createError": "Não foi possível criar a sessão."
   },
   "form": {
     "withScores": "Com pontuação",
@@ -713,5 +714,15 @@
       "Other": "Outro",
       "AutoReports": "várias denúncias"
     }
+  },
+  "errors": {
+    "register": "Não foi possível registar a partida.",
+    "lastMatch": "Não foi possível carregar a última partida.",
+    "history": "Não foi possível carregar o histórico.",
+    "pending": "Não foi possível carregar as avaliações pendentes.",
+    "load": "Não foi possível carregar a partida.",
+    "journalAccess": "Não tens acesso a este diário ou não foi possível carregá-lo.",
+    "closeJournal": "Não foi possível fechar o diário.",
+    "incomplete": "Faltam dados da partida. Revê os passos e tenta novamente."
   }
 }

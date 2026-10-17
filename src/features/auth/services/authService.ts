@@ -1,4 +1,5 @@
-import api from "../../../services/api";
+import api, { isTechnicalText } from "../../../services/api";
+import i18n from "i18next";
 import * as SecureStore from "expo-secure-store";
 import axios, { AxiosError } from "axios";
 
@@ -216,8 +217,7 @@ export const authService = {
       ) {
         return {
           success: false,
-          message:
-            "O servidor devolveu uma resposta de autenticação inválida.",
+          message: i18n.t("common:errors.server"),
         };
       }
 
@@ -475,8 +475,7 @@ function handleError(
   if (!axios.isAxiosError(error)) {
     return {
       success: false,
-      message:
-        "Ocorreu um erro inesperado. Tenta novamente.",
+      message: i18n.t("common:errors.generic"),
     };
   }
 
@@ -511,16 +510,14 @@ function handleError(
       return {
         success: false,
         code: "timeout",
-        message:
-          "O servidor demorou demasiado tempo a responder. Tenta novamente.",
+        message: i18n.t("common:errors.timeout"),
       };
     }
 
     return {
       success: false,
       code: "network_error",
-      message:
-        "Não foi possível contactar o servidor. Verifica a ligação à internet e tenta novamente.",
+      message: i18n.t("common:errors.network"),
     };
   }
 
@@ -548,16 +545,27 @@ function handleError(
           ? responseData.error
           : undefined;
 
-  const message =
+  // The server's own text is written in Portuguese: shown as is only in Portuguese, and never when it looks
+  // technical; otherwise a translated message for the action. Codes are still detected from the server's text.
+  const serverText =
     errors?.[0] ??
-    serverMessage ??
-    getDefaultErrorMessage(
-      axiosError.response.status,
-      action
-    );
+    serverMessage;
+
+  const showServerText =
+    !!serverText &&
+    (i18n.language ?? "").startsWith("pt") &&
+    !isTechnicalText(serverText);
+
+  const message =
+    showServerText
+      ? serverText!
+      : getDefaultErrorMessage(
+          axiosError.response.status,
+          action
+        );
 
   const normalizedMessage =
-    message.toLowerCase();
+    (serverText ?? message).toLowerCase();
 
   let code: string | undefined;
 
@@ -640,32 +648,29 @@ function getDefaultErrorMessage(
   action: string
 ): string {
   switch (status) {
-    case 400:
-      return getBadRequestMessage(
-        action
-      );
-
     case 401:
-      return "A tua sessão não é válida ou as credenciais estão incorretas.";
+      return i18n.t("auth:errors.unauthorized");
 
     case 403:
-      return "Não tens permissão para realizar esta operação.";
+      return i18n.t("common:errors.forbidden");
 
     case 404:
-      return "O recurso solicitado não foi encontrado.";
+      return i18n.t("common:errors.notFound");
 
     case 409:
-      return "Não foi possível concluir a operação devido a um conflito de dados.";
+      return i18n.t("common:errors.conflict");
 
     case 429:
-      return "Foram efetuados demasiados pedidos. Aguarda um momento e tenta novamente.";
+      return i18n.t("common:errors.tooMany");
 
     default:
       if (status >= 500) {
-        return "O servidor encontrou um problema. Tenta novamente dentro de momentos.";
+        return i18n.t("common:errors.server");
       }
 
-      return `Não foi possível concluir ${action}.`;
+      return getBadRequestMessage(
+        action
+      );
   }
 }
 
@@ -674,25 +679,15 @@ function getBadRequestMessage(
 ): string {
   switch (action) {
     case "login":
-      return "Não foi possível iniciar sessão. Confirma o email e a password.";
-
     case "register":
-      return "Não foi possível criar a conta. Confirma os dados introduzidos.";
-
     case "forgotPassword":
-      return "Não foi possível iniciar a recuperação da password.";
-
     case "resetPassword":
-      return "Não foi possível alterar a password.";
-
     case "confirmEmail":
-      return "Não foi possível confirmar o email.";
-
     case "resendConfirmationEmail":
-      return "Não foi possível reenviar o email de confirmação.";
+      return i18n.t(`auth:errors.${action}`);
 
     default:
-      return "Os dados enviados não são válidos.";
+      return i18n.t("common:errors.invalid");
   }
 }
 

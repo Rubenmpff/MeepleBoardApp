@@ -15,7 +15,8 @@ function loadAuthService(responseData) {
     if (id.endsWith('/services/api')) return { __esModule: true, default: {
       post: async (...args) => { calls.push(['post', ...args]); return { data: responseData }; },
       get: async (...args) => { calls.push(['get', ...args]); return { data: responseData }; },
-    } };
+    }, isTechnicalText: text => /request failed|status code|exception/i.test(text) };
+    if (id === 'i18next') return { __esModule: true, default: { language: 'pt', t: key => key } };
     if (id === 'axios') return require('axios');
     if (id === 'expo-secure-store') return { setItemAsync: async (...args) => calls.push(['secureStore', ...args]) };
     if (id === '@/src/services/tokenService') return { tokenService: { storeTokens: async (...args) => calls.push(['storeTokens', ...args]) } };
