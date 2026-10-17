@@ -28,7 +28,7 @@ Hoje, a chave do autor de uma denúncia (de experiências e de recursos) é rest
 Executado conforme o mapa aprovado, em commits só de organização ou só de remoção:
 
 - **API:**
-  - A1/A2 `59b870c`;
+  - A1/A2 `6c9525d`;
   - A3 Experiences `116baae`;
   - A4 GameDurations `07527ec`;
   - A5 médias sem uso `081c6d1`;
