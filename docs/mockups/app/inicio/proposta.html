@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Início mais leve</title>
+<style>
+:root{--bg:#FBFBF8;--card:#FFFFFF;--ink:#30283D;--mut:#58616A;--pri:#27594B;--priSoft:#E7F0E7;--line:#EAE5EF;--hair:#EFEAF2;--hero:#F1EBFA;--band:#F6F2FA;--friend:#7A5AAE;--icon:#9C86C9;--chev:#8C9096;--pendSoft:#FFF7DE;--pendLine:#F1E3B5;--pendText:#6E4D00;--pendIcon:#8A6200;--gold:#DCA52B}
+body{margin:0;background:#EDEBF0;font-family:-apple-system,"SF Pro Text",system-ui,sans-serif;color:var(--ink);padding:32px 16px 64px}
+.page{display:flex;flex-wrap:wrap;gap:40px;justify-content:center}
+figure{margin:0;display:flex;flex-direction:column;gap:10px;align-items:center}
+figcaption{display:flex;flex-direction:column;align-items:center;font-size:14px;color:var(--mut)}
+figcaption b{color:var(--ink)}
+.phone{position:relative;width:402px;height:874px;background:var(--bg);overflow:hidden;border-radius:44px;box-shadow:0 0 0 1px #D9D4DE}
+.phone *{box-sizing:border-box}
+.status{position:absolute;top:0;left:0;right:0;height:54px;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:16px 34px 0 54px;font-weight:600;font-size:17px;background:var(--bg)}
+.island{position:absolute;top:11px;left:50%;width:124px;height:36px;margin-left:-62px;border-radius:20px;background:#0E0C10;z-index:31}
+.batt{width:27px;height:13px;border:1.6px solid var(--ink);border-radius:4px;position:relative}.batt:after{content:"";position:absolute;inset:2px;background:var(--ink);border-radius:1.5px}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:88px;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-top:8px;z-index:12;font-size:11px;font-weight:600;color:var(--mut)}
+.tabbar>span{display:flex;flex-direction:column;align-items:center;gap:3px}
+.tabbar>span.on{color:var(--pri)}
+.new{width:52px;height:34px;border-radius:12px;background:var(--pri);display:flex;align-items:center;justify-content:center}
+.body{position:absolute;left:0;right:0;top:0;padding:62px 20px 110px;display:flex;flex-direction:column;gap:24px}
+.eyebrow{font-size:12px;line-height:16px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);font-weight:600}
+h1{margin:4px 0 0;font-size:24px;line-height:30px;font-weight:700}
+h2{margin:0;font-size:17px;line-height:22px;font-weight:600}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sechead{display:flex;align-items:baseline;justify-content:space-between}
+.more{font-size:14px;font-weight:600;color:var(--pri)}
+.hero{border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:12px;line-height:16px;font-weight:600}
+.dot{width:8px;height:8px;border-radius:4px;background:var(--pri)}
+.ttl{font-size:20px;line-height:26px;font-weight:700}
+.cap{font-size:13px;line-height:18px;color:var(--mut)}
+.btns{display:flex;gap:10px;align-items:center}
+.btn{height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;padding:0 16px}
+.btn.fill{background:var(--pri);color:#fff;flex:1}
+.btn.soft{background:#fff;color:var(--pri);border:1px solid var(--line)}
+.btn.text{color:var(--pri);padding:0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:14px;padding:12px 16px;min-height:60px}
+.row+.row{border-top:1px solid var(--hair)}
+.grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.t{font-size:15px;line-height:20px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ico{width:36px;height:36px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex:none}
+.cover{width:44px;height:44px;border-radius:10px;background:var(--hero);display:flex;align-items:center;justify-content:center;flex:none}
+.date{width:40px;display:flex;flex-direction:column;align-items:center;line-height:1;flex:none}
+.date i{font-style:normal;font-size:11px;font-weight:700;color:var(--friend);text-transform:uppercase}
+.date b{font-size:20px;margin-top:2px}
+.badge{font-size:12px;font-weight:700;padding:3px 8px;border-radius:10px;background:var(--pendSoft);color:var(--pendText)}
+.year{display:flex;align-items:center;justify-content:space-between;font-size:14px;line-height:20px;color:var(--mut);padding:2px 2px}
+.year b{color:var(--ink)}
+.year span:last-child{font-weight:600;color:var(--pri);display:flex;align-items:center;gap:2px;white-space:nowrap}
+.note{max-width:900px;margin:0 auto 28px;font-size:14px;line-height:20px;color:var(--mut);text-align:center}
+</style>
+</head>
+<body>
+<p class="note">Proposta do Início (conta autor, dados DeviceTests de 17 out. 2026). O convite com prazo é um exemplo: a conta autor não tem convites por responder.</p>
+<section id="inicio" class="page">
+
+<!-- 1. Topo: sessão a decorrer em destaque; as restantes pendências em «Para ti» -->
+<figure>
+<div class="phone">
+ <div class="status"><span>9:41</span><span class="batt"></span></div><div class="island"></div>
+ <div class="body">
+  <div><div class="eyebrow">Sábado, 17 de outubro</div><h1>Boa tarde, Teste-autor</h1></div>
+
+  <section class="hero" style="background:var(--hero)">
+   <span class="pill" style="color:var(--pri)"><span class="dot"></span>A decorrer · desde as 07:36</span>
+   <div><div class="ttl">Sessão de teste · jogo previsto</div><div class="cap" style="margin-top:4px">Wingspan · 2 confirmados · Mesa de testes</div></div>
+   <div class="btns"><span class="btn fill">Registar partida aqui</span><span class="btn text">Abrir</span></div>
+  </section>
+
+  <section class="sec">
+   <h2>Para ti</h2>
+   <div class="card">
+    <div class="row">
+     <span class="ico" style="background:var(--band)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7A5AAE" stroke-width="2"><path d="M4 7l8 6 8-6"/><rect x="4" y="5" width="16" height="14" rx="2"/></svg></span>
+     <span class="grow"><span class="t">Convite: Noite de jogos</span><span class="cap">Responde até quinta, 23 out.</span></span>
+     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+    <div class="row">
+     <span class="ico" style="background:var(--pendSoft)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A6200" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></span>
+     <span class="grow"><span class="t">Partidas por avaliar</span></span>
+     <span class="badge">13</span>
+     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+   </div>
+  </section>
+
+  <section class="sec">
+   <div class="sechead"><h2>A seguir</h2><span class="more">Todas (5)</span></div>
+   <div class="card">
+    <div class="row">
+     <span class="date"><i>Seg</i><b>19</b></span>
+     <span class="grow"><span class="t">Rule pending 1792217250941</span><span class="cap">07:07 · 1 de 2 confirmados</span></span>
+     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+    <div class="row"><span class="date"><i>Seg</i><b>19</b></span><span class="grow"><span class="t">Rule pending 1792218973956</span><span class="cap">07:36 · 1 de 2 confirmados</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+   </div>
+  </section>
+
+  <section class="sec">
+   <div class="sechead"><h2>Recente</h2><span class="more">Histórico</span></div>
+   <div class="card">
+    <div class="row">
+     <span class="cover"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9C86C9" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2" fill="#9C86C9"/><circle cx="15" cy="15" r="1.2" fill="#9C86C9"/><circle cx="15" cy="9" r="1.2" fill="#9C86C9"/><circle cx="9" cy="15" r="1.2" fill="#9C86C9"/></svg></span>
+     <span class="grow"><span class="t">Meeple Teste Competitivo</span><span class="cap">17 out. · Venceu Teste-participante</span></span>
+     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+   </div>
+  </section>
+
+  <div class="year"><span>2026: <b>162 partidas</b> · 30 vitórias</span><span>Estatísticas<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#27594B" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+ </div>
+ <div class="tabbar">
+  <span class="on"><svg width="24" height="24" viewBox="0 0 24 24" fill="#27594B"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Início</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><rect x="4" y="9" width="10" height="10" rx="2"/><rect x="11" y="4" width="9" height="9" rx="2"/></svg>Jogos</span>
+  <span><span class="new"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>Novo</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>Jogar</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><circle cx="12" cy="9" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Perfil</span>
+ </div>
+</div>
+<figcaption><b>1-topo</b><span>Sessão a decorrer em destaque</span></figcaption>
+</figure>
+
+<!-- 2. Continuação: o mesmo ecrã depois de deslizar, com o resto das secções -->
+<figure>
+<div class="phone">
+ <div class="status"><span>9:41</span><span class="batt"></span></div><div class="island"></div>
+ <div class="body" style="top:auto;bottom:0;padding-bottom:116px">
+  <div><div class="eyebrow">Sábado, 17 de outubro</div><h1>Boa tarde, Teste-autor</h1></div>
+  <section class="hero" style="background:var(--hero)">
+   <span class="pill" style="color:var(--pri)"><span class="dot"></span>A decorrer · desde as 07:36</span>
+   <div><div class="ttl">Sessão de teste · jogo previsto</div><div class="cap" style="margin-top:4px">Wingspan · 2 confirmados · Mesa de testes</div></div>
+   <div class="btns"><span class="btn fill">Registar partida aqui</span><span class="btn text">Abrir</span></div>
+  </section>
+  <section class="sec">
+   <h2>Para ti</h2>
+   <div class="card">
+    <div class="row"><span class="ico" style="background:var(--band)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7A5AAE" stroke-width="2"><path d="M4 7l8 6 8-6"/><rect x="4" y="5" width="16" height="14" rx="2"/></svg></span><span class="grow"><span class="t">Convite: Noite de jogos</span><span class="cap">Responde até quinta, 23 out.</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+    <div class="row"><span class="ico" style="background:var(--pendSoft)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A6200" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></span><span class="grow"><span class="t">Partidas por avaliar</span></span><span class="badge">13</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+   </div>
+  </section>
+  <section class="sec">
+   <div class="sechead"><h2>A seguir</h2><span class="more">Todas (5)</span></div>
+   <div class="card">
+    <div class="row"><span class="date"><i>Seg</i><b>19</b></span><span class="grow"><span class="t">Rule pending 1792217250941</span><span class="cap">07:07 · 1 de 2 confirmados</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+    <div class="row"><span class="date"><i>Seg</i><b>19</b></span><span class="grow"><span class="t">Rule pending 1792218973956</span><span class="cap">07:36 · 1 de 2 confirmados</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+   </div>
+  </section>
+  <section class="sec">
+   <div class="sechead"><h2>Recente</h2><span class="more">Histórico</span></div>
+   <div class="card">
+    <div class="row"><span class="cover"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9C86C9" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2" fill="#9C86C9"/><circle cx="15" cy="15" r="1.2" fill="#9C86C9"/><circle cx="15" cy="9" r="1.2" fill="#9C86C9"/><circle cx="9" cy="15" r="1.2" fill="#9C86C9"/></svg></span><span class="grow"><span class="t">Meeple Teste Competitivo</span><span class="cap">17 out. · Venceu Teste-participante</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+   </div>
+  </section>
+  <div class="year"><span>2026: <b>162 partidas</b> · 30 vitórias</span><span>Estatísticas<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#27594B" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+ </div>
+ <div class="tabbar">
+  <span class="on"><svg width="24" height="24" viewBox="0 0 24 24" fill="#27594B"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Início</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><rect x="4" y="9" width="10" height="10" rx="2"/><rect x="11" y="4" width="9" height="9" rx="2"/></svg>Jogos</span>
+  <span><span class="new"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>Novo</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>Jogar</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><circle cx="12" cy="9" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Perfil</span>
+ </div>
+</div>
+<figcaption><b>2-continuacao</b><span>O mesmo ecrã, depois de deslizar</span></figcaption>
+</figure>
+
+<!-- 3. Convite com prazo em destaque (sem sessão a decorrer) -->
+<figure>
+<div class="phone">
+ <div class="status"><span>9:41</span><span class="batt"></span></div><div class="island"></div>
+ <div class="body">
+  <div><div class="eyebrow">Sábado, 17 de outubro</div><h1>Boa tarde, Teste-autor</h1></div>
+  <section class="hero" style="background:var(--band);border:1px solid #E3DAF0">
+   <span class="pill" style="color:var(--friend)">Convite de Teste-participante</span>
+   <div><div class="ttl">Noite de jogos</div><div class="cap" style="margin-top:4px">Sáb., 25 out. · 21:00 · Mesa de testes</div></div>
+   <span class="pill" style="color:var(--pendText);background:var(--pendSoft);padding:4px 10px;border-radius:10px;align-self:flex-start">Responde até quinta, 23 out.</span>
+   <div class="btns"><span class="btn fill">Vou</span><span class="btn soft">Não posso</span></div>
+  </section>
+  <section class="sec">
+   <h2>Para ti</h2>
+   <div class="card">
+    <div class="row"><span class="ico" style="background:var(--pendSoft)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A6200" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></span><span class="grow"><span class="t">Partidas por avaliar</span></span><span class="badge">13</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+   </div>
+  </section>
+  <section class="sec">
+   <div class="sechead"><h2>A seguir</h2><span class="more">Todas (5)</span></div>
+   <div class="card">
+    <div class="row"><span class="date"><i>Seg</i><b>19</b></span><span class="grow"><span class="t">Rule pending 1792217250941</span><span class="cap">07:07 · 1 de 2 confirmados</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+    <div class="row"><span class="date"><i>Seg</i><b>19</b></span><span class="grow"><span class="t">Rule pending 1792218973956</span><span class="cap">07:36 · 1 de 2 confirmados</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+   </div>
+  </section>
+ </div>
+ <div class="tabbar">
+  <span class="on"><svg width="24" height="24" viewBox="0 0 24 24" fill="#27594B"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Início</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><rect x="4" y="9" width="10" height="10" rx="2"/><rect x="11" y="4" width="9" height="9" rx="2"/></svg>Jogos</span>
+  <span><span class="new"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>Novo</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>Jogar</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><circle cx="12" cy="9" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Perfil</span>
+ </div>
+</div>
+<figcaption><b>3-convite</b><span>Sem sessão a decorrer: o convite com prazo em destaque</span></figcaption>
+</figure>
+
+<!-- 4. Avaliações em destaque (sem sessão nem convites) -->
+<figure>
+<div class="phone">
+ <div class="status"><span>9:41</span><span class="batt"></span></div><div class="island"></div>
+ <div class="body">
+  <div><div class="eyebrow">Sábado, 17 de outubro</div><h1>Boa tarde, Teste-amiga-colecionadora</h1></div>
+  <section class="hero" style="background:var(--pendSoft);border:1px solid var(--pendLine)">
+   <div style="display:flex;gap:14px;align-items:flex-start"><span class="ico" style="width:44px;height:44px;border-radius:22px;background:#fff"><svg width="22" height="22" viewBox="0 0 24 24" fill="#DCA52B" stroke="#8A6200" stroke-width="1.4" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></span>
+   <div><div class="ttl">3 partidas por avaliar</div><div class="cap" style="margin-top:4px;color:var(--pendText)">A mais recente: Wingspan, hoje</div></div></div>
+   <div class="btns"><span class="btn fill">Avaliar agora</span></div>
+  </section>
+  <section class="sec">
+   <div class="sechead"><h2>Recente</h2><span class="more">Histórico</span></div>
+   <div class="card">
+    <div class="row"><span class="cover"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9C86C9" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2" fill="#9C86C9"/><circle cx="15" cy="15" r="1.2" fill="#9C86C9"/><circle cx="15" cy="9" r="1.2" fill="#9C86C9"/><circle cx="9" cy="15" r="1.2" fill="#9C86C9"/></svg></span><span class="grow"><span class="t">Wingspan</span><span class="cap">17 out. · 1 h 05 min · por avaliar</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+   </div>
+  </section>
+  <div class="year"><span>2026: <b>5 partidas</b> · 1 jogo</span><span>Estatísticas<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#27594B" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+ </div>
+ <div class="tabbar">
+  <span class="on"><svg width="24" height="24" viewBox="0 0 24 24" fill="#27594B"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Início</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><rect x="4" y="9" width="10" height="10" rx="2"/><rect x="11" y="4" width="9" height="9" rx="2"/></svg>Jogos</span>
+  <span><span class="new"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>Novo</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>Jogar</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><circle cx="12" cy="9" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Perfil</span>
+ </div>
+</div>
+<figcaption><b>4-avaliacoes</b><span>Sem sessão nem convites: as avaliações em destaque</span></figcaption>
+</figure>
+
+<!-- 5. Tudo em dia: mensagem tranquila, sem sugestão obrigatória -->
+<figure>
+<div class="phone">
+ <div class="status"><span>9:41</span><span class="batt"></span></div><div class="island"></div>
+ <div class="body">
+  <div><div class="eyebrow">Domingo, 18 de outubro</div><h1>Bom dia, Teste-amiga-tabuleiro</h1></div>
+  <section style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:var(--band)">
+   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#27594B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+   <span style="font-size:15px;line-height:20px"><b>Tudo em dia.</b> <span style="color:var(--mut)">Sem convites nem avaliações por fazer.</span></span>
+  </section>
+  <section class="sec">
+   <div class="sechead"><h2>Recente</h2><span class="more">Histórico</span></div>
+   <div class="card">
+    <div class="row"><span class="cover"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9C86C9" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2" fill="#9C86C9"/><circle cx="15" cy="15" r="1.2" fill="#9C86C9"/><circle cx="15" cy="9" r="1.2" fill="#9C86C9"/><circle cx="9" cy="15" r="1.2" fill="#9C86C9"/></svg></span><span class="grow"><span class="t">Wingspan</span><span class="cap">Ontem · 1 h 05 min · avaliaste 8</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+    <div class="row"><span class="cover"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9C86C9" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2" fill="#9C86C9"/><circle cx="15" cy="15" r="1.2" fill="#9C86C9"/><circle cx="15" cy="9" r="1.2" fill="#9C86C9"/><circle cx="9" cy="15" r="1.2" fill="#9C86C9"/></svg></span><span class="grow"><span class="t">Wingspan</span><span class="cap">Ontem · 40 min · avaliaste 7,5</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C9096" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+   </div>
+  </section>
+  <div class="year"><span>2026: <b>7 partidas</b> · 1 jogo</span><span>Estatísticas<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#27594B" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+ </div>
+ <div class="tabbar">
+  <span class="on"><svg width="24" height="24" viewBox="0 0 24 24" fill="#27594B"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Início</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><rect x="4" y="9" width="10" height="10" rx="2"/><rect x="11" y="4" width="9" height="9" rx="2"/></svg>Jogos</span>
+  <span><span class="new"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>Novo</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>Jogar</span>
+  <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58616A" stroke-width="1.8"><circle cx="12" cy="9" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Perfil</span>
+ </div>
+</div>
+<figcaption><b>5-tudo-em-dia</b><span>Mensagem tranquila, numa linha</span></figcaption>
+</figure>
+
+</section>
+</body>
+</html>

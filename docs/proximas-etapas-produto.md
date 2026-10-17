@@ -63,3 +63,35 @@ Registado a 2026-10-16, a pedido; sem proposta nem implementação até ser reto
 - Visibilidade escolhida por cada pessoa: «Só eu / Amigos / Público».
 - Critérios: mais vitórias, mais partidas e melhores pontuações.
 - A definir quando for retomado: partidas elegíveis (modos, partidas oficiais), amostras mínimas, desempates e o que significa «melhor pontuação» em jogos de pontuação diferente.
+
+## 6. Experiência mais leve: do Início para o resto da app (2026-10-17)
+
+O utilizador sente que o Início e outras áreas estão carregados: muitos elementos com o mesmo destaque e sem uma ação principal clara. A direção acordada é reduzir o peso visual e mostrar uma coisa principal de cada vez, mantendo as funcionalidades, a identidade e a organização do código.
+
+**Início (em validação da composição; implementação por aprovar).** A maqueta e as imagens estão em [mockups/app/inicio/](mockups/app/inicio/proposta.html).
+
+- **Destaque, por esta ordem:**
+  1. sessão a decorrer;
+  2. convite que exige resposta, sobretudo com prazo;
+  3. avaliações pendentes;
+  4. tudo em dia: uma mensagem tranquila, numa linha, sem sugestão obrigatória.
+- **«Para ti»:** as restantes pendências ficam acessíveis em forma compacta, mesmo quando outra coisa ocupa o destaque.
+- **Registo:** o registo geral fica no «Novo» da barra.
+- **«O teu ano»:** uma linha discreta, com acesso às Estatísticas.
+
+**Biblioteca e página do jogo (ideias registadas, NÃO aprovadas):**
+
+- **Biblioteca:**
+  - pesquisa e um único controlo de filtrar e ordenar;
+  - uma linha de estados;
+  - os jogos logo a seguir;
+  - a sugestão passa para baixo.
+- **Página do jogo:**
+  - cabeçalho compacto;
+  - uma ação principal e duas discretas;
+  - menos mosaicos.
+
+**Condições para quando avançarem:**
+
+- preservar a separação entre as avaliações BGG e MeepleBoard;
+- preservar a distinção de comportamento entre filtrar e ordenar.
