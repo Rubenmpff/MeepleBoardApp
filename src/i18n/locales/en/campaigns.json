@@ -116,7 +116,8 @@
       "leave": "Leave campaign",
       "leaveTitle": "Leave campaign",
       "leaveConfirm": "Are you sure you want to leave this campaign?",
-      "creator": "Creator"
+      "creator": "Creator",
+      "manager": "Manager"
     },
     "notes": {
       "placeholder": "World state, characters, objectives, secrets...",

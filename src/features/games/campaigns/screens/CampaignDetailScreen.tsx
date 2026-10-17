@@ -87,7 +87,8 @@ export default function CampaignDetailScreen() {
     }
   }, [id, t]);
   useEffect(() => { fetchCampaign(); }, [fetchCampaign]);
-  const isCreator = campaign?.creatorId === currentUser?.id;
+  // campaign.creatorId is who MANAGES the campaign now; member.isCreator is who wrote it (kept after an account deletion).
+  const isManager = campaign?.creatorId === currentUser?.id;
   const isActive  = campaign?.status === "Active";
   const myMember  = useMemo(() => campaign?.members?.find(m => m.userId === currentUser?.id), [campaign, currentUser?.id]);
   const isMember  = myMember?.status === "Accepted";
@@ -187,7 +188,7 @@ export default function CampaignDetailScreen() {
   const statusColor = CAMPAIGN_STATUS_COLORS[campaign.status];
   const facts = [t("list.members", { count: campaign.memberCount }), campaign.matchCount > 0 ? t("list.matches", { count: campaign.matchCount }) : null,
     campaign.averagePersonalRating != null ? `★ ${formatRating(campaign.averagePersonalRating, i18n.language)}` : null].filter(Boolean).join(" · ");
-  const canManage = (isCreator && isActive) || (isMember && !isCreator);
+  const canManage = (isManager && isActive) || (isMember && !isManager);
   return (
     <ScreenLayout title={t("ui.detailTitle")} keyboard>
       <ScrollView
@@ -298,9 +299,9 @@ export default function CampaignDetailScreen() {
               <Avatar name={m.userName} />
               <View style={styles.flex}>
                 <Text style={[type.body, strong]}>{m.userName}</Text>
-                <Text style={type.caption}>{[m.isCreator ? t("detail.members.creator") : null, t(getCampaignMemberStatusKey(m.status))].filter(Boolean).join(" · ")}</Text>
+                <Text style={type.caption}>{[m.isCreator ? t("detail.members.creator") : null, m.userId === campaign.creatorId && !m.isCreator ? t("detail.members.manager") : null, t(getCampaignMemberStatusKey(m.status))].filter(Boolean).join(" · ")}</Text>
               </View>
-              {isMember && !m.isCreator && m.userId !== currentUser?.id && <TouchableOpacity onPress={() => handleRemoveMember(m.userId, m.userName)} style={styles.iconButton}
+              {isManager && !m.isCreator && m.userId !== currentUser?.id && (m.status === "Accepted" || m.status === "Pending") && <TouchableOpacity onPress={() => handleRemoveMember(m.userId, m.userName)} style={styles.iconButton}
                 accessibilityRole="button" accessibilityLabel={t("ui.removeMember", { name: m.userName })}>
                 <Glyph name="account-remove-outline" size={20} color={colors.danger} />
               </TouchableOpacity>}
@@ -327,11 +328,11 @@ export default function CampaignDetailScreen() {
 
         {canManage && <Section title={t("detail.actions.manage")}>
           <Card>
-            {isCreator && isActive && <Row first title={t("detail.actions.completeTitle")} tone="link" end="none" accessibilityLabel={t("detail.actions.completeTitle")}
+            {isManager && isActive && <Row first title={t("detail.actions.completeTitle")} tone="link" end="none" accessibilityLabel={t("detail.actions.completeTitle")}
               onPress={() => confirmStatus(t("detail.actions.completeTitle"), t("detail.actions.completeConfirm"), t("common.yes"), false, () => campaignService.complete(id!))} />}
-            {isCreator && isActive && <Row title={t("detail.actions.abandonTitle")} tone="danger" end="none" accessibilityLabel={t("detail.actions.abandonTitle")}
+            {isManager && isActive && <Row title={t("detail.actions.abandonTitle")} tone="danger" end="none" accessibilityLabel={t("detail.actions.abandonTitle")}
               onPress={() => confirmStatus(t("detail.actions.abandonTitle"), t("detail.actions.abandonConfirm"), t("detail.actions.abandon"), true, () => campaignService.abandon(id!))} />}
-            {isMember && !isCreator && <Row first title={t("detail.members.leave")} tone="danger" end="none" accessibilityLabel={t("detail.members.leave")} onPress={handleLeave} />}
+            {isMember && !isManager && <Row first title={t("detail.members.leave")} tone="danger" end="none" accessibilityLabel={t("detail.members.leave")} onPress={handleLeave} />}
           </Card>
           <Note inset>{t("detail.actions.manageHint")}</Note>
         </Section>}
