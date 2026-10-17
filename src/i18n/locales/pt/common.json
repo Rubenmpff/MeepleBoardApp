@@ -44,5 +44,7 @@
     "invalid": "Os dados enviados não são válidos.",
     "generic": "Ocorreu um erro inesperado. Tenta novamente."
   },
-  "deletedAccount": "Conta eliminada"
+  "deletedAccount": "Conta eliminada",
+  "deletedSession": "Sessão de {{date}}",
+  "deletedCampaign": "Campanha sem título"
 }

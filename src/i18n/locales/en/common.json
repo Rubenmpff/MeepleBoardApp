@@ -44,5 +44,7 @@
     "invalid": "The information sent isn't valid.",
     "generic": "Something went wrong. Try again."
   },
-  "deletedAccount": "Deleted account"
+  "deletedAccount": "Deleted account",
+  "deletedSession": "Session on {{date}}",
+  "deletedCampaign": "Untitled campaign"
 }

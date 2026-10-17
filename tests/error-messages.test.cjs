@@ -9,7 +9,7 @@ const ts = require('typescript');
 
 const locales = Object.fromEntries(['pt', 'en'].map(lang => [lang, Object.fromEntries(['common', 'matches', 'games', 'auth'].map(ns =>
   [ns, JSON.parse(fs.readFileSync(`src/i18n/locales/${lang}/${ns}.json`, 'utf8'))]))]));
-const i18n = { language: 'pt', t(key) { const [ns, rest] = key.split(':'); return rest.split('.').reduce((o, k) => o?.[k], locales[this.language][ns]) ?? key; } };
+const i18n = { language: 'pt', t(key, options = {}) { const [ns, rest] = key.split(':'); const text = rest.split('.').reduce((o, k) => o?.[k], locales[this.language][ns]) ?? key; return typeof text === 'string' ? text.replace(/\{\{(\w+)\}\}/g, (_, name) => options[name] ?? '') : text; } };
 
 function loadApi() {
   const filename = path.resolve('src/services/api.ts');
@@ -19,6 +19,7 @@ function loadApi() {
     if (id === 'i18next') return { __esModule: true, default: i18n };
     if (id === '../constants/env') return { __esModule: true, default: () => ({ API_URL: 'http://localhost.invalid', API_MODE: 'test' }) };
     if (id === './tokenService') return { tokenService: {} };
+    if (id === '../ui/format') { const format = new Module(path.resolve('src/ui/format.ts')); format._compile(ts.transpileModule(fs.readFileSync('src/ui/format.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, format.id); return format.exports; }
     throw new Error('Unexpected dependency: ' + id);
   };
   module._compile('const __DEV__ = false;\n' + ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
@@ -76,4 +77,15 @@ test('a deleted account shows translated, never the stored marker; other text un
   assert.equal(out.name, 'Sessão de sábado'); assert.equal(out.note, 'deleted:1bf74bdb', 'only fields that hold a name');
   i18n.language = 'en'; out = presentDeletedAccounts(data);
   assert.equal(out.players[0].userName, 'Deleted account');
+});
+
+test('titles a deleted account wrote in shared records show a neutral, translated title; real names untouched', () => {
+  const { presentDeletedAccounts } = loadApi();
+  const data = { name: 'deleted:session:2026-10-17', campaignName: 'deleted:campaign', sessions: [{ name: 'Noite de jogos' }], note: 'deleted:campaign' };
+  i18n.language = 'pt'; let out = presentDeletedAccounts(data);
+  assert.equal(out.name, 'Sessão de 17 out. 2026'); assert.equal(out.campaignName, 'Campanha sem título');
+  assert.equal(out.sessions[0].name, 'Noite de jogos'); assert.equal(out.note, 'deleted:campaign', 'only fields that hold a name');
+  i18n.language = 'en'; out = presentDeletedAccounts(data);
+  assert.equal(out.name, 'Session on 17 Oct 2026'); assert.equal(out.campaignName, 'Untitled campaign');
+  i18n.language = 'pt';
 });

@@ -7,6 +7,7 @@ import axios, {
 } from "axios";
 
 import i18n from "i18next";
+import { formatDate } from "../ui/format";
 import getEnvVars from "../constants/env";
 import { tokenService } from "./tokenService";
 
@@ -304,16 +305,27 @@ export function friendlyErrorMessage(error: unknown, fallback?: string): string 
 // ======================================================
 
 // A deleted account keeps a neutral marker as its name (never text in one language): shown translated.
+// So do the titles it wrote in shared records: sessions it organized and campaigns it created.
 const DELETED_ACCOUNT = /^deleted:[0-9a-f]{8}$/;
+const DELETED_SESSION = /^deleted:session:(\d{4})-(\d{2})-(\d{2})$/;
+const DELETED_CAMPAIGN = "deleted:campaign";
 
-/** Replaces the deleted-account marker with its translation, only in fields that hold a name. */
+function presentMarker(text: string): string | null {
+  if (DELETED_ACCOUNT.test(text)) return i18n.t("common:deletedAccount");
+  if (text === DELETED_CAMPAIGN) return i18n.t("common:deletedCampaign");
+  const session = DELETED_SESSION.exec(text);
+  if (session) return i18n.t("common:deletedSession", { date: formatDate(new Date(+session[1], +session[2] - 1, +session[3]), i18n.language) });
+  return null;
+}
+
+/** Replaces deleted-account markers with their translation, only in fields that hold a name. */
 export function presentDeletedAccounts<T>(data: T): T {
   const visit = (value: any): any => {
     if (Array.isArray(value)) return value.map(visit);
     if (!value || typeof value !== "object") return value;
     const out: any = {};
     for (const [key, item] of Object.entries(value))
-      out[key] = typeof item === "string" && /name$/i.test(key) && DELETED_ACCOUNT.test(item) ? i18n.t("common:deletedAccount") : visit(item);
+      out[key] = typeof item === "string" && /name$/i.test(key) ? presentMarker(item) ?? item : visit(item);
     return out;
   };
   return visit(data);
