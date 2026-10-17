@@ -166,39 +166,12 @@ const gameService = {
   },
 
   /**
-   * Busca jogo localmente por BGG ID.
-   */
-  getByBggId: async (
-    bggId: number,
-    config: AxiosRequestConfig = {}
-  ): Promise<Game | null> => {
-    try {
-      const res = await api.get(
-        `/game/by-bgg/${bggId}`,
-        config
-      );
-
-      return res.data ?? null;
-    } catch {
-      return null;
-    }
-  },
-
-  /**
-   * Se não encontrar localmente, importa do BGG e devolve.
+   * Devolve o jogo pelo BGG ID: a importação reutiliza o jogo local quando já existe (sem duplicar nem chamar o BGG)
+   * e só importa quando falta.
    */
   searchOrImportByBggId: async (
     bggId: number
   ): Promise<Game> => {
-    const local =
-      await gameService.getByBggId(
-        bggId
-      );
-
-    if (local) {
-      return local;
-    }
-
     const imported =
       await api.post(
         `/game/import/${bggId}`
