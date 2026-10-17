@@ -22,7 +22,8 @@ if (args[0] === '--extract') {
 const health = await (await fetch(base + '/device-test/health')).json();
 if (health.environment !== 'DeviceTests' || health.database !== 'MeepleBoard_DeviceTests' || health.externalDelivery !== false) throw new Error('API on 5099 is not the DeviceTests environment');
 const accounts = JSON.parse(fs.readFileSync(path.join(apiDir, '.device-tests/accounts.json'), 'utf8'));
-const account = accounts.find(a => a.Email === `${flag('--account') || 'autor'}@meepleboard.test`);
+// A scenario may name the account it needs ("account": "participante"); --account overrides it.
+const account = accounts.find(a => a.Email === `${flag('--account') || JSON.parse(fs.readFileSync(path.resolve(args[0]), 'utf8')).account || 'autor'}@meepleboard.test`);
 const login = await fetch(base + '/MeepleBoard/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: account.Email, password: account.Password, deviceInfo: 'MeepleBoard Visual Preview' }) });
 if (!login.ok) throw new Error('Login failed: ' + login.status);
 const { token } = await login.json();
@@ -30,8 +31,9 @@ fs.writeFileSync(path.join(out, 'session.js'), `window.__session=${JSON.stringif
 execFileSync(process.execPath, [path.join(here, 'bundle.cjs')], { stdio: 'inherit' });
 // Real IDs for detail routes, resolved read-only and substituted as {{name}} in the scenario file.
 const get = async route => { const r = await fetch(base + '/MeepleBoard' + route, { headers: { Authorization: `Bearer ${token}` } }); return r.ok ? r.json() : null; };
+const pending = (await get('/matches/pending-journal')) || [];
 const recent = (await get('/statistics/me/matches?start=2020-01-01&endExclusive=2029-01-01&timeZone=Europe%2FLisbon&metric=all&offset=0&limit=1'))?.items?.[0], sessions = await get('/session/mine') || [], campaigns = await get('/campaigns/mine') || [];
-const vars = { ...Object.fromEntries(accounts.map(a => [`user:${a.Email.split('@')[0]}`, a.Id])), match: recent?.id ?? '', game: recent?.gameId ?? '',
+const vars = { ...Object.fromEntries(accounts.map(a => [`user:${a.Email.split('@')[0]}`, a.Id])), match: recent?.id ?? '', pendingMatch: pending[0]?.id ?? '', game: recent?.gameId ?? '',
   session: sessions[0]?.id ?? '', activeSession: (sessions.find(s => /active|ongoing|progress/i.test(String(s.status))) ?? sessions[0])?.id ?? '', upcomingSession: sessions.find(s => s.status === 'Upcoming')?.id ?? '', campaign: campaigns[0]?.id ?? '' };
 const file = path.resolve(args[0]);
 const text = fs.readFileSync(file, 'utf8');

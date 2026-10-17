@@ -33,7 +33,8 @@ As capturas, o bundle e a sessão de teste ficam em `tools/visual-preview/out/`,
 ```
 
 - `route` usa os caminhos do Expo Router. Os layouts de `src/app` (separadores, Estatísticas) são aplicados como na app, e premir controlos navega entre ecrãs.
-- `{{game}}`, `{{match}}`, `{{session}}`, `{{activeSession}}`, `{{campaign}}`, `{{user:participante}}` e `{{game:Wingspan}}` (jogo pelo nome exato) são IDs reais da conta, obtidos por GET. `--account admin` usa a conta fictícia de administração.
+- `{{game}}`, `{{match}}`, `{{pendingMatch}}` (a primeira partida por avaliar), `{{session}}`, `{{activeSession}}`, `{{campaign}}`, `{{user:participante}}` e `{{game:Wingspan}}` (jogo pelo nome exato) são IDs reais da conta, obtidos por GET. `--account admin` usa a conta fictícia de administração.
+- `"account": "participante"` no topo do cenário escolhe a conta de que ele precisa (por exemplo, quem organiza a sessão ativa). `--account` sobrepõe-se.
 
 ## Segurança
 

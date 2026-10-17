@@ -1,4 +1,4 @@
-{"name":"sessoes-fim","screens":[
+{"name":"sessoes-fim","account":"participante","screens":[
  {"id":"0-agendada","route":"/games/sessions/{{upcomingSession}}"},
  {"id":"1-ativa-organizador","route":"/games/sessions/{{activeSession}}"},
  {"id":"2-prolongar","route":"/games/sessions/{{activeSession}}","steps":[{"click":"Prolongar","wait":800}]},
