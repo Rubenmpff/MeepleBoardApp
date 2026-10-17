@@ -23,7 +23,26 @@ API `5e4a656`. Decisão: anonimizar a conta, e as avaliações saem da média Me
 
 Hoje, a chave do autor de uma denúncia (de experiências e de recursos) é restritiva: apagar uma conta que fez denúncias falha. É preciso definir o que acontece a essas denúncias e aplicar a regra às duas áreas.
 
-## 4. Organização dos dois repositórios
+## 4. Organização dos dois repositórios — feita a 2026-10-17, exceto Statistics
+
+Executado conforme o mapa aprovado, em commits só de organização ou só de remoção:
+
+- **API:**
+  - A1/A2 `59b870c`;
+  - A3 Experiences `116baae`;
+  - A4 GameDurations `07527ec`;
+  - A5 médias sem uso `081c6d1`;
+  - A6 namespaces `7c281d6`.
+- **App:**
+  - B1 `d81e8c8`;
+  - B2 `08a2888`;
+  - B3/B4 `3793237`;
+  - B5 `1ce02f1`;
+  - B6 `782507f`.
+- **Documentação:** cada documento ficou no repositório do código a que se refere, com uma ligação no outro.
+
+**Fica por fazer:** A7/B7 (Statistics), incluindo `ClubHeader` (que só Statistics usa) e os documentos `estatisticas-*` duplicados. Só depois de integrar os 9 ficheiros por commitar, num commit próprio.
+
 
 Respeita a estrutura existente. Não introduz convenções novas.
 

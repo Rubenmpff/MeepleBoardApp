@@ -12,3 +12,7 @@ A shell do agente usa por defeito Node 24.13.0/npm 11.6.2; o caminho instalado d
 ## Atualização 07/10/2026 — partilha de cartões
 
 A instalação dirigida de expo-sharing/react-native-view-shot e remoção de uma dependência direta desnecessária reportou **69 vulnerabilidades npm: 17 moderadas, 51 altas e 1 crítica**, com Node 22.14.0/npm 10.9.2. Manifests/lockfile alterados apenas para esta funcionalidade, usando versões mapeadas pelo SDK Expo local. Esta contagem global não atribui automaticamente as falhas aos novos pacotes nem substitui análise de exposição. Não executados npm audit fix, --force ou atualização automática generalizada. NU1903/AutoMapper 14.0.0 permanece para análise separada. O registo inicial de 67 fica como evidência histórica.
+
+## Atualização 17/10/2026 — organização dos repositórios
+
+Na app, `lodash.debounce` passou a dependência direta (já vinha por uma dependência do Babel; mesma versão 4.0.8). Foram removidas 7 dependências sem import, sem configuração e sem dependente obrigatório: `@react-navigation/drawer`, `@react-navigation/material-top-tabs`, `react-native-pager-view`, `@react-native-picker/picker`, `react-native-keyboard-aware-scroll-view`, `react-native-webview` e `expo-blur`. Verificado com TypeScript, testes e exportação iOS. Não foi executado `npm audit` nem `audit fix`. A contagem de vulnerabilidades não foi repetida. NU1903/AutoMapper 14.0.0 continua por analisar.
