@@ -95,7 +95,7 @@ Cada ponto pendente precisa de autorização própria. **P1** = segurança ou pu
 | --- | --- | --- | --- |
 | 5.1 | AutoMapper 14 (NU1903, CVE-2026-32933) | P1 | **Mitigada, não resolvida.** O limite de recursão está confirmado e tem teste de regressão (API `4619889`). Decisão de 2026-10-17: manter a estrutura atual e o AutoMapper. A substituição fica para uma decisão futura (estimativa abaixo, não iniciada). Sem licenças nem atualização. |
 | 5.2 | Mensagens de erro em português fixo nos serviços da app (`matchService` 11, `authService` 10, `experienceService` 2, uma ainda com «relatório»). `change()` e `moderate()` das experiências não tratam o erro e podem mostrar «Request failed with status code 409». | P2 | **Concluído** (2026-10-17, `5f4ef6f`, `dab2315`) |
-| 5.3 | Três formatos de duração («1 h 05 min», «1 h 5 min», «1h 5m») e datas formatadas à mão em cerca de 20 ficheiros, em vez de `src/ui/format.ts`. `formatLongDate` (amigos) pode mostrar «10/2026». | P2 | **Concluído** (2026-10-17, `b018fd6`) |
+| 5.3 | Três formatos de duração («1 h 05 min», «1 h 5 min», «1h 5m») e datas formatadas à mão em cerca de 20 ficheiros, em vez de `src/ui/format.ts`. `formatLongDate` (amigos) pode mostrar «10/2026». | P2 | **Concluído** (2026-10-17, `b018fd6`, `d1dc006`) |
 | 5.4 | `RatingCard` definido dentro do render e cor fixa `#B9B3C0` em `MatchDetailScreen.tsx` | P2 | **Concluído** (2026-10-17, `6450fb4`) |
 | 5.5 | `npm test` aponta para Jest com `jest-expo`, que não está instalado. Os testes correm com `node --test`. | P2 | **Concluído** (2026-10-17, `e2dc58b`) |
 | 5.6 | Estado contraditório em `pendencias-funcionais.md` (por exemplo, SC01 «resolvida» e «aberta») | P2 | **Concluído** (2026-10-17, `27ee360`) |
