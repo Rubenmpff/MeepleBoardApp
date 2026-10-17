@@ -238,3 +238,18 @@ A mudança foi detetada 6 segundos depois. O processo de monitorização termino
 - **O que fica:** a conta eliminada, a campanha transferida, as sessões e a partida partilhada da verificação manual, todos com as contas descartáveis.
 - **Limpeza:** são removidos na próxima execução de `verify-own-account-deletion.cjs`, que limpa no fim tudo o que pertence às contas descartáveis.
 - **Roteiro:** as contas e as sessões do roteiro não mudaram (as contagens são iguais às de antes).
+
+## 8. Sucessor obrigatório nas campanhas (2026-10-17)
+
+Esta decisão substitui a escolha «Ninguém» de D2 e a gestão só de leitura (secções 1, 3.2 e 7).
+
+- **Regra:** uma campanha mantém sempre um gestor enquanto tiver outros membros aceites e ativos.
+- **Na eliminação:** o sucessor é o escolhido ou, sem escolha, o membro ativo há mais tempo. O ecrã mostra-o antes da confirmação, e a API valida-o de novo no momento.
+- **Autoria:** fica com quem escreveu a campanha, com a etiqueta «Criador», também como «Conta eliminada». O sucessor aparece como «Gestor».
+- **Permissões:**
+  - remover membros, concluir, abandonar e apagar: só quem gere;
+  - concluir e abandonar: só a partir de «Ativa»;
+  - convidar e editar nome e notas: membros aceites;
+  - retirar uma partida: quem a jogou ou quem gere.
+
+O detalhe, os testes e a reparação dos dados de teste estão em `MeepleBoardApi/docs/eliminacao-contas.md` («Gestão e autoria das campanhas»).
