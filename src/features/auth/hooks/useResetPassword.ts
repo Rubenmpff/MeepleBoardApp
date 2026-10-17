@@ -11,6 +11,8 @@ import { useTranslation } from "react-i18next";
 import Toast from "react-native-toast-message";
 
 import { authService } from "../services/authService";
+import { tokenService } from "@/src/services/tokenService";
+import { takeDeletionResume } from "@/src/features/settings/services/accountDeletion";
 
 function getSingleParam(
   value:
@@ -178,6 +180,11 @@ export const useResetPassword = () => {
         });
 
         navigationGuard.allowExit();
+        // Asked from «Eliminar conta» and still signed in: back to it with the new password (D8).
+        if (await takeDeletionResume() && await tokenService.getAccessToken()) {
+          router.replace("/settings/delete-account");
+          return;
+        }
         router.replace("/signin");
 
         return;

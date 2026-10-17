@@ -130,12 +130,20 @@ test('Recovery retains email validation, normalization, failure message and succ
 });
 test('Reset retains first array params, token handling, password trimming and success destination', async () => {
   const r = await render('reset-password', { params: { token: [linkParams.token, 'unused'], email: [linkParams.email, 'unused'] },
-    states: { 0: ' Example1! ', 1: ' Example1! ' }, services: { resetPassword: { success: true } } });
+    states: { 0: ' Example1! ', 1: ' Example1! ' }, services: { resetPassword: { success: true }, takeDeletionResume: false, getAccessToken: 'token' } });
   await r.press('Submeter nova palavra-passe');
   assert.deepEqual(r.calls.find(x => x[0] === 'resetPassword'), ['resetPassword', {
     email: 'test@example.org', token: 'test+value', password, confirmPassword: password,
   }]);
   assert.deepEqual(r.routes, [['replace', '/signin']]);
+});
+test('Reset asked from «Eliminar conta» while signed in returns to that screen; otherwise to sign in', async () => {
+  const resume = async (takeDeletionResume, getAccessToken) => {
+    const r = await render('reset-password', { params: linkParams, states: { 0: password, 1: password }, services: { resetPassword: { success: true }, takeDeletionResume, getAccessToken } });
+    await r.press('Submeter nova palavra-passe'); return r.routes;
+  };
+  assert.deepEqual(await resume(true, 'token'), [['replace', '/settings/delete-account']]);
+  assert.deepEqual(await resume(true, null), [['replace', '/signin']], 'signed out: sign in as usual');
 });
 test('Reset keeps missing, mismatch and strength validation and expired-link recovery', async () => {
   for (const states of [{}, { 0: password, 1: 'Different1!' }, { 0: 'weak', 1: 'weak' }]) {

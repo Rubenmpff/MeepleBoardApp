@@ -4,11 +4,12 @@ import { useTranslation } from "react-i18next";
 import AuthLayout from "../../components/AuthLayout";
 import AuthButton from "../../components/AuthButton";
 import { AUTH_COLORS } from "../../styles/authTheme";
+import { LEGAL_URLS } from "@/src/constants/legal";
 
 const DOCUMENTS = [
-  { key: "terms", url: "https://meepleboard.com/terms" },
-  { key: "privacy", url: "https://meepleboard.com/privacy" },
-  { key: "guidelines", url: "https://meepleboard.com/guidelines" },
+  { key: "terms", url: LEGAL_URLS.terms },
+  { key: "privacy", url: LEGAL_URLS.privacy },
+  { key: "guidelines", url: LEGAL_URLS.guidelines },
 ] as const;
 
 const APP_THEME = { colors: AUTH_COLORS, space: { xs: 4, lg: 16 } };

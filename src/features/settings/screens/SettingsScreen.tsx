@@ -257,6 +257,7 @@ export default function SettingsScreen() {
         <Section>
           <Card>
             <Row first title={t("logout.button")} tone="danger" end="none" accessibilityLabel={t("logout.button")} onPress={handleLogout} />
+            <Row title={t("deleteAccount.title")} tone="danger" end="none" accessibilityLabel={t("deleteAccount.title")} onPress={() => router.push("/settings/delete-account" as never)} />
           </Card>
         </Section>
       </ScrollView>
