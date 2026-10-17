@@ -1,204 +1,206 @@
-# Preparação para lançamento — App Store e Google Play (auditoria de 2026-10-17)
+# Preparação para lançamento — App Store e Google Play
 
-Esta auditoria é só de leitura. Não foi implementado nem publicado nada. As contas das lojas, o EAS, o Azure e a produção não foram consultados nem alterados. O DeviceTests não foi usado para escrever dados.
+**Auditoria só de leitura** de 2026-10-17, revista no mesmo dia. Não foi implementado nem publicado nada. As contas das lojas, o EAS, o Azure e a produção não foram consultados nem alterados. O DeviceTests não foi usado para escrever dados.
 
-**Base:** código da app (Expo SDK 57, React Native 0.86.3) e da API (.NET 9), a configuração efetiva lida com `npx expo config --type introspect` (só leitura) e os requisitos oficiais em vigor nesta data (fontes no fim).
+**Base:**
 
-**Legenda:**
+- o código da app (Expo SDK 57, React Native 0.86.3) e da API (.NET 9);
+- a configuração lida com `npx expo config --type introspect`, só de leitura;
+- `npm audit --omit=dev` e `dotnet list package --vulnerable --include-transitive`, só de leitura;
+- os requisitos oficiais em vigor nesta data (fontes no fim).
 
-- **Estado:** ✅ cumprido · ❌ em falta · ❔ por verificar.
-- **Bloqueia:** **Sim** impede a submissão ou leva a rejeição provável · **Não** é obrigatório, mas não impede a submissão · **Rec.** é uma recomendação.
+**Como ler:**
 
-## Resumo
+- **Falha confirmada:** está verificada no código ou na configuração.
+- **Por verificar:** depende do primeiro build, das consolas das lojas, do EAS ou do Azure. Nada que dependa destes passos está marcado como cumprido.
+- **Recomendação:** não é exigida pelas lojas.
+- **Bloqueia:** «Sim» significa que impede a submissão ou leva a rejeição provável.
 
-A versão atual **não pode ser submetida**. Os bloqueios estão quase todos fora dos ecrãs existentes:
+## 1. Falhas confirmadas
 
-1. **Eliminação da própria conta:** não existe na app (CONTA01), nem há a página web que a Google exige.
-2. **Documentos legais:** o domínio `meepleboard.com` não está registado (o whois responde «No match», em 2026-10-17). Por isso, os links da app para os Termos, a Política de Privacidade e as Regras da Comunidade não abrem. Também não há URL de suporte nem contacto público.
-3. **Conteúdo da comunidade:** já é possível denunciar publicações, e elas ficam escondidas automaticamente com denúncias. Falta bloquear utilizadores, denunciar uma pessoa e filtrar conteúdo à entrada (Apple 1.2; Google, conteúdo gerado pelos utilizadores).
-4. **Builds e configuração de produção:** têm de ser compilações próprias, não o Expo Go, e não está confirmado que apontem para a API pública por HTTPS.
-5. **Contas e formulários das lojas:** estão todos por verificar (tipo de conta, testes fechados da Google, DSA, classificação etária, declarações de privacidade).
-
-## 1. Eliminação da própria conta
-
-| # | Item | Estado | Evidência | Regra | Bloqueia |
-| --- | --- | --- | --- | --- | --- |
-| E1 | Percurso na app para eliminar a própria conta | ❌ | Não há ecrã nem rota da conta autenticada; só um administrador elimina (`DELETE /MeepleBoard/users/{id}`). CONTA01 em `pendencias-funcionais.md`. | Apple 5.1.1(v): a eliminação começa dentro da app, sem exigir e-mail ou apoio. Google: percurso na app, fácil de encontrar. | **Sim** (ambas) |
-| E2 | Página web para pedir a eliminação | ❌ | Não existe página nem domínio. | Google: o link vai na secção «Segurança dos dados». Tem de funcionar, referir a app ou o programador e permitir o pedido sem reinstalar a app. | **Sim** (Google) |
-| E3 | Anonimização no servidor | ✅ parcial | `UserRepository.AnonymizeAsync`, numa só transação. Apaga: nome, e-mail, telefone, palavra-passe, 2FA, acessos externos, tokens, push token, URL da fotografia de perfil, biblioteca, amizades, convites não aceites, todo o diário (notas, avaliações, fotografias, publicações), e a nota e avaliação antigas nas partidas criadas. As fotografias do diário são apagadas do Cloudinary (públicas antigas e autenticadas). Verificado em `verify-account-deletion.cjs`. | Apple e Google: apagar a conta e os dados associados que não seja legalmente obrigatório guardar. | — |
-| E4 | O que fica depois de anonimizar | ❔ | Ver a lista abaixo. Anonimizar o nome **não** resolve estes casos: falta decidir caso a caso e descrevê-lo na política. | Google: o que se guarda e porquê tem de estar descrito (por exemplo, na política de privacidade). Apple 5.1.1(i): retenção e eliminação explicadas. | **Sim**, enquanto não estiver decidido e descrito |
-| E5 | Fornecedores e cópias de segurança | ❔ | Brevo (registos de envio de e-mail), cópias de segurança do Azure SQL e registos do App Service guardam dados por algum tempo. | Google: pedir também aos fornecedores que apaguem. Indicar prazos na política. | Não (descrever na política) |
-
-**O que fica hoje, e porquê:**
-
-- **Lugar nas partidas partilhadas, sessões aceites e campanhas**, com «Conta eliminada». Fica para não mudar os resultados dos outros. Defensável, mas tem de ser descrito.
-- **Texto livre escrito pela pessoa em registos partilhados:**
-  - nome e local das sessões que organizou;
-  - nome e notas das campanhas que criou;
-  - `Location`, `ScoreSummary` e `Tags` das partidas que criou;
-  - recursos de jogos que sugeriu.
-
-  Estes textos podem ter dados pessoais (por exemplo, «Casa do Ruben»). **Decisão necessária:** limpar, manter, ou permitir à pessoa apagá-los antes de eliminar a conta.
-- **Na linha da conta:** `CreatedAt`, `LastActiveAt` e `DeletedAt`. `LastActiveAt` não precisa de ficar.
-- **Denúncias feitas pela pessoa:** ficam sem a identificar (moderação).
-- **Fotografias da pessoa no diário de outros participantes:** pertencem ao diário de quem as tirou. Hoje não há forma de as denunciar, porque a denúncia só existe para publicações.
-- **Ficheiro da fotografia de perfil:** o URL é limpo, mas o ficheiro não é apagado do armazenamento. A app não carrega fotografias de perfil. Confirmar se existem em produção (por exemplo, vindas de OAuth).
-
-## 2. Conteúdo da comunidade
-
-Há conteúdo público: as publicações de experiência (comentário e avaliação) aparecem a todos na página do jogo, e os nomes de utilizador aparecem na pesquisa de pessoas. Há também conteúdo partilhado com os participantes: fotografias, etiquetas e resumos.
-
-| # | Item | Estado | Evidência | Regra | Bloqueia |
-| --- | --- | --- | --- | --- | --- |
-| C1 | Denunciar conteúdo | ✅ publicações · ❌ fotografias e perfis | `POST /experiences/{id}/reports`, com 5 motivos (`ReportSheet.tsx`). Não há denúncia de pessoas, de fotografias partilhadas nem de nomes de utilizador. | Apple 1.2: forma de denunciar e resposta atempada. Google: apps públicas «report users and content». | **Sim** (perfis) |
-| C2 | Bloquear utilizadores | ❌ | `FriendshipStatus.Blocked` existe no domínio, mas não há endpoint nem ecrã. Remover um amigo não impede que essa pessoa veja publicações ou volte a pedir amizade. | Apple 1.2: bloquear utilizadores abusivos. Google: apps públicas «block users». | **Sim** |
-| C3 | Filtrar conteúdo inaceitável à entrada | ❌ | Não há filtro nos comentários, etiquetas, nomes de sessões e campanhas nem nos nomes de utilizador. Só existe ocultação automática por número de denúncias (`ExperienceReport.AutoHideThreshold`). | Apple 1.2: «a method for filtering objectionable material». | **Sim** (Apple, risco alto) |
-| C4 | Moderação | ✅ | Ecrã «Moderação» (administrador), com manter, esconder e repor. Os recursos sugeridos também têm denúncia e administração. | Google: moderação razoável. Apple: resposta atempada. | — |
-| C5 | Regras e aceitação antes de criar conteúdo | ✅ na app · ❌ nas páginas | O registo exige aceitar os Termos (interruptor de consentimento). O link «Regras da Comunidade» aponta para `meepleboard.com/guidelines`, que não existe. | Google: aceitar os termos antes de criar conteúdo, e os termos definem o que é inaceitável. | **Sim** |
-| C6 | Contacto de apoio publicado | ❌ | Não há e-mail nem URL de apoio na app nem no repositório. | Apple 1.2 (contacto) e URL de apoio obrigatório nos metadados. Google: e-mail de contacto obrigatório na ficha. | **Sim** |
-
-## 3. Privacidade
-
-| # | Item | Estado | Evidência | Regra | Bloqueia |
-| --- | --- | --- | --- | --- | --- |
-| P1 | Política de privacidade publicada e acessível | ❌ | Os links (`welcome/index.tsx`) apontam para o domínio não registado. Depois do login, o link só existe nas boas-vindas. | Apple 5.1.1(i): link nos metadados **e** na app, fácil de encontrar. Google: obrigatória na ficha e na app. | **Sim** |
-| P2 | Conteúdo da política | ❌ | Não existe texto. | Apple 5.1.1(i): dados, usos, terceiros, retenção e eliminação, revogação do consentimento. | **Sim** |
-| P3 | Fornecedores externos | ❔ | Encontrados no código: Azure (alojamento e SQL), Cloudinary (fotografias), Brevo (e-mail), serviço de push da Expo, com APNs e FCM (token). O BGG recebe só pedidos do servidor, sem dados de utilizadores. Não há SDK de analítica, publicidade ou crash. | Apple 5.1.1(i)/5.1.2. RGPD: subcontratantes. | **Sim** (na política) |
-| P4 | Declarações App Privacy (Apple) e Segurança dos dados (Google) | ❔ | Por preencher. Dados recolhidos, todos ligados à identidade e sem rastreio: e-mail, nome de utilizador, ID de utilizador, fotografias, outro conteúdo do utilizador (notas, comentários, partidas, sessões), interações na app (biblioteca, partidas), token de push. «Local» só como texto livre. | Ambas obrigatórias. A da Google inclui as perguntas sobre eliminação. | **Sim** |
-| P5 | Consentimentos | ✅ parcial | Aceitar os termos no registo. A partilha de durações está desligada por omissão. A privacidade da coleção é configurável. | RGPD. Apple 5.1.2. | Não |
-| P6 | Idade mínima | ❔ | O registo não pede idade nem declaração. Em Portugal, o consentimento próprio para serviços online vale a partir dos 13 anos. | Google: público-alvo. Apple: classificação etária. RGPD art.º 8.º | Não (decisão: declarar 13+ ou 16+ nos termos e nas lojas) |
-| P7 | Fotografias públicas antigas (PR02) | ❔ | O URL público é recusado pela API, mas o ficheiro pode continuar público no Cloudinary. | Proteção de dados. | Rec. forte (antes de lançar) |
-| P8 | Manifesto de privacidade iOS (`PrivacyInfo.xcprivacy`) | ❔ | `ios.privacyManifests` ausente. O Expo junta os manifestos dos módulos, mas a Apple nem sempre lê bem os das dependências. | Apple: razões declaradas para as APIs que as exigem. | ❔ (confirmar no primeiro upload; a Apple avisa por e-mail) |
-
-## 4. Autenticação e permissões
-
-| # | Item | Estado | Evidência | Regra | Bloqueia |
-| --- | --- | --- | --- | --- | --- |
-| A1 | Métodos de login | ✅ | A app só tem e-mail e palavra-passe. Os botões Google e Apple foram retirados (A07). Na API, Google e Apple só se ativam com credenciais e não são usados pela app. | Apple 4.8: só se aplica com login de terceiros. Se Google voltar, é preciso Sign in with Apple ou equivalente. | — |
-| A2 | Fluxos de conta: registo, confirmação de e-mail, recuperação | ❔ | A01–A08 abertas (`pendencias-funcionais.md`). Os e-mails usam ligações `meepleboard://` (por confirmar como abrem no Gmail e no Outlook). | Apple 2.1: app completa. A revisão vai criar uma conta. | ❔ (risco de rejeição se a confirmação de e-mail falhar) |
-| A3 | Permissão de notificações | ✅ com reparo | É pedida logo depois do login (`(app)/_layout.tsx`), não é obrigatória e a app funciona sem ela. | Apple 5.1.2: não exigir. | Rec. (pedir com contexto) |
-| A4 | Textos das permissões iOS | ❌ | Introspeção: textos genéricos em inglês («Allow $(PRODUCT_NAME) to access your photos»). Também estão declarados câmara, microfone e Face ID, que a app não usa. | Apple 5.1.1: o texto explica o uso concreto. | **Sim** provável (rejeição comum por textos genéricos) |
-| A5 | Permissões Android | ❌ | `RECORD_AUDIO`, `READ_EXTERNAL_STORAGE` e `WRITE_EXTERNAL_STORAGE` (vêm do image picker), sem uso. A app só escolhe fotografias da galeria. | Google: pedir só o necessário; as permissões aparecem na Segurança dos dados. | Não (Rec. forte: retirar) |
-| A6 | Encriptação (exportação) | ❔ | `ITSAppUsesNonExemptEncryption` não está definido. A app usa só HTTPS. | App Store Connect pergunta em cada envio. | Rec. (`false` em `infoPlist`) |
-
-## 5. Distribuição e builds
-
-| # | Item | Estado | Evidência | Regra | Bloqueia |
-| --- | --- | --- | --- | --- | --- |
-| D1 | Builds independentes do Expo Go | ❔ | `eas.json` tem perfil `production` (`autoIncrement`, versões remotas). Projeto EAS `94aba926…`, dono `rubenmpff`. Não há registo de nenhum build de produção. | As lojas só aceitam binários próprios (IPA/AAB). | **Sim** até haver build |
-| D2 | iOS: Xcode 26 / SDK iOS 26 (desde 28/04/2026) | ❔ provável ✅ | O Expo SDK 57 compila no EAS com Xcode 26 (confirmar a imagem no build). | Apple, requisito de SDK mínimo. | **Sim** se falhar |
-| D3 | Android: target API 36 (desde 31/08/2026) | ✅ | `react-native/gradle/libs.versions.toml`: `targetSdk = 36`, `compileSdk = 36`, `minSdk = 24`. | Google, nível de API alvo. | — |
-| D4 | Páginas de memória de 16 KB | ❔ provável ✅ | RN 0.86 e Expo 57. Confirmar no explorador de App Bundles da Play Console. | Android: obrigatório para atualizações a partir de 01/02/2027. | Não (por agora) |
-| D5 | Assinatura | ❔ | Não há keystore nem certificados no repositório (o `.gitignore` exclui-os). | Google: assinatura de apps do Google Play. Apple: certificado de distribuição e perfil. | **Sim** até configurar (credenciais geridas pelo EAS) |
-| D6 | API pública por HTTPS | ❔ | `env.ts` exige `https://` em `production`. **Mas o modo por omissão é `local`** (`http://…:5000`): um build sem `EXPO_PUBLIC_API_MODE=production` e `EXPO_PUBLIC_PRODUCTION_API_URL` no ambiente EAS «production» liga-se a HTTP local. Na API, o HTTPS é tratado pelo App Service (`UseHttpsRedirection` comentado). | Funcionamento. Apple ATS. | **Sim** se as variáveis faltarem |
-| D7 | ATS (iOS) | ❔ | A introspeção mostra `NSAllowsArbitraryLoads: true`. Confirmar no `Info.plist` do build de produção. | Apple: justificar exceções ao ATS. | ❔ |
-| D8 | Sem ferramentas nem dados do DeviceTests | ✅ | `src/` não tem referências a DeviceTests, `meepleboard.test`, 5099 nem IPs locais. `tools/` e `tests/` não entram no bundle. As contas e o anfitrião DeviceTests estão só na API (`tools/DeviceTestApi`), fora da publicação. | — | — |
-| D9 | Notificações push em builds próprios | ❔ | Falta `android.googleServicesFile` (FCM) em `app.json`. As credenciais APNs e FCM V1 no EAS estão por confirmar. Sem elas, as notificações não chegam, embora a app funcione. | Funcionamento. | Não |
-| D10 | Nome apresentado | ❔ | `expo.name` é «MeepleBoardApp» e aparece debaixo do ícone. | — | Rec. («MeepleBoard») |
-| D11 | iPad | ❔ | `supportsTablet: true`: são obrigatórias capturas de iPad, e a revisão também testa em iPad. Nunca foi validado em iPad. | Apple, metadados e 2.1. | Decisão: validar em iPad ou pôr `false` |
-
-## 6. Submissão e contas das lojas
-
-| # | Item | Estado | O que tens de confirmar | Bloqueia |
+| # | Falha | Evidência | Regra | Bloqueia |
 | --- | --- | --- | --- | --- |
-| S1 | Apple Developer Program | ❔ | Inscrição ativa. Tipo (individual ou organização: o nome do vendedor aparece na loja). | **Sim** |
-| S2 | Conta Google Play | ❔ | Pessoal ou organização, e data de criação. **Pessoal criada depois de 13/11/2023:** obrigatório um teste fechado com ≥ 12 testadores ativos durante 14 dias seguidos antes de pedir acesso à produção (recomenda-se recrutar 15–20). Organização: não. Identidade do programador verificada. | **Sim** |
-| S3 | DSA, estatuto de comerciante (UE) | ❔ | Apple: declaração obrigatória (sem ela, a app não aparece na UE). Se houver intenção de monetizar, é provável seres comerciante e o endereço, o telefone e o e-mail ficam públicos. Google: confirmar na Play Console se pede a mesma declaração. | **Sim** (Apple) |
-| S4 | Classificação etária | ❔ | Apple: novo questionário (4+/9+/13+/16+/18+), com conteúdo gerado pelos utilizadores e interação entre pessoas. Google: questionário IARC. | **Sim** |
-| S5 | Público-alvo (Google) | ❔ | Declarar que não é para crianças (13+ ou 16+, coerente com P6). Se incluíres menores de 13, aplica-se o programa Famílias. | **Sim** |
-| S6 | Restantes formulários da Play Console | ❔ | Anúncios (não), funcionalidades financeiras (nenhuma), saúde (nenhuma), acesso à app (credenciais), Segurança dos dados. | **Sim** |
-| S7 | Contas para revisão | ❌ | Contas de demonstração **em produção**, com dados fictícios: partidas, sessões, amigos e publicações, para mostrar a comunidade e a moderação. As contas do DeviceTests não servem, porque são locais. Apple 2.1 e Google «Acesso à app». | **Sim** |
-| S8 | Ficha da loja | ❌ | Capturas (iPhone 6,9″; iPad se D11; Android telemóvel), ícone de 1024 px (Apple) e 512 px (Google), gráfico de destaque 1024×500 (Google), descrição curta e longa, palavras-chave, categoria, URL de apoio, URL de marketing (opcional) e URL da política. | **Sim** |
-| S9 | Testes antes de submeter | ❌ | Validação no iPhone pendente em vários percursos (REG-DUR01, RESULT01, Início). TestFlight e teste fechado ou interno na Google. | Apple 2.1 (sem falhas) |
+| F1 | Não há eliminação da própria conta na app | Não há ecrã nem rota da conta autenticada. Só um administrador elimina contas (`DELETE /MeepleBoard/users/{id}`). CONTA01. | Apple 5.1.1(v). Google: eliminação de conta. | **Sim** (ambas) |
+| F2 | Não há página web para pedir a eliminação | Não existe página. | Google: link na Segurança dos dados, funcional e que permita o pedido sem a app. | **Sim** (Google) |
+| F3 | A eliminação no servidor não trata todos os dados partilhados nem os fornecedores | Ver [proposta-eliminacao-conta.md](proposta-eliminacao-conta.md). | Apple e Google: apagar o que não é obrigatório guardar e descrever o que se guarda. | **Sim**, até estar decidido e descrito |
+| F4 | Os links legais não abrem | `welcome/index.tsx` aponta para `meepleboard.com/terms`, `/privacy` e `/guidelines`. O domínio não está registado (whois: «No match», 2026-10-17). | Apple 5.1.1(i) e Google: política acessível na ficha e na app. | **Sim** |
+| F5 | Não há texto da política de privacidade, dos termos nem das regras | Não há rascunho no projeto. | Apple 5.1.1(i): dados, usos, terceiros, retenção, eliminação e revogação. | **Sim** |
+| F6 | Não há contacto nem URL de apoio | Nada na app nem no projeto. | Apple 1.2 e URL de apoio obrigatório. Google: e-mail de contacto obrigatório. | **Sim** |
+| F7 | Não é possível bloquear utilizadores | `FriendshipStatus.Blocked` existe no domínio, sem endpoint nem ecrã. | Apple 1.2. Google: apps públicas bloqueiam utilizadores. | **Sim** |
+| F8 | Não é possível denunciar perfis | Só há denúncia de publicações (`ReportSheet.tsx`) e de recursos. | Apple 1.2. Google: «report users and content». | **Sim** |
+| F9 | Não há filtro de conteúdo à entrada | Nenhum filtro em comentários, etiquetas, nomes de sessões e campanhas, nem em nomes de utilizador. Só ocultação automática por número de denúncias. | Apple 1.2 («method for filtering»). | **Sim** (risco alto) |
+| F10 | Permissões iOS com texto genérico e inúteis | Introspeção: «Allow $(PRODUCT_NAME) to access your photos», em inglês. Câmara, microfone e Face ID declarados sem uso. | Apple 5.1.1: o texto explica o uso. | **Sim** provável |
+| F11 | Modo de API por omissão em HTTP local | `env.ts`: sem `EXPO_PUBLIC_API_MODE`, usa `http://<host>:5000`. Um build sem as variáveis de produção falha em silêncio. | Funcionamento. | **Sim**, se as variáveis faltarem (ver V6) |
+| F12 | Permissões Android desnecessárias | `RECORD_AUDIO`, `READ_EXTERNAL_STORAGE` e `WRITE_EXTERNAL_STORAGE` vêm do image picker. A app só escolhe fotografias da galeria. | Google: só o necessário; constam na Segurança dos dados. | Não |
+| F13 | Notificações Android sem FCM | Falta `android.googleServicesFile` em `app.json`. | Funcionamento (as notificações não chegam). | Não |
+| F14 | Nome debaixo do ícone | `expo.name` é «MeepleBoardApp». | — | Não |
+| F15 | Não há contas de revisão nem ficha da loja | Contas de demonstração em produção, capturas, textos, gráfico de destaque. | Apple 2.1. Google: acesso à app e ficha. | **Sim** |
+| F16 | Idade mínima não definida | O registo não pede idade nem declaração. | Público-alvo (Google), classificação (Apple), RGPD art.º 8.º (13 anos em Portugal). | **Sim** (os formulários das lojas exigem a decisão) |
 
-## 7. Licenças e dependências
+**Confirmado no código, sem depender do build:**
 
-| # | Item | Estado | Evidência | Bloqueia |
+- Login só por e-mail e palavra-passe, por isso a Apple 4.8 não se aplica.
+- Não há referências ao DeviceTests em `src/`.
+- Aceitação dos termos no registo.
+- Denúncia de publicações com 5 motivos, ocultação automática e moderação por administrador.
+- Logótipo «Powered by BGG».
+- `app.UseIpRateLimiting()` ativo, apesar do comentário «temporariamente desativado».
+
+## 2. Requisitos por verificar
+
+| # | Requisito | O que se sabe | Como confirmar | Bloqueia se falhar |
 | --- | --- | --- | --- | --- |
-| L1 | Autorização do BGG | ✅ parcial | Aprovação da XML API por e-mail de 11/02/2026, com a condição do logótipo «Powered by BGG» (implementado: `PoweredByBgg.tsx`, página do jogo e «Sobre e créditos»). O e-mail não está guardado no projeto. A licença **comercial** (há intenção de monetizar) está por confirmar (`MeepleBoardApi/docs/recursos-jogos.md`). `Bgg__Token` de produção por confirmar. | ❔ Não para a loja; **Sim** legalmente se monetizares sem licença comercial |
-| L2 | AutoMapper 14.0.0 (NU1903, alta) | ❔ mitigada, não resolvida | Decisão registada: manter com a mitigação; a substituição fica para mais tarde. | Não (risco aceite e documentado) |
-| L3 | Outras vulnerabilidades .NET | ❔ novas | `dotnet list package --vulnerable` (só leitura): `System.Security.Cryptography.Pkcs` 8.0.1 e `System.Security.Cryptography.Xml` 8.0.2 (altas, transitivas); `System.IdentityModel.Tokens.Jwt` e `Microsoft.IdentityModel.JsonWebTokens` 7.0.3 (moderadas). | Não (Rec. forte: triagem antes de produção) |
-| L4 | Vulnerabilidades npm | ❔ | `npm audit --omit=dev`: 1 crítica (`shell-quote`), 24 altas e 12 moderadas. A maioria vem das ferramentas de build (Metro, CLI). As que chegam ao runtime (`react-native`, `reanimated`, `view-shot`, `datetimepicker`) precisam de triagem. Não foi executado `npm audit fix`. | Não (Rec.: triagem) |
-| L5 | Rate limiting na API | ✅ | `app.UseIpRateLimiting()` está ativo, embora o comentário diga «temporariamente desativado». Rever os limites para produção. | Rec. |
-| L6 | Licenças de terceiros na app | ❔ | «Sobre e créditos» mostra o BGG. Não há lista de licenças open source. | Rec. |
+| V1 | Build próprio, não Expo Go | `eas.json` tem perfil `production` (`autoIncrement`, versões remotas). Projeto EAS `94aba926…`, dono `rubenmpff`. | Primeiro `eas build --profile production`. | **Sim** |
+| V2 | iOS compilado com Xcode 26 e SDK iOS 26 (desde 28/04/2026) | O Expo SDK 57 deve usar Xcode 26 no EAS. | Imagem do build EAS e aceitação no App Store Connect. | **Sim** |
+| V3 | Android com target API 36 (desde 31/08/2026) | O valor por omissão do React Native 0.86.3 é `targetSdk = 36`, mas o valor final é o do build. | Play Console, depois do upload do AAB. | **Sim** |
+| V4 | Páginas de memória de 16 KB | RN 0.86 e Expo 57 devem suportar. | Explorador de App Bundles da Play Console. | Não (obrigatório para atualizações a partir de 01/02/2027) |
+| V5 | Assinatura | Não há chaves no repositório. | Credenciais iOS e Android no EAS; assinatura de apps do Google Play. | **Sim** |
+| V6 | API pública por HTTPS | `env.ts` exige `https://` no modo `production`. No servidor, o HTTPS fica a cargo do App Service. | Ambiente «production» do EAS: `EXPO_PUBLIC_API_MODE=production` e `EXPO_PUBLIC_PRODUCTION_API_URL=https://…`. Azure: certificado. | **Sim** |
+| V7 | ATS (iOS) | A introspeção mostra `NSAllowsArbitraryLoads: true`. | `Info.plist` do IPA de produção. | Provável pedido de justificação |
+| V8 | Manifesto de privacidade iOS | `ios.privacyManifests` ausente. O Expo junta os manifestos dos módulos. | E-mail da Apple depois do primeiro upload; relatório de privacidade no Xcode. | Possível |
+| V9 | Credenciais de notificações | — | APNs e FCM V1 no EAS. | Não |
+| V10 | Apple Developer Program | — | Inscrição ativa; tipo (individual ou organização: o nome do vendedor fica público). | **Sim** |
+| V11 | Conta Google Play | — | Pessoal ou organização, e data de criação. Pessoal criada depois de 13/11/2023: teste fechado com 12 ou mais testadores durante 14 dias seguidos. Identidade verificada. | **Sim** |
+| V12 | DSA, estatuto de comerciante | Obrigatório na Apple para a UE. Com intenção de monetizar, é provável seres comerciante: o endereço, o telefone e o e-mail ficam públicos. | App Store Connect › Informação da app. Play Console: confirmar se pede a mesma declaração. | **Sim** (Apple) |
+| V13 | Classificação etária e público-alvo | Há conteúdo gerado pelos utilizadores e interação entre pessoas. | Questionário Apple (4+/9+/13+/16+/18+), IARC e público-alvo da Google, coerentes com F16. | **Sim** |
+| V14 | Formulários da Play Console | — | Anúncios (não), funcionalidades financeiras e de saúde (nenhuma), acesso à app, Segurança dos dados. | **Sim** |
+| V15 | App Privacy (Apple) e Segurança dos dados (Google) | Dados recolhidos, todos ligados à identidade e sem rastreio: e-mail, nome de utilizador, ID, fotografias, outro conteúdo (notas, comentários, partidas, sessões), interações (biblioteca), token de push. Fornecedores: Azure, Cloudinary, Brevo, Expo, APNs e FCM. | Preencher depois de F3–F5. | **Sim** |
+| V16 | Fluxos de conta A01–A08 | Abertos (`pendencias-funcionais.md`). Os e-mails usam ligações `meepleboard://`. | iPhone e Android, com contas novas e clientes de e-mail reais. | **Sim** provável (a revisão cria uma conta) |
+| V17 | Fotografias públicas antigas (PR02) | O URL é recusado pela API, mas o ficheiro pode continuar público no Cloudinary. | Inventário só de leitura no Cloudinary. | Não para a loja; sim para a privacidade |
+| V18 | iPad | `supportsTablet: true`, sem validação em iPad. | Decisão: validar em iPad, com capturas e revisão, ou pôr `false`. | **Sim** se ficar `true` sem capturas |
+| V19 | Encriptação (exportação) | `ITSAppUsesNonExemptEncryption` ausente. A app usa só HTTPS. | Resposta no App Store Connect, ou `false` em `infoPlist`. | Não |
+| V20 | Runtime .NET em produção | A exposição real de L3 depende dele. | Versão do runtime no App Service. | Não |
 
-## O que tens de confirmar nas contas (não consegui verificar)
+## 3. Recomendações
+
+- **Notificações:** pedi-las com contexto, e não logo depois do login (Apple 5.1.2 só proíbe exigi-las).
+- **Registos (logs):** deixar de registar e-mails. Hoje há `AuthService` com o e-mail em cada login, `UserCleanupJob` e erros de registo.
+- **Licenças:** lista de licenças open source em «Sobre e créditos».
+- **Rate limiting:** rever os limites para produção.
+- **`.easignore`:** para não enviar `docs/`, `tests/` e `tools/` no upload do EAS.
+
+## 4. Páginas públicas sem comprar um domínio
+
+**O que é preciso:**
+
+- política de privacidade;
+- termos;
+- regras da comunidade;
+- apoio, com contacto;
+- pedido de eliminação de conta.
+
+São páginas estáticas, e nenhuma das lojas exige domínio próprio: só URLs públicos por HTTPS.
+
+| Opção | Custo | URL | Prós | Contras |
+| --- | --- | --- | --- | --- |
+| **Cloudflare Pages** (recomendada) | Gratuito | `meepleboard.pages.dev` (se estiver livre) | HTTPS automático. Repositório privado. Publicação a partir do Git ou por upload. Domínio próprio mais tarde sem mudar nada. | Conta Cloudflare nova. |
+| GitHub Pages | Gratuito (repositório público) | `<utilizador>.github.io/meepleboard` | Simples. | Repositório público, ou plano pago para privado. Nome menos limpo. |
+| Azure Static Web Apps (Free) | Gratuito | `*.azurestaticapps.net` | Já usas Azure. | Mexe no Azure, fora desta ronda. |
+| Servir pela própria API | Sem custo extra | `https://<api>/legal/...` | Nada novo. | Junta páginas públicas ao servidor da API, e qualquer falha da API derruba as páginas legais. |
+
+**Apoio:** uma caixa de correio gratuita dedicada (por exemplo, Gmail ou Proton), indicada nas páginas, na app e nas fichas.
+
+**Pedido de eliminação pela web:** ver a proposta (formulário por e-mail na primeira versão).
+
+Quando houver domínio próprio, basta apontá-lo para o mesmo alojamento e atualizar os URLs na app e nas fichas.
+
+## 5. Autorização BGG
+
+**Já obtida** (informação fornecida pelo utilizador): aprovação do uso da XML API por e-mail de 11/02/2026. A condição é mostrar o logótipo «Powered by BGG», ligado ao BoardGameGeek e legível. Está cumprida na página do jogo e em «Sobre e créditos», com o ficheiro oficial sem alterações.
+
+**Dúvidas concretas, só para confirmares no e-mail:**
+
+1. A aprovação cobre uso com monetização? Está registada a intenção de monetizar.
+2. Cobre também a importação do catálogo a partir do ficheiro de rankings (`Bgg:CatalogLocalFilePath` e `Bgg:CatalogPageUrl`), além da XML API?
+3. Onde fica guardada uma cópia do e-mail? Recomenda-se fora do repositório.
+4. O `Bgg__Token` de produção está definido no Azure? Não verificado.
+
+## 6. Triagem das vulnerabilidades
+
+Nada foi atualizado. O AutoMapper fica como está (decisão anterior: «mitigada, não resolvida»).
+
+### App (npm, só dependências de produção do `package.json`)
+
+O `npm audit` conta 37 ocorrências (1 crítica, 24 altas, 12 moderadas). A maioria são **cadeias**: `react-native`, `expo`, `reanimated`, `worklets`, `view-shot` e `datetimepicker` aparecem só porque dependem das ferramentas de build. As «correções» que o `npm audit` propõe são downgrades inviáveis (por exemplo, `expo@44`, `react-native@0.72`). Por isso, a triagem é feita pela vulnerabilidade de origem:
+
+| Origem (versão instalada) | Gravidade | Quem a traz | Uso real | Correção disponível | Proposta |
+| --- | --- | --- | --- | --- | --- |
+| `decode-uri-component` 0.2.2 | Moderada (DoS por URL malformado) | `expo-router` 57.0.19 › `query-string` 7.1.3 | **Na app em execução** (caminhos e ligações). Exposição baixa: uma ligação maliciosa só bloqueia a própria app. | `expo-router` 58 (SDK 58) ou override para `decode-uri-component` 0.5.0 | Override testado numa etapa própria, ou esperar pelo SDK 58. |
+| `shell-quote` 1.10.0 | Crítica | `react-native` › `react-devtools-core` 6.1.5 | Só em desenvolvimento (DevTools). Não entra no bundle de produção. | 1.12.0 | Override de patch, de baixo risco. |
+| `node-forge` 1.4.0 | Alta | `@expo/code-signing-certificates` (CLI) | Só nas ferramentas (assinatura de atualizações, que não são usadas). | Sem versão corrigida acima de 1.4.0 no npm | Aceitar até a Expo atualizar. |
+| `braces` 3.0.3 / `micromatch` 4.0.8 | Alta | Metro | Só build e servidor de desenvolvimento. | Só no Metro mais recente | Aceitar; segue as atualizações do SDK. |
+| `brace-expansion` 5.0.9 | Alta | `minimatch` 10 (ferramentas) | Só build. | 5.0.12 | Override de patch. |
+| `compression` 1.8.1 | Alta | `@expo/cli` (servidor de desenvolvimento) | Só desenvolvimento. | 1.8.2 | Override de patch. |
+| `source-map-js` 1.2.1 | Alta | `postcss` (ferramentas) | Só build. | 1.2.2 | Override de patch. |
+| `uuid` 7.0.3 | Moderada | `xcode` (config plugins) | Só prebuild. A cópia direta da app é a 11.1.1, já corrigida. | — | Aceitar. |
+
+**Resumo:** só uma vulnerabilidade chega à app publicada (`decode-uri-component`), com impacto baixo. As outras estão nas ferramentas de build e desenvolvimento. Na próxima ronda de segurança, propor overrides de patch só para `shell-quote`, `brace-expansion`, `compression` e `source-map-js`, com verificação, e tratar `decode-uri-component` à parte.
+
+### API (.NET)
+
+| Pacote (versão) | Gravidade | Quem o traz | Uso real | Correção | Proposta |
+| --- | --- | --- | --- | --- | --- |
+| AutoMapper 14.0.0 | Alta (GHSA-rvv3-g6hj-g44x) | Direto (`MeepleBoard.Services`) | Mapeamentos internos. A mitigação está documentada. | Licença ou substituição | **Sem mudança** nesta ronda (decisão anterior). |
+| System.Security.Cryptography.Xml 8.0.2 / .Pkcs 8.0.1 | Alta (GHSA-37gx-xxp4-5rgx, GHSA-846f-f764-76mx) | `Microsoft.AspNetCore.Authentication` 2.3.0 › `DataProtection` 2.3.0, puxados por pacotes ASP.NET Core 2.x antigos (`Microsoft.AspNetCore.Identity` 2.3.1, `Http.Abstractions` 2.3.0, `TourmalineCore…` 0.1.1) | Num processo .NET 9, o framework partilhado traz as suas próprias versões, já corrigidas (9.0.20 neste Mac). Exposição baixa, se produção usar um runtime 9 atualizado (V20). | Versões 9.0.x corrigidas | Referência direta às versões corrigidas, ou retirar os pacotes 2.x desnecessários. Etapa própria, com testes. |
+| System.IdentityModel.Tokens.Jwt / Microsoft.IdentityModel.JsonWebTokens 7.0.3 | Moderada (GHSA-59j7-ghrg-fj52) | `AspNet.Security.OAuth.Apple` 8.3.0 › `OpenIdConnect` 7.0.3 | Login com Apple só fica ativo com credenciais, e a app não o usa. A validação dos tokens da app passa pelo JwtBearer. | 7.1.2+ ou atualizar o fornecedor Apple | Retirar o fornecedor Apple enquanto não for usado, ou atualizá-lo. Decisão tua. |
+
+## 7. Contas a confirmar (não consegui verificar)
 
 1. **App Store Connect:**
    - inscrição e tipo de conta;
-   - estatuto DSA;
-   - existe a app `com.meepleboard.app` com o nome «MeepleBoard»?
-   - acordos (Free Apps) aceites.
+   - DSA;
+   - existe a app `com.meepleboard.app`?
+   - acordos aceites.
 2. **Play Console:**
-   - tipo de conta e data de criação (define se se aplica a regra dos 12 testadores durante 14 dias);
-   - verificação da identidade;
+   - tipo de conta e data de criação;
+   - verificação de identidade;
    - existe a app `com.meepleboard.app`?
    - declaração de comerciante, se for pedida.
-3. **EAS (expo.dev, projeto `94aba926…`):**
-   - variáveis do ambiente «production»: `EXPO_PUBLIC_API_MODE=production`, `EXPO_PUBLIC_PRODUCTION_API_URL=https://…`;
-   - credenciais iOS e Android e chaves de push (APNs, FCM V1).
+3. **EAS:**
+   - variáveis do ambiente «production»;
+   - credenciais iOS e Android;
+   - APNs e FCM V1.
 4. **Azure:**
-   - URL público por HTTPS e certificado;
+   - URL HTTPS;
+   - versão do runtime .NET;
    - retenção das cópias de segurança do SQL e dos registos;
-   - `Bgg__Token` e as credenciais do Brevo e do Cloudinary definidas (sem as mostrar).
-5. **Domínio:**
-   - registar `meepleboard.com` (ou outro) e decidir onde ficam as páginas legais, a página de eliminação e o apoio;
-   - criar o e-mail de apoio.
-6. **BGG:**
-   - guardar uma cópia do e-mail de autorização (fora do repositório público, se tiver dados pessoais);
-   - confirmar se cobre uso comercial.
+   - definição (sem os valores) de `Bgg__Token` e das credenciais do Brevo e do Cloudinary.
+5. **Cloudinary:** se as cópias de segurança de ficheiros estão ativas, porque guardam ficheiros apagados.
+6. **Brevo:** prazo de conservação dos registos de envio.
 
-## Ordem mínima de trabalho para lançar a versão atual
+## 8. Ordem mínima para lançar a versão atual
 
 Sem funcionalidades do roadmap e sem redesenhar ecrãs.
 
-1. **Domínio, apoio e textos legais (fora do código):** registar o domínio, publicar a Política de Privacidade, os Termos, as Regras da Comunidade e a página de apoio, e criar o e-mail de apoio. A política tem de descrever o que fica depois de eliminar a conta (E4 e E5) e os fornecedores (P3).
-2. **Decisões de produto e jurídicas:**
-   - o que acontece ao texto livre partilhado ao eliminar a conta (E4);
-   - idade mínima (P6);
-   - estatuto de comerciante (S3);
-   - iPad sim ou não (D11);
-   - licença comercial do BGG (L1).
-3. **CONTA01:** eliminação da própria conta na app (Perfil › Conta, com confirmação e reautenticação), a rota da conta autenticada sobre a anonimização que já existe, e a página web de pedido (E1–E4).
-4. **Mínimo de segurança da comunidade:**
-   - bloquear utilizadores e denunciar perfis (C1, C2);
-   - filtro básico de termos inaceitáveis nos textos públicos (C3);
-   - contacto de apoio visível na app (C6).
-5. **Configuração de distribuição em `app.json` e no EAS:**
-   - textos das permissões em PT e EN, sem câmara, microfone nem Face ID (A4);
-   - permissões Android mínimas (A5);
-   - `ITSAppUsesNonExemptEncryption` (A6);
-   - nome «MeepleBoard» (D10);
-   - FCM e APNs (D9);
-   - variáveis de produção (D6).
-6. **Segurança antes de produção:** fechar ou aceitar formalmente A01–A08 (fluxos de conta), PR02 (fotografias públicas antigas) e a triagem de L3/L4. O AutoMapper fica como risco aceite (L2).
-7. **Builds de produção:** EAS `production` para iOS e Android; confirmar Xcode 26, ATS, manifesto de privacidade e 16 KB (D1–D8).
-8. **Testes:** TestFlight e validação no iPhone dos percursos pendentes. Na Google, teste fechado (12 ou mais testadores durante 14 dias, se a conta for pessoal).
-9. **Fichas e formulários:**
-   - App Privacy e Segurança dos dados (P4);
-   - classificação etária e público-alvo (S4, S5);
-   - restantes formulários da Play Console (S6);
-   - capturas e textos (S8);
-   - contas de revisão em produção (S7).
-10. **Submissão:** Apple e Google, com notas de revisão a explicar a moderação, a denúncia, o bloqueio e a eliminação de conta.
-
-**Recomendações que não bloqueiam:**
-
-- pedir as notificações com contexto (A3);
-- lista de licenças open source (L6);
-- rever os limites do rate limiting (L5);
-- `.easignore` para não enviar `docs/`, `tests/` e `tools/` no upload do EAS.
+1. **Eliminação da própria conta (F1–F3):** proposta em [proposta-eliminacao-conta.md](proposta-eliminacao-conta.md). As decisões vêm antes da implementação.
+2. **Proteções da comunidade (F7–F9) e contacto de apoio (F6).**
+3. **Páginas públicas e textos legais (F4, F5)**, alojadas como na secção 4, e e-mail de apoio.
+4. **Configuração de distribuição (F10–F14):**
+   - textos das permissões em PT e EN;
+   - retirar câmara, microfone e Face ID;
+   - permissões Android mínimas;
+   - FCM;
+   - nome «MeepleBoard»;
+   - variáveis de produção.
+5. **Segurança antes de produção:**
+   - fluxos de conta A01–A08 (V16);
+   - fotografias públicas antigas, PR02 (V17);
+   - overrides de patch da secção 6.
+6. **Builds de produção, com verificação de V1–V9.**
+7. **Testes:** TestFlight, validação no iPhone e teste fechado da Google (V11).
+8. **Contas, formulários e fichas (V10–V15, F15, F16, V18).**
+9. **Submissão,** com notas de revisão sobre moderação, denúncia, bloqueio e eliminação de conta.
 
 ## Fontes (consultadas a 2026-10-17)
 
-- Apple, App Store Review Guidelines (1.2, 2.1, 2.2, 4.8, 5.1.1, 5.1.2): https://developer.apple.com/app-store/review/guidelines/
-- Apple, eliminação de conta (5.1.1(v)): https://developer.apple.com/help/app-review/guideline-reference/5-1-1-account-deletion
-- Apple, SDK mínimo (Xcode 26, desde 28/04/2026): https://developer.apple.com/news/upcoming-requirements/?id=04282026a
-- Apple, DSA (estatuto de comerciante): https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-compliance-information
+- Apple, App Store Review Guidelines: https://developer.apple.com/app-store/review/guidelines/
+- Apple, eliminação de conta: https://developer.apple.com/help/app-review/guideline-reference/5-1-1-account-deletion
+- Apple, SDK mínimo: https://developer.apple.com/news/upcoming-requirements/?id=04282026a
+- Apple, DSA: https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-compliance-information
 - Google Play, eliminação de conta: https://support.google.com/googleplay/android-developer/answer/13327111
 - Google Play, conteúdo gerado pelos utilizadores: https://support.google.com/googleplay/android-developer/answer/9876937
 - Google Play, nível de API alvo: https://support.google.com/googleplay/android-developer/answer/11926878
-- Google Play, testes para contas pessoais novas: https://support.google.com/googleplay/android-developer/answer/14151465
+- Google Play, testes para contas pessoais: https://support.google.com/googleplay/android-developer/answer/14151465
 - Android, páginas de 16 KB: https://developer.android.com/guide/practices/page-sizes
 - Expo, privacidade Apple: https://docs.expo.dev/guides/apple-privacy/
 - Classificação etária Apple (alteração de 2025): https://9to5mac.com/2025/07/24/apple-notifies-developers-of-new-app-store-age-rating-system/
