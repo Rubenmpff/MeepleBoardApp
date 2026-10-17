@@ -17,7 +17,7 @@ import ScreenScroll from "@/src/ui/Screen";
 import { Avatar, Card, Glyph, Hero, Row, Section } from "@/src/ui/components";
 import Sheet from "@/src/ui/Sheet";
 import { colors, space, strong, type } from "@/src/ui/theme";
-import { formatDateTime } from "@/src/ui/format";
+import { formatDateTime, formatDuration } from "@/src/ui/format";
 import { ROUTES } from "@/src/constants/routes";
 import { RootState } from "@/src/store/store";
 import GameCover from "@/src/ui/GameCover";
@@ -28,7 +28,7 @@ import PrimaryButton from "@/src/ui/PrimaryButton";
 import experienceService from "@/src/features/games/experiences/services/experienceService";
 import { Publication } from "@/src/features/games/experiences/types/Experience";
 import { JournalEntry } from "@/src/features/games/campaigns/types/Campaign";
-import { checkDuration, DurationDraft, draftFrom, durationPayload, emptyDuration, formatDuration } from "../utils/matchDuration";
+import { checkDuration, DurationDraft, draftFrom, durationPayload, emptyDuration } from "../utils/matchDuration";
 import { MatchDto } from "../types/MatchForm";
 
 export default function MatchDetailScreen() {
@@ -91,7 +91,7 @@ export default function MatchDetailScreen() {
   const isCreator = !!currentUser?.id && match.creatorId === currentUser.id;
   const method = match.durationMethod;
   const durationText = method === "Unknown" ? t("duration.reviewUnknown") : typeof match.durationInMinutes === "number"
-    ? t("duration.review", { value: match.durationInMinutes > 0 ? formatDuration(match.durationInMinutes) : "0 min",
+    ? t("duration.review", { value: match.durationInMinutes > 0 ? formatDuration(match.durationInMinutes, i18n.language) : formatDuration(0, i18n.language),
       method: t(method === "Measured" ? "duration.reviewMeasured" : method === "Estimated" ? "duration.reviewEstimated" : "duration.reviewNotStated") })
     : t("duration.none");
   const draftCheck = checkDuration(durationDraft);

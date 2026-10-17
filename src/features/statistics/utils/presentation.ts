@@ -1,10 +1,9 @@
+import { formatDuration as formatAppDuration, locale as appLocale } from '@/src/ui/format';
 import { Period, Query } from '../types/Statistics';
 
+/** The app's single duration format (src/ui/format). */
 export function formatDuration(minutes: number, language: string): string {
- const hours = Math.floor(minutes / 60);
- const remainder = minutes % 60;
- const number = (n: number) => new Intl.NumberFormat(language, { maximumFractionDigits: 2 }).format(n);
- return hours ? `${number(hours)} h${remainder ? ` ${number(remainder)} min` : ''}` : `${number(minutes)} min`;
+ return formatAppDuration(minutes, language);
 }
 
 export function formatPeriodLabel(period: Period, query: Query, language: string, full = false): string {
@@ -12,7 +11,7 @@ export function formatPeriodLabel(period: Period, query: Query, language: string
  const start = date(query.start);
  const end = date(query.endExclusive);
  end.setUTCDate(end.getUTCDate() - 1);
- const format = (value: Date, options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(language, { ...options, timeZone: 'UTC' }).format(value);
+ const format = (value: Date, options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(appLocale(language), { ...options, timeZone: 'UTC' }).format(value);
  if (period === 'year') return format(start, { year: 'numeric' });
  if (period === 'month') return format(start, { month: 'long', year: 'numeric' });
  const compact = (value: Date) => language.startsWith('pt')
@@ -25,5 +24,5 @@ export function formatPeriodLabel(period: Period, query: Query, language: string
 // Bucket keys are YYYY-MM or YYYY-MM-DD; labels never shift across time zones.
 export function formatBucket(key: string, language: string): string {
  const [year, month, day] = key.split('-').map(Number);
- return new Intl.DateTimeFormat(language, day ? { dateStyle: 'long', timeZone: 'UTC' } : { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(year, (month || 1) - 1, day || 1)));
+ return new Intl.DateTimeFormat(appLocale(language), day ? { dateStyle: 'long', timeZone: 'UTC' } : { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(year, (month || 1) - 1, day || 1)));
 }

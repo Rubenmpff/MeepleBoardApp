@@ -9,7 +9,7 @@ import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View, useWindowD
 import { useTranslation } from "react-i18next";
 import { Glyph, Section, Segmented } from "@/src/ui/components";
 import { colors, isLarge, radius, space, strong, touch, type } from "@/src/ui/theme";
-import { formatDuration } from "@/src/features/games/matches/utils/matchDuration";
+import { formatDuration } from "@/src/ui/format";
 import { Game } from "@/src/features/games/catalog/types/Game";
 import { useGameDurations } from "../hooks/useGameDurations";
 import { DurationStats, methodLabel } from "../types/GameDurations";
@@ -33,7 +33,7 @@ export function useMethodText() {
 type Props = { game: Game; onOpenDetails: () => void };
 
 export default function GameDurationsSection({ game, onOpenDetails }: Props) {
-  const { t } = useTranslation("games");
+  const { t, i18n } = useTranslation("games");
   const { width, fontScale } = useWindowDimensions();
   const large = isLarge(width, fontScale);
   const { data, loading, error, reload } = useGameDurations(game.id);
@@ -45,10 +45,10 @@ export default function GameDurationsSection({ game, onOpenDetails }: Props) {
 
   const tile = (label: string, dot: string, s: DurationStats | undefined, empty: string, emptyHint?: string) =>
     <View style={[styles.tile, !large && styles.tileHalf]} accessible
-      accessibilityLabel={s?.available && s.mean != null ? `${label}: ${formatDuration(s.mean)}, ${t("details.durations.matches", { count: s.count })}, ${methodText(s)}` : `${label}: ${empty}`}>
+      accessibilityLabel={s?.available && s.mean != null ? `${label}: ${formatDuration(s.mean, i18n.language)}, ${t("details.durations.matches", { count: s.count })}, ${methodText(s)}` : `${label}: ${empty}`}>
       <View style={styles.who}><View style={[styles.dot, { backgroundColor: dot }]} /><Text style={styles.label}>{label}</Text></View>
       {s?.available && s.mean != null ? <>
-        <Text style={[styles.value, s.count === 1 && styles.valueSmall]}>{formatDuration(s.mean)}</Text>
+        <Text style={[styles.value, s.count === 1 && styles.valueSmall]}>{formatDuration(s.mean, i18n.language)}</Text>
         <Text style={type.micro}><Text style={[strong, { color: colors.text }]}>{t("details.durations.matches", { count: s.count })}</Text> · {methodText(s)}</Text>
       </> : <>
         <Text style={[type.body, strong, { color: colors.muted }]}>{empty}</Text>

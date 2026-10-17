@@ -8,6 +8,7 @@ import JournalPhoto from "../components/JournalPhoto";
 import { Glyph } from "@/src/ui/components";
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 import PrimaryButton from "@/src/ui/PrimaryButton";
+import { formatDate } from "@/src/ui/format";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ScreenHeader from "@/src/ui/ScreenHeader";
@@ -143,7 +144,7 @@ export default function MatchJournalScreen() {
 
   const others = entries.filter(e => e.userId !== currentUser?.id);
   const saved = myEntry?.createdAt ? new Date(myEntry.createdAt) : null;
-  const savedOn = saved ? `${saved.getDate()} ${new Intl.DateTimeFormat(locale, { month: "short" }).format(saved)} ${saved.getFullYear()}` : "";
+  const savedOn = saved ? formatDate(saved, i18n.language) : "";
   const publicationLine = publication?.hidden ? t("diary.hidden")
     : publication?.showRating && publication.commentPublished ? t("diary.publishedBoth")
     : publication?.showRating ? t("diary.publishedRating") : publication?.commentPublished ? t("diary.publishedComment")

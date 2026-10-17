@@ -2,6 +2,7 @@ import ScreenLayout from "@/src/ui/ScreenLayout";
 import { Glyph, type Icon } from "@/src/ui/components";
 import ScreenState from "@/src/ui/ScreenState";
 import i18n from "i18next";
+import { formatDate, formatDayMonth, formatDuration } from "@/src/ui/format";
 import { useTranslation } from "react-i18next";
 /**
  * SharedGameHistoryScreen.tsx
@@ -1293,53 +1294,19 @@ function calculateStats(
 function duration(
   minutes: number
 ) {
-  if (!minutes) {
-    return "0m";
-  }
-
-  const hours =
-    Math.floor(
-      minutes / 60
-    );
-
-  const remaining =
-    minutes % 60;
-
-  return hours
-    ? `${hours}h${remaining
-      ? ` ${remaining}m`
-      : ""
-    }`
-    : `${remaining}m`;
+  return formatDuration(minutes, i18n.language);
 }
 
 function formatShortDate(
   value: string
 ) {
-  return new Intl.DateTimeFormat(
-    (i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB"),
-    {
-      day: "numeric",
-      month: "short",
-    }
-  ).format(
-    new Date(value)
-  );
+  return formatDayMonth(value, i18n.language);
 }
 
 function formatLongDate(
   value: string
 ) {
-  return new Intl.DateTimeFormat(
-    (i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB"),
-    {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    }
-  ).format(
-    new Date(value)
-  );
+  return formatDate(value, i18n.language);
 }
 
 function resultText(

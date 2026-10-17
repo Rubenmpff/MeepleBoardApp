@@ -1,3 +1,4 @@
+import { locale } from '@/src/ui/format';
 import { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
@@ -20,8 +21,8 @@ export default function StatisticsEvolution({ buckets, unit, language, title, co
  // Whole-number ceiling shared by all columns.
  const ceiling = peak <= 1 ? peak : Math.ceil(peak / 2) * 2;
  const date = (key: string) => { const [year, month, day] = key.split("-").map(Number); return new Date(Date.UTC(year, month - 1, day || 1)); };
- const label = (key: string) => new Intl.DateTimeFormat(language, unit === "month" ? { month: "short", timeZone: "UTC" } : { day: "numeric", month: "short", timeZone: "UTC" }).format(date(key));
- const accessibleDate = (key: string) => new Intl.DateTimeFormat(language, unit === "month" ? { month: "long", year: "numeric", timeZone: "UTC" } : { dateStyle: "long", timeZone: "UTC" }).format(date(key));
+ const label = (key: string) => new Intl.DateTimeFormat(locale(language), unit === "month" ? { month: "short", timeZone: "UTC" } : { day: "numeric", month: "short", timeZone: "UTC" }).format(date(key));
+ const accessibleDate = (key: string) => new Intl.DateTimeFormat(locale(language), unit === "month" ? { month: "long", year: "numeric", timeZone: "UTC" } : { dateStyle: "long", timeZone: "UTC" }).format(date(key));
  const height = (n: number) => ceiling ? PLOT * n / ceiling : 0;
  // The axis column grows with the widest label so three-digit years do not wrap.
  const axis = Math.max(AXIS, Math.ceil((String(ceiling).length * DIGIT + 6) * fontScale));

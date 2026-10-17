@@ -12,18 +12,18 @@ import ScreenLayout from "@/src/ui/ScreenLayout";
 import { Card, Glyph, Row, Section, Segmented } from "@/src/ui/components";
 import { colors, space, strong, type } from "@/src/ui/theme";
 import { ROUTES } from "@/src/constants/routes";
-import { formatDuration } from "@/src/features/games/matches/utils/matchDuration";
+import { formatDuration } from "@/src/ui/format";
 import { useGameDurations } from "../hooks/useGameDurations";
 import { DurationStats } from "../types/GameDurations";
 
 export default function GameDurationsScreen() {
   const { id, name, bgg } = useLocalSearchParams<{ id: string; name?: string; bgg?: string }>();
-  const { t } = useTranslation("games");
+  const { t, i18n } = useTranslation("games");
   const router = useRouter();
   const { data, loading, error, reload } = useGameDurations(id);
   const [mode, setMode] = useState<"multiplayer" | "solo">("multiplayer");
   const d = (key: string, o?: Record<string, unknown>) => t(`details.durations.${key}`, o ?? {});
-  const minutes = (v?: number | null) => v == null ? "—" : formatDuration(v);
+  const minutes = (v?: number | null) => v == null ? "—" : formatDuration(v, i18n.language);
 
   const block = (title: string, dot: string, s: DurationStats | undefined, personal: boolean) => {
     const rows: [string, string][] = [];
@@ -33,7 +33,7 @@ export default function GameDurationsScreen() {
       if (s.q1 != null && s.q3 != null) rows.push([d("middle"), `${minutes(s.q1)} – ${minutes(s.q3)}`]);
       rows.push([d("used"), String(s.count)]);
       rows.push([d("methods"), `${s.measured} · ${s.estimated} · ${s.notStated}`]);
-      if (s.median != null) rows.push([d("distant"), personal && s.distantValues?.length ? `${s.distant} · ${s.distantValues.map(formatDuration).join(", ")}` : String(s.distant)]);
+      if (s.median != null) rows.push([d("distant"), personal && s.distantValues?.length ? `${s.distant} · ${s.distantValues.map(v => formatDuration(v, i18n.language)).join(", ")}` : String(s.distant)]);
     }
     if (personal) {
       const out = [s?.excludedUnknown ? d("excludedUnknown", { count: s.excludedUnknown }) : null, s?.excludedMissing ? d("excludedMissing", { count: s.excludedMissing }) : null,

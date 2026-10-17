@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { formatDate } from "@/src/ui/format";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import ScreenLayout from "@/src/ui/ScreenLayout";
@@ -77,7 +78,7 @@ export default function PublishExperienceScreen() {
       <View pointerEvents="none"><Switch value={value} accessible={false} trackColor={{ true: colors.primary, false: colors.track }} /></View>
     </TouchableOpacity>;
   const published = publication.publishedAt ? new Date(publication.publishedAt) : null;
-  const publishedOn = published ? `${published.getDate()} ${new Intl.DateTimeFormat(i18n.language === "pt" ? "pt-PT" : "en-GB", { month: "short" }).format(published)} ${published.getFullYear()}` : "";
+  const publishedOn = published ? formatDate(published, i18n.language) : "";
 
   return <ScreenLayout title={anythingPublished ? t("publish.managed") : t("publish.title")}>
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>

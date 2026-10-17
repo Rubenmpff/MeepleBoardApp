@@ -47,13 +47,6 @@ export function durationPayload(draft: DurationDraft): { durationInMinutes?: num
   return {};
 }
 
-/** «1 h 05 min», «48 min», «2 h». */
-export function formatDuration(minutes: number): string {
-  const h = Math.floor(minutes / 60), m = minutes % 60;
-  if (!h) return `${m} min`;
-  return m ? `${h} h ${String(m).padStart(2, "0")} min` : `${h} h`;
-}
-
 /**
  * Back to the two fields, e.g. when correcting a recorded duration. An older duration keeps no method
  * («método não indicado»); it becomes an estimate only if the person changes the value.

@@ -1,3 +1,4 @@
+import { formatDate } from '@/src/ui/format';
 import { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -34,7 +35,7 @@ export default function StatisticsMatchesScreen() {
  const visiblePage=loadedScope===scope?page:null;
  const visibleLoading=loading||(!error&&loadedScope!==scope);
  const back=()=>router.canGoBack()?router.back():router.replace("/statistics");
- const date=(iso:string)=>new Intl.DateTimeFormat(i18n.language,{dateStyle:"medium",timeZone:query.timeZone}).format(new Date(iso));
+ const date=(iso:string)=>formatDate(iso,i18n.language,query.timeZone);
  const num=(v:number)=>new Intl.NumberFormat(i18n.language,{maximumFractionDigits:2}).format(v);
  return <SafeAreaView style={styles.screen} edges={["top","left","right"]}><ScrollView contentContainerStyle={styles.content}>
   <StatisticsHeader title={t("supportingTitle")} subtitle={t(`metrics.${metric}`)} backLabel={t("back")} onBack={back}/>

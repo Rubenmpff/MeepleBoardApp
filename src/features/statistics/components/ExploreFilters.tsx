@@ -1,3 +1,4 @@
+import { locale } from '@/src/ui/format';
 import {useEffect,useState} from 'react';
 import {Keyboard,Platform,StyleSheet,Text,TouchableOpacity,View,useWindowDimensions} from 'react-native';
 import {useTranslation} from 'react-i18next';
@@ -62,7 +63,7 @@ export function FiltersSheet({visible,query,period,games,onClose,onApply,periodE
  const [invalid,setInvalid]=useState(false),[datePicker,setDatePicker]=useState<'start'|'end'|null>(null);
  useEffect(()=>{if(visible){setDraft(query);setDraftPeriod(period);setCustomStart(query.start);setCustomEnd(inclusiveEnd(query.endExclusive));setInvalid(false);setDatePicker(null);setPage('main');}},[visible]);
  const labels=useFilterLabels(draft,games);
- const dateLabel=(iso:string)=>new Intl.DateTimeFormat(i18n.language,{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(`${iso}T12:00:00Z`));
+ const dateLabel=(iso:string)=>new Intl.DateTimeFormat(locale(i18n.language),{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(`${iso}T12:00:00Z`));
  const changePeriod=(next:Period)=>{
   setDraftPeriod(next);setInvalid(false);setDatePicker(null);
   if(next==='custom'){setCustomStart(draft.start);setCustomEnd(inclusiveEnd(draft.endExclusive));}

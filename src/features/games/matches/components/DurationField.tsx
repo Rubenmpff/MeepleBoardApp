@@ -7,12 +7,13 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-nativ
 import { useTranslation } from "react-i18next";
 import { Glyph, Segmented } from "@/src/ui/components";
 import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
-import { checkDuration, DurationDraft, emptyDuration, formatDuration } from "../utils/matchDuration";
+import { checkDuration, DurationDraft, emptyDuration } from "../utils/matchDuration";
+import { formatDuration } from "@/src/ui/format";
 
 type Props = { value: DurationDraft; onChange: (value: DurationDraft) => void; showError?: boolean; required?: boolean };
 
 export default function DurationField({ value, onChange, showError = false, required = true }: Props) {
-  const { t } = useTranslation("matches");
+  const { t, i18n } = useTranslation("matches");
   const unknown = value.method === "Unknown";
   const check = checkDuration(value);
   const hasValue = !!(value.hours.trim() || value.minutes.trim());
@@ -30,7 +31,7 @@ export default function DurationField({ value, onChange, showError = false, requ
   const message = (() => {
     if (unknown) return { tone: "hint" as const, text: t("duration.unknownHint") };
     if (check.state === "invalid" && hasValue) return { tone: "error" as const, text: t(check.reason === "minutes" ? "duration.minutesRange" : check.reason === "zero" ? "duration.zero" : "duration.format") };
-    if (check.state === "value" && check.unusual && !value.confirmed) return { tone: "confirm" as const, text: t(check.unusual === "long" ? "duration.long" : "duration.short", { value: formatDuration(check.minutes) }) };
+    if (check.state === "value" && check.unusual && !value.confirmed) return { tone: "confirm" as const, text: t(check.unusual === "long" ? "duration.long" : "duration.short", { value: formatDuration(check.minutes, i18n.language) }) };
     if (showError && required && check.state === "unanswered") return { tone: "error" as const, text: t("duration.error") };
     return { tone: "hint" as const, text: t("duration.hint") };
   })();

@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Glyph } from "@/src/ui/components";
+import { formatDate, formatDuration, locale } from "@/src/ui/format";
 import { useTranslation } from "react-i18next";
 import { MatchDto } from "../types/MatchForm";
 import GameCover from "@/src/ui/GameCover";
@@ -16,8 +17,8 @@ export default function MatchSummary({ match }: { match: MatchDto }) {
       <View style={styles.info}>
         <Text style={styles.name}>{match.gameName?.trim() || t("sessions.gameNameUnavailable")}</Text>
         <Text style={styles.meta}>{matchResultText(match, t)}</Text>
-        {date && !Number.isNaN(date.getTime()) && <Text style={styles.meta}>{date.toLocaleString(i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</Text>}
-        {match.durationInMinutes != null && <Text style={styles.meta}>{t("sessions.durationMinutes", { count: match.durationInMinutes })}</Text>}
+        {date && !Number.isNaN(date.getTime()) && <Text style={styles.meta}>{`${formatDate(date, i18n.language)} · ${new Intl.DateTimeFormat(locale(i18n.language), { hour: "2-digit", minute: "2-digit" }).format(date)}`}</Text>}
+        {match.durationInMinutes != null && <Text style={styles.meta}>{formatDuration(match.durationInMinutes, i18n.language)}</Text>}
       </View>
     </View>
     {(match.players ?? []).map(player => <View key={player.userId} style={styles.player}>

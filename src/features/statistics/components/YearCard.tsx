@@ -1,3 +1,4 @@
+import { locale } from '@/src/ui/format';
 import {StyleSheet,Text,View,useWindowDimensions} from 'react-native';
 import {useTranslation} from 'react-i18next';
 import GameCover from '@/src/ui/GameCover';
@@ -34,7 +35,7 @@ export default function YearCard({report,id}:{report:YearReport;id:YearCardId;va
   </>}
   {id==='company'&&<><Text style={s.big}>{card.companyMatches==null?'—':n(card.companyMatches)}</Text><Text style={s.text}>{card.companyMatches==null?t('noCompany'):t('togetherCount',{count:card.companyMatches})}</Text>{card.companyTies>1&&<Text style={s.note}>{t('companyTies',{count:card.companyTies})}</Text>}<Text style={s.note}>{t('anonymousShare')}</Text></>}
   {id==='time'&&<><Text style={s.big}>{card.minutes==null?'—':formatDuration(card.minutes,i18n.language)}</Text><Text style={s.text}>{card.minutes==null?t('noDuration'):t('recordedTime')}</Text><Text style={s.note}>{t('durationCoverage',{known:card.durationKnown,total:card.matches})}</Text></>}
-  {id==='month'&&<>{card.months.length===0&&<Text style={s.text}>{t('chartEmpty')}</Text>}{card.months.map(b=><View key={b.key} style={s.leader}><Text style={s.gameName}>{new Intl.DateTimeFormat(i18n.language,{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(`${b.key}-01T12:00:00Z`))}</Text><Text style={s.big}>{n(b.matches)}</Text><Text style={s.note}>{t('matchCount',{count:b.matches})}</Text></View>)}{card.months.length>1&&<Text style={s.note}>{t('highlightTies')}</Text>}</>}
+  {id==='month'&&<>{card.months.length===0&&<Text style={s.text}>{t('chartEmpty')}</Text>}{card.months.map(b=><View key={b.key} style={s.leader}><Text style={s.gameName}>{new Intl.DateTimeFormat(locale(i18n.language),{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(`${b.key}-01T12:00:00Z`))}</Text><Text style={s.big}>{n(b.matches)}</Text><Text style={s.note}>{t('matchCount',{count:b.matches})}</Text></View>)}{card.months.length>1&&<Text style={s.note}>{t('highlightTies')}</Text>}</>}
   <View style={s.scope}>
    <Text style={s.note}>{card.filterGame?t('yearGameScope',{name:card.filterGame}):t('allGames')} · {card.filterMode?t('yearModeScope',{mode:t(`modes.${card.filterMode}`)}):t('allModes')}</Text>
    <Text style={s.note}>{t('yearResultCoverage',{known:card.known,unknown:card.unknown})}</Text>

@@ -4,6 +4,7 @@
  * list and as the preview before publishing.
  */
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { formatMonthYear } from "@/src/ui/format";
 import { useTranslation } from "react-i18next";
 import { Glyph } from "@/src/ui/components";
 import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
@@ -14,8 +15,7 @@ export type CardData = Pick<Experience, "authorName" | "rating" | "comment" | "m
 export function monthLabel(month: string, language: string) {
   const [y, m] = month.split("-").map(Number);
   if (!y || !m) return month;
-  // «out. 2026»: composed from parts so every engine shows the short month name.
-  return `${new Intl.DateTimeFormat(language === "pt" ? "pt-PT" : "en-GB", { month: "short" }).format(new Date(y, m - 1, 1))} ${y}`;
+  return formatMonthYear(new Date(y, m - 1, 1), language, "short");
 }
 
 export default function ExperienceCard({ item, preview, onMore, metaText }: { item: CardData; preview?: boolean; onMore?: () => void; metaText?: string }) {

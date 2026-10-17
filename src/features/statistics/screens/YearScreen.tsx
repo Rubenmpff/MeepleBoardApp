@@ -1,3 +1,4 @@
+import { locale } from '@/src/ui/format';
 import {useStatisticsWorkspace} from '../components/Workspace';
 import {useRef,useState} from 'react';
 import {ActivityIndicator,Modal,ScrollView,StyleSheet,Text,TouchableOpacity,View} from 'react-native';
@@ -35,7 +36,7 @@ export default function YearScreen(){
  };
  const show=(metric:Metric,extra:Record<string,string>={})=>router.push({pathname:'/statistics/matches',params:{...fullQuery,...extra,metric}} as never);
  const links=data?publicYearCard(data,id):null;
- const monthName=(key:string)=>new Intl.DateTimeFormat(i18n.language,{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(`${key}-01T12:00:00Z`));
+ const monthName=(key:string)=>new Intl.DateTimeFormat(locale(i18n.language),{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(`${key}-01T12:00:00Z`));
  const goYear=(next:number)=>{setYear(next);setIndex(0);};
  const access=data&&links?[
   ...links.leaders.map(g=>({key:g.gameId+(g.mode??''),title:g.name,lead:<GameCover uri={g.imageUrl} style={s.cover} iconSize={22}/>,label:`${g.name} · ${t('viewMatches')}`,onPress:()=>show(id==='wins'?'wins':id==='rate'?'known':'all',{gameId:g.gameId,...(g.mode?{mode:g.mode}:{})})})),

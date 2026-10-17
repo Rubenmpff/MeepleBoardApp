@@ -1,4 +1,5 @@
 import i18n from "i18next";
+import { formatDayMonth, formatDuration, formatMonthYear } from "@/src/ui/format";
 import { Glyph, type Icon } from "@/src/ui/components";
 import { useTranslation } from "react-i18next";
 /**
@@ -1767,37 +1768,15 @@ function FilterChip({
    ============================================================ */
 
 function duration(minutes: number) {
-  const hours =
-    Math.floor(minutes / 60);
-  const remaining =
-    minutes % 60;
-
-  return hours
-    ? `${hours}h${remaining
-      ? ` ${remaining}m`
-      : ""
-    }`
-    : `${remaining}m`;
+  return formatDuration(minutes, i18n.language);
 }
 
 function formatMonth(value: string) {
-  return new Intl.DateTimeFormat(
-    (i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB"),
-    {
-      month: "long",
-      year: "numeric",
-    }
-  ).format(new Date(value));
+  return formatMonthYear(value, i18n.language);
 }
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat(
-    (i18n.resolvedLanguage === "pt" ? "pt-PT" : "en-GB"),
-    {
-      day: "numeric",
-      month: "short",
-    }
-  ).format(new Date(value));
+  return formatDayMonth(value, i18n.language);
 }
 
 function resultText(

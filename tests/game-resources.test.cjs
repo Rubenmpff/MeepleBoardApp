@@ -138,7 +138,7 @@ test('«Companhia neste jogo» opens Companhia filtered by the game, from your f
   assert.equal(oldView.routes.at(-1).params.historyFrom, '2012-05-12');
   // Companhia states it instead of presenting a partial history as complete.
   const company = await renderNative('src/features/statistics/screens/CompanyScreen.tsx', 'default', {}, { params: { start: '2016-10-07', endExclusive: '2026-10-15', timeZone: 'UTC', gameId: 'game-id', period: 'custom', historyFrom: '2012-05-12', gameName: 'Fixture game' } });
-  assert.ok(company.html.includes('A tua 1.ª partida de Fixture game é de 12 de mai. de 2012. As estatísticas cobrem no máximo 10 anos: as partidas anteriores a 7 de out. de 2016 não estão incluídas.'));
+  assert.ok(company.html.includes('A tua 1.ª partida de Fixture game é de 12 mai. 2012. As estatísticas cobrem no máximo 10 anos: as partidas anteriores a 7 out. 2016 não estão incluídas.'));
   assert.ok(company.html.includes('7 out. 2016 – 14 out. 2026'), 'the period itself is shown in the selector');
   const plain = await renderNative('src/features/statistics/screens/CompanyScreen.tsx', 'default', {}, { params: { start: '2025-03-03', endExclusive: '2026-10-15', timeZone: 'UTC', gameId: 'game-id', period: 'custom' } });
   assert.ok(!plain.html.includes('no máximo 10 anos'));

@@ -1,3 +1,4 @@
+import { formatDate } from '@/src/ui/format';
 import {useStatisticsWorkspace} from '../components/Workspace';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {ActivityIndicator,Keyboard,KeyboardAvoidingView,Platform,ScrollView,StyleSheet,Text,TouchableOpacity,View,useWindowDimensions} from 'react-native';
@@ -48,11 +49,11 @@ export default function CompanyScreen(){
  const num=(n:number|null)=>n==null?'—':new Intl.NumberFormat(i18n.language,{maximumFractionDigits:2}).format(n);
  const show=(metric:Metric,extra:{gameId?:string;mode?:Mode;bucket?:string}={})=>router.push({pathname:'/statistics/matches',params:{...query,...extra,friendId,groupContext,metric}} as never);
  const metricRow=(title:string,label:string,n:number,metric:Metric,first=false)=><Row key={metric} first={first} title={title} value={num(n)} accessibilityLabel={`${label}: ${n}`} accessibilityHint={t('viewSupporting')} onPress={()=>show(metric,{mode:'COMPETITIVE'})}/>;
- const date=(iso:string)=>new Intl.DateTimeFormat(i18n.language,{dateStyle:'medium',timeZone:query.timeZone}).format(new Date(iso));
+ const date=(iso:string)=>formatDate(iso,i18n.language,query.timeZone);
  const calculation=<Disclosure first title={t('howCalculated')}>
   <Text style={type.body}>{t('companyPrivacy')}</Text><Text style={type.caption}>{t('registeredParticipantsNote')}</Text><Text style={type.body}>{t('pairDrawNote')}</Text><Text style={type.caption}>{t('timeZone',{zone:query.timeZone})}</Text>
  </Disclosure>;
- const day=(iso:string)=>new Intl.DateTimeFormat(i18n.language,{dateStyle:'medium',timeZone:'UTC'}).format(new Date(`${iso}T12:00:00Z`));
+ const day=(iso:string)=>formatDate(`${iso}T12:00:00Z`,i18n.language,'UTC');
  const r=data?.results;
  const known=r?.known??0;
  return <SafeAreaView style={s.screen} edges={workspace?[]:['top','left','right']}><KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS==='ios'?'padding':undefined}>

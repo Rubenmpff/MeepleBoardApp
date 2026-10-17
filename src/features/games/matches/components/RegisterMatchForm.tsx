@@ -45,7 +45,8 @@ import DurationField from "./DurationField";
 import { hasCompleteScores } from "../utils/registrationScores";
 import MatchDateFields from "./MatchDateFields";
 import { initialSessionMatchDate } from "../utils/registrationDate";
-import { checkDuration, durationComplete, durationPayload, DurationDraft, emptyDuration, formatDuration } from "../utils/matchDuration";
+import { checkDuration, durationComplete, durationPayload, DurationDraft, emptyDuration } from "../utils/matchDuration";
+import { formatDuration } from "@/src/ui/format";
 import { MatchDto, MatchFormData, MatchOutcome } from "../types/MatchForm";
 import { PlayerState } from "../../../users/types/PlayerState";
 import { useFriends } from "../../../friends/hooks/useFriends";
@@ -339,7 +340,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     if (!durationComplete(duration)) {
       const c = checkDuration(duration);
       Alert.alert(t("validation.errorTitle"), t(c.state === "value" ? (c.unusual === "long" ? "duration.long" : "duration.short") : c.state === "invalid" ? (c.reason === "minutes" ? "duration.minutesRange" : c.reason === "zero" ? "duration.zero" : "duration.format") : "duration.error",
-        c.state === "value" ? { value: formatDuration(c.minutes) } : undefined)); return false;
+        c.state === "value" ? { value: formatDuration(c.minutes, i18n.language) } : undefined)); return false;
     }
     if (!Number.isFinite(matchDate.getTime()) || matchDate.getTime() > Date.now() + 60000) {
       Alert.alert(t("validation.errorTitle"), t("form.dateInvalid")); return false;
@@ -523,7 +524,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
     matchDate.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })].filter(Boolean).join(" · ");
   const durationCheck = checkDuration(duration);
   const durationReview = durationCheck.state === "unknown" ? t("duration.reviewUnknown") : durationCheck.state === "value"
-    ? t("duration.review", { value: formatDuration(durationCheck.minutes), method: t(durationCheck.method === "Measured" ? "duration.reviewMeasured" : "duration.reviewEstimated") }) : "—";
+    ? t("duration.review", { value: formatDuration(durationCheck.minutes, i18n.language), method: t(durationCheck.method === "Measured" ? "duration.reviewMeasured" : "duration.reviewEstimated") }) : "—";
   const resultText = isSolo ? t(result === "Win" ? "result.iWon" : result === "Loss" ? "result.iLost" : result === "Draw" ? "result.draw" : "result.undefined")
     : isCooperative ? t(result === "Win" ? "result.weWon" : result === "Loss" ? "result.weLost" : result === "Draw" ? "result.draw" : "result.undefined")
     : result === "Undefined" ? t("result.undefined") : result === "Draw" ? t("outcomes.tiedNamed", { name: playerState.filter(p => p.isWinner).map(p => p.username).join(", ") })

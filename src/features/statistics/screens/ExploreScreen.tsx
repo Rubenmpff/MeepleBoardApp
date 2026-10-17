@@ -1,3 +1,4 @@
+import { formatDate } from '@/src/ui/format';
 import {useStatisticsWorkspace} from '../components/Workspace';
 import {useState} from 'react';
 import {ActivityIndicator,KeyboardAvoidingView,Platform,StyleSheet,Text,TouchableOpacity,View} from 'react-native';
@@ -54,7 +55,7 @@ export default function ExploreScreen(){
    </View>
    <View style={s.captions}>
     <Note>{t('scoreSampleKnown',{scored:g.scored,total:g.matches,known:g.results.known})}</Note>
-    <Note>{t('firstRecorded',{date:new Intl.DateTimeFormat(i18n.language,{dateStyle:'medium',timeZone:query.timeZone}).format(new Date(g.firstRecorded))})}</Note>
+    <Note>{t('firstRecorded',{date:formatDate(g.firstRecorded,i18n.language,query.timeZone)})}</Note>
    </View>
   </>}
   <TouchableOpacity style={s.link} accessibilityRole="button" accessibilityLabel={t('viewMatches')} onPress={()=>show(section==='ratings'?'ratings':'all',{gameId:g.gameId,mode:g.mode})}>
