@@ -93,7 +93,7 @@ Cada ponto pendente precisa de autorização própria. **P1** = segurança ou pu
 
 | # | Ponto | Prioridade | Estado |
 | --- | --- | --- | --- |
-| 5.1 | AutoMapper 14 (NU1903, CVE-2026-32933) | P1 | **Mitigada, não resolvida.** O limite de recursão está confirmado e tem teste de regressão (API `4619889`). Substituição por mapeamentos explícitos em avaliação; estimativa abaixo. Sem licenças nem atualização. |
+| 5.1 | AutoMapper 14 (NU1903, CVE-2026-32933) | P1 | **Mitigada, não resolvida.** O limite de recursão está confirmado e tem teste de regressão (API `4619889`). Decisão de 2026-10-17: manter a estrutura atual e o AutoMapper. A substituição fica para uma decisão futura (estimativa abaixo, não iniciada). Sem licenças nem atualização. |
 | 5.2 | Mensagens de erro em português fixo nos serviços da app (`matchService` 11, `authService` 10, `experienceService` 2, uma ainda com «relatório»). `change()` e `moderate()` das experiências não tratam o erro e podem mostrar «Request failed with status code 409». | P2 | Pendente |
 | 5.3 | Três formatos de duração («1 h 05 min», «1 h 5 min», «1h 5m») e datas formatadas à mão em cerca de 20 ficheiros, em vez de `src/ui/format.ts`. `formatLongDate` (amigos) pode mostrar «10/2026». | P2 | Pendente |
 | 5.4 | `RatingCard` definido dentro do render e cor fixa `#B9B3C0` em `MatchDetailScreen.tsx` | P2 | Pendente |
@@ -111,7 +111,7 @@ Cada ponto pendente precisa de autorização própria. **P1** = segurança ou pu
 - unificação dos componentes paralelos: etapa própria, com validação visual;
 - eliminação da própria conta: pendência funcional CONTA01, em `pendencias-funcionais.md`.
 
-### 5.1 — Substituição do AutoMapper por mapeamentos explícitos (estimativa, não autorizada)
+### 5.1 — Substituição do AutoMapper por mapeamentos explícitos (estimativa; adiada por decisão do utilizador a 2026-10-17, não iniciada)
 
 **Âmbito real:** 11 mapeamentos configurados, mas só 8 em uso. São os 7 de entidade para DTO (`Game`, `Match`, `MatchPlayer`, `GameSession`, `GameSessionPlayer`, `User`, `UserGameLibrary`) e `UserDto → User`, usado na criação e edição de contas pelo administrador. Os inversos `GameDto → Game`, `GameSessionPlayerDto → GameSessionPlayer` e `UserGameLibraryDto → UserGameLibrary` não são usados. Não há achatamentos implícitos: as convenções são por nome igual. As regras explícitas são o `MaxDepth(3)` de `Game → GameDto`, `Notes` ignorado, as conversões de datas UTC das sessões e valores por omissão como «Jogador Desconhecido».
 
