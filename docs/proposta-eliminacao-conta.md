@@ -161,3 +161,30 @@ Página estática **«Eliminar conta MeepleBoard»** (alojamento: `lancamento-lo
 **Fora do âmbito:** bloqueio de utilizadores, denúncia de perfis e fotografias, e filtro de conteúdo (etapa seguinte). Não há alterações à produção, ao Azure nem aos segredos.
 
 **Migrações:** em princípio, nenhuma. `SuggestedById` já aceita null, e transferir campanhas muda só o `CreatorId`. Se for preciso um registo de pedidos pela web, fica fora da base, num registo interno.
+
+## 6. Estado da implementação (2026-10-17, DeviceTests)
+
+**Implementado:**
+
+- **API:** commits `c76cf66`, `f5a728b`, `33bf5bd` e `56c3f12`; detalhe em `MeepleBoardApi/docs/eliminacao-contas.md`.
+- **App:** commits `846a763` e `9bfe2a6`.
+
+**Testes:**
+
+| Onde | Resultado |
+| --- | --- |
+| `Accounts.Tests` | 8 passam |
+| Restantes projetos de testes da API | Todos passam |
+| `verify-own-account-deletion.cjs` (SQL real, contas descartáveis) | Passa por inteiro, com falhas simuladas do Cloudinary e do push e três pedidos simultâneos |
+| App | 367 testes passam, incluindo 6 do ecrã, o regresso depois do reset e os títulos neutros em PT e EN |
+
+As sessões e contas do roteiro não mudaram.
+
+**Pendente:**
+
+- **Validação no iPhone.**
+- **Página web pública «Eliminar conta»** (texto da secção 2), na etapa das páginas públicas. O endereço de apoio também não existe ainda.
+- **Ligação de uso único em produção:** o URL usa `Request.Scheme` e `Host`. Atrás do App Service, confirmar que sai `https` (cabeçalhos encaminhados) antes de usar em produção.
+- **Fornecedores:** confirmar os prazos do Azure, do Cloudinary e do Brevo para a política.
+
+**O verificador antigo `verify-account-deletion.cjs`** não foi corrido nesta ronda, porque cria atividade temporária na conta «autor» do roteiro. O caminho do administrador é o mesmo `DeleteAsync` e está coberto pelos testes isolados e pelo novo verificador.

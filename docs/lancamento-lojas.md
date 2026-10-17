@@ -20,9 +20,9 @@
 
 | # | Falha | Evidência | Regra | Bloqueia |
 | --- | --- | --- | --- | --- |
-| F1 | Não há eliminação da própria conta na app | Não há ecrã nem rota da conta autenticada. Só um administrador elimina contas (`DELETE /MeepleBoard/users/{id}`). CONTA01. | Apple 5.1.1(v). Google: eliminação de conta. | **Sim** (ambas) |
-| F2 | Não há página web para pedir a eliminação | Não existe página. | Google: link na Segurança dos dados, funcional e que permita o pedido sem a app. | **Sim** (Google) |
-| F3 | A eliminação no servidor não trata todos os dados partilhados nem os fornecedores | Ver [proposta-eliminacao-conta.md](proposta-eliminacao-conta.md). | Apple e Google: apagar o que não é obrigatório guardar e descrever o que se guarda. | **Sim**, até estar decidido e descrito |
+| F1 | Não há eliminação da própria conta na app. **Implementada em DeviceTests a 2026-10-17; falta validar no iPhone e levar para produção.** | Não há ecrã nem rota da conta autenticada. Só um administrador elimina contas (`DELETE /MeepleBoard/users/{id}`). CONTA01. | Apple 5.1.1(v). Google: eliminação de conta. | **Sim** (ambas) |
+| F2 | Não há página web para pedir a eliminação. **A API da ligação de uso único já existe; falta a página pública e o endereço de apoio.** | Não existe página. | Google: link na Segurança dos dados, funcional e que permita o pedido sem a app. | **Sim** (Google) |
+| F3 | A eliminação no servidor não trata todos os dados partilhados nem os fornecedores. **Tratados em DeviceTests a 2026-10-17; faltam os prazos dos fornecedores na política.** | Ver [proposta-eliminacao-conta.md](proposta-eliminacao-conta.md). | Apple e Google: apagar o que não é obrigatório guardar e descrever o que se guarda. | **Sim**, até estar decidido e descrito |
 | F4 | Os links legais não abrem | `welcome/index.tsx` aponta para `meepleboard.com/terms`, `/privacy` e `/guidelines`. O domínio não está registado (whois: «No match», 2026-10-17). | Apple 5.1.1(i) e Google: política acessível na ficha e na app. | **Sim** |
 | F5 | Não há texto da política de privacidade, dos termos nem das regras | Não há rascunho no projeto. | Apple 5.1.1(i): dados, usos, terceiros, retenção, eliminação e revogação. | **Sim** |
 | F6 | Não há contacto nem URL de apoio | Nada na app nem no projeto. | Apple 1.2 e URL de apoio obrigatório. Google: e-mail de contacto obrigatório. | **Sim** |

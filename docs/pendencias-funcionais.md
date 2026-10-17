@@ -20,7 +20,7 @@ Este documento cresceu por etapas, e alguns pontos aparecem como abertos em sec�
 
 ## CONTA01 — eliminação da própria conta na app (pendente; não implementar nesta ronda)
 
-**Proposta (2026-10-17, por aprovar):** [proposta-eliminacao-conta.md](proposta-eliminacao-conta.md), com o percurso na app, o pedido pela web, a tabela de dados e as decisões D1–D9.
+**Implementada em DeviceTests a 2026-10-17, por validar no iPhone:** [proposta-eliminacao-conta.md](proposta-eliminacao-conta.md), secções 1–6, com as decisões D1–D9. Para o lançamento faltam a página web pública e o endereço de apoio (etapa das páginas públicas).
 
 **Pendência para o lançamento** (confirmado a 2026-10-17): sem CONTA01, a app não está pronta para publicar na loja. A avaliação visual de UI/UX não equivale a aprovação técnica para produção.
 
