@@ -24,7 +24,7 @@
     "left": "Left"
   },
   "create": {
-    "title": "New Campaign",
+    "title": "New campaign",
     "selectGame": "Choose the game *",
     "details": "Campaign details",
     "name": "Name *",
@@ -127,7 +127,7 @@
     }
   },
   "encounter": {
-    "title": "New Encounter",
+    "title": "New encounter",
     "validation": {
       "missingData": "Some required encounter data is missing.",
       "selectPlayer": "Select at least one player.",

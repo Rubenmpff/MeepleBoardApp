@@ -2038,9 +2038,11 @@ flexWrap: "wrap",
     marginTop: 18,
   },
 
+  // Each column takes its content's width, so «1 h 15 min» stays on one line; columns wrap to a new row with larger text.
   compactStat: {
-    minWidth: 72,
-    flex: 1,
+    minWidth: 64,
+    flexGrow: 1,
+    flexBasis: "auto",
     alignItems: "center",
   },
 

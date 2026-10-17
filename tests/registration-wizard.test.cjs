@@ -17,7 +17,7 @@ test('five steps keep cover and mode accessible, and review lists names/zero/neg
   assert.match(view.html, /Passo 5 de 5 · Rever/); assert.match(view.html, /45 min · estimativa/);
   assert.match(view.html, /Fixture game/); assert.match(view.html, /Author.*-17/); assert.match(view.html, /Peer.*0/);
   assert.equal(view.images[0].resizeMode, 'contain');
-  for (const [label, step] of [['Corrigir Jogo', 0], ['Corrigir jogadores', 1], ['Corrigir Resultado', 2], ['Corrigir Avaliação', 3]]) {
+  for (const [label, step] of [['Corrigir Jogo', 0], ['Corrigir Jogadores', 1], ['Corrigir Resultado', 2], ['Corrigir Avaliação', 3]]) {
     await view.press(label); assert.deepEqual(view.updates.filter(([i]) => i === 2).at(-1), [2, step]);
   }
   assert.match(view.html, /Private notes/);

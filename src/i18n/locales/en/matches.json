@@ -13,8 +13,7 @@
     "registerMatch": "Register match",
     "sessionBadge": "SESSION",
     "quickBadge": "QUICK",
-    "unofficialBadge": "Unofficial",
-    "quickSubtitle": "Quick record"
+    "unofficialBadge": "Unofficial"
   },
   "validation": {
     "errorTitle": "Error",
@@ -634,7 +633,6 @@
     "scores": "Scores",
     "duration": "Duration",
     "when": "When",
-    "fixPlayers": "Fix players",
     "ratingClosed": "closed once saved"
   },
   "diary": {

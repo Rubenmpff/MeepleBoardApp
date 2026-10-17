@@ -548,7 +548,7 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
   </View>;
 
   const content = <View style={styles.page}>
-    {!disableScroll && <ScreenHeader mode="cancel" title={t("header.registerMatch")} subtitle={session?.name ?? t("header.quickSubtitle")} onLeftPress={navigationGuard.cancel} />}
+    {!disableScroll && <ScreenHeader mode="cancel" title={t("header.registerMatch")} subtitle={session?.name} onLeftPress={navigationGuard.cancel} />}
     {disableScroll && <View style={styles.inlineHeader}>
       <PrimaryButton title={i18n.t("navigation:cancel")} variant="secondary" onPress={() => navigationGuard.discard(clearAll)} />
       <Text style={type.title}>{isSessionMatch ? t("header.addMatch") : t("header.registerMatch")}</Text>
@@ -720,10 +720,9 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
           <SummaryRow label={t("review.result")} value={resultText} />
           <SummaryRow label={t("review.scores")} value={t(scoresEnabled ? "form.withScores" : "form.withoutScores")} />
         </View>
+      </ReviewSection>
+      <ReviewSection title={t("steps.players")} onFix={() => setStep(1)}>
         <View style={styles.card}>
-          <TouchableOpacity accessibilityRole="button" onPress={() => setStep(1)} style={styles.inlineLink}>
-            <Text style={styles.linkText}>{t("review.fixPlayers")}</Text>
-          </TouchableOpacity>
           {playerState.map(p => <SummaryRow key={p.id} label={p.username || t("sessions.playerNameUnavailable")}
             value={[scoresEnabled ? p.score?.trim() : null, t(`result.${{ Win: "win", Loss: "loss", Draw: "draw", Undefined: "undefined" }[outcomeFor(p.id)]}`)].filter(Boolean).join(" · ")} />)}
         </View>
@@ -815,7 +814,6 @@ const styles = StyleSheet.create({
   notice: { flexDirection: "row", alignItems: "center", gap: space.sm, padding: space.md, borderRadius: radius.hero, backgroundColor: colors.band, borderWidth: 1, borderColor: colors.line },
   shared: { gap: space.xs, padding: space.md, borderRadius: radius.hero, backgroundColor: colors.pendingSoft, borderWidth: 1, borderColor: colors.pendingLine },
   link: { minHeight: touch, minWidth: touch, justifyContent: "center", alignItems: "flex-end" },
-  inlineLink: { minHeight: touch, justifyContent: "center", alignSelf: "flex-start" },
   linkText: { ...type.body, ...strong, color: colors.primary },
   rowButton: { flexDirection: "row", alignItems: "center", gap: space.md, minHeight: touch },
   segment: { flexDirection: "row", backgroundColor: colors.track, borderRadius: radius.control, padding: 3, gap: 2 },

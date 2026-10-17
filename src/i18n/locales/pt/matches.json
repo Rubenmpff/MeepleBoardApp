@@ -13,8 +13,7 @@
     "registerMatch": "Registar partida",
     "sessionBadge": "SESSÃO",
     "quickBadge": "RÁPIDA",
-    "unofficialBadge": "Não oficial",
-    "quickSubtitle": "Registo rápido"
+    "unofficialBadge": "Não oficial"
   },
   "validation": {
     "errorTitle": "Erro",
@@ -211,7 +210,7 @@
   },
   "sessions": {
     "title": "Sessões",
-    "createTitle": "Criar Sessão",
+    "createTitle": "Criar sessão",
     "createIntro": "Agenda uma noite de jogos e convida os teus amigos.",
     "details": "Detalhes da sessão",
     "name": "Nome *",
@@ -634,7 +633,6 @@
     "scores": "Pontuação",
     "duration": "Duração",
     "when": "Quando",
-    "fixPlayers": "Corrigir jogadores",
     "ratingClosed": "fica fechada ao guardar"
   },
   "diary": {

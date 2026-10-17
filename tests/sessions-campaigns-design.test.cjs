@@ -49,19 +49,19 @@ test('session loading and error do not masquerade as empty lists; retry uses get
 
 test('session creation preserves trimmed fields, ISO dates, deadline, invitations and success destination', async () => {
   const view = await render(create, { states: { 0: ' Test session ', 1: ' Table ', 2: ['other'], 4: future, 5: deadline, 6: true }, createdSession: session });
-  await view.press('Criar Sessão');
+  await view.press('Criar sessão');
   assert.deepEqual(view.calls.find(c => c[0] === 'createSession')[1], { name: 'Test session', location: 'Table', scheduledStartDate: future.toISOString(), responseDeadline: deadline.toISOString(), playerIds: ['other'] });
   await confirm(view);
   assert.deepEqual(view.routes[0], ['replace', '/(app)/games/sessions/session-test']);
   const noDeadline = await render(create, { states: { 0: 'Test session', 2: ['other'], 4: future, 6: false } });
-  await noDeadline.press('Criar Sessão');
+  await noDeadline.press('Criar sessão');
   assert.equal(noDeadline.calls.find(c => c[0] === 'createSession')[1].responseDeadline, undefined);
 });
 
 test('session creation keeps minimum name and chronological validation', async () => {
   for (const states of [{ 0: 'ab', 4: future }, { 0: 'Valid', 4: new Date(0) }, { 0: 'Valid', 4: future, 5: future, 6: true }, { 0: 'Valid', 4: future, 5: new Date(0), 6: true }]) {
     const view = await render(create, { states });
-    assert.equal(view.controls.find(c => c.accessibilityLabel === 'Criar Sessão').disabled, true);
+    assert.equal(view.controls.find(c => c.accessibilityLabel === 'Criar sessão').disabled, true);
     assert.equal(view.calls.some(c => c[0] === 'createSession'), false);
   }
 });
@@ -171,12 +171,12 @@ test('planned game: chosen on the game page and changeable; optional; organizer 
     assert.ok(fromPage.html.includes(t('sessions.plannedGameOptional')) && fromPage.html.includes('Wingspan') && fromPage.html.includes(t('sessions.plannedFromGame')));
     await fromPage.press(`${t('sessions.plannedGameOptional')}: Wingspan`);
     assert.ok(fromPage.updates.some(([index, value]) => index === 10 && value === true), 'opens the choice');
-    await fromPage.press(language === 'pt' ? 'Criar Sessão' : 'Create session');
+    await fromPage.press(language === 'pt' ? 'Criar sessão' : 'Create session');
     assert.equal(fromPage.calls.find(c => c[0] === 'createSession')[1].plannedGameId, 'game-w');
   }
   const cleared = await render(create, { params: { gameId: 'game-w', gameName: 'Wingspan' }, states: { 0: 'Noite de jogos', 2: ['other'], 4: future, 9: null } });
   assert.ok(cleared.controls.some(c => c.accessibilityLabel === 'Jogo previsto (opcional): Escolher jogo'));
-  await cleared.press('Criar Sessão');
+  await cleared.press('Criar sessão');
   assert.equal('plannedGameId' in cleared.calls.find(c => c[0] === 'createSession')[1], false, 'a session without a game stays valid');
 
   const picker = await renderNative('src/features/games/sessions/components/PlannedGame.tsx', 'PlannedGamePicker', { visible: true, current: { id: 'game-w', name: 'Wingspan' }, onClose() {}, onPick: game => picked.push(game) },
@@ -331,7 +331,7 @@ test('encounter photos keep pending selection, permission guard and existing fiv
 test('all seven screens translate headings and existing actions in English', async () => {
   for (const [file, states] of [[list, { 1: false }], [create, {}], [detail, { 0: session, 1: false }], [campaigns, { 0: [campaign], 1: false }], [createCampaign, {}], [campaignDetail, { 0: campaign, 1: false }], [encounter, {}]]) {
     const view = await render(file, { states, language: 'en', params, stubRegisterForm: true });
-    assert.doesNotMatch(view.html, /Criar Sessão|Sessões|Prazo de resposta|Quem jogou hoje|Registar encontro|Não definido|A tua avaliação/);
+    assert.doesNotMatch(view.html, /Criar sessão|Sessões|Prazo de resposta|Quem jogou hoje|Registar encontro|Não definido|A tua avaliação/);
     assert.doesNotMatch(view.html, /sessions\.(?:title|tabs|deadline)|encounter\.(?:title|submit)|ui\.detailTitle/);
   }
 });

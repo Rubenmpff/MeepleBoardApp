@@ -13,7 +13,7 @@ const session = { id: 'session-existing', organizerId: 'me', name: 'Existing ses
 test('missing selection blocks submission without changing filled fields and shows PT/EN validation', async () => {
   for (const language of ['pt', 'en']) {
     const view = await renderNative(create, 'default', {}, { language, states: { 0: 'Filled name', 1: 'Filled place', 4: future } });
-    await view.press(language === 'pt' ? 'Criar Sessão' : 'Create session');
+    await view.press(language === 'pt' ? 'Criar sessão' : 'Create session');
     assert.equal(view.calls.some(c => c[0] === 'createSession'), false);
     assert.equal(view.calls.find(c => c[0] === 'alert')[1], language === 'pt' ? 'Seleciona pelo menos um amigo para criar a sessão' : 'Select at least one friend to create the session');
     assert.deepEqual(view.updates, [[8, true]]);
