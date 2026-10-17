@@ -43,5 +43,6 @@
     "server": "O servidor encontrou um problema. Tenta novamente dentro de momentos.",
     "invalid": "Os dados enviados não são válidos.",
     "generic": "Ocorreu um erro inesperado. Tenta novamente."
-  }
+  },
+  "deletedAccount": "Conta eliminada"
 }

@@ -297,6 +297,31 @@ export function friendlyErrorMessage(error: unknown, fallback?: string): string 
   return fallback ?? t(status === 409 ? "conflict" : status === 400 ? "invalid" : "generic");
 }
 
+// ======================================================
+// CONTAS ELIMINADAS
+// ======================================================
+
+// A deleted account keeps a neutral marker as its name (never text in one language): shown translated.
+const DELETED_ACCOUNT = /^deleted:[0-9a-f]{8}$/;
+
+/** Replaces the deleted-account marker with its translation, only in fields that hold a name. */
+export function presentDeletedAccounts<T>(data: T): T {
+  const visit = (value: any): any => {
+    if (Array.isArray(value)) return value.map(visit);
+    if (!value || typeof value !== "object") return value;
+    const out: any = {};
+    for (const [key, item] of Object.entries(value))
+      out[key] = typeof item === "string" && /name$/i.test(key) && DELETED_ACCOUNT.test(item) ? i18n.t("common:deletedAccount") : visit(item);
+    return out;
+  };
+  return visit(data);
+}
+
+api.interceptors.response.use((response) => {
+  if (response?.data && typeof response.data === "object") response.data = presentDeletedAccounts(response.data);
+  return response;
+});
+
 // Every failed request carries a friendly message; cancellations stay untouched (callers recognise «canceled»).
 api.interceptors.response.use(
   (response) => response,

@@ -43,5 +43,6 @@
     "server": "The server ran into a problem. Try again in a moment.",
     "invalid": "The information sent isn't valid.",
     "generic": "Something went wrong. Try again."
-  }
+  },
+  "deletedAccount": "Deleted account"
 }

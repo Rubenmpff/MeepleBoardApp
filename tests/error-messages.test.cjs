@@ -66,3 +66,13 @@ test('an error the app wrote itself keeps its translated text', () => {
   assert.equal(say('en', new Error("Couldn't record the match.")), "Couldn't record the match.");
   assert.match(say('en', new Error('Request failed with status code 500')), /Something went wrong/);
 });
+
+test('a deleted account shows translated, never the stored marker; other text untouched', () => {
+  const { presentDeletedAccounts } = loadApi();
+  const data = { players: [{ userId: 'a', userName: 'deleted:1bf74bdb' }, { userId: 'b', userName: 'Teste-autor' }], name: 'Sessão de sábado', note: 'deleted:1bf74bdb' };
+  i18n.language = 'pt'; let out = presentDeletedAccounts(data);
+  assert.equal(out.players[0].userName, 'Conta eliminada'); assert.equal(out.players[1].userName, 'Teste-autor');
+  assert.equal(out.name, 'Sessão de sábado'); assert.equal(out.note, 'deleted:1bf74bdb', 'only fields that hold a name');
+  i18n.language = 'en'; out = presentDeletedAccounts(data);
+  assert.equal(out.players[0].userName, 'Deleted account');
+});
