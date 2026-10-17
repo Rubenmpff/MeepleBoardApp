@@ -17,9 +17,9 @@ import { colors, space, strong, type } from "@/src/ui/theme";
 import { formatDate, formatRating } from "@/src/ui/format";
 import { ROUTES } from "@/src/constants/routes";
 import statisticsService from "@/src/features/statistics/services/statisticsService";
-import { FilterButton } from "@/src/features/statistics/ExploreFilters";
+import { FilterButton } from "@/src/features/statistics/components/ExploreFilters";
 import { localISO, periodQuery } from "@/src/features/statistics/utils/period";
-import { GameSummary, MatchPage, Mode, Query, SupportingMatch } from "@/src/features/statistics/types";
+import { GameSummary, MatchPage, Mode, Query, SupportingMatch } from "@/src/features/statistics/types/Statistics";
 
 type Result = "all" | "wins" | "losses" | "draws" | "undefined";
 /** "all", "month" or a calendar year such as "2025". */

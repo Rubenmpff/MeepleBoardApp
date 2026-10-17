@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {renderNative}=require('./helpers/renderNative.cjs');
 test('Club header keeps the original centered logo and collapses on keyboard without hiding title',async()=>{
- const source='src/components/ui/ClubHeader.tsx';
+ const source='src/features/statistics/components/ClubHeader.tsx';
  const normal=await renderNative(source,'default',{title:'Biblioteca'},{width:320,fontScale:2,captureEffects:true});
  assert.equal(normal.images.length,1);assert.equal(normal.images[0].resizeMode,'contain');
  const cleanup=normal.effects.map(fn=>fn()).filter(fn=>typeof fn==='function');

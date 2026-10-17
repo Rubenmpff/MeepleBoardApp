@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/src/store/store";
 import service from "../services/statisticsService";
-import { Query, Summary } from "../types";
+import { Query, Summary } from "../types/Statistics";
 export default function useStatistics(query: Query) {
  const account=useSelector((state:RootState)=>state.auth.user?.id);
  const key=JSON.stringify(query);

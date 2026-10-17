@@ -19,7 +19,7 @@ test('Every statistic navigates to supporting matches with the same period/game/
 });
 test('Statistics keeps zero measurements, mode labels, scrolling and does not show unknown results as losses',async()=>{
  for(const language of ['pt','en']){
- const r=await renderNative(source,'default',{}, {language,statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query,4:true,10:'mode'},stateModules:['src/features/statistics/ExploreFilters.tsx'],width:320,fontScale:2});
+ const r=await renderNative(source,'default',{}, {language,statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query,4:true,10:'mode'},stateModules:['src/features/statistics/components/ExploreFilters.tsx'],width:320,fontScale:2});
  assert.match(r.html,/0 min/);assert.match(r.html,/50%/);assert.match(r.html,/Long game name preserved/);
  assert.equal(r.nativeViews.find(v=>v[0]==='scroll')[1].keyboardShouldPersistTaps,'handled');
  assert.ok(r.html.includes(r.i18n.t('statistics:winRate')));assert.ok(r.html.includes(r.i18n.t('statistics:modes.SOLO')));assert.ok(r.html.includes(r.i18n.t('statistics:modes.COOPERATIVE')));
@@ -28,7 +28,7 @@ test('Statistics keeps zero measurements, mode labels, scrolling and does not sh
 });
 test('Evolution columns open their supporting period, including zero activity, without losing filters',async()=>{
  const filtered={...query,mode:'SOLO',gameId:'game-id'};
- const r=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:filtered,6:true},stateModules:['src/features/statistics/StatisticsEvolution.tsx'],width:320,fontScale:2});
+ const r=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:filtered,6:true},stateModules:['src/features/statistics/components/StatisticsEvolution.tsx'],width:320,fontScale:2});
  await r.press('janeiro de 2024: 3 partidas');
  assert.deepEqual(r.routes.at(-1),{pathname:'/statistics/matches',params:{...filtered,metric:'all',bucket:'2024-01'}});
  await r.press(`fevereiro de 2024: ${r.i18n.t('statistics:matchCount',{count:0})}`);
@@ -36,7 +36,7 @@ test('Evolution columns open their supporting period, including zero activity, w
  // Only the enlarged area strip may scroll sideways; the chart itself never does.
  assert.ok(!r.nativeViews.some(([kind,props])=>kind==='scroll'&&props.horizontal&&props.accessibilityRole!=='tablist'));
  const selections=[];
- const daily=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',{
+ const daily=await renderNative('src/features/statistics/components/StatisticsEvolution.tsx','default',{
   buckets:[{key:'2024-10-27',matches:2}],unit:'day',language:'pt',title:'Evolução',
   countLabel:n=>`${n} partidas`,onSelect:key=>selections.push(key),
  });
@@ -55,9 +55,9 @@ test('Statistics separates unavailable, empty, failed and loading states',async(
 test('Shared game and mode choices only update a draft, preserving the period',async()=>{
  const changes=[];
  const props={query,onChange:q=>changes.push(q),games:[game]};
- const modes=await renderNative('src/features/statistics/ExploreFilters.tsx','default',props,{states:{1:true,4:'mode'}});
+ const modes=await renderNative('src/features/statistics/components/ExploreFilters.tsx','default',props,{states:{1:true,4:'mode'}});
  await modes.press('Solo');assert.ok(modes.updates.some(([i,v])=>i===2&&v.mode==='SOLO'&&v.start===query.start));assert.ok(modes.updates.some(([i,v])=>i===4&&v==='main'));
- const games=await renderNative('src/features/statistics/ExploreFilters.tsx','default',props,{states:{1:true,4:'game'}});
+ const games=await renderNative('src/features/statistics/components/ExploreFilters.tsx','default',props,{states:{1:true,4:'game'}});
  await games.press('Selecionar jogo: '+game.name);assert.ok(games.updates.some(([i,v])=>i===2&&v.gameId===game.gameId&&v.start===query.start));
  assert.deepEqual(changes,[]);
 });
@@ -86,7 +86,7 @@ test('A cancelled statistics request cannot publish a late response or another a
 });
 test('Statistics header puts Back in its own row when keyboard or enlarged text collapses the logo',async()=>{
  const props={title:'Estatísticas',backLabel:'Voltar',onBack(){}};
- const r=await renderNative('src/features/statistics/StatisticsHeader.tsx','default',props,{states:{0:true,1:true},stateModules:['src/components/ui/ClubHeader.tsx'],width:390});
+ const r=await renderNative('src/features/statistics/components/StatisticsHeader.tsx','default',props,{states:{0:true,1:true},stateModules:['src/features/statistics/components/ClubHeader.tsx'],width:390});
  assert.equal(r.images.length,0);assert.ok(r.controls.some(c=>c.accessibilityLabel==='Voltar'&&c.style.position!=='absolute'));assert.match(r.html,/Estatísticas/);
 });
 test('Selectors and calculation notes stay collapsed until requested, while filters and coverage remain available',async()=>{
@@ -96,7 +96,7 @@ test('Selectors and calculation notes stay collapsed until requested, while filt
  assert.equal(r.controls.filter(c=>c.accessibilityLabel==='Vitórias: 1').length,1);
  await r.press('Filtros');
  assert.ok(r.updates.some(([i,v])=>i===4&&v===true));
- const sheet=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query,4:true},stateModules:['src/features/statistics/ExploreFilters.tsx']});
+ const sheet=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query,4:true},stateModules:['src/features/statistics/components/ExploreFilters.tsx']});
  await sheet.press('Modo de jogo: Todos os modos');
  assert.ok(sheet.updates.some(([i,v])=>i===10&&v==='mode'));
  const disclosure=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query},stateModules:['src/ui/components.tsx']});
@@ -111,11 +111,11 @@ test('Selectors and calculation notes stay collapsed until requested, while filt
 });
 test('Zero activity renders no bar; all real bars share an explicit integer scale',async()=>{
  const props={buckets:[{key:'2024-01',matches:3},{key:'2024-02',matches:0}],unit:'month',language:'pt',title:'Evolução',countLabel:n=>`${n} partidas`,onSelect(){}};
- const chart=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',props,{captureStatisticsPlot:true});
+ const chart=await renderNative('src/features/statistics/components/StatisticsEvolution.tsx','default',props,{captureStatisticsPlot:true});
  const bars=chart.calls.filter(c=>c[0]==='statisticsBar');
  assert.equal(bars.length,1);assert.equal(bars[0][1].testID,'statistics-bar-2024-01');
  assert.equal(bars[0][1].style[1].height,78);assert.match(chart.html,/<span>4<\/span>/);assert.match(chart.html,/<span>2<\/span>/);
- const empty=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',{...props,buckets:[{key:'2024-01',matches:0}]},{captureStatisticsPlot:true});
+ const empty=await renderNative('src/features/statistics/components/StatisticsEvolution.tsx','default',{...props,buckets:[{key:'2024-01',matches:0}]},{captureStatisticsPlot:true});
  assert.equal(empty.calls.filter(c=>c[0]==='statisticsBar').length,0);
  assert.match(empty.html,/Sem partidas neste período/);assert.doesNotMatch(empty.html,/NaN|Infinity/);
 });
@@ -123,7 +123,7 @@ test('Zero activity renders no bar; all real bars share an explicit integer scal
 test('Annual overview includes activity beyond June and exposes month details without hiding the second half of the year',async()=>{
  const buckets=Array.from({length:12},(_,i)=>({key:`2026-${String(i+1).padStart(2,'0')}`,matches:i===9?158:0}));
  const props={buckets,unit:'month',language:'pt',title:'Evolução',countLabel:n=>`${n} partidas`,onSelect(){}};
- const r=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',props,{captureStatisticsPlot:true});
+ const r=await renderNative('src/features/statistics/components/StatisticsEvolution.tsx','default',props,{captureStatisticsPlot:true});
  assert.equal(r.calls.filter(c=>c[0]==='statisticsBar').length,1);
  assert.equal(r.calls.find(c=>c[0]==='statisticsBar')[1].testID,'statistics-bar-2026-10');
  assert.equal(r.calls.find(c=>c[0]==='statisticsBar')[1].style[1].height,104);
@@ -131,7 +131,7 @@ test('Annual overview includes activity beyond June and exposes month details wi
  assert.ok(!r.nativeViews.some(([kind,props])=>kind==='scroll'&&props.horizontal));
  await r.press('Consultar meses');assert.ok(r.updates.some(([i,v])=>i===0&&v===true));
  const selected=[];
- const details=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',{...props,onSelect:key=>selected.push(key)},{states:{0:true},fontScale:2});
+ const details=await renderNative('src/features/statistics/components/StatisticsEvolution.tsx','default',{...props,onSelect:key=>selected.push(key)},{states:{0:true},fontScale:2});
  await details.press('outubro de 2026: 158 partidas');assert.deepEqual(selected,['2026-10']);
  assert.ok(!details.nativeViews.some(([kind,props])=>kind==='scroll'&&props.horizontal));
 });
@@ -150,7 +150,7 @@ test('Real area tabs select their screen and carry the active filters without ov
  assert.ok(r.html.indexOf('Partidas por mês')<r.html.indexOf('Resultados pessoais'));
  assert.ok(!r.controls.some(c=>c.accessibilityLabel==='Atividade por mês'));
  for(const area of ['summary','company','explore','year']){
-  const header=await renderNative('src/features/statistics/summary/AreaHeader.tsx','default',{area,title:'Test',query:filtered,period:'month'});
+  const header=await renderNative('src/features/statistics/components/AreaHeader.tsx','default',{area,title:'Test',query:filtered,period:'month'});
   const tabs=header.controls.filter(c=>c.accessibilityRole==='tab');assert.equal(tabs.length,4);assert.equal(tabs.filter(c=>c.accessibilityState.selected).length,1);
   const labels={summary:'Resumo',company:'Companhia',explore:'Explorar',year:'Ano'};await header.press(labels[area]);assert.equal(header.routes.length,0);
  }
@@ -166,7 +166,7 @@ test('Frequent games group by ID, retain ties at third place and offer every rem
 });
 
 test('Summary header keeps the real logo independent of Back and removes decoration with keyboard',async()=>{
- const source='src/features/statistics/summary/SummaryHeader.tsx';
+ const source='src/features/statistics/components/SummaryHeader.tsx';
  const normal=await renderNative(source,'default',{backLabel:'Voltar',onBack(){}},{width:402});
  assert.equal(normal.images.length,1);assert.equal(flat(normal.controls.find(c=>c.accessibilityLabel==='Voltar').style).position,'absolute');
  const compact=await renderNative(source,'default',{backLabel:'Voltar',onBack(){}},{width:320,fontScale:2,states:{0:true}});
@@ -181,18 +181,18 @@ test('Summary restores the incoming period, timezone and filters after switching
 });
 test('Shared filters defer period changes until one apply action',async()=>{
  const changes=[],periods=[],props={query,onChange:q=>changes.push(q),games:[],initialPeriod:'year',onPeriodChange:p=>periods.push(p)};
- const r=await renderNative('src/features/statistics/ExploreFilters.tsx','default',props);
+ const r=await renderNative('src/features/statistics/components/ExploreFilters.tsx','default',props);
  assert.equal(r.controls.filter(c=>c.accessibilityLabel==='Filtros').length,1);
  await r.press('Filtros');assert.ok(r.updates.some(([i,v])=>i===1&&v===true));
- const editor=await renderNative('src/features/statistics/ExploreFilters.tsx','default',props,{states:{1:true}});
+ const editor=await renderNative('src/features/statistics/components/ExploreFilters.tsx','default',props,{states:{1:true}});
  await editor.press('Mês');assert.deepEqual(changes,[]);assert.deepEqual(periods,[]);
  assert.ok(editor.updates.some(([i,v])=>i===2&&v.endExclusive==='2024-02-01'));
- const ready=await renderNative('src/features/statistics/ExploreFilters.tsx','default',props,{states:{1:true,2:{...query,endExclusive:'2024-02-01'},3:'month'}});
+ const ready=await renderNative('src/features/statistics/components/ExploreFilters.tsx','default',props,{states:{1:true,2:{...query,endExclusive:'2024-02-01'},3:'month'}});
  await ready.press('Aplicar filtros');assert.equal(changes[0].endExclusive,'2024-02-01');assert.deepEqual(periods,['month']);
 });
 test('Closing the shared sheet leaves the applied query untouched',async()=>{
  const changes=[];
- const r=await renderNative('src/features/statistics/ExploreFilters.tsx','default',{query,onChange:q=>changes.push(q),games:[game],initialPeriod:'custom'},{states:{1:true},width:320,fontScale:2});
+ const r=await renderNative('src/features/statistics/components/ExploreFilters.tsx','default',{query,onChange:q=>changes.push(q),games:[game],initialPeriod:'custom'},{states:{1:true},width:320,fontScale:2});
  assert.equal(r.nativeViews.find(([kind])=>kind==='modal')[1].visible,true);
  assert.equal(r.inputs.length,0);
  await r.press('Fechar filtros');assert.deepEqual(changes,[]);
@@ -242,7 +242,7 @@ test('More details keeps legacy and missing duration one tap away and separate f
  });
  test('Shared custom calendar applies an inclusive end and preserves game, mode and timezone',async()=>{
  const changes=[],draft={...query,gameId:'game-id',mode:'SOLO'},props={query,onChange:q=>changes.push(q),games:[game],initialPeriod:'custom'};
- const r=await renderNative('src/features/statistics/ExploreFilters.tsx','default',props,{states:{1:true,2:draft,3:'custom',5:'2024-10-27',6:'2024-10-28',8:'start'}});
+ const r=await renderNative('src/features/statistics/components/ExploreFilters.tsx','default',props,{states:{1:true,2:draft,3:'custom',5:'2024-10-27',6:'2024-10-28',8:'start'}});
  assert.equal(r.inputs.length,0);assert.doesNotMatch(r.html,/AAAA-MM-DD/);
  assert.match(r.html,/27 de outubro de 2024/);
  assert.equal(r.controls.filter(c=>c.accessibilityLabel==='Aplicar filtros').length,1);
@@ -251,12 +251,12 @@ test('More details keeps legacy and missing duration one tap away and separate f
  assert.ok(r.updates.some(([i,v])=>i===5&&v==='2024-10-26'));assert.deepEqual(changes,[]);
  await r.press('Aplicar filtros');assert.deepEqual(changes,[{...draft,start:'2024-10-27',endExclusive:'2024-10-29'}]);
  for(const [start,end]of [['2024-10-29','2024-10-27'],['2024-02-30','2024-03-01']]){
- const invalid=await renderNative('src/features/statistics/ExploreFilters.tsx','default',props,{states:{1:true,2:draft,3:'custom',5:start,6:end}});
+ const invalid=await renderNative('src/features/statistics/components/ExploreFilters.tsx','default',props,{states:{1:true,2:draft,3:'custom',5:start,6:end}});
  const before=changes.length;await invalid.press('Aplicar filtros');assert.equal(changes.length,before);assert.ok(invalid.updates.some(([i,v])=>i===7&&v===true));
  }
  });
  test('Compact annual chart only labels populated bars while zero months remain in the accessible monthly details',async()=>{
- const r=await renderNative('src/features/statistics/StatisticsEvolution.tsx','default',{compact:true,buckets:[{key:'2024-01',matches:3},{key:'2024-02',matches:0}],unit:'month',language:'pt',title:'Evolução',countLabel:n=>`${n} partidas`,onSelect(){}},{captureStatisticsPlot:true});
+ const r=await renderNative('src/features/statistics/components/StatisticsEvolution.tsx','default',{compact:true,buckets:[{key:'2024-01',matches:3},{key:'2024-02',matches:0}],unit:'month',language:'pt',title:'Evolução',countLabel:n=>`${n} partidas`,onSelect(){}},{captureStatisticsPlot:true});
  assert.equal(r.calls.filter(c=>c[0]==='statisticsBar').length,1);
  assert.equal(r.calls.find(c=>c[0]==='statisticsBar')[1].style[1].height,104 * 3 / 4); // Same data ratio at the shared 104 pt plot height.
  assert.ok(r.controls.some(c=>c.accessibilityLabel?.includes('fevereiro de 2024: 0 partidas')));

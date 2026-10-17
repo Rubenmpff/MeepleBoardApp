@@ -1,4 +1,4 @@
-import { Period, Query } from '../types';
+import { Period, Query } from '../types/Statistics';
 
 export function formatDuration(minutes: number, language: string): string {
  const hours = Math.floor(minutes / 60);

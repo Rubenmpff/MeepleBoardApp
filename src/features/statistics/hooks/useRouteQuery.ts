@@ -1,8 +1,8 @@
 import {useState} from 'react';
 import {useLocalSearchParams} from 'expo-router';
-import {useStatisticsWorkspace} from './Workspace';
-import {Mode,Period,Query} from './types';
-import {localISO,periodQuery} from './utils/period';
+import {useStatisticsWorkspace} from '../components/Workspace';
+import {Mode,Period,Query} from '../types/Statistics';
+import {localISO,periodQuery} from '../utils/period';
 export default function useRouteQuery(){
  const workspace=useStatisticsWorkspace();
  const params=useLocalSearchParams();const value=(key:string)=>{const v=params[key];return Array.isArray(v)?v[0]:v;};

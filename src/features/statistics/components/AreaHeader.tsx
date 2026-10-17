@@ -3,9 +3,9 @@ import {useTranslation} from 'react-i18next';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {View} from 'react-native';
 import SummaryHeader from './SummaryHeader';
-import {useStatisticsWorkspace} from '../Workspace';
+import {useStatisticsWorkspace} from './Workspace';
 import AreaNavigation,{Area} from './AreaNavigation';
-import {Period,Query} from '../types';
+import {Period,Query} from '../types/Statistics';
 export type {Area} from './AreaNavigation';
 // Inside the workspace the persistent header already identifies the area; this only covers standalone use.
 export default function AreaHeader({area,query,period,onBack}:{area:Area;query:Query;period:Period;onBack?:()=>void}){

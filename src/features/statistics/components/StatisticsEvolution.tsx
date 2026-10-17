@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
-import { Summary } from "./types";
+import { Summary } from "../types/Statistics";
 import { Card, Row } from "@/src/ui/components";
 import { colors, space, type } from "@/src/ui/theme";
 

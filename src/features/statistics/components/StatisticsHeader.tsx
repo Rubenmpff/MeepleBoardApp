@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Keyboard, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
-import ClubHeader from "@/src/components/ui/ClubHeader";
-import { styles } from "./styles";
+import ClubHeader from "@/src/features/statistics/components/ClubHeader";
+import { styles } from "../styles/statisticsStyles";
 // Keep the shared logo centered; the back action never takes space from its row.
 export default function StatisticsHeader({title,subtitle,backLabel,onBack}:{title:string;subtitle?:string;backLabel:string;onBack:()=>void}) {
  const {width,fontScale}=useWindowDimensions();const [keyboardOpen,setKeyboardOpen]=useState(false);

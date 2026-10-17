@@ -20,7 +20,7 @@ import { usePendingJournal } from "@/src/features/games/matches/hooks/usePending
 import { getIncomingRequests } from "@/src/features/friends/services/friendshipService";
 import useStatistics from "@/src/features/statistics/hooks/useStatistics";
 import { localISO, periodQuery } from "@/src/features/statistics/utils/period";
-import { Summary } from "@/src/features/statistics/types";
+import { Summary } from "@/src/features/statistics/types/Statistics";
 import { useLastMatch } from "../hooks/useLastMatch";
 
 const SHOWN_INVITES = 3;

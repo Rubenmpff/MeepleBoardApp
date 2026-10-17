@@ -1,4 +1,4 @@
-import {YearReport} from './types';
+import {YearReport} from '../types/Statistics';
 export const YEAR_CARDS=['overview','played','wins','rate','company','time','month','first'] as const;
 export type YearCardId=typeof YEAR_CARDS[number];
 // This projection is also used by the export: no arbitrary DTO spreading or friend data.

@@ -1,4 +1,4 @@
-import { Period, Query } from "../types";
+import { Period, Query } from "../types/Statistics";
 export const localISO = (date: Date) => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
 export function parseDate(value: string): Date | null {
  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;

@@ -3,9 +3,9 @@ import {Keyboard,Platform,StyleSheet,Text,TouchableOpacity,View,useWindowDimensi
 import {useTranslation} from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import GameCover from '@/src/ui/GameCover';
-import {GameSummary,Mode,Period,Query} from './types';
-import {customQuery,inclusiveEnd,localISO,periodQuery,shiftAnchor} from './utils/period';
-import {formatPeriodLabel} from './utils/presentation';
+import {GameSummary,Mode,Period,Query} from '../types/Statistics';
+import {customQuery,inclusiveEnd,localISO,periodQuery,shiftAnchor} from '../utils/period';
+import {formatPeriodLabel} from '../utils/presentation';
 import Sheet from '@/src/ui/Sheet';
 import {Card,Glyph,Row,Segmented} from '@/src/ui/components';
 import {colors,isLarge,space,strong,touch,type} from '@/src/ui/theme';

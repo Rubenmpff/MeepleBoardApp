@@ -5,14 +5,14 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { RootState } from "@/src/store/store";
 import { useTranslation } from "react-i18next";
-import StatisticsHeader from "../StatisticsHeader";
+import StatisticsHeader from "../components/StatisticsHeader";
 import GameCover from "@/src/ui/GameCover";
 import Button from "@/src/ui/PrimaryButton";
 import { APP_THEME as theme } from "@/src/styles/clubTheme";
-import { MatchPage, Metric, Mode, Query, GroupContext } from "../types";
+import { MatchPage, Metric, Mode, Query, GroupContext } from "../types/Statistics";
 import service from "../services/statisticsService";
 import { inclusiveEnd } from "../utils/period";
-import { styles } from "../styles";
+import { styles } from "../styles/statisticsStyles";
 export default function StatisticsMatchesScreen() {
  const account=useSelector((state:RootState)=>state.auth.user?.id);
  const params=useLocalSearchParams();const router=useRouter();const {t,i18n}=useTranslation("statistics");

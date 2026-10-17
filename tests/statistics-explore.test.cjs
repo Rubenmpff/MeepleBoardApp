@@ -28,8 +28,8 @@ test('Collection uses own current entries added in the period, keeps price zero 
  await r.press(game.name);assert.equal(r.routes.at(-1).pathname,'/games/details/[id]');
 });
 test('All annual card projections omit friend identities and arbitrary private DTO fields',async()=>{
- const r=await renderNative('src/features/statistics/YearCard.tsx','default',{report:year,id:'company'});
- const cards=r.load('src/features/statistics/yearCards.ts');
+ const r=await renderNative('src/features/statistics/components/YearCard.tsx','default',{report:year,id:'company'});
+ const cards=r.load('src/features/statistics/utils/yearCards.ts');
  const malicious={...year,friendName:'SECRET_NAME',friendId:'SECRET_ID',notes:'SECRET_NOTE',summary:{...year.summary,notes:'SECRET_DIARY'}};
  for(const id of cards.YEAR_CARDS){const serialized=JSON.stringify(cards.publicYearCard(malicious,id));assert.doesNotMatch(serialized,/SECRET_|friendId|friendName|notes/);}
  assert.match(r.html,/não inclui nomes/);assert.match(r.html,/Modo: Competitivo/);assert.match(r.html,/Jogo: Um jogo/);assert.doesNotMatch(r.html,/Amigo visível/);
@@ -38,8 +38,8 @@ test('Year cards distinguish most wins from win rate sample, preserve no duratio
  const r=await renderNative('src/features/statistics/screens/YearScreen.tsx','default',{}, {params:{...query,year:'2024'},states:{0:2024,1:2},statisticsReport:year});
  assert.match(r.html,/2 vitórias/);assert.match(r.html,/4 resultados conhecidos/);await r.press(game.name+' · Consultar partidas');
  assert.equal(r.routes.at(-1).params.metric,'wins');assert.equal(r.routes.at(-1).params.start,'2024-01-01');assert.equal(r.routes.at(-1).params.gameId,'game-a');
- const rate=await renderNative('src/features/statistics/YearCard.tsx','default',{report:year,id:'rate'});assert.match(rate.html,/pelo menos 5 resultados/);assert.doesNotMatch(rate.html,/0%/);
- const time=await renderNative('src/features/statistics/YearCard.tsx','default',{report:{...year,summary:{...summary,recordedMinutes:null,matchesWithDuration:0}},id:'time'});assert.match(time.html,/Sem duração registada/);
+ const rate=await renderNative('src/features/statistics/components/YearCard.tsx','default',{report:year,id:'rate'});assert.match(rate.html,/pelo menos 5 resultados/);assert.doesNotMatch(rate.html,/0%/);
+ const time=await renderNative('src/features/statistics/components/YearCard.tsx','default',{report:{...year,summary:{...summary,recordedMinutes:null,matchesWithDuration:0}},id:'time'});assert.match(time.html,/Sem duração registada/);
 });
 test('Generic report cancels late responses and does not publish data after navigation',async()=>{
  let resolve,signal;
@@ -66,8 +66,8 @@ test('Current annual reader and shared card mark To date, while completed years 
  const currentReport={...year,year:current};
  const reader=await renderNative('src/features/statistics/screens/YearScreen.tsx','default',{}, {params:{...query,year:String(current)},statisticsReport:currentReport});
  assert.match(reader.html,/Até à data/);assert.doesNotMatch(reader.html,/Ano inteiro/);
- const shared=await renderNative('src/features/statistics/YearCard.tsx','default',{report:currentReport,id:'overview'});assert.match(shared.html,/Até à data/);assert.match(shared.html,/1 jogo diferente/);
- const past=await renderNative('src/features/statistics/YearCard.tsx','default',{report:{...year,year:current-1},id:'overview'});assert.doesNotMatch(past.html,/Até à data/);
+ const shared=await renderNative('src/features/statistics/components/YearCard.tsx','default',{report:currentReport,id:'overview'});assert.match(shared.html,/Até à data/);assert.match(shared.html,/1 jogo diferente/);
+ const past=await renderNative('src/features/statistics/components/YearCard.tsx','default',{report:{...year,year:current-1},id:'overview'});assert.doesNotMatch(past.html,/Até à data/);
 });
 
 test('Pair context filters advertise counts and propagate selected context to every supporting route',async()=>{
@@ -96,7 +96,7 @@ test('Friend search pins placeholder contrast to the actual white field in light
  }
 });
 test('Annual cards retain relevant coverage and put extensive explanations outside the captured image',async()=>{
- const card=await renderNative('src/features/statistics/YearCard.tsx','default',{report:year,id:'time'});
+ const card=await renderNative('src/features/statistics/components/YearCard.tsx','default',{report:year,id:'time'});
  assert.match(card.html,/Duração em 1 de 5/);assert.match(card.html,/4 resultados conhecidos/);assert.doesNotMatch(card.html,/Fuso horário|Segundo o teu histórico/);
  const reader=await renderNative('src/features/statistics/screens/YearScreen.tsx','default',{}, {params:{...query,year:'2024'},statisticsReport:year,states:{6:true},stateModules:['src/ui/components.tsx']});
  assert.match(reader.html,/Fuso horário: Europe\/Lisbon/);assert.match(reader.html,/Segundo o teu histórico/);
@@ -131,7 +131,7 @@ test('Company and Explore reuse the Summary filter toolbar and one apply sheet',
  assert.equal(closed.controls.filter(c=>c.accessibilityLabel==='Filtros').length,1);
  assert.ok(closed.controls.some(c=>c.accessibilityHint==='Filtros'&&c.accessibilityRole==='button'));
  assert.ok(!closed.controls.some(c=>c.accessibilityLabel==='Jogo'||c.accessibilityLabel==='Modo de jogo'));
- const open=await renderNative(file,'default',{}, {params:query,statisticsReport:{...company,friendId:null},statisticsSummary:summary,stateModules:['src/features/statistics/ExploreFilters.tsx'],states:{[area==='Company'?7:6]:true}});
+ const open=await renderNative(file,'default',{}, {params:query,statisticsReport:{...company,friendId:null},statisticsSummary:summary,stateModules:['src/features/statistics/components/ExploreFilters.tsx'],states:{[area==='Company'?7:6]:true}});
  assert.equal(open.controls.filter(c=>c.accessibilityLabel==='Aplicar filtros').length,1);
  }
 });

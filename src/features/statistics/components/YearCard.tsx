@@ -2,9 +2,9 @@ import {StyleSheet,Text,View,useWindowDimensions} from 'react-native';
 import {useTranslation} from 'react-i18next';
 import GameCover from '@/src/ui/GameCover';
 import YearDecoration from './YearDecoration';
-import {publicYearCard,YearCardId} from './yearCards';
-import {formatDuration} from './utils/presentation';
-import {YearReport} from './types';
+import {publicYearCard,YearCardId} from '../utils/yearCards';
+import {formatDuration} from '../utils/presentation';
+import {YearReport} from '../types/Statistics';
 import {colors,isLarge,type} from '@/src/ui/theme';
 // The same card is read in the app and captured for sharing; it never includes friends' identities.
 // variant is kept for callers: reader and share render identically.

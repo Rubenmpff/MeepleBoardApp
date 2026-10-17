@@ -3,9 +3,9 @@ import {useEffect} from 'react';
 import {View,useWindowDimensions} from 'react-native';
 import {SafeAreaView,useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTranslation} from 'react-i18next';
-import SummaryHeader from '@/src/features/statistics/summary/SummaryHeader';
-import AreaNavigation,{Area} from '@/src/features/statistics/summary/AreaNavigation';
-import {useStatisticsWorkspace} from '@/src/features/statistics/Workspace';
+import SummaryHeader from '@/src/features/statistics/components/SummaryHeader';
+import AreaNavigation,{Area} from '@/src/features/statistics/components/AreaNavigation';
+import {useStatisticsWorkspace} from '@/src/features/statistics/components/Workspace';
 import {colors} from '@/src/ui/theme';
 export default function AreasLayout(){
  const {width,height,scale,fontScale}=useWindowDimensions();

@@ -2,8 +2,8 @@ import {createContext,useContext,useState,useRef,ReactNode,Dispatch,SetStateActi
 import {useSelector} from 'react-redux';
 import {useLocalSearchParams} from 'expo-router';
 import {RootState} from '@/src/store/store';
-import {Query,Period,Mode} from './types';
-import {localISO,periodQuery} from './utils/period';
+import {Query,Period,Mode} from '../types/Statistics';
+import {localISO,periodQuery} from '../utils/period';
 type Workspace={companyBack:RefObject<(()=>void)|null>;query:Query;setQuery:Dispatch<SetStateAction<Query>>;period:Period;setPeriod:Dispatch<SetStateAction<Period>>};
 const Context=createContext<Workspace|null>(null);
 export const useStatisticsWorkspace=()=>useContext(Context);

@@ -1,7 +1,7 @@
 import {ScrollView,StyleSheet,Text,TouchableOpacity,View,useWindowDimensions} from 'react-native';
 import {useRouter} from 'expo-router';
 import {useTranslation} from 'react-i18next';
-import {Period,Query} from '../types';
+import {Period,Query} from '../types/Statistics';
 import {colors,isLarge,strong,touch,type} from '@/src/ui/theme';
 export type Area='summary'|'company'|'explore'|'year';
 // Area navigation: green underline. With large text the areas become a horizontal strip.

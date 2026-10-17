@@ -1,5 +1,5 @@
 import api from "@/src/services/api";
-import { MatchPage, Metric, Query, Summary, CompanyReport, ExploreReport, YearReport, GroupContext } from "../types";
+import { MatchPage, Metric, Query, Summary, CompanyReport, ExploreReport, YearReport, GroupContext } from "../types/Statistics";
 export default {
  async company(query:Query,friendId?:string,signal?:AbortSignal,groupContext:GroupContext='all'):Promise<CompanyReport>{return (await api.get("/statistics/me/company",{params:{...query,friendId,groupContext},signal})).data;},
  async explore(query:Query,signal?:AbortSignal):Promise<ExploreReport>{return (await api.get("/statistics/me/explore",{params:query,signal})).data;},
