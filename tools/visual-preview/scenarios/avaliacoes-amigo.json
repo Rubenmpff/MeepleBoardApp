@@ -1,4 +1,4 @@
 {"name":"avaliacoes-amigo","screens":[
  {"id":"1-pendentes","route":"/games/pending-journal"},
- {"id":"2-partida-por-avaliar","route":"/games/matches/c902cbb4-970f-483b-9d4e-fb15f649d1e8/journal"}
+ {"id":"2-partida-por-avaliar","route":"/games/matches/b92c51bb-70c4-401d-afe0-044e4544b998/journal"}
 ]}

@@ -11,20 +11,20 @@
   },
   {
    "id": "1-partida-avaliada",
-   "route": "/games/matches/fb4be11b-4138-4a42-96cd-e06cba475675"
+   "route": "/games/matches/62d432d8-475b-4625-9234-7eadb95e7a99"
   },
   {
    "id": "2-diario-fechado",
-   "route": "/games/matches/fb4be11b-4138-4a42-96cd-e06cba475675/journal"
+   "route": "/games/matches/62d432d8-475b-4625-9234-7eadb95e7a99/journal"
   },
   {
    "id": "3-diario-fim",
-   "route": "/games/matches/fb4be11b-4138-4a42-96cd-e06cba475675/journal",
+   "route": "/games/matches/62d432d8-475b-4625-9234-7eadb95e7a99/journal",
    "scroll": "end"
   },
   {
    "id": "4-publicar",
-   "route": "/games/matches/fb4be11b-4138-4a42-96cd-e06cba475675/publish"
+   "route": "/games/matches/62d432d8-475b-4625-9234-7eadb95e7a99/publish"
   },
   {
    "id": "5-jogo-topo",
