@@ -136,9 +136,9 @@ export default function MatchDetailScreen() {
             {players.map((p, index) => <Row key={p.id ?? p.userId} first={index === 0} inset={68} strongTitle
               lead={<View><Avatar name={p.userName ?? "?"} />{won(p) && <View style={styles.winner}><Glyph name="trophy" size={12} color={colors.onPrimary} /></View>}</View>}
               title={isMine(p.userId) ? t("players.youNamed", { name: p.userName ?? t("players.player") }) : p.userName ?? t("players.player")}
-              subtitle={p.outcome ? t(`outcomes.${p.outcome}`) : t("outcomes.legacyUnknown")}
+              subtitle={p.outcome ? t(`outcomes.${p.outcome}`) : t("outcomes.noIndividualResult")}
               value={typeof p.score === "number" ? String(p.score) : undefined}
-              accessibilityLabel={[isMine(p.userId) ? t("players.you") : p.userName, p.outcome ? t(`outcomes.${p.outcome}`) : t("outcomes.legacyUnknown"), typeof p.score === "number" ? t("ui.points", { score: p.score }) : null].filter(Boolean).join(", ")} />)}
+              accessibilityLabel={[isMine(p.userId) ? t("players.you") : p.userName, p.outcome ? t(`outcomes.${p.outcome}`) : t("outcomes.noIndividualResult"), typeof p.score === "number" ? t("ui.points", { score: p.score }) : null].filter(Boolean).join(", ")} />)}
           </Card>
         </Section>
 

@@ -16,7 +16,7 @@ import GameCover from '@/src/ui/GameCover';
 import ScreenScroll from '@/src/ui/Screen';
 import {formatBucket} from '../utils/presentation';
 import Sheet from '@/src/ui/Sheet';
-import {Avatar,Button,Card,Disclosure,Glyph,Hero,Note,PendingNotice,ProportionBar,RankBar,ResultsTrio,Row,SearchField,Section,Segmented} from '@/src/ui/components';
+import {Avatar,Button,Card,Disclosure,Glyph,Hero,Note,CoverageNotice,ProportionBar,RankBar,ResultsTrio,Row,SearchField,Section,Segmented} from '@/src/ui/components';
 import {colors,isLarge,space,strong,touch,type} from '@/src/ui/theme';
 export default function CompanyScreen(){
  const workspace=useStatisticsWorkspace();
@@ -102,14 +102,14 @@ export default function CompanyScreen(){
      <Text style={type.caption}>{data.matches===0?t('empty'):known>0?t('pairConfirmedOf',{known,total:data.matches}):t('pairNoneConfirmed')}</Text>
     </TouchableOpacity>
     {known>0&&<ProportionBar parts={[{value:known,color:colors.primary},{value:r.unknown,color:'#DCD2EC'}]}/>}
-    {known>0&&r.unknown>0&&<PendingNotice label={t('pairPendingCount',{count:r.unknown})} accessibilityLabel={`${t('pairPending')}: ${r.unknown}`} onPress={()=>show('unknown-pair')}/>}
+    {known>0&&r.unknown>0&&<CoverageNotice label={t('pairPendingCount',{count:r.unknown})} accessibilityLabel={`${t('pairPending')}: ${r.unknown}`} onPress={()=>show('unknown-pair')}/>}
    </Hero>
 
-   {data.matches>0&&known===0&&<Card padded style={s.pendingCard}>
-    <Glyph name="help-circle-outline" size={24} color={colors.pendingIcon}/>
+   {data.matches>0&&known===0&&<Card padded style={s.coverageCard}>
+    <Glyph name="information-outline" size={24} color={colors.icon}/>
     <Text style={type.head} accessibilityRole="header">{t('pairPendingTitle')}</Text>
     <Text style={type.body}>{t('pairPendingMessage',{count:data.matches})}</Text>
-    <Button style={s.whiteButton} title={t('viewPendingPair',{count:r.unknown})} accessibilityLabel={`${t('pairPending')}: ${r.unknown}`} onPress={()=>show('unknown-pair')}/>
+    <Button style={s.coverageButton} title={t('viewPendingPair',{count:r.unknown})} accessibilityLabel={`${t('pairPending')}: ${r.unknown}`} onPress={()=>show('unknown-pair')}/>
    </Card>}
 
    {known>0&&(!query.mode||query.mode==='COMPETITIVE')&&<Section title={t('modes.COMPETITIVE')} note={t('individualResult')}>
@@ -196,8 +196,8 @@ const s=StyleSheet.create({
  message:{padding:space.lg,color:colors.muted},
  total:{gap:2,minHeight:touch},
  label:{flexDirection:'row',alignItems:'center',gap:6},
- pendingCard:{backgroundColor:colors.pendingSoft,borderColor:colors.pendingLine,gap:space.sm},
- whiteButton:{backgroundColor:colors.card,marginTop:4},
+ coverageCard:{gap:space.sm},
+ coverageButton:{marginTop:4},
  duel:{padding:space.lg,paddingBottom:space.md,gap:space.sm},
  sides:{flexDirection:'row',gap:space.lg,alignItems:'flex-end'},
  sidesLarge:{flexDirection:'column',alignItems:'stretch',gap:space.sm},

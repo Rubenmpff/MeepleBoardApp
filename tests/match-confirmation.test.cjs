@@ -56,7 +56,7 @@ test('covers keep proportions and switch to neutral placeholder for missing/fail
 test('summary never derives result from scores or solo flag; names and absent scores remain distinct', async () => {
   for (const language of ['pt', 'en']) {
     const view = await renderNative(summary, 'default', { match: { ...match, winnerId: null, winnerName: null, isSoloGame: true, players: [{ userId: 'me', userName: 'Author', score: null }] } }, { language });
-    assert.match(view.html, language === 'pt' ? /Resultado antigo sem informação suficiente/ : /Older result has insufficient information/);
+    assert.match(view.html, language === 'pt' ? /Registo antigo com resultado incompleto/ : /Older record with an incomplete result/);
     assert.match(view.html, language === 'pt' ? /Não definida/ : /Not defined/);
     const unavailable = await renderNative(summary, 'default', { match: { ...match, winnerName: null } }, { language });
     assert.match(unavailable.html, language === 'pt' ? /Nome do vencedor indisponível/ : /Winner name unavailable/);

@@ -484,7 +484,7 @@
       "SOLO": "Solo",
       "COMPETITIVE": "Competitivo",
       "COOPERATIVE": "Cooperativo",
-      "UNKNOWN": "Modo por confirmar"
+      "UNKNOWN": "Modo não registado"
     },
     "players_one": "{{count}} jogador",
     "players_other": "{{count}} jogadores",

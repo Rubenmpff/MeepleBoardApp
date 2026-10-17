@@ -484,7 +484,7 @@
       "SOLO": "Solo",
       "COMPETITIVE": "Competitive",
       "COOPERATIVE": "Cooperative",
-      "UNKNOWN": "Mode not confirmed"
+      "UNKNOWN": "Mode not recorded"
     },
     "players_one": "{{count}} player",
     "players_other": "{{count}} players",

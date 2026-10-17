@@ -16,7 +16,7 @@ const render = (states, options = {}) => renderNative(source, 'default', {}, { s
 
 test('lists every match with date, mode, result and rating, and opens its details', async () => {
   const ui = await render({ 1: page([match('a', { personalRating: 7.5 }), match('b', { outcome: null, gameMode: 'SOLO' }), match('c', { outcome: null, resultSource: 'Legacy' })]) });
-  for (const text of ['Game a', '7 out. 2026 · Competitivo', 'Vitória · avaliação 7,5', '7 out. 2026 · Solo', 'Resultado não definido', 'Resultado antigo por confirmar', '3 partidas · últimos 10 anos'])
+  for (const text of ['Game a', '7 out. 2026 · Competitivo', 'Vitória · avaliação 7,5', '7 out. 2026 · Solo', 'Resultado não definido', 'Registo antigo com resultado incompleto', '3 partidas · últimos 10 anos'])
     assert.ok(ui.html.includes(text), text);
   await ui.press('Game b, 7 out. 2026, Resultado não definido');
   assert.deepEqual(ui.routes, [{ pathname: '/games/matches/[id]', params: { id: 'b' } }]);

@@ -462,14 +462,17 @@
     "sharedAllowed": "The game rules allow a shared victory",
     "noIndividualWinner": "The chosen result applies to participants; no individual winner selection.",
     "explicitHelp": "Choose results explicitly; scores never decide winners or draws.",
-    "legacyUnknown": "Older result has insufficient information",
-    "legacyWinner": "Recorded winner: {{name}} · older result to confirm",
+    "legacyUnknown": "Older record with an incomplete result",
+    "legacyWinner": "Recorded winner: {{name}} · older record",
     "winnersNamed": "Winners: {{name}}",
     "tiedNamed": "Tied for first: {{name}}",
-    "modeUnknown": "Older mode to confirm",
-    "known": "{{count}} matches with a known result",
-    "withoutResult": "{{count}} matches without a defined result",
-    "legacyCount": "{{count}} older matches to confirm",
+    "modeUnknown": "Mode not recorded",
+    "known_one": "{{count}} match with a known result",
+    "known_other": "{{count}} matches with a known result",
+    "withoutResult_one": "{{count}} match without a known result",
+    "withoutResult_other": "{{count}} matches without a known result",
+    "legacyCount_one": "{{count}} older record with an incomplete result",
+    "legacyCount_other": "{{count}} older records with an incomplete result",
     "currentUserDraw": "You tied for first",
     "otherUserDraw": "Your friend tied for first",
     "sharedWin": "Shared victory",
@@ -478,7 +481,8 @@
     "durationCoverage": "Duration recorded in {{known}} of {{total}} matches",
     "loadedSample": "Based on {{count}} loaded matches (maximum 200 in this history)",
     "soloOne": "Solo requires exactly one participant.",
-    "selectionMembersOnly": "Select only participants of this match."
+    "selectionMembersOnly": "Select only participants of this match.",
+    "noIndividualResult": "No individual result"
   },
   "history": {
     "filters": "Filters",
@@ -498,7 +502,7 @@
       "wins": "Wins",
       "losses": "Losses",
       "draws": "Draws",
-      "undefined": "No result"
+      "undefined": "No known result"
     },
     "count_one": "{{count}} match",
     "count_other": "{{count}} matches",

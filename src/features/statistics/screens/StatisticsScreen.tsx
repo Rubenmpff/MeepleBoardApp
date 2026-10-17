@@ -13,7 +13,7 @@ import { Metric, Mode, Period, Query } from "../types/Statistics";
 import { localISO, periodQuery } from "../utils/period";
 import { formatDuration, formatPeriodLabel } from "../utils/presentation";
 import ScreenScroll from "@/src/ui/Screen";
-import { Button, Card, Disclosure, EmptyState, Glyph, Hero, PendingNotice, ProportionBar, RankBar, ResultsTrio, Row, Section } from "@/src/ui/components";
+import { Button, Card, Disclosure, EmptyState, Glyph, Hero, CoverageNotice, ProportionBar, RankBar, ResultsTrio, Row, Section } from "@/src/ui/components";
 import { colors, space, strong, touch, type } from "@/src/ui/theme";
 
 export default function StatisticsScreen() {
@@ -101,7 +101,7 @@ export default function StatisticsScreen() {
           <Glyph name="chevron-right" />
          </TouchableOpacity>
         </View> : <View style={s.results}><Text style={[type.body, { color: colors.muted }]}>{t("noConfirmedResults")}</Text></View>}
-        {data.results.withoutResult > 0 && <PendingNotice style={s.inCard} label={t("unknownCompact", { count: data.results.withoutResult })} accessibilityLabel={t("withoutResult", { count: data.results.withoutResult })} onPress={() => show("undefined")} />}
+        {data.results.withoutResult > 0 && <CoverageNotice style={s.inCard} label={t("unknownCompact", { count: data.results.withoutResult })} accessibilityLabel={t("withoutResult", { count: data.results.withoutResult })} onPress={() => show("undefined")} />}
        </Card>
       </Section>
 

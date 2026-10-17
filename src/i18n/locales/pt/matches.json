@@ -462,14 +462,17 @@
     "sharedAllowed": "As regras do jogo permitem vitória partilhada",
     "noIndividualWinner": "O resultado escolhido aplica-se aos participantes; sem seleção de vencedor individual.",
     "explicitHelp": "O resultado é uma escolha explícita; as pontuações não decidem vencedores nem empates.",
-    "legacyUnknown": "Resultado antigo sem informação suficiente",
-    "legacyWinner": "Vencedor registado: {{name}} · resultado antigo por confirmar",
+    "legacyUnknown": "Registo antigo com resultado incompleto",
+    "legacyWinner": "Vencedor registado: {{name}} · registo antigo",
     "winnersNamed": "Vencedores: {{name}}",
     "tiedNamed": "Empatados em primeiro: {{name}}",
-    "modeUnknown": "Modo antigo por confirmar",
-    "known": "{{count}} partidas com resultado conhecido",
-    "withoutResult": "{{count}} partidas sem resultado definido",
-    "legacyCount": "{{count}} partidas antigas por confirmar",
+    "modeUnknown": "Modo não registado",
+    "known_one": "{{count}} partida com resultado conhecido",
+    "known_other": "{{count}} partidas com resultado conhecido",
+    "withoutResult_one": "{{count}} partida sem resultado conhecido",
+    "withoutResult_other": "{{count}} partidas sem resultado conhecido",
+    "legacyCount_one": "{{count}} registo antigo com resultado incompleto",
+    "legacyCount_other": "{{count}} registos antigos com resultado incompleto",
     "currentUserDraw": "Empataste em primeiro",
     "otherUserDraw": "O teu amigo empatou em primeiro",
     "sharedWin": "Vitória partilhada",
@@ -478,7 +481,8 @@
     "durationCoverage": "Duração registada em {{known}} de {{total}} partidas",
     "loadedSample": "Base: {{count}} partidas carregadas (máximo 200 neste histórico)",
     "soloOne": "Solo exige exatamente um participante.",
-    "selectionMembersOnly": "Seleciona apenas participantes desta partida."
+    "selectionMembersOnly": "Seleciona apenas participantes desta partida.",
+    "noIndividualResult": "Sem resultado individual"
   },
   "history": {
     "filters": "Filtros",
@@ -498,7 +502,7 @@
       "wins": "Vitórias",
       "losses": "Derrotas",
       "draws": "Empates",
-      "undefined": "Sem resultado"
+      "undefined": "Sem resultado conhecido"
     },
     "count_one": "{{count}} partida",
     "count_other": "{{count}} partidas",

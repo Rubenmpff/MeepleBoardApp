@@ -26,7 +26,7 @@ export default function MatchSummary({ match }: { match: MatchDto }) {
         {(match.result != null ? player.outcome === "Win" : match.winnerId === player.userId) && <Glyph name="trophy-outline" size={15} color={COLORS.primary} />}
         <Text style={[styles.body, (match.result != null ? player.outcome === "Win" : match.winnerId === player.userId) && styles.winner]}>{player.userName?.trim() || t("sessions.playerNameUnavailable")}</Text>
       </View>
-      <Text style={styles.meta}>{player.outcome ? t(`outcomes.${player.outcome}`) : t("outcomes.legacyUnknown")}</Text>
+      <Text style={styles.meta}>{player.outcome ? t(`outcomes.${player.outcome}`) : t("outcomes.noIndividualResult")}</Text>
       <Text style={styles.score}>{player.score == null ? t("sessions.scoreUndefined") : String(player.score)}</Text>
     </View>)}
   </View>;

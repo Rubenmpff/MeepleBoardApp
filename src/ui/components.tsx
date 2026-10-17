@@ -131,12 +131,13 @@ export function RankBar({ value, max }: { value: number; max: number }) {
  return <View style={s.rank} accessible={false}><View style={[s.rankFill, { width: `${Math.round(100 * value / Math.max(1, max))}%` }]} /></View>;
 }
 
-// The only gold surface: results that are still awaiting confirmation.
-export function PendingNotice({ label, onPress, accessibilityLabel, style }: { label: string; onPress: () => void; accessibilityLabel?: string; style?: StyleProp<ViewStyle> }) {
- return <TouchableOpacity style={[s.pending, style]} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} onPress={onPress}>
-  <Glyph name="help-circle-outline" color={colors.pendingIcon} />
-  <Text style={[type.body, s.flex, { color: colors.pendingText }]}>{label}</Text>
-  <Glyph name="chevron-right" color={colors.pendingIcon} />
+// Neutral: matches outside the known results («Não definido» or older records with an incomplete result), with access to the list.
+// Nothing here waits for anyone, so it is not gold.
+export function CoverageNotice({ label, onPress, accessibilityLabel, style }: { label: string; onPress: () => void; accessibilityLabel?: string; style?: StyleProp<ViewStyle> }) {
+ return <TouchableOpacity style={[s.coverage, style]} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} onPress={onPress}>
+  <Glyph name="information-outline" color={colors.icon} />
+  <Text style={[type.body, s.flex]}>{label}</Text>
+  <Glyph name="chevron-right" />
  </TouchableOpacity>;
 }
 
@@ -197,7 +198,7 @@ export const s = StyleSheet.create({
  bar: { flexDirection: "row", gap: 2, borderRadius: 4, overflow: "hidden" },
  rank: { height: 4, borderRadius: 2, backgroundColor: colors.hair, overflow: "hidden", marginTop: 4 },
  rankFill: { height: "100%", borderRadius: 2, backgroundColor: "#BFAFDD" },
- pending: { flexDirection: "row", alignItems: "center", gap: 10, minHeight: touch, paddingVertical: 10, paddingHorizontal: space.md, borderRadius: radius.control, backgroundColor: colors.pendingSoft },
+ coverage: { flexDirection: "row", alignItems: "center", gap: 10, minHeight: touch, paddingVertical: 10, paddingHorizontal: space.md, borderRadius: radius.control, backgroundColor: colors.track },
  button: { minHeight: touch, borderRadius: radius.control, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: space.sm, paddingVertical: 10, paddingHorizontal: space.lg },
  buttonPrimary: { backgroundColor: colors.primary },
  buttonSecondary: { backgroundColor: colors.primarySoft },

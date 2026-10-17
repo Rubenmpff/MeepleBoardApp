@@ -43,6 +43,8 @@ export default function StatisticsMatchesScreen() {
   <Text style={styles.muted}>{t("timeZone",{zone:query.timeZone})}{query.mode?` · ${t(`modes.${query.mode}`)}`:""}</Text>
   {friendId&&groupContext&&<Text style={styles.muted}>{t(`groupContexts.${groupContext}`)}</Text>}
   {visiblePage&&<Text style={styles.text}>{t("matchCount",{count:visiblePage.total})}</Text>}
+  {/* These lists join two states: a valid «Não definido» choice and older records with an incomplete result. */}
+  {(metric==="undefined"||metric==="unknown-pair")&&<Text style={styles.muted}>{t("withoutKnownExplanation")}</Text>}
   {visiblePage?.items.map(match=><TouchableOpacity key={match.id} style={styles.card} accessibilityRole="button" accessibilityLabel={match.gameName} onPress={()=>router.push({pathname:"/games/matches/[id]",params:{id:match.id}})}>
    <View style={styles.gameRow}><GameCover uri={match.gameImageUrl} style={styles.cover}/><View style={styles.grow}>
     <Text style={styles.gameName}>{match.gameName}</Text><Text style={styles.muted}>{date(match.matchDate)} · {t(`modes.${match.gameMode}`)}</Text>

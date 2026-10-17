@@ -60,11 +60,11 @@ test('summary distinguishes explicit team/draw/undefined from legacy, with named
   const win = await renderNative(summary,'default',{match}); assert.match(win.html,/Vencedores: Author, Peer/);
   const team = await renderNative(summary,'default',{match:{...match,gameMode:'COOPERATIVE'}}); assert.match(team.html,/Equipa venceu/); assert.doesNotMatch(team.html,/Vencedores:/);
   const undefinedResult = await renderNative(summary,'default',{match:{...match,result:'Undefined',winnerIds:[],players:match.players.map(p=>({...p,outcome:'Undefined'}))}}); assert.match(undefinedResult.html,/Resultado não definido/);
-  const legacy = await renderNative(summary,'default',{match:{gameName:'Old',winnerId:'me',winnerName:'Author',isSoloGame:false,players:[{userId:'me',userName:'Author',isWinner:true}]}}); assert.match(legacy.html,/Vencedor registado: Author/); assert.match(legacy.html,/resultado antigo por confirmar/);
+  const legacy = await renderNative(summary,'default',{match:{gameName:'Old',winnerId:'me',winnerName:'Author',isSoloGame:false,players:[{userId:'me',userName:'Author',isWinner:true}]}}); assert.match(legacy.html,/Vencedor registado: Author/); assert.match(legacy.html,/Vencedor registado: Author · registo antigo/);
 });
 test('existing shared statistics exclude unknowns and use the viewer outcome including shared wins and draws', async () => {
   const common = { gameMode: 'COMPETITIVE', resultSource:'Explicit', matchDate:'2026-10-01', gameName:'Game', currentUserScore:0 };
   const rows = [{...common,matchId:'win',result:'sharedWin',currentOutcome:'Win',otherOutcome:'Win'}, {...common,matchId:'draw',result:'currentUserDraw',currentOutcome:'Draw',otherOutcome:'Loss'}, {...common,matchId:'loss',result:'bothLost',currentOutcome:'Loss',otherOutcome:'Loss'}, {...common,matchId:'undefined',result:'undefined',currentOutcome:'Undefined',otherOutcome:'Undefined'}, {matchId:'old',result:'legacyUnknown',matchDate:common.matchDate,gameName:'Game'}];
   const view = await renderNative('src/features/friends/screens/SharedGameHistoryScreen.tsx','default',{}, { states:{0:'stats',1:rows,2:false} });
-  assert.match(view.html,/33% · n=3/); assert.match(view.html,/2 partidas sem resultado definido/); assert.match(view.html,/1 partidas antigas por confirmar/);
+  assert.match(view.html,/33% · n=3/); assert.match(view.html,/2 partidas sem resultado conhecido/); assert.match(view.html,/1 registo antigo com resultado incompleto/);
 });

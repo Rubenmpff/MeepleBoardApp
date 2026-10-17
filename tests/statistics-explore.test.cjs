@@ -76,7 +76,7 @@ test('Pair context filters advertise counts and propagate selected context to ev
  const contexts=r.controls.filter(c=>['Todas','Só vocês','Em grupo'].includes(c.accessibilityLabel));assert.equal(contexts.length,3);assert.equal(contexts.find(c=>c.accessibilityLabel==='Em grupo').accessibilityState.selected,true);
  await r.press('Só vocês');assert.ok(r.updates.some(([i,v])=>i===4&&v==='only-two'));
  await r.press('Vitórias partilhadas entre nós: 1');assert.equal(r.routes.at(-1).params.groupContext,'group');assert.equal(r.routes.at(-1).params.friendId,'friend-id');
- assert.doesNotMatch(r.html,/participantes registados/);assert.match(r.html,/4 de 5 com resultado confirmado/);
+ assert.doesNotMatch(r.html,/participantes registados/);assert.match(r.html,/4 de 5 com resultado conhecido/);
 });
 
 test('Most played has one row per GameId, sums all filtered modes and retains mode-specific evidence',async()=>{
@@ -139,10 +139,10 @@ test('Company and Explore reuse the Summary filter toolbar and one apply sheet',
 test('Company replaces the zero grid with a confirmation message and filtered pending matches',async()=>{
  const zero=Object.fromEntries(Object.keys(results).map(k=>[k,k==='unknown'?76:0]));
  const r=await renderNative('src/features/statistics/screens/CompanyScreen.tsx','default',{}, {params:{...query,mode:undefined,friendId:'friend-id',groupContext:'only-two'},statisticsSummary:summary,statisticsReport:{...company,friendName:'Um nome de amigo muito longo que permanece completo',matches:76,results:zero},width:320,fontScale:2});
- assert.match(r.html,/Ainda não há resultados confirmados nestas 76 partidas/);
+ assert.match(r.html,/Nenhuma destas 76 partidas tem resultado conhecido: foram guardadas como «Não definido» ou são registos antigos com resultado incompleto/);
  assert.doesNotMatch(r.html,/As tuas vitórias|Resultado da equipa|Empates e vitórias partilhadas/);
  assert.match(r.html,/Um nome de amigo muito longo que permanece completo/);
- await r.press('Partidas por confirmar: 76');assert.equal(r.routes.at(-1).params.metric,'unknown-pair');assert.equal(r.routes.at(-1).params.mode,undefined);
+ await r.press('Partidas sem resultado conhecido: 76');assert.equal(r.routes.at(-1).params.metric,'unknown-pair');assert.equal(r.routes.at(-1).params.mode,undefined);
  for(const key of ['start','endExclusive','timeZone'])assert.equal(r.routes.at(-1).params[key],query[key]);
  assert.equal(r.routes.at(-1).params.groupContext,'only-two');assert.equal(r.routes.at(-1).params.friendId,'friend-id');
 });

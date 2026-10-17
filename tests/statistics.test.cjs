@@ -10,7 +10,7 @@ const summary={...query,matches:3,distinctGames:1,recordedMinutes:0,matchesWithD
 test('Every statistic navigates to supporting matches with the same period/game/mode filters',async()=>{
  const filtered={...query,gameId:'game-id',mode:'COMPETITIVE'};
  const r=await renderNative(source,'default',{}, {statisticsSummary:summary,states:{0:'Europe/Lisbon',3:filtered}});
- const labels={all:'Partidas: 3',games:'Jogo diferente: 1',duration:'Tempo registado: 0 min','missing-duration':'2 partidas sem duração',wins:'Vitórias: 1',losses:'Derrotas: 0',draws:'Empates: 1',known:'Taxa de vitória: 50%',undefined:'1 partida sem resultado conhecido',legacy:'1 partida antiga por confirmar',ratings:'Avaliação média (0–10): 0'};
+ const labels={all:'Partidas: 3',games:'Jogo diferente: 1',duration:'Tempo registado: 0 min','missing-duration':'2 partidas sem duração',wins:'Vitórias: 1',losses:'Derrotas: 0',draws:'Empates: 1',known:'Taxa de vitória: 50%',undefined:'1 partida sem resultado conhecido',legacy:'1 registo antigo com resultado incompleto',ratings:'Avaliação média (0–10): 0'};
  for(const [metric,label]of Object.entries(labels)){
   await r.press(label);const route=r.routes.at(-1);assert.equal(route.pathname,'/statistics/matches');assert.equal(route.params.metric,metric);
   for(const [key,val]of Object.entries(filtered))assert.equal(route.params[key],val);
@@ -64,7 +64,7 @@ test('Shared game and mode choices only update a draft, preserving the period',a
 test('Supporting list keeps own score/rating zero, negative values, legacy label and detail/back context',async()=>{
  const data={total:1,offset:0,limit:25,items:[{id:'match-id',gameId:'game-id',gameName:game.name,gameImageUrl:null,matchDate:'2024-01-03T12:00:00Z',gameMode:'SOLO',outcome:null,resultSource:'Legacy',durationInMinutes:0,score:-5,personalRating:0}]};
  const r=await renderNative('src/features/statistics/screens/StatisticsMatchesScreen.tsx','default',{}, {params:{...query,metric:'legacy'},states:{1:data,3:false},width:320,fontScale:2});
- assert.match(r.html,/-5/);assert.match(r.html,/0\/10/);assert.match(r.html,/0 min/);assert.match(r.html,/Resultado antigo por confirmar/);
+ assert.match(r.html,/-5/);assert.match(r.html,/0\/10/);assert.match(r.html,/0 min/);assert.match(r.html,/Registo antigo com resultado incompleto/);
  await r.press(game.name);assert.deepEqual(r.routes.at(-1),{pathname:'/games/matches/[id]',params:{id:'match-id'}});
  await r.press('Voltar');assert.equal(r.routes.at(-1),'back');
 });
@@ -204,10 +204,10 @@ test('More details keeps legacy and missing duration one tap away and separate f
  const options={statisticsSummary:summary,states:{0:'Europe/Lisbon',3:query}};
  const initial=await renderNative(source,'default',{},options);
  assert.doesNotMatch(initial.html,/Vitórias ÷/);
- assert.match(initial.html,/1 sem resultado confirmado/);assert.match(initial.html,/Já contados nos 1 sem resultado/);
- assert.ok(initial.html.indexOf('Resultados pessoais')<initial.html.indexOf('Antigos por confirmar'));
+ assert.match(initial.html,/1 sem resultado conhecido/);assert.match(initial.html,/Incluídos nos 1 sem resultado conhecido/);
+ assert.ok(initial.html.indexOf('Resultados pessoais')<initial.html.indexOf('Registos antigos com resultado incompleto'));
  const expanded=await renderNative(source,'default',{}, {...options,width:320,fontScale:2});
- await expanded.press('1 partida antiga por confirmar');
+ await expanded.press('1 registo antigo com resultado incompleto');
  assert.equal(expanded.routes.at(-1).params.metric,'legacy');
  await expanded.press('2 partidas sem duração');
  assert.equal(expanded.routes.at(-1).params.metric,'missing-duration');

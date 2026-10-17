@@ -149,7 +149,7 @@ test('match rows associate named players with zero and absent scores, and distin
   assert.match(view.html, /Other player: 0/);
   assert.match(view.html, /Other player: Não definida/);
   assert.match(view.html, /Nome do vencedor indisponível/);
-  assert.match(view.html, /Resultado antigo sem informação suficiente/);
+  assert.match(view.html, /Registo antigo com resultado incompleto/);
   assert.doesNotMatch(view.html, /Sem vencedor/);
 });
 
