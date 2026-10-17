@@ -15,7 +15,7 @@ test('the screen says what is deleted, kept and neutralised, and what happens to
   const r = await render();
   for (const text of ['Perfil, e-mail, amigos, coleção, notas, avaliações, fotografias e publicações.', 'como «Conta eliminada»',
     '2 sessões agendadas serão canceladas', 'A sessão a decorrer termina agora', 'Campanha longa', 'Wingspan · Sem novo gestor',
-    'Notas de «Campanha longa»', '1 campanha só tua será apagada.', 'ninguém a pode apagar nem remover membros', 'Cópias de segurança e registos de fornecedores'])
+    'Notas de «Campanha longa»', '1 campanha só tua será apagada.', 'ninguém a pode apagar, concluir ou abandonar', 'Cópias de segurança e registos de fornecedores'])
     assert.ok(r.html.includes(text), text);
   assert.ok(!r.html.includes('Notas de «Outra campanha»'), 'notes only where there are some');
   assert.equal(r.controls.find(c => c.accessibilityLabel === 'Eliminar conta definitivamente').disabled, true, 'no password yet');
