@@ -1,7 +1,7 @@
 // /app/index.tsx
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import StartupState from "@/src/components/ui/StartupState";
+import StartupState from "@/src/ui/StartupState";
 import { ROUTES } from "../constants/routes";
 import { tokenService } from "../services/tokenService";
 

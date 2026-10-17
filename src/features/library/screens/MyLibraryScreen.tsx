@@ -13,7 +13,7 @@ import { router } from "expo-router";
 import Toast from "react-native-toast-message";
 import { useTranslation } from "react-i18next";
 import { APP_THEME as theme } from "@/src/styles/clubTheme";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import PrimaryButton from "@/src/ui/PrimaryButton";
 import { Card } from "@/src/ui/components";
 
 import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";

@@ -5,7 +5,7 @@
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Constants from "expo-constants";
 import { useTranslation } from "react-i18next";
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
+import ScreenLayout from "@/src/ui/ScreenLayout";
 import { Card, Glyph, Row, Section } from "@/src/ui/components";
 import PoweredByBgg from "@/src/ui/PoweredByBgg";
 import { colors, space, touch, type } from "@/src/ui/theme";

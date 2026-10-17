@@ -8,7 +8,7 @@ import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import ScreenState from "@/src/components/ui/ScreenState";
+import ScreenState from "@/src/ui/ScreenState";
 import Sheet from "@/src/ui/Sheet";
 import { Button, Card, Glyph, Row } from "@/src/ui/components";
 import { colors, isLarge, radius, space, strong, touch, type } from "@/src/ui/theme";

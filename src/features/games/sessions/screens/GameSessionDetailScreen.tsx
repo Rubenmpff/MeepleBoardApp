@@ -13,13 +13,13 @@
  */
 import { SESSION_STATUS_COLORS } from "@/src/styles/statusColors";
 import { useTranslation } from "react-i18next";
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
-import ScreenState from "@/src/components/ui/ScreenState";
+import ScreenLayout from "@/src/ui/ScreenLayout";
+import ScreenState from "@/src/ui/ScreenState";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useMemo, useState, useCallback } from "react";
 import { View, Text, RefreshControl, StyleSheet, Alert, ScrollView, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import GameCover from "@/src/components/ui/GameCover";
+import GameCover from "@/src/ui/GameCover";
 import { Avatar, Card, Note, Row, Section } from "@/src/ui/components";
 import { colors, space, strong, touch, type } from "@/src/ui/theme";
 import { formatDateTime } from "@/src/ui/format";
@@ -28,7 +28,7 @@ import { useSelector } from "react-redux";
 import sessionService from "@/src/features/games/sessions/services/sessionService";
 import { GameSession } from "@/src/features/games/sessions/types/GameSession";
 import { normalizeInviteStatus } from "@/src/features/games/sessions/types/GameSessionPlayer";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import PrimaryButton from "@/src/ui/PrimaryButton";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { RootState } from "@/src/store/store";
 import SessionAttendance from "../components/SessionAttendance";

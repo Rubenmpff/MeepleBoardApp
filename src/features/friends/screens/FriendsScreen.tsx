@@ -11,8 +11,8 @@ import { ROUTES } from "@/src/constants/routes";
 import { useFriends } from "../hooks/useFriends";
 import { FriendLite } from "../services/friendshipService";
 import OnlineDot from "../components/OnlineDot";
-import ScreenState from "@/src/components/ui/ScreenState";
-import ScreenHeader from "@/src/components/navigation/ScreenHeader";
+import ScreenState from "@/src/ui/ScreenState";
+import ScreenHeader from "@/src/ui/ScreenHeader";
 
 type SortMode = "all" | "mostPlayed" | "recent";
 

@@ -38,9 +38,9 @@ import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import { ROUTES } from "@/src/constants/routes";
 import { RootState } from "@/src/store/store";
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
-import ScreenState from "@/src/components/ui/ScreenState";
-import ScreenHeader from "@/src/components/navigation/ScreenHeader";
+import ScreenLayout from "@/src/ui/ScreenLayout";
+import ScreenState from "@/src/ui/ScreenState";
+import ScreenHeader from "@/src/ui/ScreenHeader";
 import { invalidateFriendsCache } from "../hooks/useFriends";
 import {
   getSharedMatches,

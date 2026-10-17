@@ -1,6 +1,6 @@
 import { translatedRelativeDate } from "../utils/translatedRelativeDate";
 import { Glyph } from "@/src/ui/components";
-import GameCover from "@/src/components/ui/GameCover";
+import GameCover from "@/src/ui/GameCover";
 import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionListItem.tsx
 import React from "react";

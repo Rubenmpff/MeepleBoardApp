@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { RootState } from "@/src/store/store";
 import { ROUTES } from "@/src/constants/routes";
-import ScreenHeader from "@/src/components/navigation/ScreenHeader";
+import ScreenHeader from "@/src/ui/ScreenHeader";
 import ScreenScroll from "@/src/ui/Screen";
 import { Avatar, Button, Card, Glyph, Hero, Row, Section } from "@/src/ui/components";
 import { colors, space, strong, type } from "@/src/ui/theme";

@@ -1,6 +1,6 @@
 import {StyleSheet,Text,View,useWindowDimensions} from 'react-native';
 import {useTranslation} from 'react-i18next';
-import GameCover from '@/src/components/ui/GameCover';
+import GameCover from '@/src/ui/GameCover';
 import YearDecoration from './YearDecoration';
 import {publicYearCard,YearCardId} from './yearCards';
 import {formatDuration} from './utils/presentation';

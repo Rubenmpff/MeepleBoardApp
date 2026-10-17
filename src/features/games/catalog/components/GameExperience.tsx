@@ -5,7 +5,7 @@
  */
 import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
-import ScreenState from "@/src/components/ui/ScreenState";
+import ScreenState from "@/src/ui/ScreenState";
 import { Card, Glyph, Row, Section } from "@/src/ui/components";
 import { colors, isLarge, space, strong, touch, type } from "@/src/ui/theme";
 import { formatDate, formatRating } from "@/src/ui/format";

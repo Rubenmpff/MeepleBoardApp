@@ -2,7 +2,7 @@ import { createContext, ReactNode, useContext } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import ScreenHeader from "@/src/components/navigation/ScreenHeader";
+import ScreenHeader from "@/src/ui/ScreenHeader";
 import { colors } from "@/src/ui/theme";
 
 // Inside a hub (e.g. Jogar) a screen shows only its content; the hub owns the header and safe area.

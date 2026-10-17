@@ -11,7 +11,7 @@ import useReport from '../hooks/useReport';
 import useStatistics from '../hooks/useStatistics';
 import service from '../services/statisticsService';
 import {ExploreGame,ExploreReport,Metric,Mode,Period} from '../types';
-import GameCover from '@/src/components/ui/GameCover';
+import GameCover from '@/src/ui/GameCover';
 import ScreenScroll from '@/src/ui/Screen';
 import {formatBucket} from '../utils/presentation';
 import Sheet from '@/src/ui/Sheet';

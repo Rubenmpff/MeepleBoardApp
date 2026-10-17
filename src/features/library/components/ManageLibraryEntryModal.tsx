@@ -1,5 +1,5 @@
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
-import DialogSurface from "@/src/components/ui/DialogSurface";
+import DialogSurface from "@/src/ui/DialogSurface";
 import React, { useCallback, useMemo, useState } from "react";
 import {
   Alert,

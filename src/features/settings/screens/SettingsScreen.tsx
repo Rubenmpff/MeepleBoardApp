@@ -14,7 +14,7 @@ import {
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
+import ScreenLayout from "@/src/ui/ScreenLayout";
 import { Card, Note, Row, Section } from "@/src/ui/components";
 import { colors, space, type } from "@/src/ui/theme";
 import { authService } from "@/src/features/auth/services/authService";

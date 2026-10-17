@@ -8,9 +8,9 @@ import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Switch, 
 import { useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
-import ScreenState from "@/src/components/ui/ScreenState";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import ScreenLayout from "@/src/ui/ScreenLayout";
+import ScreenState from "@/src/ui/ScreenState";
+import PrimaryButton from "@/src/ui/PrimaryButton";
 import { Glyph } from "@/src/ui/components";
 import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
 import { RootState } from "@/src/store/store";

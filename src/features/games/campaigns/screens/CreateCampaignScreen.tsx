@@ -6,8 +6,8 @@ import { Glyph } from "@/src/ui/components";
  * Rota:
  * /(app)/games/campaigns/create?gameId=...&gameName=...
  */
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import ScreenLayout from "@/src/ui/ScreenLayout";
+import PrimaryButton from "@/src/ui/PrimaryButton";
 import { useCallback, useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";

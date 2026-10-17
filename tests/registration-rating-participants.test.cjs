@@ -58,10 +58,10 @@ test('stars expose whole points and explicit zero with half-point adjustments', 
 
  test('shared diary stars distinguish explicit zero from an absent rating', async () => {
   for (const readonly of [true, false]) {
-    const zero = await renderNative('src/shared/components/StarRating.tsx', 'StarRating', { value: 0, readonly, appearance: 'refresh' });
+    const zero = await renderNative('src/features/games/campaigns/components/StarRating.tsx', 'StarRating', { value: 0, readonly, appearance: 'refresh' });
     assert.match(zero.html, /0.0\/10/); assert.match(zero.html, /Avaliação zero/);
     assert.doesNotMatch(zero.html, /Toca.*avaliar/);
   }
-  const empty = await renderNative('src/shared/components/StarRating.tsx', 'StarRating', { appearance: 'refresh' });
+  const empty = await renderNative('src/features/games/campaigns/components/StarRating.tsx', 'StarRating', { appearance: 'refresh' });
   assert.doesNotMatch(empty.html, /0.0\/10|Avaliação zero/);
 });

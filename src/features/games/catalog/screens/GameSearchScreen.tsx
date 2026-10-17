@@ -27,13 +27,13 @@ import * as Haptics from "expo-haptics";
 import Toast from "react-native-toast-message";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { EmbeddedScreen } from "@/src/components/ui/ScreenLayout";
+import { EmbeddedScreen } from "@/src/ui/ScreenLayout";
 import { Card, Row, Glyph } from "@/src/ui/components";
 import { colors as ui } from "@/src/ui/theme";
 import { ROUTES as APP_ROUTES } from "@/src/constants/routes";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import ScreenHeader from "@/src/components/navigation/ScreenHeader";
-import ScreenState from "@/src/components/ui/ScreenState";
+import ScreenHeader from "@/src/ui/ScreenHeader";
+import ScreenState from "@/src/ui/ScreenState";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import { ROUTES } from "@/src/constants/routes";

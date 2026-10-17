@@ -14,7 +14,7 @@ import {
   useDispatch,
 } from "react-redux";
 
-import StartupState from "@/src/components/ui/StartupState";
+import StartupState from "@/src/ui/StartupState";
 import { setToken } from "@/src/features/auth/store/authSlice";
 import { initializeLanguage } from "@/src/i18n";
 import { store } from "@/src/store/store";

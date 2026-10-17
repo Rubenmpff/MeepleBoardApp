@@ -5,8 +5,8 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "rea
 
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
-import ScreenState from "@/src/components/ui/ScreenState";
+import ScreenLayout from "@/src/ui/ScreenLayout";
+import ScreenState from "@/src/ui/ScreenState";
 import { invalidateFriendsCache } from "../hooks/useFriends";
 import { acceptFriendRequest, cancelFriendRequest, getIncomingRequests, getOutgoingRequests, IncomingFriendRequest, OutgoingFriendRequest, rejectFriendRequest } from "../services/friendshipService";
 import { avatarColors } from "../utils/avatarPalette";

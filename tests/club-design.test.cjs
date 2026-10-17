@@ -13,7 +13,7 @@ test('Club header keeps the original centered logo and collapses on keyboard wit
  assert.equal(keyboard.images.length,0);assert.match(keyboard.html,/Biblioteca/);
 });
 test('Game covers preserve proportions and render a neutral fallback for missing or failed images',async()=>{
- const source='src/components/ui/GameCover.tsx';
+ const source='src/ui/GameCover.tsx';
  const loaded=await renderNative(source,'default',{uri:'https://example.invalid/test-cover.png'});
  assert.equal(loaded.images[0].resizeMode,'contain');loaded.images[0].onError();assert.deepEqual(loaded.updates.at(-1),[0,true]);
  const failed=await renderNative(source,'default',{uri:'https://example.invalid/test-cover.png'},{states:{0:true}});

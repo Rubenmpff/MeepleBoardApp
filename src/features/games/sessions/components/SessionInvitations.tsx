@@ -1,7 +1,7 @@
 import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import PrimaryButton from "@/src/ui/PrimaryButton";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import { GameSession } from "../types/GameSession";
 import { normalizeInviteStatus } from "../types/GameSessionPlayer";

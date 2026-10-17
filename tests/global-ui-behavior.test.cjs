@@ -79,7 +79,7 @@ for (const language of ['pt', 'en']) {
   });
   test(`Startup reuses logo and translates both loading stages (${language})`, async () => {
     for (const redirecting of [false, true]) {
-      const ui = await renderNative('src/components/ui/StartupState.tsx', 'default', { redirecting }, { language });
+      const ui = await renderNative('src/ui/StartupState.tsx', 'default', { redirecting }, { language });
       assert.match(ui.html, language === 'pt' ? (redirecting ? /A verificar a sessão/ : /A preparar o MeepleBoard/) : (redirecting ? /Checking your session/ : /Preparing MeepleBoard/));
       assert.equal(ui.images[0].accessibilityLabel, 'MeepleBoard');
       assert.ok(ui.nativeViews.some(([kind]) => kind === 'safeArea'));

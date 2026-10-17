@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Glyph } from "@/src/ui/components";
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import PrimaryButton from "@/src/ui/PrimaryButton";
 import { FriendLite } from "@/src/features/friends/services/friendshipService";
 import { UI_COLORS as colors } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";

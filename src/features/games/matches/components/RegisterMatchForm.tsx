@@ -9,9 +9,9 @@
  *   default) or «Não sei». Scores never decide the winner. Rules, calculations and permissions are unchanged.
  */
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
-import ScreenHeader from "@/src/components/navigation/ScreenHeader";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
-import DialogSurface from "@/src/components/ui/DialogSurface";
+import ScreenHeader from "@/src/ui/ScreenHeader";
+import PrimaryButton from "@/src/ui/PrimaryButton";
+import DialogSurface from "@/src/ui/DialogSurface";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View, Text, TextInput, TouchableOpacity, Alert,

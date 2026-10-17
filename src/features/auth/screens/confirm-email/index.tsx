@@ -7,7 +7,7 @@ import { AUTH_COLORS as AUTH } from "../../styles/authTheme";
 import AuthLayout from "../../components/AuthLayout";
 import AuthMessage from "../../components/AuthMessage";
 import AuthButton from "../../components/AuthButton";
-import ScreenState from "@/src/components/ui/ScreenState";
+import ScreenState from "@/src/ui/ScreenState";
 import { AUTH_STYLES as styles } from "../../styles/authStyles";
 import { ROUTES } from "@/src/constants/routes";
 import { authService } from "../../services/authService";

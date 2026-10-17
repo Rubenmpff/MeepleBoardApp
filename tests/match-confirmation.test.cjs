@@ -43,7 +43,7 @@ test('repeated upload failure retains failed URI and saved confirmation; upload 
 
 test('covers keep proportions and switch to neutral placeholder for missing/failed URL', async () => {
   const uri = 'fixture://cover';
-  const cover = 'src/components/ui/GameCover.tsx';
+  const cover = 'src/ui/GameCover.tsx';
   const ready = await renderNative(cover, 'default', { uri, size: 64 });
   assert.equal(ready.images[0].resizeMode, 'contain'); ready.images[0].onError();
   assert.deepEqual(ready.updates, [[0, true]]);

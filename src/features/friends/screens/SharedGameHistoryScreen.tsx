@@ -1,6 +1,6 @@
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
+import ScreenLayout from "@/src/ui/ScreenLayout";
 import { Glyph, type Icon } from "@/src/ui/components";
-import ScreenState from "@/src/components/ui/ScreenState";
+import ScreenState from "@/src/ui/ScreenState";
 import i18n from "i18next";
 import { useTranslation } from "react-i18next";
 /**
@@ -36,7 +36,7 @@ import {
 } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import ScreenHeader from "@/src/components/navigation/ScreenHeader";
+import ScreenHeader from "@/src/ui/ScreenHeader";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import { ROUTES } from "@/src/constants/routes";

@@ -1,7 +1,7 @@
 /** The chosen game at the top of every registration step: cover, name, «year · Jogo base/Expansão · mode», «Mudar». */
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import GameCover from "@/src/components/ui/GameCover";
+import GameCover from "@/src/ui/GameCover";
 import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
 import { Game } from "../../catalog/types/Game";
 

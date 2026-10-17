@@ -1,6 +1,6 @@
 import { ComponentProps } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
-import type PrimaryButton from "@/src/components/ui/PrimaryButton";
+import type PrimaryButton from "@/src/ui/PrimaryButton";
 import { AUTH_COLORS as colors } from "../styles/authTheme";
 
 export default function AuthButton({ title, description, icon, onPress, variant = "primary", loading, disabled, accessibilityLabel }: ComponentProps<typeof PrimaryButton>) {

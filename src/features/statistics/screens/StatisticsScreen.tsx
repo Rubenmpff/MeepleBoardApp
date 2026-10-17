@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import AreaHeader from "../summary/AreaHeader";
 import ExploreFilters from "../ExploreFilters";
 import StatisticsEvolution from "../StatisticsEvolution";
-import GameCover from "@/src/components/ui/GameCover";
+import GameCover from "@/src/ui/GameCover";
 import useStatistics from "../hooks/useStatistics";
 import { Metric, Mode, Period, Query } from "../types";
 import { localISO, periodQuery } from "../utils/period";

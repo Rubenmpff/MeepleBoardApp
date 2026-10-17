@@ -4,10 +4,10 @@
  */
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 import { CAMPAIGN_STATUS_COLORS } from "@/src/styles/statusColors";
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
-import ScreenState from "@/src/components/ui/ScreenState";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
-import GameCover from "@/src/components/ui/GameCover";
+import ScreenLayout from "@/src/ui/ScreenLayout";
+import ScreenState from "@/src/ui/ScreenState";
+import PrimaryButton from "@/src/ui/PrimaryButton";
+import GameCover from "@/src/ui/GameCover";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useWindowDimensions, View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, TextInput, RefreshControl } from "react-native";
@@ -15,7 +15,7 @@ import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import campaignService from "@/src/features/games/campaigns/services/campaignService";
 import { Campaign, CampaignMatch, JournalEntry, getCampaignStatusKey, getCampaignMemberStatusKey } from "@/src/features/games/campaigns/types/Campaign";
-import { StarRating } from "@/src/shared/components/StarRating";
+import { StarRating } from "@/src/features/games/campaigns/components/StarRating";
 import { Avatar, Card, EmptyState, Note, Row, Section, Segmented, Glyph } from "@/src/ui/components";
 import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
 import { formatRating } from "@/src/ui/format";

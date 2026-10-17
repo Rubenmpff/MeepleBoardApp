@@ -8,7 +8,7 @@ import { useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
+import ScreenLayout from "@/src/ui/ScreenLayout";
 import { Card, Glyph, Row, Section, Segmented } from "@/src/ui/components";
 import { colors, space, strong, type } from "@/src/ui/theme";
 import { ROUTES } from "@/src/constants/routes";

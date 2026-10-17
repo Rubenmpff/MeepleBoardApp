@@ -7,11 +7,11 @@
 import JournalPhoto from "../components/JournalPhoto";
 import { Glyph } from "@/src/ui/components";
 import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import PrimaryButton from "@/src/ui/PrimaryButton";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ScreenHeader from "@/src/components/navigation/ScreenHeader";
-import ScreenState from "@/src/components/ui/ScreenState";
+import ScreenHeader from "@/src/ui/ScreenHeader";
+import ScreenState from "@/src/ui/ScreenState";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView, Platform, View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, TextInput, TouchableOpacity,

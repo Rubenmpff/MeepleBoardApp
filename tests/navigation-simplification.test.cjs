@@ -19,7 +19,7 @@ test('Legacy entry points redirect to a single destination and preserve every pa
 });
 
 test('Root headings have no return action; details return and standalone links have a fallback', async () => {
-  const file = 'src/components/navigation/ScreenHeader.tsx';
+  const file = 'src/ui/ScreenHeader.tsx';
   const root = await renderNative(file, 'default', { mode: 'root', title: 'Friends' });
   assert.equal(root.controls.length, 0);
   const detail = await renderNative(file, 'default', { title: 'Details' });

@@ -3,10 +3,10 @@
  * counts follow the search and the filter. Status, search and game are kept per account while the app is open.
  * Inside Jogar the header ＋ creates a campaign; standalone, the screen shows its own button.
  */
-import ScreenLayout, { EmbeddedScreen } from "@/src/components/ui/ScreenLayout";
-import ScreenState from "@/src/components/ui/ScreenState";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
-import GameCover from "@/src/components/ui/GameCover";
+import ScreenLayout, { EmbeddedScreen } from "@/src/ui/ScreenLayout";
+import ScreenState from "@/src/ui/ScreenState";
+import PrimaryButton from "@/src/ui/PrimaryButton";
+import GameCover from "@/src/ui/GameCover";
 import { useCallback, useContext, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, RefreshControl } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";

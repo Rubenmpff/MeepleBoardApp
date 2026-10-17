@@ -20,10 +20,10 @@ import { formatRating } from "@/src/ui/format";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import ScreenHeader from "@/src/components/navigation/ScreenHeader";
+import ScreenHeader from "@/src/ui/ScreenHeader";
 import gameService from "../services/gameService";
 import { Game } from "../types/Game";
-import ScreenState from "@/src/components/ui/ScreenState";
+import ScreenState from "@/src/ui/ScreenState";
 import { ROUTES } from "@/src/constants/routes";
 
 const PAGE_SIZE = 20;

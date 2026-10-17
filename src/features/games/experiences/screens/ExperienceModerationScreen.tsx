@@ -6,9 +6,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { ActionSheetIOS, Alert, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
-import ScreenState from "@/src/components/ui/ScreenState";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import ScreenLayout from "@/src/ui/ScreenLayout";
+import ScreenState from "@/src/ui/ScreenState";
+import PrimaryButton from "@/src/ui/PrimaryButton";
 import { colors, space, strong, type } from "@/src/ui/theme";
 import experienceService from "../services/experienceService";
 import { REPORT_REASONS, ReportedExperience, ReportReason } from "../types/Experience";

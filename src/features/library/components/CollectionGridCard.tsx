@@ -1,4 +1,4 @@
-import GameCover from "@/src/components/ui/GameCover";
+import GameCover from "@/src/ui/GameCover";
 import { Glyph } from "@/src/ui/components";
 import { useTranslation } from "react-i18next";
 // src/features/library/components/CollectionGridCard.tsx

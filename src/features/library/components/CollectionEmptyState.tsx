@@ -6,7 +6,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { UI_COLORS as COLORS } from "@/src/styles/clubTheme";
 import { UI_STYLES } from "@/src/styles/clubTheme";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import PrimaryButton from "@/src/ui/PrimaryButton";
 
 type Variant = "collection" | "wishlist" | "played" | "search" | "all" | "filters";
 

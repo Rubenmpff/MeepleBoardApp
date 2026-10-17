@@ -15,7 +15,7 @@ import service from '../services/statisticsService';
 import {Metric,Period,YearReport} from '../types';
 import YearCard from '../YearCard';
 import {YEAR_CARDS,publicYearCard} from '../yearCards';
-import GameCover from '@/src/components/ui/GameCover';
+import GameCover from '@/src/ui/GameCover';
 import ScreenScroll from '@/src/ui/Screen';
 import {Button,Card,Disclosure,EmptyState,Glyph,Note,Row,Section} from '@/src/ui/components';
 import {colors,space,touch,type} from '@/src/ui/theme';

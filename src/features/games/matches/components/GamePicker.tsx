@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import debounce from "lodash.debounce";
-import GameCover from "@/src/components/ui/GameCover";
+import GameCover from "@/src/ui/GameCover";
 import { Glyph, SearchField } from "@/src/ui/components";
 import { colors, radius, space, strong, type } from "@/src/ui/theme";
 import { useUserLibrary } from "@/src/features/library/hooks/useUserLibrary";

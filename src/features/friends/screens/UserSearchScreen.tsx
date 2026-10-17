@@ -6,7 +6,7 @@ import { ActivityIndicator, Alert, FlatList, Image, StyleSheet, Text, TextInput,
 import { useRouter } from "expo-router";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
+import ScreenLayout from "@/src/ui/ScreenLayout";
 import { ROUTES } from "@/src/constants/routes";
 import { invalidateFriendsCache } from "../hooks/useFriends";
 import { sendFriendRequest, searchUsers, UserSearchResult } from "../services/friendshipService";

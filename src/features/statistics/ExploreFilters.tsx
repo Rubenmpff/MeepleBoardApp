@@ -2,7 +2,7 @@ import {useEffect,useState} from 'react';
 import {Keyboard,Platform,StyleSheet,Text,TouchableOpacity,View,useWindowDimensions} from 'react-native';
 import {useTranslation} from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import GameCover from '@/src/components/ui/GameCover';
+import GameCover from '@/src/ui/GameCover';
 import {GameSummary,Mode,Period,Query} from './types';
 import {customQuery,inclusiveEnd,localISO,periodQuery,shiftAnchor} from './utils/period';
 import {formatPeriodLabel} from './utils/presentation';

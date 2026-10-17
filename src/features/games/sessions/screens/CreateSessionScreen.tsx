@@ -13,8 +13,8 @@ import { ROUTES } from "@/src/constants/routes";
  *   - Convidar pelo menos um amigo (obrigatório; convite inicialmente pendente)
  */
 import { useTranslation } from "react-i18next";
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import ScreenLayout from "@/src/ui/ScreenLayout";
+import PrimaryButton from "@/src/ui/PrimaryButton";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Keyboard, ScrollView, Platform, Switch } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";

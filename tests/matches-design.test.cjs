@@ -151,7 +151,7 @@ test('journal zero remains saveable and existing half-rating rounding is unchang
 
 test('half-star and whole-star controls keep toggle-to-zero behaviour and large touch areas', async () => {
   const changes = [];
-  const view = await renderNative('src/shared/components/StarRating.tsx', 'StarRating', { value: 4.5, appearance: 'refresh', onChange: v => changes.push(v) });
+  const view = await renderNative('src/features/games/campaigns/components/StarRating.tsx', 'StarRating', { value: 4.5, appearance: 'refresh', onChange: v => changes.push(v) });
   assert.equal(view.controls.length, 20);
   await view.controls[8].onPress();
   await view.controls[9].onPress();

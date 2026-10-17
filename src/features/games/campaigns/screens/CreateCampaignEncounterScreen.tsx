@@ -9,8 +9,8 @@ import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
  * Params: campaignId, gameId, gameName, memberIds, memberNames (separados por vírgula)
  */
 import { useTranslation } from "react-i18next";
-import ScreenLayout from "@/src/components/ui/ScreenLayout";
-import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import ScreenLayout from "@/src/ui/ScreenLayout";
+import PrimaryButton from "@/src/ui/PrimaryButton";
 import { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, Image } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -18,7 +18,7 @@ import { useSelector } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import matchService from "@/src/features/games/matches/services/matchService";
 import campaignService from "@/src/features/games/campaigns/services/campaignService";
-import { StarRating } from "@/src/shared/components/StarRating";
+import { StarRating } from "@/src/features/games/campaigns/components/StarRating";
 import { UI_COLORS as COLORS } from "@/src/styles/appTheme";
 import { UI_STYLES } from "@/src/styles/uiStyles";
 import { RootState } from "@/src/store/store";
