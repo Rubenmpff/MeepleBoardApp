@@ -123,16 +123,6 @@ test('compact winner controls remain manual with zero/negative input; larger tex
   }
 });
 
-test('required rating is compact and preserves half points, explicit zero and an omitted value', async () => {
-  const component = 'src/shared/components/RatingField.tsx';
-  for (const [value, direction, expected] of [[7.5, 'Aumentar avaliação', 8], [0, 'Aumentar avaliação', .5], [10, 'Diminuir avaliação', 9.5], [undefined, 'Diminuir avaliação', 0]]) {
-    const changes = [];
-    const view = await renderNative(component, 'default', { value, onChange: v => changes.push(v) });
-    await view.press(direction); assert.deepEqual(changes, [expected]);
-    if (value !== undefined) { await view.press('Sem avaliação'); assert.equal(changes.at(-1), undefined); }
-  }
-});
-
 test('short landscape dialog keeps Done/Cancel outside the scrolling calendar', async () => {
   const view = await renderNative(dateFields, 'default', { value, picker: 'date', locale: 'pt-PT', onChange() {}, onPickerChange() {} }, { width: 844, height: 390 });
   const scroll = view.nativeViews.find(([type]) => type === 'scroll')[1];

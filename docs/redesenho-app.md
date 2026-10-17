@@ -62,8 +62,10 @@ Cada candidato foi procurado em `src`, `tests`, `tools` e `docs` (imports, camin
 | `utils/dateUtils` | Removido | Sem chamadores; formatação em `src/ui/format` |
 | `getStatusLabel` (`sessions/types/GameSession`) | Removido | Rótulos fixos em português, substituídos por i18n |
 | `friends/components/WhatCanWePlayModal` | Mantido | Funcionalidade planeada (P01 em [pendencias-funcionais.md](pendencias-funcionais.md)) |
-| `users/hooks/usePlayers` e `getUsers` | Mantido, por decidir | Sem chamadores, mas `GET /users` existe na API; decidir se haverá diretório de jogadores |
-| `hooks/reduxHooks` | Mantido, por decidir | Hooks tipados de Redux sem uso; o código usa `useSelector` com `RootState`. Adotar ou remover |
+| `users/hooks/usePlayers` e `getUsers` | Removido (2026-10-17) | Sem chamadores; `GET /users` passou a ser só para administradores |
+| `hooks/reduxHooks` | Removido (2026-10-17) | Sem uso; o código usa `useSelector` com `RootState` |
+| `components/ui/SectionCard`, `matches/types/Match`, `shared/components/RatingField` (e os 2 testes que só o exercitavam) | Removidos (2026-10-17) | Sem chamadores; `RatingControl` substituiu `RatingField` e tem os mesmos comportamentos testados |
+| Logótipos React e fonte `SpaceMono` do modelo Expo | Removidos (2026-10-17) | Sem referências no código nem no `app.json` |
 
 Também corrigido: o eixo do gráfico «Partidas por mês» passa a ter largura para três algarismos (antes «158» quebrava em duas linhas).
 
