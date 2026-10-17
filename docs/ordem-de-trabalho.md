@@ -118,7 +118,7 @@ Cada ponto pendente precisa de autorização própria. **P1** = segurança ou pu
 **Locais afetados:**
 
 - `Mapping/AutoMapper` (3 ficheiros, 155 linhas): substituído por funções de mapeamento explícitas na mesma área (`Mapping`).
-- 33 chamadas `Map` em 7 serviços (`GameService` 12, `MatchService` 10, `UserService` 5, `GameSessionService` 3, `AuthService`, `MatchPlayerService`, `UserGameLibraryService`) e 5 no anfitrião DeviceTests.
+- 33 chamadas `Map` em 7 serviços (`GameService` 12, `MatchService` 9, `UserService` 5, `GameSessionService` 4, e 1 em cada um de `AuthService`, `MatchPlayerService` e `UserGameLibraryService`) e 5 no anfitrião DeviceTests.
 - Uma injeção sem uso em `GameController`.
 - O registo na injeção de dependências.
 - 6 projetos de teste que constroem `MapperConfiguration`.
