@@ -1,4 +1,4 @@
-import { formatDate } from '@/src/ui/format';
+import { formatDate, formatDuration } from '@/src/ui/format';
 import { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -48,7 +48,7 @@ export default function StatisticsMatchesScreen() {
     <Text style={styles.gameName}>{match.gameName}</Text><Text style={styles.muted}>{date(match.matchDate)} · {t(`modes.${match.gameMode}`)}</Text>
    </View></View>
    <Text style={styles.text}>{match.resultSource==="Legacy"?t("legacyItem"):match.outcome?t(`outcomes.${match.outcome}`):t("undefinedItem")}{match.gameMode==="COOPERATIVE"?` · ${t("teamResult")}`:""}</Text>
-   <Text style={styles.muted}>{t("recordedTime")}: {match.durationInMinutes==null?t("unavailable"):`${num(match.durationInMinutes)} min`}</Text>
+   <Text style={styles.muted}>{t("recordedTime")}: {match.durationInMinutes==null?t("unavailable"):formatDuration(match.durationInMinutes,i18n.language)}</Text>
    {match.score!=null&&<Text style={styles.text}>{t("myScore")}: {num(match.score)}</Text>}
    {friendId&&<Text style={styles.text}>{t("friendScore")}: {match.friendScore==null?t("unavailable"):num(match.friendScore)}</Text>}
    {friendId&&<Text style={styles.text}>{t("friendResult")}: {match.resultSource==="Legacy"?t("legacyItem"):match.friendOutcome==="Undefined"?t("undefinedItem"):match.friendOutcome?t(`outcomes.${match.friendOutcome}`):t("unavailable")}</Text>}

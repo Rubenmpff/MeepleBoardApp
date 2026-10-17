@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import ScreenState from "@/src/ui/ScreenState";
 import { Card, Glyph, Row, Section } from "@/src/ui/components";
 import { colors, isLarge, space, strong, touch, type } from "@/src/ui/theme";
-import { formatDate, formatRating } from "@/src/ui/format";
+import { formatDate, formatDuration, formatRating } from "@/src/ui/format";
 import { matchResultText } from "../../sessions/utils/matchResultKey";
 import { MatchDto } from "../../matches/types/MatchForm";
 import { Campaign } from "../../campaigns/types/Campaign";
@@ -143,7 +143,7 @@ export default function GameExperience(p: Props) {
       {shown.map(m => {
         const mine = myResult(m, p.userId);
         const result = matchResultText(m, tm);
-        const extra = [m.players?.length ? t("details.experience.players", { count: m.players.length }) : null, m.durationInMinutes ? t("details.minutesShort", { count: m.durationInMinutes }) : null,
+        const extra = [m.players?.length ? t("details.experience.players", { count: m.players.length }) : null, m.durationInMinutes ? formatDuration(m.durationInMinutes, language) : null,
           m.location || null, m.personalRating != null ? `★ ${formatRating(m.personalRating, language)}` : null].filter(Boolean).join(" · ");
         return <Row key={m.id} inset={52} title={formatDate(m.matchDate, language)} accessibilityLabel={`${formatDate(m.matchDate, language)}. ${result}`}
           lead={<View style={[styles.badge, mine.win ? styles.badgeWin : styles.badgeOther]}>

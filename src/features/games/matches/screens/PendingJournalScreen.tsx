@@ -13,7 +13,7 @@ import GameCover from "@/src/ui/GameCover";
 import ScreenScroll from "@/src/ui/Screen";
 import { Card, EmptyState, Note, Row } from "@/src/ui/components";
 import { colors, space } from "@/src/ui/theme";
-import { formatDate } from "@/src/ui/format";
+import { formatDate, formatDuration } from "@/src/ui/format";
 import matchService from "@/src/features/games/matches/services/matchService";
 import { MatchDto } from "@/src/features/games/matches/types/MatchForm";
 
@@ -52,7 +52,7 @@ export default function PendingJournalScreen() {
             <Note inset>{t("ui.pendingCount", { count: matches.length })}</Note>
             <Card>
               {matches.map((match, index) => {
-                const meta = [match.isSoloGame ? t("modes.solo") : null, match.durationInMinutes ? `${match.durationInMinutes} min` : null, match.location || null].filter(Boolean).join(" · ");
+                const meta = [match.isSoloGame ? t("modes.solo") : null, match.durationInMinutes ? formatDuration(match.durationInMinutes, i18n.language) : null, match.location || null].filter(Boolean).join(" · ");
                 const players = (match.players ?? []).map(p => p.userName).filter(Boolean).join(", ");
                 return <Row key={match.id} first={index === 0} inset={72} strongTitle title={match.gameName}
                   lead={<GameCover uri={match.gameImageUrl} size={44} />}

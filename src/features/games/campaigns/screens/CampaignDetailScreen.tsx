@@ -18,7 +18,7 @@ import { Campaign, CampaignMatch, JournalEntry, getCampaignStatusKey, getCampaig
 import { StarRating } from "@/src/features/games/campaigns/components/StarRating";
 import { Avatar, Card, EmptyState, Note, Row, Section, Segmented, Glyph } from "@/src/ui/components";
 import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
-import { formatRating } from "@/src/ui/format";
+import { formatDuration, formatRating } from "@/src/ui/format";
 import { RootState } from "@/src/store/store";
 type Tab = "matches" | "members" | "notes";
 interface EntryDraft {
@@ -253,7 +253,7 @@ export default function CampaignDetailScreen() {
                       <View style={styles.flex}>
                         <Text style={[type.body, strong]}>{title}</Text>
                         <View style={styles.matchMeta}>
-                          <Text style={type.caption}>{[cm.durationInMinutes ? `${cm.durationInMinutes} min` : null, journalEntries[cm.matchId] ? t("detail.sessions.ratings", { count: entries.length }) : null].filter(Boolean).join(" · ")}</Text>
+                          <Text style={type.caption}>{[cm.durationInMinutes ? formatDuration(cm.durationInMinutes, i18n.language) : null, journalEntries[cm.matchId] ? t("detail.sessions.ratings", { count: entries.length }) : null].filter(Boolean).join(" · ")}</Text>
                           {!myEntry && isMember && readable && <Text style={[styles.pill, styles.pending]}>{t("detail.sessions.evaluate")}</Text>}
                         </View>
                       </View>
