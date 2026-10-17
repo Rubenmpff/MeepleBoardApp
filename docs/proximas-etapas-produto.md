@@ -95,3 +95,5 @@ O utilizador sente que o Início e outras áreas estão carregados: muitos eleme
 
 - preservar a separação entre as avaliações BGG e MeepleBoard;
 - preservar a distinção de comportamento entre filtrar e ordenar.
+
+**Diagnóstico de UI/UX de 2026-10-17:** [diagnostico-ux-2026-10-17.md](diagnostico-ux-2026-10-17.md). Conclusão: são precisos ajustes pontuais e uma decisão sobre a linguagem dos resultados antigos, não um redesenho.
