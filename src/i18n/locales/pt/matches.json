@@ -39,6 +39,7 @@
     "upcomingTitle": "Sessão ainda não começou",
     "closedTitle": "Sessão terminada",
     "inactiveDescription": "Regista partidas quando a sessão estiver ativa.",
+    "closedDescription": "Esta sessão terminou e já não aceita partidas. Podes registar a partida fora da sessão, em Novo.",
     "noAcceptedTitle": "Sem participantes aceites",
     "noAcceptedDescription": "Aguarda que os convidados aceitem para poderes registar partidas.",
     "notEligibleTitle": "Participação não confirmada",

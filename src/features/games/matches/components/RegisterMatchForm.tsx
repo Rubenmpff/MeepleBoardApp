@@ -46,7 +46,7 @@ import { hasCompleteScores } from "../utils/registrationScores";
 import MatchDateFields from "./MatchDateFields";
 import { initialSessionMatchDate } from "../utils/registrationDate";
 import { checkDuration, durationComplete, durationPayload, DurationDraft, emptyDuration } from "../utils/matchDuration";
-import { formatDuration } from "@/src/ui/format";
+import { formatDateTime, formatDuration } from "@/src/ui/format";
 import { MatchDto, MatchFormData, MatchOutcome } from "../types/MatchForm";
 import { PlayerState } from "../../../users/types/PlayerState";
 import { useFriends } from "../../../friends/hooks/useFriends";
@@ -497,11 +497,15 @@ export default function RegisterMatchForm({ sessionId, currentUser, disableScrol
       <Text style={styles.noticeText}>{t("session.notFoundDescription")}</Text>
     </View>;
   if (isSessionMatch && session && !sessionIsActive) {
-    const when = session.scheduledStartDate ? new Date(session.scheduledStartDate).toLocaleString(locale) : "—";
+    // An ended session never becomes active again: say when it ended and where the match can still be recorded.
+    const upcoming = session.status === "Upcoming";
+    const when = upcoming
+      ? session.scheduledStartDate && t("sessions.end.starts", { date: formatDateTime(session.scheduledStartDate, i18n.language) })
+      : session.endDate && t(session.closedAutomatically ? "sessions.end.endedAuto" : "sessions.end.ended", { date: formatDateTime(session.endDate, i18n.language) });
     return <View style={styles.noticeWarn}>
-      <Text style={styles.noticeTitle}>{session.status === "Upcoming" ? t("session.upcomingTitle") : t("session.closedTitle")}</Text>
-      <Text style={styles.noticeText}>🗓 {when}</Text>
-      <Text style={styles.noticeText}>{t("session.inactiveDescription")}</Text>
+      <Text style={styles.noticeTitle}>{upcoming ? t("session.upcomingTitle") : t("session.closedTitle")}</Text>
+      {!!when && <Text style={styles.noticeText}>{when}</Text>}
+      <Text style={styles.noticeText}>{upcoming ? t("session.inactiveDescription") : t("session.closedDescription")}</Text>
     </View>;
   }
   if (isSessionMatch && session && (acceptedUsersFromSession.length === 0 || !currentUserForSelector))

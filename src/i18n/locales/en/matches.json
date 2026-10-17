@@ -39,6 +39,7 @@
     "upcomingTitle": "The session has not started yet",
     "closedTitle": "Session ended",
     "inactiveDescription": "Register matches when the session is active.",
+    "closedDescription": "This session has ended and no longer accepts matches. You can record the match outside the session, from New.",
     "noAcceptedTitle": "No accepted participants",
     "noAcceptedDescription": "Wait for the invited players to accept before registering matches.",
     "notEligibleTitle": "Participation not confirmed",

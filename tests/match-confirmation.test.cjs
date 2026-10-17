@@ -100,3 +100,16 @@ test('initial partial photo failure retains saved response and only failed URIs 
   assert.deepEqual(view.updates.find(([i]) => i === 17), [17, match]);
   assert.deepEqual(view.updates.find(([i]) => i === 18), [18, ['failed://photo']]);
 });
+
+test('an ended session says when it ended and where to record the match; a scheduled one keeps waiting', async () => {
+  const ended = await renderNative(form, 'default', { sessionId: session.id, currentUser: me }, { states: { 0: { ...session, status: 'Closed', endDate: '2026-10-17T20:15:00Z', closedAutomatically: false } } });
+  assert.match(ended.html, /Sessão terminada/); assert.match(ended.html, /Terminou [^<]*out\./);
+  assert.match(ended.html, /Esta sessão terminou e já não aceita partidas\. Podes registar a partida fora da sessão, em Novo\./);
+  assert.doesNotMatch(ended.html, /quando a sessão estiver ativa|🗓/);
+  assert.equal(ended.controls.some(c => c.accessibilityLabel === 'Guardar partida'), false);
+  const auto = await renderNative(form, 'default', { sessionId: session.id, currentUser: me }, { states: { 0: { ...session, status: 'Closed', endDate: '2026-10-17T20:15:00Z', closedAutomatically: true } } });
+  assert.match(auto.html, /Terminou automaticamente [^<]*out\./);
+  const scheduled = await renderNative(form, 'default', { sessionId: session.id, currentUser: me }, { states: { 0: { ...session, status: 'Upcoming', scheduledStartDate: '2026-10-20T18:00:00Z' } } });
+  assert.match(scheduled.html, /Sessão ainda não começou/); assert.match(scheduled.html, /Começa [^<]*out\./);
+  assert.match(scheduled.html, /Regista partidas quando a sessão estiver ativa\./);
+});
