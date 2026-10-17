@@ -75,17 +75,14 @@
     "running_one": "A sessão a decorrer termina agora",
     "running_other": "As {{count}} sessões a decorrer terminam agora",
     "runningHint": "As partidas ficam guardadas para os participantes.",
-    "campaignsTitle": "Campanhas que criaste",
+    "campaignsTitle": "Campanhas que geres",
     "newManager": "Novo gestor: {{name}}",
-    "noManager": "Sem novo gestor",
     "chooseManager": "Escolher novo gestor",
-    "campaignsHint": "Sem novo gestor, a campanha continua para os membros, mas ninguém a pode apagar, concluir ou abandonar.",
+    "campaignsHint": "Cada campanha continua com um gestor: quem escolheres ou, sem escolha, o membro ativo há mais tempo. Quem a criou continua a aparecer como «Criador».",
     "notesTitle": "Notas de «{{name}}»",
     "notes": "Podem ter texto de outros membros e ficam com a campanha. Revê-as antes de eliminar.",
     "onlyYours_one": "{{count}} campanha só tua será apagada.",
     "onlyYours_other": "{{count}} campanhas só tuas serão apagadas.",
-    "nobody": "Ninguém",
-    "nobodyHint": "A campanha fica para os membros; ninguém a pode apagar, concluir ou abandonar.",
     "close": "Fechar",
     "confirmTitle": "Confirmar",
     "password": "Palavra-passe",
@@ -101,6 +98,8 @@
     "wrongPassword": "Palavra-passe incorreta.",
     "error": "Não foi possível eliminar a conta.",
     "doneTitle": "Conta eliminada",
-    "done": "A tua conta foi eliminada."
+    "done": "A tua conta foi eliminada.",
+    "newManagerAuto": "Novo gestor: {{name}} (há mais tempo na campanha)",
+    "longest": "Há mais tempo na campanha"
   }
 }

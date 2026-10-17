@@ -29,7 +29,8 @@ export default function DeleteAccountScreen() {
   const account = useSelector((state: RootState) => state.auth.user);
   const [summary, setSummary] = useState<DeletionSummary | null>(null);
   const [loadError, setLoadError] = useState(false);
-  const [managers, setManagers] = useState<Record<string, string | null>>({});
+  // Chosen successors; a campaign without a choice goes to its longest-standing active member (defaultManagerId).
+  const [managers, setManagers] = useState<Record<string, string>>({});
   const [choosing, setChoosing] = useState<DeletionCampaign | null>(null);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -45,9 +46,10 @@ export default function DeleteAccountScreen() {
   useFocusEffect(load);
   useEffect(() => { if (resetSent) setError(null); }, [resetSent]);
 
-  const managerName = (campaign: DeletionCampaign) => {
-    const id = managers[campaign.id];
-    return id ? campaign.members.find(m => m.id === id)?.userName ?? "" : null;
+  const successorOf = (campaign: DeletionCampaign) => managers[campaign.id] ?? campaign.defaultManagerId;
+  const successorLine = (campaign: DeletionCampaign) => {
+    const name = campaign.members.find(m => m.id === successorOf(campaign))?.userName ?? "";
+    return managers[campaign.id] ? t("deleteAccount.newManager", { name }) : t("deleteAccount.newManagerAuto", { name });
   };
 
   const sendReset = async () => {
@@ -61,7 +63,8 @@ export default function DeleteAccountScreen() {
   const remove = async () => {
     setDeleting(true); setError(null);
     try {
-      const transfers = Object.entries(managers).filter(([, id]) => !!id).map(([campaignId, id]) => ({ campaignId, newManagerId: id! }));
+      // Always the successor shown on screen: the API checks it again at deletion time.
+      const transfers = (summary?.campaignsWithMembers ?? []).map(c => ({ campaignId: c.id, newManagerId: successorOf(c) }));
       await deleteOwnAccount(password, transfers);
       await forgetAccountOnDevice(account?.id);
       setConfirming(false);
@@ -72,6 +75,8 @@ export default function DeleteAccountScreen() {
       // The API client already turned the answer into a message for people (the server's own, in Portuguese).
       const status = err?.response?.status;
       setError(status === 400 && !i18n.language.startsWith("pt") ? t("deleteAccount.wrongPassword") : err?.message || t("deleteAccount.error"));
+      // A successor who stopped being an active member meanwhile: show the campaigns as they are now.
+      if (status === 400) load();
     } finally {
       setDeleting(false);
     }
@@ -104,8 +109,8 @@ export default function DeleteAccountScreen() {
         {summary && (summary.campaignsWithMembers.length > 0 || summary.campaignsOnlyYours > 0) && <Section title={t("deleteAccount.campaignsTitle")}>
           {summary.campaignsWithMembers.length > 0 && <Card>
             {summary.campaignsWithMembers.map((campaign, index) => <Row key={campaign.id} first={index === 0} title={campaign.name}
-              subtitle={[campaign.gameName, managerName(campaign) ? t("deleteAccount.newManager", { name: managerName(campaign) }) : t("deleteAccount.noManager")].filter(Boolean).join(" · ")}
-              accessibilityLabel={`${campaign.name}. ${managerName(campaign) ? t("deleteAccount.newManager", { name: managerName(campaign) }) : t("deleteAccount.noManager")}. ${t("deleteAccount.chooseManager")}`}
+              subtitle={[campaign.gameName, successorLine(campaign)].filter(Boolean).join(" · ")}
+              accessibilityLabel={`${campaign.name}. ${successorLine(campaign)}. ${t("deleteAccount.chooseManager")}`}
               onPress={() => setChoosing(campaign)} />)}
           </Card>}
           {summary.campaignsWithMembers.length > 0 && <Note inset>{t("deleteAccount.campaignsHint")}</Note>}
@@ -137,10 +142,9 @@ export default function DeleteAccountScreen() {
         right={{ label: t("deleteAccount.close"), onPress: () => setChoosing(null) }}>
         <Note inset>{choosing.name}</Note>
         <Card>
-          {choosing.members.map((member, index) => <Row key={member.id} first={index === 0} title={member.userName} end="check" selected={managers[choosing.id] === member.id}
+          {choosing.members.map((member, index) => <Row key={member.id} first={index === 0} title={member.userName} end="check" selected={successorOf(choosing) === member.id}
+            subtitle={member.id === choosing.defaultManagerId ? t("deleteAccount.longest") : undefined}
             onPress={() => { setManagers(m => ({ ...m, [choosing.id]: member.id })); setChoosing(null); }} />)}
-          <Row title={t("deleteAccount.nobody")} subtitle={t("deleteAccount.nobodyHint")} end="check" selected={!managers[choosing.id]}
-            onPress={() => { setManagers(m => ({ ...m, [choosing.id]: null })); setChoosing(null); }} />
         </Card>
       </Sheet>}
 

@@ -75,17 +75,14 @@
     "running_one": "The running session ends now",
     "running_other": "The {{count}} running sessions end now",
     "runningHint": "Matches stay saved for the participants.",
-    "campaignsTitle": "Campaigns you created",
+    "campaignsTitle": "Campaigns you manage",
     "newManager": "New manager: {{name}}",
-    "noManager": "No new manager",
     "chooseManager": "Choose a new manager",
-    "campaignsHint": "Without a new manager, the campaign goes on for its members, but nobody can delete, complete or abandon it.",
+    "campaignsHint": "Each campaign keeps a manager: the one you choose or, without a choice, the longest-standing active member. Whoever created it still shows as «Creator».",
     "notesTitle": "Notes of «{{name}}»",
     "notes": "They may hold text by other members and stay with the campaign. Review them before deleting.",
     "onlyYours_one": "{{count}} campaign that is only yours will be deleted.",
     "onlyYours_other": "{{count}} campaigns that are only yours will be deleted.",
-    "nobody": "Nobody",
-    "nobodyHint": "The campaign stays with its members; nobody can delete, complete or abandon it.",
     "close": "Close",
     "confirmTitle": "Confirm",
     "password": "Password",
@@ -101,6 +98,8 @@
     "wrongPassword": "Wrong password.",
     "error": "The account could not be deleted.",
     "doneTitle": "Account deleted",
-    "done": "Your account was deleted."
+    "done": "Your account was deleted.",
+    "newManagerAuto": "New manager: {{name}} (longest in the campaign)",
+    "longest": "Longest in the campaign"
   }
 }

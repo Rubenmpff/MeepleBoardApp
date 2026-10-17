@@ -17,7 +17,9 @@ export const updateDurationSharing = async (enabled: boolean): Promise<void> => 
   await api.patch("/users/me/duration-sharing", { enabled });
 };
 export type DeletionMember = { id: string; userName: string };
-export type DeletionCampaign = { id: string; name: string; gameName: string | null; hasNotes: boolean; members: DeletionMember[] };
+// Members are in succession order; defaultManagerId takes over when the person chooses nobody. isAuthor: the person
+// created it (its name becomes a neutral title).
+export type DeletionCampaign = { id: string; name: string; gameName: string | null; hasNotes: boolean; isAuthor: boolean; defaultManagerId: string; members: DeletionMember[] };
 export type DeletionSummary = { scheduledSessions: number; runningSessions: number; campaignsWithMembers: DeletionCampaign[]; campaignsOnlyYours: number };
 
 /** What deleting the account would affect: sessions organized and campaigns created with other active members. */
