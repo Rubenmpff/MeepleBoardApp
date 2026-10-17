@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.hero, borderCurve: "continuous", borderWidth: 1.5, borderColor: colors.line, backgroundColor: colors.card },
   compact: { flexGrow: 1, flexBasis: "45%", minHeight: touch + 8 },
   on: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
-  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: "#B9B3C0", alignItems: "center", justifyContent: "center" },
+  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.empty, alignItems: "center", justifyContent: "center" },
   radioOn: { borderColor: colors.primary },
   dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary },
   flex: { flex: 1, minWidth: 0 },

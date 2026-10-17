@@ -7,7 +7,7 @@ export const colors = {
  background: "#FBFBF8", card: "#FFFFFF", hero: "#F1EBFA", band: "#F6F2FA",
  text: "#30283D", muted: "#58616A", primary: "#27594B", primarySoft: "#E7F0E7", field: "#E1DBE7", danger: "#B3261E", dangerSoft: "#FBEAE9",
  onPrimary: "#FFFFFF", line: "#EAE5EF", hair: "#EFEAF2", heroLine: "#E3DAF0", track: "#EFEDF1", tint: "#FAF8FC",
- friend: "#7A5AAE", shared: "#A89BC4", loss: "#E46B71", draw: "#9C93AE", icon: "#9C86C9", chevron: "#8C9096", placeholder: "#6B7280",
+ friend: "#7A5AAE", shared: "#A89BC4", loss: "#E46B71", draw: "#9C93AE", icon: "#9C86C9", chevron: "#8C9096", empty: "#B9B3C0", placeholder: "#6B7280",
  pendingSoft: "#FFF7DE", pendingLine: "#F1E3B5", pendingText: "#6E4D00", pendingIcon: "#8A6200", gold: "#DCA52B", scrim: "rgba(35,25,45,0.36)",
 } as const;
 

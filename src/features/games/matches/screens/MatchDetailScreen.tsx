@@ -88,24 +88,6 @@ export default function MatchDetailScreen() {
   const openJournal = () => router.push({ pathname: ROUTES.MATCH_JOURNAL, params: { id: match.id } } as never);
   const publishLine = publication?.hidden ? t("diary.hidden") : publication?.showRating && publication.commentPublished ? t("diary.publishedBoth")
     : publication?.showRating ? t("diary.publishedRating") : publication?.commentPublished ? t("diary.publishedComment") : null;
-  const RatingCard = () => <View style={styles.ratingCard}>
-    <View style={styles.ratingHead}>
-      <Text style={styles.ratingLabel}>{t("detailCard.label")}</Text>
-      {rated && <View style={styles.lockBadge}><Glyph name="lock-outline" size={13} color={colors.muted} /><Text style={[type.micro, strong]}>{t("detailCard.saved")}</Text></View>}
-    </View>
-    <Text style={[styles.ratingValue, !rated && { color: "#B9B3C0" }]} accessibilityLabel={value ? t("rating.spoken", { value }) : t("rating.notRated")}>{value ?? "—"}<Text style={styles.ratingScale}> / 10</Text></Text>
-    <Text style={type.caption}>{rated ? t("detailCard.savedHint") : t("detailCard.notRated")}</Text>
-    {rated ? <>
-      <View style={styles.hr} />
-      <Row first inset={52} lead={<Glyph name="lock-outline" size={20} color={myEntry?.notes ? colors.muted : colors.primary} />}
-        title={myEntry?.notes ? t("detailCard.noteSet") : t("detailCard.addNote")} subtitle={myEntry?.notes ? `${t("detailCard.onlyYou")} · ${myEntry.notes}` : undefined}
-        tone={myEntry?.notes ? "default" : "link"} onPress={openJournal} />
-      <Row inset={52} lead={<Glyph name={publishLine && !publication?.hidden ? "earth" : "comment-text-outline"} size={20} color={colors.icon} />}
-        title={publishLine ?? t("diary.publish")} subtitle={publishLine ? undefined : t("diary.optional")}
-        onPress={() => router.push({ pathname: ROUTES.MATCH_PUBLISH, params: { id: match.id } } as never)} />
-    </> : <PrimaryButton title={t("detailCard.rate")} icon={<Glyph name="star" size={18} color={colors.onPrimary} />} onPress={openJournal} />}
-    <Text style={type.micro}>{t("diary.ratedCount", { rated: ratedCount, total: players.length })}</Text>
-  </View>;
   const isCreator = !!currentUser?.id && match.creatorId === currentUser.id;
   const method = match.durationMethod;
   const durationText = method === "Unknown" ? t("duration.reviewUnknown") : typeof match.durationInMinutes === "number"
@@ -146,7 +128,8 @@ export default function MatchDetailScreen() {
           <Text style={[type.head, styles.flex]}>{matchResultText(match, t)}</Text>
         </Hero>
 
-        {participant && entries && <RatingCard />}
+        {participant && entries && <RatingCard rated={rated} value={value} notes={myEntry?.notes ?? null} publishLine={publishLine} hidden={!!publication?.hidden}
+          ratedCount={ratedCount} total={players.length} onOpenJournal={openJournal} onPublish={() => router.push({ pathname: ROUTES.MATCH_PUBLISH, params: { id: match.id } } as never)} />}
 
         <Section title={t("steps.players")} note={String(players.length)}>
           <Card>
@@ -180,6 +163,32 @@ export default function MatchDetailScreen() {
       </Sheet>
     </SafeAreaView>
   );
+}
+
+/** «A tua avaliação» on the match page: the saved (closed) rating or the call to rate, the personal note and the publication. */
+function RatingCard({ rated, value, notes, publishLine, hidden, ratedCount, total, onOpenJournal, onPublish }: {
+  rated: boolean; value: string | null; notes: string | null; publishLine: string | null; hidden: boolean;
+  ratedCount: number; total: number; onOpenJournal: () => void; onPublish: () => void;
+}) {
+  const { t } = useTranslation("matches");
+  return <View style={styles.ratingCard}>
+    <View style={styles.ratingHead}>
+      <Text style={styles.ratingLabel}>{t("detailCard.label")}</Text>
+      {rated && <View style={styles.lockBadge}><Glyph name="lock-outline" size={13} color={colors.muted} /><Text style={[type.micro, strong]}>{t("detailCard.saved")}</Text></View>}
+    </View>
+    <Text style={[styles.ratingValue, !rated && { color: colors.empty }]} accessibilityLabel={value ? t("rating.spoken", { value }) : t("rating.notRated")}>{value ?? "—"}<Text style={styles.ratingScale}> / 10</Text></Text>
+    <Text style={type.caption}>{rated ? t("detailCard.savedHint") : t("detailCard.notRated")}</Text>
+    {rated ? <>
+      <View style={styles.hr} />
+      <Row first inset={52} lead={<Glyph name="lock-outline" size={20} color={notes ? colors.muted : colors.primary} />}
+        title={notes ? t("detailCard.noteSet") : t("detailCard.addNote")} subtitle={notes ? `${t("detailCard.onlyYou")} · ${notes}` : undefined}
+        tone={notes ? "default" : "link"} onPress={onOpenJournal} />
+      <Row inset={52} lead={<Glyph name={publishLine && !hidden ? "earth" : "comment-text-outline"} size={20} color={colors.icon} />}
+        title={publishLine ?? t("diary.publish")} subtitle={publishLine ? undefined : t("diary.optional")}
+        onPress={onPublish} />
+    </> : <PrimaryButton title={t("detailCard.rate")} icon={<Glyph name="star" size={18} color={colors.onPrimary} />} onPress={onOpenJournal} />}
+    <Text style={type.micro}>{t("diary.ratedCount", { rated: ratedCount, total })}</Text>
+  </View>;
 }
 
 const styles = StyleSheet.create({

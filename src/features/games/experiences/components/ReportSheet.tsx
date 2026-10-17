@@ -35,7 +35,7 @@ export default function ReportSheet({ experienceId, onClose, onReported }: { exp
 
 const styles = StyleSheet.create({
   option: { flexDirection: "row", alignItems: "center", gap: space.md, minHeight: touch + 4, borderBottomWidth: 1, borderBottomColor: colors.hair },
-  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: "#B9B3C0", alignItems: "center", justifyContent: "center" },
+  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.empty, alignItems: "center", justifyContent: "center" },
   radioOn: { borderColor: colors.primary },
   dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary },
   input: { minHeight: 64, borderWidth: 1, borderColor: colors.line, borderRadius: radius.control, backgroundColor: colors.background, padding: space.md, marginTop: space.sm, ...type.body },

@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   linkText: { ...type.body, ...strong, color: colors.primary },
   big: { flexDirection: "row", alignItems: "baseline", justifyContent: "center" },
   value: { fontSize: 40, lineHeight: 46, fontWeight: "800", color: colors.text, fontVariant: ["tabular-nums"] },
-  empty: { color: "#B9B3C0" },
+  empty: { color: colors.empty },
   scale: { ...type.body, color: colors.muted },
   center: { textAlign: "center", marginTop: -4 },
   controls: { flexDirection: "row", alignItems: "center", gap: space.md },
