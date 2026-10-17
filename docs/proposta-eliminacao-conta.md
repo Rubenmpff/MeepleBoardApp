@@ -182,9 +182,59 @@ As sessões e contas do roteiro não mudaram.
 
 **Pendente:**
 
-- **Validação no iPhone.**
+- ~~Validação no iPhone~~: feita a 2026-10-17 (secção 7).
 - **Página web pública «Eliminar conta»** (texto da secção 2), na etapa das páginas públicas. O endereço de apoio também não existe ainda.
 - **Ligação de uso único em produção:** o URL usa `Request.Scheme` e `Host`. Atrás do App Service, confirmar que sai `https` (cabeçalhos encaminhados) antes de usar em produção.
 - **Fornecedores:** confirmar os prazos do Azure, do Cloudinary e do Brevo para a política.
 
 **O verificador antigo `verify-account-deletion.cjs`** não foi corrido nesta ronda, porque cria atividade temporária na conta «autor» do roteiro. O caminho do administrador é o mesmo `DeleteAsync` e está coberto pelos testes isolados e pelo novo verificador.
+
+## 7. Validação no iPhone (2026-10-17)
+
+**Percurso:** o utilizador eliminou no iPhone (Expo Go, DeviceTests) a conta descartável de `iphone-account-deletion.json`, pelo ecrã «Eliminar conta», e escolheu **Teste-conta-fica-a** como novo gestor. A eliminação ficou registada às 22:49:57 (Lisboa).
+
+**Acesso, com tokens guardados só em memória antes da eliminação:**
+
+| Teste | Resultado |
+| --- | --- |
+| Token de acesso antigo, `/users/me` e `/matches/pending-journal` | 401 |
+| Refresh token antigo | 401, não renova |
+| Login com a palavra-passe antiga | 400 «Invalid credentials» |
+
+A mudança foi detetada 6 segundos depois. O processo de monitorização terminou nesse momento.
+
+**Cenário do iPhone (leituras e pedidos recusados, sem alterar dados):**
+
+- **Campanha com novo gestor:** passou para Teste-conta-fica-a, com título neutro. Ficaram as notas que A tinha escrito e os membros B e «Conta eliminada». Teste-conta-fica-b não a pode apagar (403).
+- **Campanha sem novo gestor:** ficou com B, título neutro e gestão só de leitura. B não a pode apagar (403).
+- **Campanha só da pessoa:** foi apagada.
+- **Sessões:**
+  - a agendada saiu das listas;
+  - a que estava a decorrer terminou;
+  - a terminada ficou com título neutro e sem local;
+  - todas mantêm A como participante e a pessoa eliminada como «Conta eliminada»;
+  - a sessão de A ficou intacta.
+
+**Operação real de gestão, numa campanha descartável própria (fora do cenário do iPhone):** uma conta nova R criou uma campanha com A e B, jogou uma partida com A e outra sozinha, e eliminou a conta com A como novo gestor.
+
+- **Campanha:** B foi recusado (403) e a campanha continuou lá. A apagou-a (204) e a campanha deixou de existir (404).
+- **Partida partilhada:**
+  - continua para A, com pontuações 9 e 4, duração de 50 min e R como «Conta eliminada»;
+  - o resumo e o local escritos por R foram apagados;
+  - o diário de A ficou, e A continua a poder editar a nota pessoal;
+  - a avaliação já guardada continua fechada, como em qualquer partida;
+  - os dados comuns da partida ficam só de leitura (403).
+- **Partida solo de R:** foi apagada.
+
+**Limitação conhecida, para decisão futura:** autoria e gestão da campanha usam os mesmos campos (`Campaign.CreatorId` e `CampaignMember.IsCreator`). Depois da transferência, o novo gestor aparece com a etiqueta «Criador», e não há registo de quem criou a campanha originalmente. Há duas opções:
+
+- mudar a etiqueta para «Gestor», só no texto;
+- separar a gestão num campo próprio, com migração.
+
+**Correção feita durante a validação** (commit `a855a88`): remover membros não é exclusivo de quem gere, porque qualquer membro o pode fazer. O ecrã passou a dizer que, sem novo gestor, ninguém pode apagar, concluir ou abandonar a campanha.
+
+**Dados de teste:**
+
+- **O que fica:** a conta eliminada, a campanha transferida, as sessões e a partida partilhada da verificação manual, todos com as contas descartáveis.
+- **Limpeza:** são removidos na próxima execução de `verify-own-account-deletion.cjs`, que limpa no fim tudo o que pertence às contas descartáveis.
+- **Roteiro:** as contas e as sessões do roteiro não mudaram (as contagens são iguais às de antes).
