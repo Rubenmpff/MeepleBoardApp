@@ -286,9 +286,11 @@ export function friendlyErrorMessage(error: unknown, fallback?: string): string 
   const t = (key: string) => i18n.t(`common:errors.${key}`);
   if (!e?.isAxiosError) return typeof e?.message === "string" && e.message.trim() && !TECHNICAL.test(e.message) ? e.message : fallback ?? t("generic");
   if (!e.response) return e.code === "ECONNABORTED" ? t("timeout") : t("network");
+  const status: number = e.response.status;
+  // Server failures always get the app's own text: the server only sends a generic line there.
+  if (status >= 500) return t("server");
   const own = serverText(e.response.data);
   if (own && (i18n.language ?? "").startsWith("pt")) return own;
-  const status: number = e.response.status;
   if (status === 401) return t("unauthorized");
   if (status === 403) return t("forbidden");
   if (status === 404) return t("notFound");

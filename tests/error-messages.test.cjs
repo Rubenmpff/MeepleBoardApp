@@ -60,6 +60,7 @@ test('technical server text never reaches people', () => {
   const leak = http(400, { message: 'System.InvalidOperationException: Sequence contains no elements\n   at Foo.Bar()' });
   assert.match(say('pt', leak, 'Não foi possível guardar.'), /^Não foi possível guardar\.$/);
   assert.match(say('pt', http(502, '<html><body>Bad gateway</body></html>')), /problema/);
+  assert.match(say('pt', http(500, { message: 'Erro interno no servidor. Tente novamente mais tarde.' })), /^O servidor encontrou um problema/);
 });
 
 test('an error the app wrote itself keeps its translated text', () => {
