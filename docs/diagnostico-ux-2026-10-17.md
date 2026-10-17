@@ -52,6 +52,15 @@ Na partida e nos jogadores, a app mostra cada estado corretamente. Confirmei-o c
 **Impacto real:**
 
 1. **R1 — Linguagem dos resultados de partidas antigas.**
+   - **Feito a 2026-10-17** (commit `6743d7c`, texto apenas, PT e EN), com a tabela aprovada pelo utilizador:
+     - «Sem resultado conhecido» é o título abrangente, com explicação na lista;
+     - «Não definido» deixa de aparecer como pendência;
+     - os registos sem resultado explícito passam a «Registo antigo com resultado incompleto»;
+     - o vencedor registado mantém-se («Vencedor registado: X · registo antigo»);
+     - os jogadores sem resultado aparecem como «Sem resultado individual»;
+     - os avisos e o cartão passam de dourado a neutro.
+
+     **O que define o estado:** a ausência de resultado explícito (`Result = null`), não a data. Verificado nos dados: as partidas de 2024 com resultado explícito contam como conhecidas, e não há combinações parciais. Totais, cálculos, filtros e acessos ficam iguais.
    - **Problema:** os textos e os agregados descritos acima.
    - **Impacto:** uma pessoa pode pensar que tem trabalho pendente, ou que dezenas de partidas guardadas como «Não definido» estão incompletas.
    - **Decisão necessária:** ou se mudam os textos para descrever um estado (por exemplo, «registo antigo incompleto»), ou se dá ao autor uma forma de corrigir o resultado, e então «por confirmar» passa a ser verdade. Em ambos os casos, «Não definido» sai do total «por confirmar».
