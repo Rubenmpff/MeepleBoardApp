@@ -94,17 +94,17 @@ Cada ponto pendente precisa de autorização própria. **P1** = segurança ou pu
 | # | Ponto | Prioridade | Estado |
 | --- | --- | --- | --- |
 | 5.1 | AutoMapper 14 (NU1903, CVE-2026-32933) | P1 | **Mitigada, não resolvida.** O limite de recursão está confirmado e tem teste de regressão (API `4619889`). Decisão de 2026-10-17: manter a estrutura atual e o AutoMapper. A substituição fica para uma decisão futura (estimativa abaixo, não iniciada). Sem licenças nem atualização. |
-| 5.2 | Mensagens de erro em português fixo nos serviços da app (`matchService` 11, `authService` 10, `experienceService` 2, uma ainda com «relatório»). `change()` e `moderate()` das experiências não tratam o erro e podem mostrar «Request failed with status code 409». | P2 | Pendente |
-| 5.3 | Três formatos de duração («1 h 05 min», «1 h 5 min», «1h 5m») e datas formatadas à mão em cerca de 20 ficheiros, em vez de `src/ui/format.ts`. `formatLongDate` (amigos) pode mostrar «10/2026». | P2 | Pendente |
-| 5.4 | `RatingCard` definido dentro do render e cor fixa `#B9B3C0` em `MatchDetailScreen.tsx` | P2 | Pendente |
-| 5.5 | `npm test` aponta para Jest com `jest-expo`, que não está instalado. Os testes correm com `node --test`. | P2 | Pendente |
-| 5.6 | Estado contraditório em `pendencias-funcionais.md` (por exemplo, SC01 «resolvida» e «aberta») | P2 | Pendente |
-| 5.7 | A app chama `/game/by-bgg/{id}`, que não existe na API: cada pesquisa por id do BGG faz um pedido que dá 404 antes de importar. Funciona, mas é um pedido desperdiçado. | P3 | Pendente (encontrado a 2026-10-17) |
+| 5.2 | Mensagens de erro em português fixo nos serviços da app (`matchService` 11, `authService` 10, `experienceService` 2, uma ainda com «relatório»). `change()` e `moderate()` das experiências não tratam o erro e podem mostrar «Request failed with status code 409». | P2 | **Concluído** (2026-10-17, `5f4ef6f`, `dab2315`) |
+| 5.3 | Três formatos de duração («1 h 05 min», «1 h 5 min», «1h 5m») e datas formatadas à mão em cerca de 20 ficheiros, em vez de `src/ui/format.ts`. `formatLongDate` (amigos) pode mostrar «10/2026». | P2 | **Concluído** (2026-10-17, `b018fd6`) |
+| 5.4 | `RatingCard` definido dentro do render e cor fixa `#B9B3C0` em `MatchDetailScreen.tsx` | P2 | **Concluído** (2026-10-17, `6450fb4`) |
+| 5.5 | `npm test` aponta para Jest com `jest-expo`, que não está instalado. Os testes correm com `node --test`. | P2 | **Concluído** (2026-10-17, `e2dc58b`) |
+| 5.6 | Estado contraditório em `pendencias-funcionais.md` (por exemplo, SC01 «resolvida» e «aberta») | P2 | **Concluído** (2026-10-17, `27ee360`) |
+| 5.7 | A app chama `/game/by-bgg/{id}`, que não existe na API: cada pesquisa por id do BGG faz um pedido que dá 404 antes de importar. Funciona, mas é um pedido desperdiçado. | P3 | **Concluído** (2026-10-17, `6626e14`) |
 | 5.8 | Testes que fixam estados por índice de `useState` | P3 | Pendente. Os testes de componentes sem uso já foram removidos (app `3793237`). |
 | 5.9 | O projeto não tem configuração de ESLint; na revisão havia 95 erros de lint | P3 | Pendente |
-| 5.10 | O nome das contas eliminadas fica guardado em português (`Conta eliminada …`) | P3 | Pendente (limitação registada) |
+| 5.10 | O nome das contas eliminadas fica guardado em português (`Conta eliminada …`) | P3 | **Concluído** (2026-10-17, API `15eb47b`, app `eeb39f0`) |
 
-**Concluídos na etapa 5:** regras de média sem uso (API `081c6d1`); análise do NU1903; remoção dos testes de componentes sem uso.
+**Concluídos na etapa 5:** regras de média sem uso (API `081c6d1`); análise do NU1903; remoção dos testes de componentes sem uso; 5.2–5.7 e 5.10 (2026-10-17). **Pendentes:** 5.1 (AutoMapper, decisão futura), 5.8 e 5.9.
 
 **Fora da etapa 5:**
 
