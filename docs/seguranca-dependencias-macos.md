@@ -19,6 +19,8 @@ Na app, `lodash.debounce` passou a dependência direta (já vinha por uma depend
 
 ## Análise do NU1903 — AutoMapper 14.0.0 (2026-10-17)
 
+**Estado: MITIGADA, NÃO RESOLVIDA.** O aviso NU1903 continua ativo até haver uma decisão. Não se compram licenças nem se atualiza a dependência entretanto. Opção preferida pelo utilizador, em avaliação: substituir o AutoMapper por mapeamentos explícitos (estimativa em `ordem-de-trabalho.md`, etapa 5).
+
 **Aviso:** [GHSA-rvv3-g6hj-g44x](https://github.com/advisories/GHSA-rvv3-g6hj-g44x) / CVE-2026-32933, gravidade alta (CVSS 7,5). É uma negação de serviço por recursão sem limite: mapear um grafo de objetos auto-referenciado com milhares de níveis (o exemplo do aviso usa cerca de 25 000) esgota a pilha. O `StackOverflowException` termina o processo. Está corrigido só em **15.1.1** e **16.1.1**; a 14.x não vai ter correção.
 
 **Aplicabilidade ao MeepleBoard: baixa.**

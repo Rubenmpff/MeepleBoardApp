@@ -87,18 +87,72 @@ Respeita a estrutura existente. Não introduz convenções novas.
 
 Não se movem nem se sobrescrevem. Primeiro integram-se de forma controlada; só depois se reorganiza essa área.
 
-## 5. Restantes pontos da revisão técnica
+## 5. Restantes pontos da revisão técnica (estado a 2026-10-17)
 
-Cada um precisa de autorização própria. Já resolvidos: as regras de média sem uso (`081c6d1`) e o NU1903 analisado. Falta:
+Cada ponto pendente precisa de autorização própria. **P1** = segurança ou publicação; **P2** = defeito visível ou manutenção relevante; **P3** = qualidade interna.
 
-- `RatingCard` definido dentro do render em `MatchDetailScreen.tsx`.
-- Formatos de duração e de data por unificar em `src/ui/format.ts` e `formatDuration`.
-- Mensagens de erro em português fixo nos serviços.
-- `npm test` aponta para Jest, mas os testes correm com `node --test`.
-- O estado de [pendencias-funcionais.md](pendencias-funcionais.md) é contraditório (por exemplo, SC01).
-- Testes que fixam estados por índice de `useState`, e testes de componentes sem uso.
-- O projeto não tem configuração de ESLint: `npm run lint` instala uma. Na revisão havia 95 erros de lint.
-- AutoMapper 14 (NU1903): analisado a 2026-10-17. A aplicabilidade é baixa, o limite de recursão foi confirmado e há um teste de regressão. A correção exige mudar de licença (15.x/16.x), por isso fica para decisão; ver `seguranca-dependencias-macos.md`.
+| # | Ponto | Prioridade | Estado |
+| --- | --- | --- | --- |
+| 5.1 | AutoMapper 14 (NU1903, CVE-2026-32933) | P1 | **Mitigada, não resolvida.** O limite de recursão está confirmado e tem teste de regressão (API `4619889`). Substituição por mapeamentos explícitos em avaliação; estimativa abaixo. Sem licenças nem atualização. |
+| 5.2 | Mensagens de erro em português fixo nos serviços da app (`matchService` 11, `authService` 10, `experienceService` 2, uma ainda com «relatório»). `change()` e `moderate()` das experiências não tratam o erro e podem mostrar «Request failed with status code 409». | P2 | Pendente |
+| 5.3 | Três formatos de duração («1 h 05 min», «1 h 5 min», «1h 5m») e datas formatadas à mão em cerca de 20 ficheiros, em vez de `src/ui/format.ts`. `formatLongDate` (amigos) pode mostrar «10/2026». | P2 | Pendente |
+| 5.4 | `RatingCard` definido dentro do render e cor fixa `#B9B3C0` em `MatchDetailScreen.tsx` | P2 | Pendente |
+| 5.5 | `npm test` aponta para Jest com `jest-expo`, que não está instalado. Os testes correm com `node --test`. | P2 | Pendente |
+| 5.6 | Estado contraditório em `pendencias-funcionais.md` (por exemplo, SC01 «resolvida» e «aberta») | P2 | Pendente |
+| 5.7 | A app chama `/game/by-bgg/{id}`, que não existe na API: cada pesquisa por id do BGG faz um pedido que dá 404 antes de importar. Funciona, mas é um pedido desperdiçado. | P3 | Pendente (encontrado a 2026-10-17) |
+| 5.8 | Testes que fixam estados por índice de `useState` | P3 | Pendente. Os testes de componentes sem uso já foram removidos (app `3793237`). |
+| 5.9 | O projeto não tem configuração de ESLint; na revisão havia 95 erros de lint | P3 | Pendente |
+| 5.10 | O nome das contas eliminadas fica guardado em português (`Conta eliminada …`) | P3 | Pendente (limitação registada) |
+
+**Concluídos na etapa 5:** regras de média sem uso (API `081c6d1`); análise do NU1903; remoção dos testes de componentes sem uso.
+
+**Fora da etapa 5:**
+
+- unificação dos componentes paralelos: etapa própria, com validação visual;
+- eliminação da própria conta: pendência funcional CONTA01, em `pendencias-funcionais.md`.
+
+### 5.1 — Substituição do AutoMapper por mapeamentos explícitos (estimativa, não autorizada)
+
+**Âmbito real:** 11 mapeamentos configurados, mas só 8 em uso. São os 7 de entidade para DTO (`Game`, `Match`, `MatchPlayer`, `GameSession`, `GameSessionPlayer`, `User`, `UserGameLibrary`) e `UserDto → User`, usado na criação e edição de contas pelo administrador. Os inversos `GameDto → Game`, `GameSessionPlayerDto → GameSessionPlayer` e `UserGameLibraryDto → UserGameLibrary` não são usados. Não há achatamentos implícitos: as convenções são por nome igual. As regras explícitas são o `MaxDepth(3)` de `Game → GameDto`, `Notes` ignorado, as conversões de datas UTC das sessões e valores por omissão como «Jogador Desconhecido».
+
+**Locais afetados:**
+
+- `Mapping/AutoMapper` (3 ficheiros, 155 linhas): substituído por funções de mapeamento explícitas na mesma área (`Mapping`).
+- 33 chamadas `Map` em 7 serviços (`GameService` 12, `MatchService` 10, `UserService` 5, `GameSessionService` 3, `AuthService`, `MatchPlayerService`, `UserGameLibraryService`) e 5 no anfitrião DeviceTests.
+- Uma injeção sem uso em `GameController`.
+- O registo na injeção de dependências.
+- 6 projetos de teste que constroem `MapperConfiguration`.
+- O pacote no `MeepleBoard.Services.csproj`.
+
+**Esforço estimado:** cerca de 1,5 dias.
+
+- Testes de equivalência antes da troca: 0,5 dia.
+- Mapeamentos explícitos e chamadas: 0,5 dia.
+- Remoção do pacote, testes e documentação: 0,25 dia.
+- Verificação completa: 0,25 dia.
+
+**Verificação planeada (comportamento igual):**
+
+1. **Primeiro commit, com o AutoMapper ainda ativo:** testes de equivalência. Para cada um dos 8 mapeamentos usados, constroem-se fixtures com:
+   - todos os campos preenchidos;
+   - todos os opcionais nulos;
+   - navegações em falta (`Game`/`User` nulos);
+   - coleções vazias;
+   - pontuações zero e negativas;
+   - avaliações de meio ponto;
+   - datas com `DateTimeKind` não especificado;
+   - partidas e jogadores aninhados;
+   - uma cadeia de expansões com mais de 3 níveis e uma referência circular.
+
+   O resultado é serializado com as mesmas opções JSON da API e guardado como referência. Para `UserDto → User`, compara-se o estado da entidade campo a campo, por reflexão, na criação e na edição.
+2. **Teste de cobertura:** por reflexão, cada propriedade pública dos DTOs tem de ficar preenchida na fixture completa. As exceções são explícitas, como `Notes` e as estatísticas calculadas depois. Assim nenhum campo fica esquecido.
+3. **Troca para mapeamentos explícitos:** os mesmos testes têm de dar resultados idênticos às referências, incluindo nulos, relações e o limite de 3 níveis das expansões.
+4. **Nível HTTP:** recolha das respostas reais, só de leitura, em DeviceTests, antes e depois:
+   - partidas, sessões, ficha e lista de jogos, rankings, pesquisa;
+   - `users/me`, utilizadores para o administrador, biblioteca, utilizador no login.
+
+   As respostas têm de ser idênticas byte a byte, como as 504 das estatísticas. Não altera os dados do roteiro do iPhone.
+5. **Final:** suites, verificadores e exportação iOS. O aviso NU1903 desaparece quando o pacote sair.
 
 ## Regras permanentes
 
