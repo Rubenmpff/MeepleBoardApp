@@ -202,7 +202,8 @@
       "Harassment": "Harassment",
       "Spam": "Spam",
       "Other": "Other"
-    }
+    },
+    "viewerOf": "{{name}}'s photo"
   },
   "journal": {
     "closed": "Closed",
@@ -687,7 +688,9 @@
     "publishedComment": "Comment",
     "publishedBoth": "Rating and comment with your name",
     "hidden": "Hidden by moderation",
-    "draft": "Comment saved, not published"
+    "draft": "Comment saved, not published",
+    "visibleToPlayers": "The players of this match see your rating.",
+    "lockedLegacy": "Recorded with the match. It cannot be changed."
   },
   "detailCard": {
     "label": "Your rating",
@@ -697,7 +700,9 @@
     "rate": "Rate",
     "addNote": "Add a personal note",
     "noteSet": "Personal note",
-    "onlyYou": "only you"
+    "onlyYou": "only you",
+    "visibleToPlayers": "The players of this match see your rating.",
+    "othersLink": "See the players' experiences"
   },
   "publish": {
     "title": "Publish experience",

@@ -144,7 +144,7 @@ export default function GameExperience(p: Props) {
         const mine = myResult(m, p.userId);
         const result = matchResultText(m, tm);
         const extra = [m.players?.length ? t("details.experience.players", { count: m.players.length }) : null, m.durationInMinutes ? formatDuration(m.durationInMinutes, language) : null,
-          m.location || null, m.personalRating != null ? `★ ${formatRating(m.personalRating, language)}` : null].filter(Boolean).join(" · ");
+          m.location || null, m.personalRating != null ? `★ ${formatRating(m.personalRating, language)}` : t("details.experience.notRated")].filter(Boolean).join(" · ");
         return <Row key={m.id} inset={52} title={formatDate(m.matchDate, language)} accessibilityLabel={`${formatDate(m.matchDate, language)}. ${result}`}
           lead={<View style={[styles.badge, mine.win ? styles.badgeWin : styles.badgeOther]}>
             {mine.place ? <Text style={[styles.badgeText, { color: mine.win ? colors.primary : colors.muted }]}>{t("details.experience.place", { place: mine.place })}</Text>

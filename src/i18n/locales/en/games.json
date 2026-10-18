@@ -163,7 +163,8 @@
       "companyHint": "From your first {{name}} match to today",
       "companyLimited": "Last 10 years of {{name}} (the statistics limit)",
       "win": "Win",
-      "place": "#{{place}}"
+      "place": "#{{place}}",
+      "notRated": "Not rated by you yet"
     },
     "expansions": {
       "title": "Expansions",

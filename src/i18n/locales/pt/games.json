@@ -163,7 +163,8 @@
       "companyHint": "Desde a tua 1.ª partida de {{name}} até hoje",
       "companyLimited": "Últimos 10 anos de {{name}} (o limite das estatísticas)",
       "win": "Vitória",
-      "place": "{{place}}.º"
+      "place": "{{place}}.º",
+      "notRated": "Ainda não avaliaste"
     },
     "expansions": {
       "title": "Expansões",

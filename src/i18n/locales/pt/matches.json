@@ -202,7 +202,8 @@
       "Harassment": "Assédio",
       "Spam": "Spam",
       "Other": "Outro"
-    }
+    },
+    "viewerOf": "Fotografia de {{name}}"
   },
   "journal": {
     "closed": "Fechado",
@@ -687,7 +688,9 @@
     "publishedComment": "Comentário",
     "publishedBoth": "Avaliação e comentário com o teu nome",
     "hidden": "Oculta pela moderação",
-    "draft": "Comentário guardado, não publicado"
+    "draft": "Comentário guardado, não publicado",
+    "visibleToPlayers": "Os participantes desta partida veem a tua avaliação.",
+    "lockedLegacy": "Registada com a partida. Não pode ser alterada."
   },
   "detailCard": {
     "label": "A tua avaliação",
@@ -697,7 +700,9 @@
     "rate": "Avaliar",
     "addNote": "Adicionar nota pessoal",
     "noteSet": "Nota pessoal",
-    "onlyYou": "só tu vês"
+    "onlyYou": "só tu vês",
+    "visibleToPlayers": "Os participantes desta partida veem a tua avaliação.",
+    "othersLink": "Ver experiências dos participantes"
   },
   "publish": {
     "title": "Publicar experiência",

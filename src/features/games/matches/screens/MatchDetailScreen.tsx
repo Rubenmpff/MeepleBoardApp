@@ -82,9 +82,11 @@ export default function MatchDetailScreen() {
   const mode = match.gameMode ? t(match.gameMode === "SOLO" ? "modes.solo" : match.gameMode === "COOPERATIVE" ? "modes.cooperative" : "modes.multiplayer") : t("outcomes.modeUnknown");
   const facts = [formatDateTime(match.matchDate, i18n.language), mode, match.location || null].filter(Boolean).join(" · ");
   const myEntry = entries?.find(e => e.userId === currentUser?.id);
-  const rated = myEntry?.personalRating != null;
+  // Your rating only: your diary, or an old rating stored on a match you registered (the API decides). Zero is a rating.
+  const ownRating = myEntry?.personalRating ?? match.personalRating ?? null;
+  const rated = ownRating != null;
   const ratedCount = (entries ?? []).filter(e => e.personalRating != null && players.some(p => p.userId === e.userId)).length;
-  const value = rated ? new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 }).format(myEntry!.personalRating!) : null;
+  const value = rated ? new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 }).format(ownRating!) : null;
   const openJournal = () => router.push({ pathname: ROUTES.MATCH_JOURNAL, params: { id: match.id } } as never);
   const publishLine = publication?.hidden ? t("diary.hidden") : publication?.showRating && publication.commentPublished ? t("diary.publishedBoth")
     : publication?.showRating ? t("diary.publishedRating") : publication?.commentPublished ? t("diary.publishedComment") : null;
@@ -178,6 +180,7 @@ function RatingCard({ rated, value, notes, publishLine, hidden, ratedCount, tota
     </View>
     <Text style={[styles.ratingValue, !rated && { color: colors.empty }]} accessibilityLabel={value ? t("rating.spoken", { value }) : t("rating.notRated")}>{value ?? "—"}<Text style={styles.ratingScale}> / 10</Text></Text>
     <Text style={type.caption}>{rated ? t("detailCard.savedHint") : t("detailCard.notRated")}</Text>
+    <Text style={type.caption}>{t("detailCard.visibleToPlayers")}</Text>
     {rated ? <>
       <View style={styles.hr} />
       <Row first inset={52} lead={<Glyph name="lock-outline" size={20} color={notes ? colors.muted : colors.primary} />}
@@ -187,7 +190,10 @@ function RatingCard({ rated, value, notes, publishLine, hidden, ratedCount, tota
         title={publishLine ?? t("diary.publish")} subtitle={publishLine ? undefined : t("diary.optional")}
         onPress={onPublish} />
     </> : <PrimaryButton title={t("detailCard.rate")} icon={<Glyph name="star" size={18} color={colors.onPrimary} />} onPress={onOpenJournal} />}
-    <Text style={type.micro}>{t("diary.ratedCount", { rated: ratedCount, total })}</Text>
+    {/* The other participants' experiences live in the diary («O que os outros acharam»); here, the way in. */}
+    {total > 1 ? <Row inset={52} lead={<Glyph name="account-multiple-outline" size={20} color={colors.icon} />} title={t("detailCard.othersLink")}
+      subtitle={t("diary.ratedCount", { rated: ratedCount, total })} onPress={onOpenJournal} />
+      : <Text style={type.micro}>{t("diary.ratedCount", { rated: ratedCount, total })}</Text>}
   </View>;
 }
 

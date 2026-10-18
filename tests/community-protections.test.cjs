@@ -55,9 +55,9 @@ test('diary: another participant\'s photo opens larger with «Denunciar fotograf
   const peer = { id: 'e2', userId: 'peer', userName: 'Peer', personalRating: 9, tags: '', photoUrls: [photo], createdAt: '2026-10-15T21:00:00Z' };
   const view = await renderNative(journal, 'default', {}, { states: { 0: match, 1: [peer], 2: false } });
   await view.press('Abrir fotografia de Peer');
-  assert.ok(view.updates.some(([, value]) => value === photo), 'opens the viewer');
-  const viewer = await renderNative(journal, 'default', {}, { states: { 0: match, 1: [peer], 2: false, 11: photo } });
-  assert.match(viewer.html, /Denunciar fotografia/);
+  assert.ok(view.updates.some(([, value]) => value?.url === photo && value?.name === 'Peer'), 'opens the viewer with the author');
+  const viewer = await renderNative(journal, 'default', {}, { states: { 0: match, 1: [peer], 2: false, 11: { url: photo, name: 'Peer' } } });
+  assert.match(viewer.html, /Denunciar fotografia/); assert.match(viewer.html, /Fotografia de Peer/);
   const sheet = await renderNative(journal, 'default', {}, { states: { 0: match, 1: [peer], 2: false, 12: photo } });
   for (const reason of ['Imprópria', 'Dados pessoais', 'Assédio', 'Spam', 'Outro']) assert.match(sheet.html, new RegExp(reason));
   assert.match(sheet.html, /nada é apagado automaticamente/);
