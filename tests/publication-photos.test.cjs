@@ -22,13 +22,17 @@ const screen = (states, options = {}) => renderNative(publish, 'default', {}, { 
 
 test('choosing photos: only my diary photos of this match, at most 3, with «1 de 3 no máximo»; none chosen by default', async () => {
   const view = await screen({});
-  assert.match(view.html, /Fotografias a publicar/); assert.match(view.html, /0 de 3 no máximo/);
-  assert.match(view.html, /Só aparecem as fotografias que tu juntaste a esta partida\./);
+  assert.match(view.html, />Fotografias</); assert.match(view.html, /0 de 3 no máximo/);
+  assert.match(view.html, /Só as tuas fotografias desta partida\. Tocar escolhe ou retira\./);
   const boxes = view.controls.filter(c => c.accessibilityLabel === 'Publicar esta fotografia');
   assert.equal(boxes.length, 4); assert.ok(boxes.every(b => !b.accessibilityState.checked), 'nothing moves to the community by itself');
   const full = await screen({ 9: [key(1), key(2), key(3)] });
   const fourth = full.controls.filter(c => c.accessibilityLabel === 'Publicar esta fotografia')[3];
   assert.ok(fourth.disabled && fourth.accessibilityState.disabled, 'a fourth cannot be chosen');
+  const nothing = view.controls.find(c => c.accessibilityLabel === 'Publicar na comunidade');
+  assert.equal(nothing.disabled, true, 'nothing chosen yet: «Publicar na comunidade», inactive');
+  const draft = await screen({ 5: 'Só um rascunho' });
+  assert.ok(draft.controls.some(c => c.accessibilityLabel === 'Guardar sem publicar' && !c.disabled), 'a comment kept without publishing');
   const none = await screen({ 8: [] });
   assert.match(none.html, /Ainda não juntaste fotografias a esta partida/);
 });
@@ -51,36 +55,64 @@ test('a new photo needs the warning and the checkbox: without it nothing is sent
 
 test('preview: exactly what others see — name, rating, comment, photos and «Competitivo · 3 jogadores · out. 2026»; never the match', async () => {
   const view = await screen({ 3: true, 4: true, 5: 'Partida apertada até ao fim.', 9: [key(1)] });
-  assert.match(view.html, /Exatamente o que outras pessoas veem na página do jogo\./);
+  assert.match(view.html, /Como os outros veem/); assert.doesNotMatch(view.html, /A tua</, 'no personal marker in the preview');
   assert.match(view.html, /Teste-ana/); assert.match(view.html, /6,5/); assert.match(view.html, /Partida apertada até ao fim\./);
   assert.match(view.html, /Competitivo · 3 jogadores · out\. 2026/);
   assert.match(view.html, /Não publica a partida, os outros jogadores, o local nem as tuas notas\./);
   assert.doesNotMatch(view.html, /Teste-carla|Teste-bruno/);
 });
 
-test('after publishing: withdraw one photo (stays with the players) or everything; moderation notices show the reason', async () => {
-  const view = await screen({ 0: publication({ showRating: true, publishedAt: '2026-10-18T10:00:00Z', photos: [published(1), published(2, { hidden: true, hiddenReason: 'AutoReports' }),
-    published(3, { hidden: true, hiddenReason: 'PersonalData' }), published(4, { hidden: true, hiddenReason: 'Inappropriate', removed: true, diaryPath: null })] }), 9: [key(1), key(2)] },
-    { services: { withdrawPhoto: publication(), change: publication() } });
-  assert.match(view.html, /Depois de publicado/); assert.match(view.html, /Retirar mantém-na partilhada com os jogadores/);
-  assert.match(view.html, /Oculta da comunidade até revisão/);
-  assert.match(view.html, /Retirada da comunidade pela moderação/); assert.match(view.html, /Motivo: Dados pessoais/);
-  assert.match(view.html, /Removida da partida pela moderação/); assert.match(view.html, /Motivo: Imprópria/);
-  const withdraws = view.controls.filter(c => c.accessibilityLabel === 'Retirar fotografia da comunidade');
-  assert.equal(withdraws.length, 2, 'only my own choices, not moderation decisions');
-  await withdraws[0].onPress();
-  const [, title, text, buttons] = view.calls.find(c => c[0] === 'alert');
-  assert.equal(title, 'Retirar fotografia da comunidade?'); assert.match(text, /Continua no teu diário, partilhada com os jogadores/);
-  await buttons[1].onPress();
-  assert.deepEqual(view.calls.find(c => c[0] === 'withdrawPhoto').slice(1), ['m', 'p1']);
-  await view.press('Retirar tudo da comunidade');
-  const all = view.calls.filter(c => c[0] === 'alert').at(-1);
-  assert.match(all[2], /as fotografias continuam no diário, partilhadas com os jogadores/); assert.match(all[2], /Cópias que alguém já tenha guardado ficam fora do alcance da app/);
-  await all[3][1].onPress();
-  assert.deepEqual(view.calls.find(c => c[0] === 'change').slice(1), ['m', 'withdraw-all']);
+test('already published: «Guardar alterações», inactive until something changes; moderation notices show the reason and stay blocked', async () => {
+  const pub = publication({ showRating: true, publishedAt: '2026-10-18T10:00:00Z', photos: [published(1), published(2, { hidden: true, hiddenReason: 'AutoReports' }),
+    published(3, { hidden: true, hiddenReason: 'PersonalData' }), published(4, { hidden: true, hiddenReason: 'Inappropriate', removed: true, diaryPath: null })] });
+  const view = await screen({ 0: pub, 3: true, 9: [key(1), key(2)] });
+  assert.match(view.html, /Publicação/); assert.match(view.html, /Publicada · 18 out\. 2026/);
+  const save = view.controls.find(c => c.accessibilityLabel === 'Guardar alterações');
+  assert.equal(save.disabled, true); assert.match(view.html, /Sem alterações por guardar\./);
+  assert.doesNotMatch(view.html, /alteração por guardar/);
+  assert.match(view.html, />Publicada</); assert.match(view.html, />Oculta até revisão</);
+  assert.match(view.html, /Retirada da comunidade pela moderação · Motivo: Dados pessoais/);
+  assert.match(view.html, /Removida da partida pela moderação · Motivo: Imprópria/);
   const boxes = view.controls.filter(c => c.accessibilityLabel === 'Publicar esta fotografia');
   assert.ok(boxes[2].disabled, 'a photo withdrawn by moderation cannot be chosen again');
-  assert.equal(boxes[3].disabled, true, 'two moderated count towards the 3: only one more could fit, and two are chosen');
+  assert.equal(view.controls.some(c => c.accessibilityLabel === 'Retirar'), false, 'one control per content');
+  assert.deepEqual(view.guards.map(g => g.enabled), [false], 'nothing to protect when leaving');
+});
+
+test('withdrawing a part is a draft: the badge, the count and the preview say so, nothing is sent until saving', async () => {
+  const pub = publication({ showRating: true, publishedAt: '2026-10-18T10:00:00Z', photos: [published(1)] });
+  const view = await screen({ 0: pub, 3: true, 9: [] }, { services: { set: publication({ showRating: true }) } });
+  assert.match(view.html, /1 alteração por guardar/); assert.match(view.html, />Sai ao guardar</);
+  assert.match(view.html, /Depois de guardar, os outros verão/);
+  assert.match(view.html, /Ao guardar: a fotografia sai da comunidade e continua partilhada com os jogadores\./);
+  assert.equal(view.calls.some(c => c[0] === 'set' || c[0] === 'change'), false, 'nothing changed in the community yet');
+  assert.deepEqual(view.guards.map(g => g.enabled), [true], 'leaving asks first (the existing «Descartar alterações?»)');
+  await view.press('Guardar alterações');
+  assert.deepEqual(view.calls.find(c => c[0] === 'set')[2], { showRating: true, comment: null, publishComment: false, photoKeys: [], photoConsent: false });
+  const ratingOff = await screen({ 0: pub, 3: false, 9: [key(1)] });
+  assert.match(ratingOff.html, /Ao guardar: a avaliação deixa de aparecer com o teu nome\./);
+});
+
+test('«Retirar tudo da comunidade» keeps its own confirmation; withdrawn photos stay with the players', async () => {
+  const view = await screen({ 0: publication({ showRating: true, publishedAt: '2026-10-18T10:00:00Z', photos: [published(1)] }), 3: true, 9: [key(1)] }, { services: { change: publication() } });
+  await view.press('Retirar tudo da comunidade');
+  const [, title, text, buttons] = view.calls.find(c => c[0] === 'alert');
+  assert.equal(title, 'Retirar tudo da comunidade?');
+  assert.match(text, /as fotografias continuam no diário, partilhadas com os jogadores/); assert.match(text, /Cópias que alguém já tenha guardado ficam fora do alcance da app/);
+  assert.equal(view.calls.some(c => c[0] === 'change'), false, 'nothing before confirming');
+  await buttons.find(b => b.style === 'destructive').onPress();
+  assert.deepEqual(view.calls.find(c => c[0] === 'change').slice(1), ['m', 'withdraw-all']);
+});
+
+test('leaving the screen: back with unsaved changes uses the existing «Descartar alterações?»; without changes it just goes back', async () => {
+  const clean = await screen({});
+  await clean.press('Voltar');
+  assert.deepEqual(clean.routes, ['back']); assert.equal(clean.calls.some(c => c[0] === 'alert'), false);
+  const dirty = await screen({ 9: [key(1)] }, { canGoBack: false });
+  await dirty.press('Voltar');
+  const [, title, message, buttons] = dirty.calls.find(c => c[0] === 'alert');
+  assert.equal(title, 'Descartar alterações?'); assert.match(message, /Existem alterações por guardar/);
+  assert.deepEqual(buttons.map(b => b.text), ['Continuar a editar', 'Descartar e sair']);
 });
 
 test('game page: photos on an experience open larger; someone else\'s can be reported, mine cannot', async () => {

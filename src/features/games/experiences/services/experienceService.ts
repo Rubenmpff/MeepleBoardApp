@@ -21,11 +21,6 @@ const experienceService = {
     try { return (await api.post<Publication>(`/campaigns/matches/${matchId}/journal/publication/${change}`)).data; }
     catch (error) { throw fail(error, "games:experiences.errors.change"); }
   },
-  /** Leaves the community only; the photo stays in the diary, shared with the match's players. */
-  async withdrawPhoto(matchId: string, photoId: string): Promise<Publication> {
-    try { return (await api.delete<Publication>(`/campaigns/matches/${matchId}/journal/publication/photos/${photoId}`)).data; }
-    catch (error) { throw fail(error, "games:experiences.errors.change"); }
-  },
   async listForGame(gameId: string, offset = 0, limit = 20): Promise<ExperiencePage> {
     return (await api.get<ExperiencePage>(`/game/${gameId}/experiences`, { params: { offset, limit } })).data;
   },

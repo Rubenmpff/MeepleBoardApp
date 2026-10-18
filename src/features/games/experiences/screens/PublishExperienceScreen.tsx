@@ -3,8 +3,11 @@
  * comment, or both. The preview shows exactly what others see. Withdrawing the rating, withdrawing or deleting the
  * comment never changes the saved rating nor its contribution to the MeepleBoard average.
  * Photos (approved 18/10/2026): up to 3 of your own diary photos of this match, chosen here only; adding any needs the
- * confirmation under «Antes de publicar fotografias». Each can be withdrawn, or everything at once; withdrawn photos stay in
- * the diary, shared with the players. A photo hidden by moderation shows why and cannot be published again from here.
+ * confirmation under «Antes de publicar fotografias». Withdrawn photos stay in the diary, shared with the players. A photo
+ * hidden by moderation shows why and cannot be published again from here.
+ * Refinement (proposal v2): one control per content — the switches and the photo grid are the draft; nothing changes in the
+ * community until «Guardar alterações» (first time: «Publicar na comunidade»), and the summary says what will change.
+ * «Retirar tudo da comunidade» keeps its own confirmation. Leaving with unsaved changes asks, as elsewhere in the app.
  */
 import { useCallback, useEffect, useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -13,6 +16,7 @@ import { formatDate } from "@/src/ui/format";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import ScreenLayout from "@/src/ui/ScreenLayout";
+import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 import ScreenState from "@/src/ui/ScreenState";
 import PrimaryButton from "@/src/ui/PrimaryButton";
 import { Glyph } from "@/src/ui/components";
@@ -65,6 +69,12 @@ export default function PublishExperienceScreen() {
   }, [id, user?.id]);
   useEffect(() => { void load(); }, [load]);
 
+  // Unsaved draft: anything that differs from what the server returned (the published version or the kept comment).
+  const savedPhotoKeys = (publication?.photos ?? []).filter(f => !moderated(f)).map(f => f.key);
+  const dirty = !!publication && (showRating !== publication.showRating || publishComment !== publication.commentPublished
+    || comment.trim() !== (publication.comment ?? "") || selected.join() !== savedPhotoKeys.join());
+  const guard = useUnsavedChanges(!loading && dirty, saving, id ? `/games/matches/${id}` : undefined);
+
   if (loading) return <ScreenLayout title={t("publish.title")}><ScreenState loading message={t("ui.loading")} /></ScreenLayout>;
   if (loadError || !publication || !match) return <ScreenLayout title={t("publish.title")}><ScreenState error message={t("ui.loadError")} onRetry={load} retryLabel={t("ui.retry")} /></ScreenLayout>;
   if (!publication.rated) return <ScreenLayout title={t("publish.title")}><ScreenState message={t("publish.needsRating")} /></ScreenLayout>;
@@ -81,49 +91,58 @@ export default function PublishExperienceScreen() {
   const pathOf = (key: string) => diaryPhotos.find(u => keyOf(u) === key) ?? photos.find(f => f.key === key)?.diaryPath ?? null;
   const togglePhoto = (key: string) => setSelected(now => now.includes(key) ? now.filter(k => k !== key) : now.length < room ? [...now, key] : now);
   const anythingPublished = publication.showRating || publication.commentPublished || ownPublished.length > 0;
-  const changed = showRating !== publication.showRating || publishComment !== publication.commentPublished || text !== (publication.comment ?? "")
-    || selected.join() !== publishedKeys.join();
+  const changed = dirty;
+  const removing = publishedKeys.filter(k => !selected.includes(k));
+  const commentAfter = publishComment && !!text;
+  const pending = (showRating !== publication.showRating ? 1 : 0) + (publishComment !== publication.commentPublished || text !== (publication.comment ?? "") ? 1 : 0)
+    + adding.length + removing.length;
+  // What saving changes in the community, in words.
+  const summary = [
+    showRating !== publication.showRating ? t(showRating ? "publish.sum.ratingOn" : "publish.sum.ratingOff") : null,
+    publication.commentPublished && !commentAfter ? t("publish.sum.commentOff") : !publication.commentPublished && commentAfter ? t("publish.sum.commentOn")
+      : publication.commentPublished && commentAfter && text !== (publication.comment ?? "") ? t("publish.sum.commentEdited") : null,
+    removing.length ? t("publish.sum.photosOff", { count: removing.length }) : null,
+    adding.length ? t("publish.sum.photosOn", { count: adding.length }) : null,
+  ].filter(Boolean).join("; ");
   const mode: Experience["mode"] = match.gameMode === "SOLO" || match.gameMode === "COMPETITIVE" || match.gameMode === "COOPERATIVE" ? match.gameMode : match.isSoloGame ? "SOLO" : "UNKNOWN";
   const month = match.matchDate.slice(0, 7);
-  const preview = { authorName: user?.userName ?? "", rating: showRating ? publication.rating : null, comment: publishComment && text ? text : null,
-    mode, players: match.players?.length ?? 1, month, edited: false, isMine: true, photos: selected.map(pathOf).filter((u): u is string => !!u) };
+  // Exactly what someone else sees: no «A tua».
+  const preview = { authorName: user?.userName ?? "", rating: showRating ? publication.rating : null, comment: commentAfter ? text : null,
+    mode, players: match.players?.length ?? 1, month, edited: false, isMine: false, photos: selected.map(pathOf).filter((u): u is string => !!u) };
+  const previewShown = preview.rating != null || !!preview.comment || preview.photos.length > 0;
   const submit = async () => {
     if (!id) return;
     setSaving(true);
-    try { apply(await experienceService.set(id, { showRating, comment: text || null, publishComment: publishComment && !!text, photoKeys: selected, photoConsent: consent })); }
+    try { apply(await experienceService.set(id, { showRating, comment: text || null, publishComment: commentAfter, photoKeys: selected, photoConsent: consent })); }
     catch (err: any) { Alert.alert(t("ui.error"), err?.message ?? t("publish.error")); }
     finally { setSaving(false); }
   };
-  const change = (kind: "withdraw-rating" | "withdraw-comment" | "delete-comment" | "withdraw-all") => {
-    const [title, body] = kind === "delete-comment" ? [t("publish.deleteTitle"), t("publish.deleteText")]
-      : kind === "withdraw-all" ? [t("publish.withdrawAllTitle"), t("publish.withdrawAllText")]
-      : [t("publish.withdrawTitle"), t(kind === "withdraw-rating" ? "publish.withdrawRatingText" : "publish.withdrawCommentText")];
-    Alert.alert(title, body, [{ text: t("publish.cancel"), style: "cancel" }, { text: kind === "delete-comment" ? t("publish.deleteComment") : t("publish.withdraw"), style: "destructive",
+  const change = (kind: "delete-comment" | "withdraw-all") => {
+    const [title, body, action] = kind === "delete-comment" ? [t("publish.deleteTitle"), t("publish.deleteText"), t("publish.deleteComment")]
+      : [t("publish.withdrawAllTitle"), t("publish.withdrawAllText"), t("publish.withdrawAllAction")];
+    Alert.alert(title, body, [{ text: t("publish.cancel"), style: "cancel" }, { text: action, style: "destructive",
       onPress: async () => { if (!id) return; try { apply(await experienceService.change(id, kind)); } catch (err: any) { Alert.alert(t("ui.error"), err?.message ?? t("publish.error")); } } }]);
   };
-  const withdrawPhoto = (photo: PublishedPhoto) => Alert.alert(t("publish.withdrawPhotoTitle"), t("publish.withdrawPhotoText"), [
-    { text: t("publish.cancel"), style: "cancel" },
-    { text: t("publish.withdraw"), style: "destructive", onPress: async () => {
-      if (!id) return;
-      try { apply(await experienceService.withdrawPhoto(id, photo.id)); } catch (err: any) { Alert.alert(t("ui.error"), err?.message ?? t("publish.error")); }
-    } },
-  ]);
   const toggle = (label: string, value: boolean, onChange: (v: boolean) => void, hint?: string) =>
     <TouchableOpacity style={styles.toggle} accessibilityRole="switch" accessibilityLabel={label} accessibilityState={{ checked: value }} onPress={() => onChange(!value)}>
-      <View style={styles.flex}><Text style={type.body}>{label}</Text>{!!hint && <Text style={type.caption}>{hint}</Text>}</View>
+      <View style={styles.flex}><Text style={[type.body, strong]}>{label}</Text>{!!hint && <Text style={type.caption}>{hint}</Text>}</View>
       <View pointerEvents="none"><Switch value={value} accessible={false} trackColor={{ true: colors.primary, false: colors.track }} /></View>
     </TouchableOpacity>;
   const published = publication.publishedAt ? new Date(publication.publishedAt) : null;
   const publishedOn = published ? formatDate(published, i18n.language) : "";
+  const somethingToPublish = showRating || commentAfter || selected.length > 0;
 
-  return <ScreenLayout title={anythingPublished ? t("publish.managed") : t("publish.title")}>
+  return <ScreenLayout title={anythingPublished ? t("publish.managed") : t("publish.title")} onCancel={guard.cancel}>
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
     <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
       {publication.hidden && <View style={styles.hidden}>
         <View style={styles.row}><Glyph name="eye-off-outline" size={18} color={colors.danger} /><Text style={[type.body, strong, { color: colors.danger }]}>{t("publish.hidden")}</Text></View>
         <Text style={type.caption}>{t("publish.hiddenReason", { reason: t(`publish.reasons.${publication.hiddenReason ?? "Other"}`) })}</Text>
       </View>}
-      {anythingPublished && !publication.hidden && <View style={styles.state}><Glyph name="earth" size={14} color={colors.primary} /><Text style={[type.micro, strong, { color: colors.primary }]}>{t("publish.publishedAt", { date: publishedOn })}</Text></View>}
+      {(anythingPublished && !publication.hidden) || (anythingPublished && pending > 0) ? <View style={styles.chips}>
+        {anythingPublished && !publication.hidden && <View style={styles.state}><Glyph name="earth" size={14} color={colors.primary} /><Text style={[type.micro, strong, { color: colors.primary }]}>{t("publish.publishedAt", { date: publishedOn })}</Text></View>}
+        {anythingPublished && pending > 0 && <View style={[styles.state, styles.pendingChip]}><View style={styles.dot} /><Text style={[type.micro, strong, { color: colors.pendingText }]}>{t("publish.pending", { count: pending })}</Text></View>}
+      </View> : null}
       <View style={styles.card}>
         {toggle(t("publish.showRating", { value: ratingText }), showRating, setShowRating, t("publish.showRatingHint"))}
         <View style={styles.hr} />
@@ -135,19 +154,28 @@ export default function PublishExperienceScreen() {
         </>}
       </View>
       <View style={{ gap: space.sm }}>
-        <Text style={type.head}>{t("publish.photosTitle")} <Text style={[type.caption, strong]}>{t("publish.photosCount", { count: selected.length })}</Text></Text>
+        <View style={styles.photoHead}><Text style={[type.body, strong]}>{t("publish.photosTitle")}</Text><Text style={[type.caption, strong]}>{t("publish.photosCount", { count: selected.length })}</Text></View>
         {diaryPhotos.length ? <View style={styles.photos}>
           {diaryPhotos.map(url => {
             const key = keyOf(url), on = selected.includes(key), notice = notices.find(f => f.key === key);
             const blocked = !!notice || (!on && selected.length >= room);
-            return <TouchableOpacity key={key} accessibilityRole="checkbox" accessibilityLabel={t("publish.photoSelect")} accessibilityState={{ checked: on, disabled: blocked }}
-              disabled={blocked} onPress={() => togglePhoto(key)} style={blocked && !on ? styles.dim : undefined}>
+            const wasPublished = publishedKeys.includes(key), autoHidden = ownPublished.find(f => f.key === key)?.hidden;
+            // Badge: published now · leaves when saved · blocked by moderation.
+            const badge = notice ? { text: t("publish.photoModerated"), out: true } : wasPublished && on ? { text: t(autoHidden ? "publish.photoAutoHiddenShort" : "publish.photoPublishedShort"), out: false }
+              : wasPublished ? { text: t("publish.photoLeaving"), out: true } : null;
+            return <TouchableOpacity key={key} accessibilityRole="checkbox" accessibilityLabel={t("publish.photoSelect")} accessibilityHint={badge?.text}
+              accessibilityState={{ checked: on, disabled: blocked }} disabled={blocked} onPress={() => togglePhoto(key)} style={blocked && !on ? styles.dim : undefined}>
               <JournalPhoto uri={url} style={styles.photo} />
               {on && <View style={styles.check}><Glyph name="check" size={16} color={colors.onPrimary} /></View>}
+              {!!badge && <View style={styles.badge}><Text numberOfLines={1} style={[type.micro, strong, { color: badge.out ? colors.danger : colors.primary }]}>{badge.text}</Text></View>}
             </TouchableOpacity>;
           })}
         </View> : <Text style={type.caption}>{t("publish.photosNone")}</Text>}
         {diaryPhotos.length > 0 && <Text style={type.caption}>{t("publish.photosOnlyYours")}</Text>}
+        {notices.map(f => <View key={f.id} style={styles.notice}>
+          <Glyph name="shield-alert-outline" size={18} color={colors.danger} />
+          <Text style={[type.caption, styles.flex]}>{t(f.removed ? "publish.photoRemovedByModeration" : "publish.photoWithdrawnByModeration")} · {t("publish.photoReason", { reason: t(`photos.reasons.${f.hiddenReason ?? "Other"}`) })}</Text>
+        </View>)}
       </View>
       {adding.length > 0 && <View style={styles.warning}>
         <Text style={[type.body, strong, styles.warningText]}>{t("publish.warningTitle")}</Text>
@@ -158,35 +186,16 @@ export default function PublishExperienceScreen() {
           <Text style={[type.body, strong, styles.flex, styles.warningText]}>{t("publish.consent")}</Text>
         </TouchableOpacity>
       </View>}
-      {(preview.rating != null || preview.comment || preview.photos.length > 0) && <View style={{ gap: space.sm }}>
-        <Text style={styles.label}>{t("publish.preview")}</Text>
-        <Text style={type.caption}>{t("publish.previewHint")}</Text>
-        <ExperienceCard item={preview} preview />
+      {/* The published version stays in the community until saving; the preview says which one it shows. */}
+      <View style={{ gap: space.sm }}>
+        <Text style={styles.label}>{t(anythingPublished && changed ? "publish.previewAfterSave" : "publish.preview")}</Text>
+        {previewShown ? <ExperienceCard item={preview} preview /> : <Text style={type.caption}>{t(anythingPublished ? "publish.nothingAfterSave" : "publish.nothingYet")}</Text>}
         <Text style={type.caption}>{t("publish.previewNot")}</Text>
-      </View>}
-      {photos.length > 0 && <View style={{ gap: space.sm }}>
-        <Text style={type.head}>{t("publish.after")}</Text>
-        <View style={styles.card}>
-          {photos.map(f => <View key={f.id} style={styles.row}>
-            {f.diaryPath ? <JournalPhoto uri={f.diaryPath} style={styles.thumb} /> : <View style={styles.thumb}><Glyph name="image-off-outline" size={20} color={colors.muted} /></View>}
-            <View style={styles.flex}>
-              <Text style={[type.body, strong]}>{moderated(f) ? t(f.removed ? "publish.photoRemovedByModeration" : "publish.photoWithdrawnByModeration") : t("publish.photoPublished")}</Text>
-              <Text style={type.caption}>{moderated(f) ? t("publish.photoReason", { reason: t(`photos.reasons.${f.hiddenReason ?? "Other"}`) })
-                : f.hidden ? t("publish.photoAutoHidden") : t("publish.photoPublishedHint")}</Text>
-            </View>
-            {!moderated(f) && <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("publish.withdrawPhoto")} onPress={() => withdrawPhoto(f)} style={styles.link}>
-              <Text style={styles.linkText}>{t("publish.withdraw")}</Text></TouchableOpacity>}
-          </View>)}
-        </View>
-      </View>}
-      {anythingPublished && <View style={styles.card}>
-        {publication.showRating && <View style={styles.row}><Glyph name="star-outline" size={20} color={colors.icon} /><Text style={[type.body, styles.flex]}>{t("diary.publishedRating")}</Text>
-          <TouchableOpacity accessibilityRole="button" onPress={() => change("withdraw-rating")} style={styles.link}><Text style={styles.linkText}>{t("publish.withdraw")}</Text></TouchableOpacity></View>}
-        {publication.commentPublished && <View style={styles.row}><Glyph name="comment-text-outline" size={20} color={colors.icon} /><Text style={[type.body, styles.flex]}>{t("diary.publishedComment")}</Text>
-          <TouchableOpacity accessibilityRole="button" onPress={() => change("withdraw-comment")} style={styles.link}><Text style={styles.linkText}>{t("publish.withdraw")}</Text></TouchableOpacity></View>}
-      </View>}
-      {anythingPublished && <TouchableOpacity accessibilityRole="button" onPress={() => change("withdraw-all")} style={styles.row}>
-        <Glyph name="earth-off" size={20} color={colors.icon} /><Text style={[type.body, strong, styles.flex]}>{t("publish.withdrawAll")}</Text><Glyph name="chevron-right" size={20} color={colors.chevron} />
+      </View>
+      {anythingPublished && <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("publish.withdrawAll")} onPress={() => change("withdraw-all")} style={[styles.card, styles.row]}>
+        <Glyph name="earth-off" size={20} color={colors.icon} />
+        <View style={styles.flex}><Text style={[type.body, strong]}>{t("publish.withdrawAll")}</Text><Text style={type.caption}>{t("publish.withdrawAllHint")}</Text></View>
+        <Glyph name="chevron-right" size={20} color={colors.chevron} />
       </TouchableOpacity>}
       {!!publication.comment && <TouchableOpacity accessibilityRole="button" onPress={() => change("delete-comment")} style={styles.row}>
         <Glyph name="trash-can-outline" size={18} color={colors.danger} /><Text style={[type.body, strong, { color: colors.danger }]}>{t("publish.deleteComment")}</Text>
@@ -194,9 +203,11 @@ export default function PublishExperienceScreen() {
       <Text style={type.caption}>{t("publish.keepNote", { value: ratingText })}</Text>
     </ScrollView>
     <View style={styles.footer}>
+      {anythingPublished && changed && !!summary && <Text style={styles.summary}>{t("publish.sum.prefix", { changes: summary })}</Text>}
+      {anythingPublished && !changed && <Text style={[type.caption, styles.center]}>{t("publish.noChanges")}</Text>}
       {adding.length > 0 && !consent && <Text style={[type.caption, styles.center]}>{t("publish.consentNeeded")}</Text>}
-      <PrimaryButton title={showRating || (publishComment && !!text) || selected.length > 0 ? t("publish.submit") : t("publish.saveDraft")} onPress={submit} loading={saving}
-        disabled={!changed || (!showRating && !text && selected.length === 0 && publishedKeys.length === 0) || (publishComment && !text) || (adding.length > 0 && !consent)} />
+      <PrimaryButton title={anythingPublished ? t("publish.saveChanges") : !somethingToPublish && !!text ? t("publish.saveDraft") : t("publish.submit")} onPress={submit} loading={saving}
+        disabled={!changed || (!anythingPublished && !somethingToPublish && !text) || (publishComment && !text) || (adding.length > 0 && !consent)} />
     </View>
     </KeyboardAvoidingView>
   </ScreenLayout>;
@@ -220,7 +231,13 @@ const styles = StyleSheet.create({
   photo: { width: 104, height: 104, borderRadius: 12, backgroundColor: colors.line },
   dim: { opacity: 0.4 },
   check: { position: "absolute", top: 6, right: 6, width: 28, height: 28, borderRadius: 14, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
-  thumb: { width: 56, height: 56, borderRadius: 10, backgroundColor: colors.line, alignItems: "center", justifyContent: "center" },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: space.sm },
+  pendingChip: { backgroundColor: colors.pendingSoft },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.pendingText },
+  photoHead: { flexDirection: "row", alignItems: "baseline", flexWrap: "wrap", columnGap: space.sm },
+  badge: { position: "absolute", left: 6, bottom: 6, maxWidth: 92, backgroundColor: colors.card, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 1 },
+  notice: { flexDirection: "row", alignItems: "flex-start", gap: space.sm },
+  summary: { ...type.caption, color: colors.text, backgroundColor: colors.track, borderRadius: radius.control, paddingHorizontal: space.md, paddingVertical: space.sm, marginBottom: space.sm },
   warning: { gap: space.sm, padding: space.lg, borderRadius: radius.hero, borderWidth: 1, borderColor: colors.pendingLine, backgroundColor: colors.pendingSoft },
   warningText: { color: colors.pendingText },
   consent: { flexDirection: "row", alignItems: "center", gap: space.sm, minHeight: touch },

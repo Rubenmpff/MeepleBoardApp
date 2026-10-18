@@ -52,14 +52,14 @@ test('match detail: «A tua avaliação» in prominence — closed once given, �
 
 test('publishing: rating and comment are separate explicit choices; the preview shows only what is published', async () => {
   const both = await renderNative(publish, 'default', {}, { states: { 0: publication(), 1: match, 2: false, 3: true, 4: true, 5: 'Partida equilibrada.' }, params: { id: 'm' }, user: { id: 'me', userName: 'Author' }, services: { set: publication({ showRating: true, comment: 'Partida equilibrada.', commentPublished: true }) } });
-  assert.match(both.html, /Assim vai aparecer/); assert.match(both.html, /Author/); assert.match(both.html, /7,5/); assert.match(both.html, /Competitivo · 3 jogadores/);
+  assert.match(both.html, /Como os outros veem/); assert.doesNotMatch(both.html, /A tua</, 'the preview is what others see'); assert.match(both.html, /Author/); assert.match(both.html, /7,5/); assert.match(both.html, /Competitivo · 3 jogadores/);
   assert.doesNotMatch(both.html, /Peer|Third/, 'no other participants in the preview');
   await both.press('Publicar na comunidade');
   assert.deepEqual(both.calls.find(c => c[0] === 'set')[2], { showRating: true, comment: 'Partida equilibrada.', publishComment: true, photoKeys: [], photoConsent: false }, 'no photo unless chosen');
   const commentOnly = await renderNative(publish, 'default', {}, { states: { 0: publication(), 1: match, 2: false, 3: false, 4: true, 5: 'Só o texto' }, params: { id: 'm' }, user: { id: 'me', userName: 'Author' } });
   assert.doesNotMatch(commentOnly.html, />7,5</, 'the rating is not shown when not chosen');
   const nothing = await renderNative(publish, 'default', {}, { states: { 0: publication(), 1: match, 2: false } , params: { id: 'm' } });
-  assert.equal(nothing.controls.find(c => c.accessibilityLabel === 'Guardar sem publicar').disabled, true, 'nothing published by default');
+  assert.equal(nothing.controls.find(c => c.accessibilityLabel === 'Publicar na comunidade').disabled, true, 'nothing published by default');
   const unrated = await renderNative(publish, 'default', {}, { states: { 0: publication({ rated: false, rating: null }), 1: match, 2: false }, params: { id: 'm' } });
   assert.match(unrated.html, /Avalia a partida antes de publicar/);
 });
@@ -68,8 +68,9 @@ test('publishing: withdrawing the rating or the comment, or deleting it, never c
   const pub = publication({ showRating: true, comment: 'Texto', commentPublished: true, publishedAt: '2026-10-16T10:00:00Z' });
   const view = await renderNative(publish, 'default', {}, { states: { 0: pub, 1: match, 2: false, 3: true, 4: true, 5: 'Texto' }, params: { id: 'm' }, services: { change: publication() } });
   assert.match(view.html, /Retirar ou apagar não muda a tua avaliação guardada \(7,5\)/);
-  const withdraws = view.controls.filter(c => c.accessibilityLabel === undefined && c.accessibilityRole === 'button');
-  assert.ok(withdraws.length >= 2);
+  // Parts are withdrawn with the switches and «Guardar alterações»; «Retirar tudo» is the only direct withdrawal.
+  assert.ok(view.controls.some(c => c.accessibilityLabel === 'Retirar tudo da comunidade'));
+  assert.equal(view.controls.some(c => c.accessibilityLabel === 'Retirar'), false, 'no second way to withdraw the same content');
   await view.press('Apagar comentário');
   const alert = view.calls.find(c => c[0] === 'alert'); assert.match(alert[2], /A tua avaliação e a tua nota pessoal ficam/);
   await alert[3].find(b => b.style === 'destructive').onPress();
