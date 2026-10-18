@@ -18,6 +18,8 @@ interface AuthResponse {
   token?: string;
   refreshToken?: string;
   errors?: string[];
+  /** With code «account_suspended»: the end of the suspension, or null until review. */
+  suspendedUntil?: string | null;
 }
 
 interface RegisterData {
@@ -532,6 +534,16 @@ function handleError(
     extractErrors(
       responseData?.errors
     );
+
+  // Administrative suspension: a stable code from the server; the app writes its own translated text.
+  if (responseData?.code === "account_suspended") {
+    return {
+      success: false,
+      code: "account_suspended",
+      suspendedUntil: responseData.suspendedUntil ?? null,
+      message: typeof responseData.message === "string" ? responseData.message : "",
+    };
+  }
 
   const serverMessage =
     typeof responseData?.message ===

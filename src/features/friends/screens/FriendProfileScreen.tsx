@@ -53,6 +53,9 @@ import {
   UserProfile,
 } from "../services/friendshipService";
 import { FriendActionsMenu } from "../components/FriendActionsMenu";
+import ReasonReportSheet from "../components/ReasonReportSheet";
+import communityService from "../services/communityService";
+import { PERSON_REPORT_REASONS } from "../types/Community";
 import { avatarColors } from "../utils/avatarPalette";
 import OnlineDot from "../components/OnlineDot";
 import libraryService from "@/src/features/library/services/libraryService";
@@ -78,6 +81,7 @@ export default function FriendProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<Tab>("summary");
+  const [reporting, setReporting] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) {
@@ -162,6 +166,19 @@ export default function FriendProfileScreen() {
     );
   }
 
+  // Blocking: no notification; the friendship and pending requests end; matches already recorded stay.
+  function confirmBlock() {
+    if (!profile) return;
+    Alert.alert(t("community.blockTitle", { name: profile.userName }), t("community.blockMessage"), [
+      { text: t("text.cancel"), style: "cancel" },
+      { text: t("community.block"), style: "destructive", onPress: async () => {
+        setBusy(true);
+        try { await communityService.block(profile.id); invalidateFriendsCache(); router.back(); }
+        catch (err: any) { Alert.alert(t("community.block"), err?.message); setBusy(false); }
+      } },
+    ]);
+  }
+
   if (loading) {
     return <ScreenLayout title={t("text.profile")}><ScreenState loading message={t("card.loading")} /></ScreenLayout>;
   }
@@ -195,6 +212,8 @@ export default function FriendProfileScreen() {
           busy={busy}
           onAdd={addFriend}
           onRemove={confirmRemove}
+          onBlock={confirmBlock}
+          onReport={() => setReporting(true)}
           onRequests={() =>
             router.push(
               ROUTES.FRIEND_REQUESTS as never
@@ -302,6 +321,10 @@ export default function FriendProfileScreen() {
           />
         )}
       </ScrollView>
+      <ReasonReportSheet visible={reporting} title={t("community.reportTitle")} reasons={PERSON_REPORT_REASONS} label={r => t(`community.personReasons.${r}`)}
+        detailLabel={t("community.detail")} note={t("community.reportNote")} cancelLabel={t("text.cancel")} sendLabel={t("community.send")}
+        onClose={() => setReporting(false)}
+        onSend={async (reason, detail) => { await communityService.reportPerson(profile.id, reason, detail); setReporting(false); Alert.alert(t("community.reportTitle"), t("community.reported")); }} />
     </SafeAreaView>
   );
 }
@@ -316,6 +339,8 @@ function ProfileHeader({
   busy,
   onAdd,
   onRemove,
+  onBlock,
+  onReport,
   onRequests,
 }: {
   profile: UserProfile;
@@ -323,6 +348,8 @@ function ProfileHeader({
   busy: boolean;
   onAdd: () => void;
   onRemove: () => void;
+  onBlock: () => void;
+  onReport: () => void;
   onRequests: () => void;
 }) {
   const { t } = useTranslation("friends");
@@ -399,11 +426,11 @@ function ProfileHeader({
           </View>
         </View>
 
-        {isFriend && (
-          <FriendActionsMenu
-            onRemove={onRemove}
-          />
-        )}
+        <FriendActionsMenu
+          onRemove={isFriend ? onRemove : undefined}
+          onBlock={onBlock}
+          onReport={onReport}
+        />
       </View>
 
       {!isFriend && (

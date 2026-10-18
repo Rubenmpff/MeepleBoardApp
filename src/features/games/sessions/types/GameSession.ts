@@ -43,6 +43,8 @@ export interface GameSession {
 
   /** Número de aceitações além do organizer */
   acceptedGuestCount?: number;
+  /** False when the reader's pending invitation can no longer be accepted (the app shows a neutral text). */
+  inviteAvailable?: boolean;
 
   players: GameSessionPlayer[];
   matches: MatchDto[];

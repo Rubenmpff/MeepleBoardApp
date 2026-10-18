@@ -162,5 +162,36 @@
     "records_other": "{{count}} records",
     "draws_one": "{{count}} draw",
     "draws_other": "{{count}} draws"
+  },
+  "community": {
+    "report": "Report",
+    "block": "Block",
+    "blockAuthor": "Block author",
+    "blockTitle": "Block {{name}}?",
+    "blockMessage": "You stop being friends and no longer find each other in search. Matches already recorded stay.",
+    "reportTitle": "Report person",
+    "detail": "Detail (optional)",
+    "reportNote": "The person you report does not see who reported. The administration reviews it.",
+    "send": "Send",
+    "reported": "Thank you. The administration will review it.",
+    "personReasons": {
+      "Abuse": "Abuse",
+      "Harassment": "Harassment or threat",
+      "OffensiveName": "Offensive name",
+      "Spam": "Spam",
+      "Other": "Other"
+    },
+    "unblock": "Unblock",
+    "unblockTitle": "Unblock {{name}}?",
+    "unblockMessage": "You can find each other in search again. The friendship does not come back automatically.",
+    "blockedTitle": "Blocked people",
+    "blockedEmpty": "You have not blocked anyone.",
+    "blockedLoadError": "Could not load blocked people.",
+    "blockedNote": "Unblocking does not restore the friendship.",
+    "errors": {
+      "block": "Could not block.",
+      "unblock": "Could not unblock.",
+      "report": "Could not send the report."
+    }
   }
 }

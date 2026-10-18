@@ -28,6 +28,9 @@ import RatingControl from "@/src/features/games/matches/components/RatingControl
 import Sheet from "@/src/ui/Sheet";
 import experienceService from "@/src/features/games/experiences/services/experienceService";
 import { Publication } from "@/src/features/games/experiences/types/Experience";
+import ReasonReportSheet from "@/src/features/friends/components/ReasonReportSheet";
+import communityService from "@/src/features/friends/services/communityService";
+import { PHOTO_REPORT_REASONS } from "@/src/features/friends/types/Community";
 import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
 import { RootState } from "@/src/store/store";
 import { ROUTES } from "@/src/constants/routes";
@@ -51,6 +54,9 @@ export default function MatchJournalScreen() {
   // New state goes after the existing state.
   const [confirming, setConfirming] = useState(false);
   const [publication, setPublication] = useState<Publication | null>(null);
+  // Another participant's photo, opened larger; from there it can be reported (nothing is removed automatically).
+  const [viewingPhoto, setViewingPhoto] = useState<string | null>(null);
+  const [reportingPhoto, setReportingPhoto] = useState<string | null>(null);
 
   const myEntry = entries.find(e => e.userId === currentUser?.id);
   const savedRating = myEntry?.personalRating ?? null;
@@ -225,7 +231,8 @@ export default function MatchJournalScreen() {
               {!!entry.tags && <Text style={type.caption}>{entry.tags.split(",").map(tag => `#${tag.trim()}`).join(" ")}</Text>}
               {entry.personalRating == null && <Text style={type.caption}>{t("diary.notRatedYet")}</Text>}
               {!!entry.photoUrls?.length && <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: space.xs }}>
-                {entry.photoUrls.map((url, pi) => <JournalPhoto key={pi} uri={url} style={styles.photoThumbSmall} />)}
+                {entry.photoUrls.map((url, pi) => <TouchableOpacity key={pi} accessibilityRole="imagebutton" accessibilityLabel={t("photos.open", { name: entry.userName })}
+                  onPress={() => setViewingPhoto(url)}><JournalPhoto uri={url} style={styles.photoThumbSmall} /></TouchableOpacity>)}
               </ScrollView>}
             </View>
             {entry.personalRating != null && <Text style={[type.body, strong]}>{number(entry.personalRating)} / 10</Text>}
@@ -246,6 +253,20 @@ export default function MatchJournalScreen() {
         <PrimaryButton title={t("diary.adjust")} variant="secondary" onPress={() => setConfirming(false)} />
       </View>
     </Sheet>
+    <Sheet visible={!!viewingPhoto} title={t("photos.viewer")} onClose={() => setViewingPhoto(null)} closeLabel={t("photos.close")}
+      left={{ label: t("photos.close"), onPress: () => setViewingPhoto(null) }}>
+      <View style={{ gap: space.md }}>
+        {viewingPhoto && <JournalPhoto uri={viewingPhoto} style={styles.photoLarge} />}
+        <TouchableOpacity accessibilityRole="button" style={styles.reportPhoto} onPress={() => { setReportingPhoto(viewingPhoto); setViewingPhoto(null); }}>
+          <Glyph name="flag-outline" size={20} color={colors.danger} />
+          <Text style={[type.body, { color: colors.danger }]}>{t("photos.report")}</Text>
+        </TouchableOpacity>
+      </View>
+    </Sheet>
+    <ReasonReportSheet visible={!!reportingPhoto} title={t("photos.reportTitle")} reasons={PHOTO_REPORT_REASONS} label={r => t(`photos.reasons.${r}`)}
+      detailLabel={t("photos.reportDetail")} note={t("photos.reportNote")} cancelLabel={t("photos.cancel")} sendLabel={t("photos.send")}
+      onClose={() => setReportingPhoto(null)}
+      onSend={async (reason, detail) => { if (!reportingPhoto) return; await communityService.reportPhoto(reportingPhoto, reason, detail); setReportingPhoto(null); Alert.alert(t("photos.reportTitle"), t("photos.reported")); }} />
     </SafeAreaView>
   );
 }
@@ -270,6 +291,8 @@ const styles = StyleSheet.create({
   avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#EEE6F8", alignItems: "center", justifyContent: "center" },
   avatarText: { ...type.body, ...strong, color: colors.friend },
   photoThumb: { width: 96, height: 96, borderRadius: 12, backgroundColor: colors.line },
+  photoLarge: { width: "100%", aspectRatio: 1, borderRadius: 12, backgroundColor: colors.line },
+  reportPhoto: { flexDirection: "row", alignItems: "center", gap: space.sm, minHeight: touch },
   photoThumbSmall: { width: 64, height: 64, borderRadius: 10, marginRight: 8, backgroundColor: colors.line },
   photoThumbWrap: { position: "relative", marginRight: 12 },
   photoRemoveBtn: { position: "absolute", top: 0, right: 0, width: touch, height: touch, borderRadius: touch / 2, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.75)" },

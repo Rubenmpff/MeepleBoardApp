@@ -185,7 +185,24 @@
     "removeError": "Could not remove the photo.",
     "partialFailure": "{{failed}} of {{total}} photos were not uploaded. You can add them in the match journal.",
     "unavailable": "Photo unavailable",
-    "legacyUnavailable": "{{count}} legacy photos are preserved but unavailable until protected in storage."
+    "legacyUnavailable": "{{count}} legacy photos are preserved but unavailable until protected in storage.",
+    "open": "Open {{name}}'s photo",
+    "viewer": "Photo",
+    "close": "Close",
+    "report": "Report photo",
+    "reportTitle": "Report photo",
+    "reportDetail": "Detail (optional)",
+    "reportNote": "Whoever posted it does not see who reported. The administration reviews it; nothing is deleted automatically.",
+    "cancel": "Cancel",
+    "send": "Send",
+    "reported": "Thank you. The administration will review this photo.",
+    "reasons": {
+      "Inappropriate": "Inappropriate",
+      "PersonalData": "Personal data",
+      "Harassment": "Harassment",
+      "Spam": "Spam",
+      "Other": "Other"
+    }
   },
   "journal": {
     "closed": "Closed",
@@ -406,7 +423,8 @@
       "plannedAny": "Any game",
       "noneFound": "No sessions match this search or filter."
     },
-    "createError": "Couldn't create the session."
+    "createError": "Couldn't create the session.",
+    "inviteNoLongerAvailable": "This invitation is no longer available."
   },
   "form": {
     "withScores": "With scores",

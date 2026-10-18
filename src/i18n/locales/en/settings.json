@@ -101,5 +101,9 @@
     "done": "Your account was deleted.",
     "newManagerAuto": "New manager: {{name}} (longest in the campaign)",
     "longest": "Longest in the campaign"
+  },
+  "community": {
+    "title": "Community",
+    "blocked": "Blocked people"
   }
 }

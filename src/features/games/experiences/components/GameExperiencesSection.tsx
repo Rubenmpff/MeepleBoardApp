@@ -13,18 +13,33 @@ import { useGameExperiences } from "../hooks/useGameExperiences";
 import { Experience } from "../types/Experience";
 import ExperienceCard from "./ExperienceCard";
 import ReportSheet from "./ReportSheet";
+import communityService from "@/src/features/friends/services/communityService";
 
-/** ⋯ on an experience: manage your own; report someone else's comment. */
-export function useExperienceMenu(onReport: (id: string) => void) {
+/** ⋯ on an experience: manage your own; report someone else's comment or block its author. */
+export function useExperienceMenu(onReport: (id: string) => void, onBlocked: () => void) {
   const { t } = useTranslation("games");
+  const { t: tf } = useTranslation("friends");
   const router = useRouter();
+  // Blocking the author: confirmed first; both stop seeing each other's publications. The author is never told.
+  const block = (item: Experience) => Alert.alert(tf("community.blockTitle", { name: item.authorName }), tf("community.blockMessage"), [
+    { text: t("experiences.cancel"), style: "cancel" },
+    { text: tf("community.block"), style: "destructive", onPress: async () => {
+      try { await communityService.blockAuthor(item.id); onBlocked(); } catch (err: any) { Alert.alert(tf("community.block"), err?.message); }
+    } },
+  ]);
   return (item: Experience) => {
-    const action = item.isMine && item.ownMatchId ? t("experiences.manage") : item.canReport ? t("experiences.report") : null;
-    if (!action) return undefined;
-    const run = () => item.isMine && item.ownMatchId ? router.push({ pathname: ROUTES.MATCH_PUBLISH, params: { id: item.ownMatchId } } as never) : onReport(item.id);
+    if (item.isMine) {
+      if (!item.ownMatchId) return undefined;
+      const manage = () => router.push({ pathname: ROUTES.MATCH_PUBLISH, params: { id: item.ownMatchId } } as never);
+      return () => Platform.OS === "ios"
+        ? ActionSheetIOS.showActionSheetWithOptions({ options: [t("experiences.manage"), t("experiences.cancel")], cancelButtonIndex: 1 }, i => { if (i === 0) manage(); })
+        : Alert.alert(t("experiences.manage"), undefined, [{ text: t("experiences.cancel"), style: "cancel" }, { text: t("experiences.manage"), onPress: manage }]);
+    }
+    const actions = [...(item.canReport ? [{ label: t("experiences.report"), run: () => onReport(item.id) }] : []), { label: tf("community.blockAuthor"), run: () => block(item) }];
     return () => Platform.OS === "ios"
-      ? ActionSheetIOS.showActionSheetWithOptions({ options: [action, t("experiences.cancel")], cancelButtonIndex: 1, destructiveButtonIndex: item.isMine ? undefined : 0 }, i => { if (i === 0) run(); })
-      : Alert.alert(action, undefined, [{ text: t("experiences.cancel"), style: "cancel" }, { text: action, onPress: run }]);
+      ? ActionSheetIOS.showActionSheetWithOptions({ options: [...actions.map(a => a.label), t("experiences.cancel")], cancelButtonIndex: actions.length, destructiveButtonIndex: actions.length - 1 },
+        i => { if (i < actions.length) actions[i].run(); })
+      : Alert.alert(t("experiences.more"), undefined, [{ text: t("experiences.cancel"), style: "cancel" }, ...actions.map(a => ({ text: a.label, onPress: a.run }))]);
   };
 }
 
@@ -33,7 +48,7 @@ export default function GameExperiencesSection({ gameId }: { gameId: string }) {
   const router = useRouter();
   const { data, loading, error, reload } = useGameExperiences(gameId, 3);
   const [reporting, setReporting] = useState<string | null>(null);
-  const menu = useExperienceMenu(setReporting);
+  const menu = useExperienceMenu(setReporting, () => { void reload(); });
   const total = data?.total ?? 0;
   return <Section title={t("experiences.title")}>
     <View style={styles.wrap}>

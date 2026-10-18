@@ -518,7 +518,7 @@
     }
   },
   "moderation": {
-    "title": "Moderação · Experiências",
+    "title": "Moderação",
     "count_one": "{{count}} comentário com denúncias abertas",
     "count_other": "{{count}} comentários com denúncias abertas",
     "none": "Sem denúncias por rever.",
@@ -539,6 +539,37 @@
       "OffTopic": "Não é sobre o jogo",
       "Other": "Outro",
       "AutoReports": "várias denúncias"
-    }
+    },
+    "sections": {
+      "comments": "Comentários",
+      "people": "Pessoas",
+      "photos": "Fotografias"
+    },
+    "peopleCount_one": "{{count}} pessoa por rever",
+    "peopleCount_other": "{{count}} pessoas por rever",
+    "peopleNone": "Sem pessoas denunciadas nem suspensas.",
+    "archive": "Arquivar",
+    "suspendAction": "Suspender…",
+    "suspend": "Suspender conta",
+    "suspendConfirm": "Suspender",
+    "period": "Duração",
+    "days7": "7 dias",
+    "days30": "30 dias",
+    "untilReview": "Até revisão",
+    "suspendReason": "Motivo (obrigatório)",
+    "suspendNote": "A pessoa deixa de poder entrar e todas as sessões terminam. A conta, as partidas e o histórico ficam.",
+    "suspendedUntil": "Suspensa até {{date}}",
+    "suspendedReview": "Suspensa até revisão",
+    "lift": "Levantar suspensão",
+    "liftTitle": "Levantar a suspensão de {{name}}?",
+    "liftMessage": "A pessoa volta a poder entrar, com uma sessão nova.",
+    "photosCount_one": "{{count}} fotografia denunciada",
+    "photosCount_other": "{{count}} fotografias denunciadas",
+    "photosNone": "Sem fotografias por rever.",
+    "photoGone": "A fotografia já foi retirada por quem a publicou.",
+    "photoOf": "Diário de {{name}}",
+    "removePhoto": "Remover fotografia",
+    "removePhotoTitle": "Remover fotografia?",
+    "removePhotoMessage": "Sai do diário de {{name}}. Esta decisão não se desfaz."
   }
 }

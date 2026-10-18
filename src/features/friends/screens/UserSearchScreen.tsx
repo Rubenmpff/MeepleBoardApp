@@ -12,6 +12,10 @@ import { invalidateFriendsCache } from "../hooks/useFriends";
 import { sendFriendRequest, searchUsers, UserSearchResult } from "../services/friendshipService";
 import { avatarColors } from "../utils/avatarPalette";
 import OnlineDot from "../components/OnlineDot";
+import { FriendActionsMenu } from "../components/FriendActionsMenu";
+import ReasonReportSheet from "../components/ReasonReportSheet";
+import communityService from "../services/communityService";
+import { PERSON_REPORT_REASONS } from "../types/Community";
 
 export default function UserSearchScreen() {
   const { t } = useTranslation("friends");
@@ -20,6 +24,7 @@ export default function UserSearchScreen() {
   const [results, setResults] = useState<UserSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [reporting, setReporting] = useState<UserSearchResult | null>(null);
 
   useEffect(() => {
     const normalized = query.trim();
@@ -41,6 +46,17 @@ export default function UserSearchScreen() {
       invalidateFriendsCache();
     } catch { Alert.alert(t("text.requestNotSent"), t("text.theRequestMayAlreadyExistRefreshTheSearchAndTryAgain")); }
     finally { setBusyId(null); }
+  }
+
+  // Same confirmation as on the profile; the person leaves the results (neither finds the other any more).
+  function confirmBlock(user: UserSearchResult) {
+    Alert.alert(t("community.blockTitle", { name: user.userName }), t("community.blockMessage"), [
+      { text: t("text.cancel"), style: "cancel" },
+      { text: t("community.block"), style: "destructive", onPress: async () => {
+        try { await communityService.block(user.id); setResults(current => current.filter(item => item.id !== user.id)); invalidateFriendsCache(); }
+        catch (err: any) { Alert.alert(t("community.block"), err?.message); }
+      } },
+    ]);
   }
 
   return (
@@ -75,6 +91,7 @@ export default function UserSearchScreen() {
                 <View style={styles.nameBlock}><Text style={styles.name}>{item.userName}</Text><Text style={styles.username}>@{item.userName}</Text></View>
               </TouchableOpacity>
               <RelationshipAction item={item} busy={busyId === item.id} onAdd={() => add(item)} onRequests={() => router.push(ROUTES.FRIEND_REQUESTS as never)} />
+              <FriendActionsMenu onReport={() => setReporting(item)} onBlock={() => confirmBlock(item)} />
             </View>
           );
         }}
@@ -85,6 +102,10 @@ export default function UserSearchScreen() {
           </View>
         }
       />
+      <ReasonReportSheet visible={!!reporting} title={t("community.reportTitle")} reasons={PERSON_REPORT_REASONS} label={r => t(`community.personReasons.${r}`)}
+        detailLabel={t("community.detail")} note={t("community.reportNote")} cancelLabel={t("text.cancel")} sendLabel={t("community.send")}
+        onClose={() => setReporting(null)}
+        onSend={async (reason, detail) => { if (!reporting) return; await communityService.reportPerson(reporting.id, reason, detail); setReporting(null); Alert.alert(t("community.reportTitle"), t("community.reported")); }} />
     </ScreenLayout>
   );
 }
@@ -120,9 +141,9 @@ const styles = StyleSheet.create({
   list: { padding: 16, flexGrow: 1 },
 
   card: {
-    flexWrap: "wrap", gap: 12, ...UI_STYLES.card, flexDirection: "row", alignItems: "center", padding: 13, marginBottom: 10, backgroundColor: COLORS.card, borderRadius: 20, ...cardShadow
+    flexWrap: "wrap", gap: 8, ...UI_STYLES.card, flexDirection: "row", alignItems: "center", padding: 13, marginBottom: 10, backgroundColor: COLORS.card, borderRadius: 20, ...cardShadow
   },
-  identity: { minWidth: "60%", minHeight: 44, flex: 1, flexDirection: "row", alignItems: "center" },
+  identity: { minWidth: "45%", minHeight: 44, flex: 1, flexDirection: "row", alignItems: "center" },
   avatarWrap: {},
   avatar: { width: 46, height: 46, borderRadius: 23, alignItems: "center", justifyContent: "center" },
   avatarText: { fontWeight: "800" },

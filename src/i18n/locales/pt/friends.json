@@ -162,5 +162,36 @@
     "records_other": "{{count}} registos",
     "draws_one": "{{count}} empate",
     "draws_other": "{{count}} empates"
+  },
+  "community": {
+    "report": "Denunciar",
+    "block": "Bloquear",
+    "blockAuthor": "Bloquear autor",
+    "blockTitle": "Bloquear {{name}}?",
+    "blockMessage": "Deixam de ser amigos e de se encontrar na pesquisa. As partidas já registadas ficam.",
+    "reportTitle": "Denunciar pessoa",
+    "detail": "Detalhe (opcional)",
+    "reportNote": "Quem denuncias não vê quem denunciou. A administração revê.",
+    "send": "Enviar",
+    "reported": "Obrigado. A administração vai rever.",
+    "personReasons": {
+      "Abuse": "Abuso",
+      "Harassment": "Assédio ou ameaça",
+      "OffensiveName": "Nome ofensivo",
+      "Spam": "Spam",
+      "Other": "Outro"
+    },
+    "unblock": "Desbloquear",
+    "unblockTitle": "Desbloquear {{name}}?",
+    "unblockMessage": "Podem voltar a encontrar-se na pesquisa. A amizade não volta automaticamente.",
+    "blockedTitle": "Pessoas bloqueadas",
+    "blockedEmpty": "Não bloqueaste ninguém.",
+    "blockedLoadError": "Não foi possível carregar as pessoas bloqueadas.",
+    "blockedNote": "Desbloquear não restaura a amizade.",
+    "errors": {
+      "block": "Não foi possível bloquear.",
+      "unblock": "Não foi possível desbloquear.",
+      "report": "Não foi possível enviar a denúncia."
+    }
   }
 }

@@ -5,7 +5,8 @@ import api from "@/src/services/api";
 import { tokenService } from "@/src/services/tokenService";
 
 export function journalPhotoSource(uri: string, base: string, token: string) {
-  if (!/^\/MeepleBoard\/campaigns\/matches\/[\da-f-]+\/journal\/photos\/[\da-f-]+\/[\da-f]{64}$/i.test(uri) || !token) return undefined;
+  // A diary photo, or (administrators) a reported one, which the server opens only while the report is open.
+  if (!/^\/MeepleBoard\/(campaigns\/matches\/[\da-f-]+\/journal\/photos|admin\/moderation\/photos)\/[\da-f-]+\/[\da-f]{64}$/i.test(uri) || !token) return undefined;
   return { uri: new URL(uri, base).toString(), headers: { Authorization: `Bearer ${token}` }, cache: "reload" as const };
 }
 

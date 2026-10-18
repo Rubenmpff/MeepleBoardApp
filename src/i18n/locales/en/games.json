@@ -518,7 +518,7 @@
     }
   },
   "moderation": {
-    "title": "Moderation · Experiences",
+    "title": "Moderation",
     "count_one": "{{count}} comment with open reports",
     "count_other": "{{count}} comments with open reports",
     "none": "No open reports.",
@@ -539,6 +539,37 @@
       "OffTopic": "Not about the game",
       "Other": "Other",
       "AutoReports": "several reports"
-    }
+    },
+    "sections": {
+      "comments": "Comments",
+      "people": "People",
+      "photos": "Photos"
+    },
+    "peopleCount_one": "{{count}} person to review",
+    "peopleCount_other": "{{count}} people to review",
+    "peopleNone": "No reported or suspended people.",
+    "archive": "Archive",
+    "suspendAction": "Suspend…",
+    "suspend": "Suspend account",
+    "suspendConfirm": "Suspend",
+    "period": "Duration",
+    "days7": "7 days",
+    "days30": "30 days",
+    "untilReview": "Until review",
+    "suspendReason": "Reason (required)",
+    "suspendNote": "The person can no longer sign in and every session ends. The account, matches and history stay.",
+    "suspendedUntil": "Suspended until {{date}}",
+    "suspendedReview": "Suspended until review",
+    "lift": "Lift suspension",
+    "liftTitle": "Lift {{name}}'s suspension?",
+    "liftMessage": "The person can sign in again, with a new session.",
+    "photosCount_one": "{{count}} reported photo",
+    "photosCount_other": "{{count}} reported photos",
+    "photosNone": "No photos to review.",
+    "photoGone": "Whoever posted the photo already removed it.",
+    "photoOf": "{{name}}'s diary",
+    "removePhoto": "Remove photo",
+    "removePhotoTitle": "Remove photo?",
+    "removePhotoMessage": "It leaves {{name}}'s diary. This decision cannot be undone."
   }
 }

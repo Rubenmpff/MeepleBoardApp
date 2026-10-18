@@ -22,7 +22,7 @@ export default function GameExperiencesScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [reporting, setReporting] = useState<string | null>(null);
-  const menu = useExperienceMenu(setReporting);
+  const menu = useExperienceMenu(setReporting, () => { void load(); });
   const load = useCallback(async (offset = 0) => {
     if (!id) return;
     if (offset === 0) setLoading(true);

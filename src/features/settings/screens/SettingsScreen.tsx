@@ -233,6 +233,12 @@ export default function SettingsScreen() {
           <Note inset>{t("privacy.description")}</Note>
         </Section>
 
+        <Section title={t("community.title")}>
+          <Card>
+            <Row first title={t("community.blocked")} accessibilityLabel={t("community.blocked")} onPress={() => router.push("/settings/blocked" as never)} />
+          </Card>
+        </Section>
+
         <Section title={t("durationSharing.title")}>
           <Card>
             {/* The whole row toggles, so the touch target is the row, not only the 51 × 31 switch. */}

@@ -1,5 +1,6 @@
 /**
- * Administrators: comments with open reports (and those hidden automatically), with the reasons and counts.
+ * Administrators, three sections: «Comentários», «Pessoas» and «Fotografias» (ModerationPanels).
+ * «Comentários»: comments with open reports (and those hidden automatically), with the reasons and counts.
  * «Manter» closes the reports (and shows an automatically hidden comment again), «Ocultar…» asks for a reason the
  * author will see, «Repor» shows a hidden one again. Ratings are never affected.
  */
@@ -13,12 +14,17 @@ import { colors, space, strong, type } from "@/src/ui/theme";
 import experienceService from "../services/experienceService";
 import { REPORT_REASONS, ReportedExperience, ReportReason } from "../types/Experience";
 import ExperienceCard from "../components/ExperienceCard";
+import { Segmented } from "@/src/ui/components";
+import { ModerationPeoplePanel, ModerationPhotosPanel } from "@/src/features/friends/components/ModerationPanels";
+
+type ModerationSection = "comments" | "people" | "photos";
 
 export default function ExperienceModerationScreen() {
   const { t } = useTranslation("games");
   const [items, setItems] = useState<ReportedExperience[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [section, setSection] = useState<ModerationSection>("comments");
   const load = useCallback(async () => {
     setLoading(true); setError(false);
     try { setItems(await experienceService.reported()); } catch { setError(true); } finally { setLoading(false); }
@@ -33,10 +39,16 @@ export default function ExperienceModerationScreen() {
       i => { if (i < labels.length) void act(id, "hide", REPORT_REASONS[i]); });
     else Alert.alert(t("moderation.hideTitle"), t("moderation.hideHint"), [...REPORT_REASONS.slice(0, 2).map(r => ({ text: t(`moderation.reasons.${r}`), onPress: () => { void act(id, "hide", r); } })), { text: t("experiences.cancel"), style: "cancel" as const }]);
   };
+  const sections = <Segmented value={section} onChange={setSection}
+    items={[{ key: "comments", label: t("moderation.sections.comments") }, { key: "people", label: t("moderation.sections.people") }, { key: "photos", label: t("moderation.sections.photos") }]} />;
+  if (section !== "comments") return <ScreenLayout title={t("moderation.title")}>
+    <ScrollView contentContainerStyle={styles.content}>{sections}{section === "people" ? <ModerationPeoplePanel /> : <ModerationPhotosPanel />}</ScrollView>
+  </ScreenLayout>;
   if (loading) return <ScreenLayout title={t("moderation.title")}><ScreenState loading message="" /></ScreenLayout>;
   if (error) return <ScreenLayout title={t("moderation.title")}><ScreenState error message={t("moderation.loadError")} onRetry={load} retryLabel={t("moderation.retry")} /></ScreenLayout>;
   return <ScreenLayout title={t("moderation.title")}>
     <ScrollView contentContainerStyle={styles.content}>
+      {sections}
       <Text style={type.caption}>{items.length ? t("moderation.count", { count: items.length }) : t("moderation.none")}</Text>
       {items.map(item => <View key={item.id} style={styles.item}>
         <ExperienceCard item={{ authorName: item.authorName, rating: item.rating, comment: item.comment, mode: "UNKNOWN", players: 0, month: "", edited: false, isMine: false }} metaText={item.gameName} />

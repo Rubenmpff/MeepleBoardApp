@@ -4,6 +4,7 @@ import { useUnsavedChanges } from "@/src/shared/hooks/useUnsavedChanges";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { formatDateTime } from "@/src/ui/format";
 import Toast from "react-native-toast-message";
 
 import { authService } from "../services/authService";
@@ -13,7 +14,7 @@ const RESEND_COOLDOWN_SECONDS = 60;
 
 export const useSignIn = () => {
   const router = useRouter();
-  const { t } = useTranslation("auth");
+  const { t, i18n } = useTranslation("auth");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -133,6 +134,17 @@ export const useSignIn = () => {
           },
           rememberMe
         );
+
+      if (!result.success && result.code === "account_suspended") {
+        // The end date in the person's language, or «até revisão»; contesting or deleting goes through support.
+        setErrorMessage(
+          (result.suspendedUntil
+            ? t("signInValidation.suspendedUntil", { date: formatDateTime(result.suspendedUntil, i18n.language) })
+            : t("signInValidation.suspendedReview")) + " " + t("signInValidation.suspendedHelp")
+        );
+
+        return;
+      }
 
       if (!result.success) {
         handleLoginError(

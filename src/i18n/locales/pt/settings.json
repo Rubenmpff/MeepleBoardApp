@@ -101,5 +101,9 @@
     "done": "A tua conta foi eliminada.",
     "newManagerAuto": "Novo gestor: {{name}} (há mais tempo na campanha)",
     "longest": "Há mais tempo na campanha"
+  },
+  "community": {
+    "title": "Comunidade",
+    "blocked": "Pessoas bloqueadas"
   }
 }

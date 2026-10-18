@@ -190,7 +190,11 @@ export default function GameSessionDetailScreen() {
           </View>
         </Card>
 
-        {isPending && <View style={styles.invite}>
+        {/* A block made this invitation impossible to accept: a neutral state, never a button that keeps failing. */}
+        {isPending && session.inviteAvailable === false && <View style={styles.invite}>
+          <Text style={type.body}>{t("sessions.inviteNoLongerAvailable")}</Text>
+        </View>}
+        {isPending && session.inviteAvailable !== false && <View style={styles.invite}>
           <Text style={[type.body, strong, { color: colors.pendingText }]}>{t("sessions.inviteQuestion")}</Text>
           <View style={styles.actions}>
             <View style={styles.flex}><PrimaryButton title={t("sessions.accept")} loading={actionLoading} onPress={() => handleRespondInvite(true)} /></View>

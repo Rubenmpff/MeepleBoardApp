@@ -185,7 +185,24 @@
     "removeError": "Não foi possível remover a fotografia.",
     "partialFailure": "{{failed}} de {{total}} fotografias não foram enviadas. Podes adicioná-las no diário da partida.",
     "unavailable": "Fotografia indisponível",
-    "legacyUnavailable": "Há {{count}} fotografias antigas preservadas, indisponíveis até serem protegidas no armazenamento."
+    "legacyUnavailable": "Há {{count}} fotografias antigas preservadas, indisponíveis até serem protegidas no armazenamento.",
+    "open": "Abrir fotografia de {{name}}",
+    "viewer": "Fotografia",
+    "close": "Fechar",
+    "report": "Denunciar fotografia",
+    "reportTitle": "Denunciar fotografia",
+    "reportDetail": "Detalhe (opcional)",
+    "reportNote": "Quem a publicou não vê quem denunciou. A administração revê; nada é apagado automaticamente.",
+    "cancel": "Cancelar",
+    "send": "Enviar",
+    "reported": "Obrigado. A administração vai rever esta fotografia.",
+    "reasons": {
+      "Inappropriate": "Imprópria",
+      "PersonalData": "Dados pessoais",
+      "Harassment": "Assédio",
+      "Spam": "Spam",
+      "Other": "Outro"
+    }
   },
   "journal": {
     "closed": "Fechado",
@@ -406,7 +423,8 @@
       "plannedAny": "Qualquer jogo",
       "noneFound": "Nenhuma sessão com esta pesquisa ou filtro."
     },
-    "createError": "Não foi possível criar a sessão."
+    "createError": "Não foi possível criar a sessão.",
+    "inviteNoLongerAvailable": "Este convite já não está disponível."
   },
   "form": {
     "withScores": "Com pontuação",
