@@ -203,7 +203,8 @@
       "Spam": "Spam",
       "Other": "Outro"
     },
-    "viewerOf": "Fotografia de {{name}}"
+    "viewerOf": "Fotografia de {{name}}",
+    "publicReportNote": "Quem a publicou não vê quem denunciou. A administração revê; com denúncias de várias pessoas, deixa de aparecer na comunidade até ser revista."
   },
   "journal": {
     "closed": "Fechado",
@@ -741,7 +742,32 @@
       "OffTopic": "Não é sobre o jogo",
       "Other": "Outro",
       "AutoReports": "várias denúncias"
-    }
+    },
+    "photosTitle": "Fotografias a publicar",
+    "photosCount": "{{count}} de 3 no máximo",
+    "photosOnlyYours": "Só aparecem as fotografias que tu juntaste a esta partida.",
+    "photosNone": "Ainda não juntaste fotografias a esta partida. Podes juntá-las no teu diário.",
+    "photoSelect": "Publicar esta fotografia",
+    "warningTitle": "Antes de publicar fotografias",
+    "warningText": "Ficam visíveis a qualquer pessoa da app. Publica só imagens que tenhas autorização para partilhar, incluindo de outras pessoas que apareçam nelas, e confirma que não mostram dados pessoais (moradas, documentos, ecrãs).",
+    "warningServer": "O servidor retira do ficheiro a localização e outros metadados, mas não consegue avaliar o que a própria imagem mostra.",
+    "consent": "Tenho autorização e confirmo que não expõe dados pessoais.",
+    "consentNeeded": "Confirma a autorização para publicar as fotografias.",
+    "previewHint": "Exatamente o que outras pessoas veem na página do jogo.",
+    "previewNot": "Não publica a partida, os outros jogadores, o local nem as tuas notas.",
+    "after": "Depois de publicado",
+    "photoPublished": "Fotografia publicada",
+    "photoPublishedHint": "Retirar mantém-na partilhada com os jogadores",
+    "photoAutoHidden": "Oculta da comunidade até revisão (várias denúncias)",
+    "photoWithdrawnByModeration": "Retirada da comunidade pela moderação",
+    "photoRemovedByModeration": "Removida da partida pela moderação",
+    "photoReason": "Motivo: {{reason}}",
+    "withdrawPhoto": "Retirar fotografia da comunidade",
+    "withdrawPhotoTitle": "Retirar fotografia da comunidade?",
+    "withdrawPhotoText": "Deixa de aparecer na página do jogo. Continua no teu diário, partilhada com os jogadores desta partida.",
+    "withdrawAll": "Retirar tudo da comunidade",
+    "withdrawAllTitle": "Retirar tudo da comunidade?",
+    "withdrawAllText": "A avaliação com o teu nome, o comentário e as fotografias deixam a página do jogo. O comentário fica guardado só para ti e as fotografias continuam no diário, partilhadas com os jogadores. Cópias que alguém já tenha guardado ficam fora do alcance da app."
   },
   "errors": {
     "register": "Não foi possível registar a partida.",

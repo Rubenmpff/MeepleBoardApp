@@ -74,9 +74,9 @@ test('moderation: people with reasons, «Arquivar» and «Suspender…»; a susp
   for (const text of ['7 dias', '30 dias', 'Até revisão', 'A conta, as partidas e o histórico ficam']) assert.match(sheet.html, new RegExp(text.replace(/[()]/g, '\\$&')));
   const photo = { journalEntryId: 'e', matchId: 'm', photoKey: 'k', imagePath: '/MeepleBoard/admin/moderation/photos/e/k', ownerName: 'Dona', reasons: { PersonalData: 1 }, details: [], lastReportAt: '2026-10-18T09:00:00Z', present: true };
   const photos = await renderNative(panels, 'ModerationPhotosPanel', {}, { states: { 0: [photo], 1: false, 2: false } });
-  assert.match(photos.html, /Diário de Dona/); assert.match(photos.html, /Dados pessoais · 1/); assert.match(photos.html, /Manter/); assert.match(photos.html, /Remover fotografia/);
+  assert.match(photos.html, /Diário de Dona/); assert.match(photos.html, /Dados pessoais · 1/); assert.match(photos.html, /Manter/); assert.match(photos.html, /Remover da partida…/); assert.doesNotMatch(photos.html, /Retirar da comunidade/, "not published: nothing to withdraw");
   const gone = await renderNative(panels, 'ModerationPhotosPanel', {}, { states: { 0: [{ ...photo, present: false }], 1: false, 2: false } });
-  assert.match(gone.html, /já foi retirada/); assert.doesNotMatch(gone.html, /Remover fotografia/);
+  assert.match(gone.html, /já foi retirada/); assert.doesNotMatch(gone.html, /Remover da partida/);
 });
 
 test('sign-in of a suspended account: a stable code with the end date (or until review), never the reason', async () => {

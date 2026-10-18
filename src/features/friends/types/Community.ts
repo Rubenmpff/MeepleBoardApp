@@ -9,6 +9,8 @@ export type BlockedPerson = { id: string; userName: string; blockedAt: string };
 export type ModerationPerson = { userId: string; userName: string; reasons: Partial<Record<PersonReportReason, number>>; details: string[];
   lastReportAt: string | null; suspended: boolean; suspendedAt: string | null; suspendedUntil: string | null; suspensionReason: string | null };
 export type ModerationPhoto = { journalEntryId: string; matchId: string; photoKey: string; imagePath: string; ownerName: string;
-  reasons: Partial<Record<PhotoReportReason, number>>; details: string[]; lastReportAt: string; present: boolean };
+  reasons: Partial<Record<PhotoReportReason, number>>; details: string[]; lastReportAt: string; present: boolean;
+  /** Published in the community (visible, or hidden only by reports until reviewed). */
+  published?: boolean; autoHidden?: boolean };
 /** 7 or 30 days; null: until review. */
 export type SuspensionPeriod = 7 | 30 | null;

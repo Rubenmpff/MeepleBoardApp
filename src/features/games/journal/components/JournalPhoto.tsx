@@ -5,8 +5,11 @@ import api from "@/src/services/api";
 import { tokenService } from "@/src/services/tokenService";
 
 export function journalPhotoSource(uri: string, base: string, token: string) {
-  // A diary photo, or (administrators) a reported one, which the server opens only while the report is open.
-  if (!/^\/MeepleBoard\/(campaigns\/matches\/[\da-f-]+\/journal\/photos|admin\/moderation\/photos)\/[\da-f-]+\/[\da-f]{64}$/i.test(uri) || !token) return undefined;
+  // A diary photo, (administrators) a reported one, which the server opens only while the report is open, or a photo
+  // published in the community, which the server opens only while it is published and visible to this person.
+  const diary = /^\/MeepleBoard\/(campaigns\/matches\/[\da-f-]+\/journal\/photos|admin\/moderation\/photos)\/[\da-f-]+\/[\da-f]{64}$/i.test(uri);
+  const community = /^\/MeepleBoard\/experiences\/[\da-f]{8}(-[\da-f]{4}){3}-[\da-f]{12}\/photos\/[\da-f]{8}(-[\da-f]{4}){3}-[\da-f]{12}$/i.test(uri);
+  if ((!diary && !community) || !token) return undefined;
   return { uri: new URL(uri, base).toString(), headers: { Authorization: `Bearer ${token}` }, cache: "reload" as const };
 }
 

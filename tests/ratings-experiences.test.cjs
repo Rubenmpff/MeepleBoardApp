@@ -55,7 +55,7 @@ test('publishing: rating and comment are separate explicit choices; the preview 
   assert.match(both.html, /Assim vai aparecer/); assert.match(both.html, /Author/); assert.match(both.html, /7,5/); assert.match(both.html, /Competitivo · 3 jogadores/);
   assert.doesNotMatch(both.html, /Peer|Third/, 'no other participants in the preview');
   await both.press('Publicar na comunidade');
-  assert.deepEqual(both.calls.find(c => c[0] === 'set')[2], { showRating: true, comment: 'Partida equilibrada.', publishComment: true });
+  assert.deepEqual(both.calls.find(c => c[0] === 'set')[2], { showRating: true, comment: 'Partida equilibrada.', publishComment: true, photoKeys: [], photoConsent: false }, 'no photo unless chosen');
   const commentOnly = await renderNative(publish, 'default', {}, { states: { 0: publication(), 1: match, 2: false, 3: false, 4: true, 5: 'Só o texto' }, params: { id: 'm' }, user: { id: 'me', userName: 'Author' } });
   assert.doesNotMatch(commentOnly.html, />7,5</, 'the rating is not shown when not chosen');
   const nothing = await renderNative(publish, 'default', {}, { states: { 0: publication(), 1: match, 2: false } , params: { id: 'm' } });

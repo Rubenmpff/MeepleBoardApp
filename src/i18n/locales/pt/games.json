@@ -516,7 +516,8 @@
       "report": "Não foi possível enviar a denúncia.",
       "change": "Não foi possível alterar a publicação.",
       "moderate": "Não foi possível guardar a decisão."
-    }
+    },
+    "openPhoto": "Abrir fotografia de {{name}}"
   },
   "moderation": {
     "title": "Moderação",
@@ -571,6 +572,16 @@
     "photoOf": "Diário de {{name}}",
     "removePhoto": "Remover fotografia",
     "removePhotoTitle": "Remover fotografia?",
-    "removePhotoMessage": "Sai do diário de {{name}}. Esta decisão não se desfaz."
+    "removePhotoMessage": "Sai do diário de {{name}} e da comunidade. Esta decisão não se desfaz.",
+    "public": "Pública",
+    "hiddenFromCommunity": "Oculta da comunidade até revisão (várias denúncias).",
+    "withdrawFromCommunity": "Retirar da comunidade",
+    "removeFromMatch": "Remover da partida",
+    "removeFromMatchAction": "Remover da partida…",
+    "photoActionsNote": "«Retirar da comunidade» deixa-a partilhada com os jogadores. «Remover da partida» apaga-a do diário (pede confirmação).",
+    "photoRemoveNote": "«Remover da partida» apaga-a do diário (pede confirmação).",
+    "confirm": "Confirmar",
+    "reason": "Motivo",
+    "photoReasonHint": "Escolhe o motivo. Quem a publicou vê-o."
   }
 }

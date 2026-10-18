@@ -516,7 +516,8 @@
       "report": "Couldn't send the report.",
       "change": "Couldn't change the publication.",
       "moderate": "Couldn't save the decision."
-    }
+    },
+    "openPhoto": "Open photo by {{name}}"
   },
   "moderation": {
     "title": "Moderation",
@@ -571,6 +572,16 @@
     "photoOf": "{{name}}'s diary",
     "removePhoto": "Remove photo",
     "removePhotoTitle": "Remove photo?",
-    "removePhotoMessage": "It leaves {{name}}'s diary. This decision cannot be undone."
+    "removePhotoMessage": "It leaves {{name}}'s diary and the community. This cannot be undone.",
+    "public": "Public",
+    "hiddenFromCommunity": "Hidden from the community until reviewed (several reports).",
+    "withdrawFromCommunity": "Withdraw from community",
+    "removeFromMatch": "Remove from match",
+    "removeFromMatchAction": "Remove from match…",
+    "photoActionsNote": "«Withdraw from community» keeps it shared with the players. «Remove from match» deletes it from the diary (asks to confirm).",
+    "photoRemoveNote": "«Remove from match» deletes it from the diary (asks to confirm).",
+    "confirm": "Confirm",
+    "reason": "Reason",
+    "photoReasonHint": "Choose the reason. The person who published it sees it."
   }
 }

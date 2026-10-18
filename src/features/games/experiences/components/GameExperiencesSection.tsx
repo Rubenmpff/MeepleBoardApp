@@ -13,6 +13,7 @@ import { useGameExperiences } from "../hooks/useGameExperiences";
 import { Experience } from "../types/Experience";
 import ExperienceCard from "./ExperienceCard";
 import ReportSheet from "./ReportSheet";
+import PublicPhotoViewer, { ViewedPhoto } from "./PublicPhotoViewer";
 import communityService from "@/src/features/friends/services/communityService";
 import { invalidateFriendsCache } from "@/src/features/friends/hooks/useFriends";
 
@@ -49,18 +50,21 @@ export default function GameExperiencesSection({ gameId }: { gameId: string }) {
   const router = useRouter();
   const { data, loading, error, reload } = useGameExperiences(gameId, 3);
   const [reporting, setReporting] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<ViewedPhoto | null>(null);
+  const [reportingPhoto, setReportingPhoto] = useState<string | null>(null);
   const menu = useExperienceMenu(setReporting, () => { void reload(); });
   const total = data?.total ?? 0;
   return <Section title={t("experiences.title")}>
     <View style={styles.wrap}>
       {error && !data ? <TouchableOpacity accessibilityRole="button" onPress={() => { void reload(); }}><Text style={type.caption}>{t("experiences.loadError")}</Text><Text style={styles.link}>{t("experiences.retry")}</Text></TouchableOpacity>
         : !loading && total === 0 ? <View style={styles.quiet}><Glyph name="comment-text-outline" size={18} color={colors.icon} /><Text style={[type.caption, styles.flex]}>{t("experiences.empty")}</Text></View>
-        : (data?.items ?? []).map(item => <ExperienceCard key={item.id} item={item} onMore={menu(item)} />)}
+        : (data?.items ?? []).map(item => <ExperienceCard key={item.id} item={item} onMore={menu(item)} onPhoto={url => setViewing({ url, name: item.authorName, mine: item.isMine })} />)}
       {total > 3 && <TouchableOpacity accessibilityRole="button" onPress={() => router.push({ pathname: ROUTES.GAME_EXPERIENCES, params: { id: gameId } } as never)} style={styles.seeAll}>
         <Text style={styles.link}>{t("experiences.seeAll", { count: total })}</Text><Glyph name="chevron-right" size={20} color={colors.primary} />
       </TouchableOpacity>}
       {total > 0 && <View style={styles.note}><Glyph name="information-outline" size={14} color={colors.muted} /><Text style={[type.micro, styles.flex]}>{t("experiences.note")}</Text></View>}
     </View>
+    <PublicPhotoViewer photo={viewing} reporting={reportingPhoto} onView={setViewing} onReport={setReportingPhoto} onReported={() => { void reload(); }} />
     <ReportSheet experienceId={reporting} onClose={() => setReporting(null)} onReported={() => { setReporting(null); Alert.alert(t("experiences.reportTitle"), t("experiences.reported")); void reload(); }} />
   </Section>;
 }

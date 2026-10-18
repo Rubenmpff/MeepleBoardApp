@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { useFocusEffect } from "expo-router";
 import experienceService from "../services/experienceService";
 import { ExperiencePage } from "../types/Experience";
 
-/** Published experiences of a game, newest first. */
+/** Published experiences of a game, newest first; loaded again whenever the page comes back (e.g. after a withdrawal). */
 export function useGameExperiences(gameId: string | undefined, limit = 3) {
   const [data, setData] = useState<ExperiencePage | null>(null);
   const [loading, setLoading] = useState(false);
@@ -14,6 +15,6 @@ export function useGameExperiences(gameId: string | undefined, limit = 3) {
     catch { setError(true); }
     finally { setLoading(false); }
   }, [gameId, limit]);
-  useEffect(() => { void load(); }, [load]);
+  useFocusEffect(useCallback(() => { void load(); }, [load]));
   return { data, loading, error, reload: load };
 }

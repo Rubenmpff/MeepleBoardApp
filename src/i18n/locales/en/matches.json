@@ -203,7 +203,8 @@
       "Spam": "Spam",
       "Other": "Other"
     },
-    "viewerOf": "{{name}}'s photo"
+    "viewerOf": "{{name}}'s photo",
+    "publicReportNote": "The person who published it does not see who reported. Moderation reviews; with reports from several people, it stops showing in the community until reviewed."
   },
   "journal": {
     "closed": "Closed",
@@ -741,7 +742,32 @@
       "OffTopic": "Not about the game",
       "Other": "Other",
       "AutoReports": "several reports"
-    }
+    },
+    "photosTitle": "Photos to publish",
+    "photosCount": "{{count}} of 3 at most",
+    "photosOnlyYours": "Only the photos you added to this match appear.",
+    "photosNone": "You have not added photos to this match. You can add them in your diary.",
+    "photoSelect": "Publish this photo",
+    "warningTitle": "Before publishing photos",
+    "warningText": "Anyone in the app can see them. Only publish images you are allowed to share, including of other people in them, and confirm they show no personal data (addresses, documents, screens).",
+    "warningServer": "The server removes the location and other metadata from the file, but cannot judge what the image itself shows.",
+    "consent": "I am allowed to share them and they expose no personal data.",
+    "consentNeeded": "Confirm you are allowed to publish the photos.",
+    "previewHint": "Exactly what other people see on the game page.",
+    "previewNot": "It does not publish the match, the other players, the place or your notes.",
+    "after": "After publishing",
+    "photoPublished": "Published photo",
+    "photoPublishedHint": "Withdrawing keeps it shared with the players",
+    "photoAutoHidden": "Hidden from the community until reviewed (several reports)",
+    "photoWithdrawnByModeration": "Withdrawn from the community by moderation",
+    "photoRemovedByModeration": "Removed from the match by moderation",
+    "photoReason": "Reason: {{reason}}",
+    "withdrawPhoto": "Withdraw photo from community",
+    "withdrawPhotoTitle": "Withdraw photo from the community?",
+    "withdrawPhotoText": "It stops showing on the game page. It stays in your diary, shared with this match's players.",
+    "withdrawAll": "Withdraw everything from the community",
+    "withdrawAllTitle": "Withdraw everything from the community?",
+    "withdrawAllText": "Your named rating, the comment and the photos leave the game page. The comment stays saved for you only and the photos stay in the diary, shared with the players. Copies someone already saved are out of the app's reach."
   },
   "errors": {
     "register": "Couldn't record the match.",

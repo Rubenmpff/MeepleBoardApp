@@ -1,16 +1,17 @@
 /**
- * One published experience: author, the rating if they chose to show it, the comment if they published one, and
- * mode · players · month. Never the match, the other participants or the place. Used on the game page, the full
+ * One published experience: author, the rating if they chose to show it, the comment if they published one, the
+ * photos they chose (at most 3) and mode · players · month. Never the match, the other participants or the place. Used on the game page, the full
  * list and as the preview before publishing.
  */
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { formatMonthYear } from "@/src/ui/format";
 import { useTranslation } from "react-i18next";
 import { Glyph } from "@/src/ui/components";
+import JournalPhoto from "@/src/features/games/journal/components/JournalPhoto";
 import { colors, radius, space, strong, touch, type } from "@/src/ui/theme";
 import { Experience } from "../types/Experience";
 
-export type CardData = Pick<Experience, "authorName" | "rating" | "comment" | "mode" | "players" | "month" | "edited" | "isMine">;
+export type CardData = Pick<Experience, "authorName" | "rating" | "comment" | "mode" | "players" | "month" | "edited" | "isMine" | "photos">;
 
 export function monthLabel(month: string, language: string) {
   const [y, m] = month.split("-").map(Number);
@@ -18,7 +19,7 @@ export function monthLabel(month: string, language: string) {
   return formatMonthYear(new Date(y, m - 1, 1), language, "short");
 }
 
-export default function ExperienceCard({ item, preview, onMore, metaText }: { item: CardData; preview?: boolean; onMore?: () => void; metaText?: string }) {
+export default function ExperienceCard({ item, preview, onMore, metaText, onPhoto }: { item: CardData; preview?: boolean; onMore?: () => void; metaText?: string; onPhoto?: (url: string) => void }) {
   const { t, i18n } = useTranslation("games");
   const rating = item.rating == null ? null : new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 }).format(item.rating);
   const meta = metaText ?? [t(`experiences.modes.${item.mode}`), t("experiences.players", { count: item.players }), monthLabel(item.month, i18n.language), item.edited ? t("experiences.edited") : null].filter(Boolean).join(" · ");
@@ -34,6 +35,13 @@ export default function ExperienceCard({ item, preview, onMore, metaText }: { it
       </TouchableOpacity>}
     </View>
     {!!item.comment && <Text style={styles.comment}>{item.comment}</Text>}
+    {!!item.photos?.length && <View style={styles.photos}>
+      {item.photos.map(url => onPhoto
+        ? <TouchableOpacity key={url} accessibilityRole="imagebutton" accessibilityLabel={t("experiences.openPhoto", { name: item.authorName })} onPress={() => onPhoto(url)}>
+          <JournalPhoto uri={url} style={styles.photo} />
+        </TouchableOpacity>
+        : <JournalPhoto key={url} uri={url} style={styles.photo} />)}
+    </View>}
     <Text style={type.caption}>{meta}</Text>
   </View>;
 }
@@ -51,4 +59,6 @@ const styles = StyleSheet.create({
   rateScale: { ...type.micro, color: colors.pendingText },
   more: { minWidth: touch, minHeight: touch, alignItems: "center", justifyContent: "center", marginRight: -space.sm },
   comment: { ...type.body, lineHeight: 22 },
+  photos: { flexDirection: "row", flexWrap: "wrap", gap: space.sm },
+  photo: { width: 96, height: 96, borderRadius: 12, backgroundColor: colors.line },
 });

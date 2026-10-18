@@ -1,7 +1,7 @@
 /** All published experiences of a game, newest first; your own can be managed, others' comments reported. */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import ScreenLayout from "@/src/ui/ScreenLayout";
 import ScreenState from "@/src/ui/ScreenState";
@@ -11,6 +11,7 @@ import { Experience } from "../types/Experience";
 import ExperienceCard from "../components/ExperienceCard";
 import ReportSheet from "../components/ReportSheet";
 import { useExperienceMenu } from "../components/GameExperiencesSection";
+import PublicPhotoViewer, { ViewedPhoto } from "../components/PublicPhotoViewer";
 
 const PAGE = 20;
 
@@ -22,6 +23,8 @@ export default function GameExperiencesScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [reporting, setReporting] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<ViewedPhoto | null>(null);
+  const [reportingPhoto, setReportingPhoto] = useState<string | null>(null);
   const menu = useExperienceMenu(setReporting, () => { void load(); });
   const load = useCallback(async (offset = 0) => {
     if (!id) return;
@@ -31,7 +34,8 @@ export default function GameExperiencesScreen() {
     catch { setError(true); }
     finally { setLoading(false); }
   }, [id]);
-  useEffect(() => { void load(); }, [load]);
+  // Again whenever the list comes back, so a withdrawn photo or experience is gone at once.
+  useFocusEffect(useCallback(() => { void load(); }, [load]));
   if (loading) return <ScreenLayout title={t("experiences.listTitle")}><ScreenState loading message="" /></ScreenLayout>;
   if (error && !items.length) return <ScreenLayout title={t("experiences.listTitle")}><ScreenState error message={t("experiences.loadError")} onRetry={() => load()} retryLabel={t("experiences.retry")} /></ScreenLayout>;
   return <ScreenLayout title={t("experiences.listTitle")}>
@@ -39,9 +43,10 @@ export default function GameExperiencesScreen() {
       ListHeaderComponent={<Text style={type.caption}>{t("experiences.listCount", { count: total })}</Text>}
       ListEmptyComponent={<Text style={type.caption}>{t("experiences.empty")}</Text>}
       ItemSeparatorComponent={() => <View style={{ height: space.md }} />}
-      renderItem={({ item }) => <ExperienceCard item={item} onMore={menu(item)} />}
+      renderItem={({ item }) => <ExperienceCard item={item} onMore={menu(item)} onPhoto={url => setViewing({ url, name: item.authorName, mine: item.isMine })} />}
       onEndReached={() => { if (items.length < total) void load(items.length); }}
       ListFooterComponent={items.length < total ? <ActivityIndicator color={colors.primary} /> : null} />
+    <PublicPhotoViewer photo={viewing} reporting={reportingPhoto} onView={setViewing} onReport={setReportingPhoto} onReported={() => { void load(); }} />
     <ReportSheet experienceId={reporting} onClose={() => setReporting(null)} onReported={() => { setReporting(null); Alert.alert(t("experiences.reportTitle"), t("experiences.reported")); void load(); }} />
   </ScreenLayout>;
 }

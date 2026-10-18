@@ -29,7 +29,7 @@ const communityService = {
     try { await api.post(`/community/people/${userId}/reports`, { reason, detail: detail?.trim() || null }); }
     catch (error) { throw fail(error, "friends:community.errors.report"); }
   },
-  /** photoPath is the protected path the diary gives (…/journal/photos/{entryId}/{key}). */
+  /** photoPath: the protected path the diary gives (…/journal/photos/{entryId}/{key}) or a community one (/experiences/{id}/photos/{photoId}). */
   async reportPhoto(photoPath: string, reason: PhotoReportReason, detail?: string): Promise<void> {
     const route = photoPath.replace(/^\/MeepleBoard/, "");
     try { await api.post(`${route}/reports`, { reason, detail: detail?.trim() || null }); }
@@ -54,8 +54,9 @@ const communityService = {
     try { await api.post(`/admin/moderation/people/${userId}/lift-suspension`); }
     catch (error) { throw fail(error, "games:experiences.errors.moderate"); }
   },
-  async moderatePhoto(photo: ModerationPhoto, decision: "keep" | "remove"): Promise<void> {
-    try { await api.post(`/admin/moderation/photos/${photo.journalEntryId}/${photo.photoKey}/${decision}`); }
+  /** keep · withdraw (from the community; stays with the players) · remove (from the match); the last two with a reason the author sees. */
+  async moderatePhoto(photo: ModerationPhoto, decision: "keep" | "withdraw" | "remove", reason?: PhotoReportReason): Promise<void> {
+    try { await api.post(`/admin/moderation/photos/${photo.journalEntryId}/${photo.photoKey}/${decision}`, { reason: reason ?? null }); }
     catch (error) { throw fail(error, "games:experiences.errors.moderate"); }
   },
 };

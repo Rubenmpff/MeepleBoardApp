@@ -1,6 +1,8 @@
 /**
  * Administrators: «Pessoas» (open reports, «Arquivar» or «Suspender», and suspended accounts with «Levantar suspensão»)
- * and «Fotografias» (reported diary photos, «Manter» or «Remover fotografia»). Nothing here happens by itself.
+ * and «Fotografias» (reported diary photos: «Manter», «Retirar da comunidade» when published — it stays with the players —
+ * or «Remover da partida…», which deletes it from the diary after a confirmation; both with a reason the author sees).
+ * Only the community copy is hidden automatically after several reports; a decision here is always possible.
  */
 import { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
@@ -14,7 +16,7 @@ import { formatDate } from "@/src/ui/format";
 import { colors, radius, space, strong, type } from "@/src/ui/theme";
 import JournalPhoto from "@/src/features/games/journal/components/JournalPhoto";
 import communityService from "../services/communityService";
-import { ModerationPerson, ModerationPhoto, SuspensionPeriod } from "../types/Community";
+import { ModerationPerson, ModerationPhoto, PHOTO_REPORT_REASONS, PhotoReportReason, SuspensionPeriod } from "../types/Community";
 
 function useList<T>(load: () => Promise<T[]>) {
   const [items, setItems] = useState<T[]>([]);
@@ -91,13 +93,22 @@ export function ModerationPhotosPanel() {
   const { t } = useTranslation("games");
   const { t: tm } = useTranslation("matches");
   const { items, loading, error, reload } = useList(communityService.moderationPhotos);
-  const act = async (photo: ModerationPhoto, decision: "keep" | "remove") => {
-    try { await communityService.moderatePhoto(photo, decision); await reload(); } catch (err: any) { Alert.alert(t("moderation.title"), err?.message); }
+  // «Retirar da comunidade» / «Remover da partida…»: the reason first (the author sees it); removing also asks for confirmation.
+  const [deciding, setDeciding] = useState<{ photo: ModerationPhoto; decision: "withdraw" | "remove" } | null>(null);
+  const [reason, setReason] = useState<PhotoReportReason | null>(null);
+  const act = async (photo: ModerationPhoto, decision: "keep" | "withdraw" | "remove", why?: PhotoReportReason) => {
+    try { await communityService.moderatePhoto(photo, decision, why); setDeciding(null); setReason(null); await reload(); }
+    catch (err: any) { Alert.alert(t("moderation.title"), err?.message); }
   };
-  const remove = (photo: ModerationPhoto) => Alert.alert(t("moderation.removePhotoTitle"), t("moderation.removePhotoMessage", { name: photo.ownerName }), [
-    { text: t("experiences.cancel"), style: "cancel" },
-    { text: t("moderation.removePhoto"), style: "destructive", onPress: () => act(photo, "remove") },
-  ]);
+  const confirm = () => {
+    if (!deciding || !reason) return;
+    const { photo, decision } = deciding;
+    if (decision === "withdraw") { void act(photo, "withdraw", reason); return; }
+    Alert.alert(t("moderation.removePhotoTitle"), t("moderation.removePhotoMessage", { name: photo.ownerName }), [
+      { text: t("experiences.cancel"), style: "cancel" },
+      { text: t("moderation.removeFromMatch"), style: "destructive", onPress: () => act(photo, "remove", reason) },
+    ]);
+  };
   if (loading) return <ScreenState loading message="" />;
   if (error) return <ScreenState error message={t("moderation.loadError")} onRetry={reload} retryLabel={t("moderation.retry")} />;
   return <View style={styles.list}>
@@ -105,15 +116,30 @@ export function ModerationPhotosPanel() {
     {items.map(photo => <Card key={`${photo.journalEntryId}-${photo.photoKey}`} padded>
       <View style={styles.item}>
         {photo.present ? <JournalPhoto uri={photo.imagePath} style={styles.photo} /> : <Text style={type.caption}>{t("moderation.photoGone")}</Text>}
-        <Text style={[type.body, strong]}>{t("moderation.photoOf", { name: photo.ownerName })}</Text>
+        <View style={styles.head}>
+          <Text style={[type.body, strong, styles.shrink]}>{t("moderation.photoOf", { name: photo.ownerName })}</Text>
+          {photo.published && <Text style={styles.public}>{t("moderation.public")}</Text>}
+        </View>
         <Pills entries={Object.entries(photo.reasons)} label={r => tm(`photos.reasons.${r}`)} />
+        {photo.autoHidden && <Text style={type.caption}>{t("moderation.hiddenFromCommunity")}</Text>}
         {photo.details.map((d, i) => <Text key={i} style={type.caption}>«{d}»</Text>)}
         <View style={styles.actions}>
           <View style={styles.flex}><PrimaryButton title={t("moderation.keep")} variant="secondary" onPress={() => act(photo, "keep")} /></View>
-          {photo.present && <View style={styles.flex}><PrimaryButton title={t("moderation.removePhoto")} onPress={() => remove(photo)} /></View>}
+          {photo.published && <View style={styles.flex}><PrimaryButton title={t("moderation.withdrawFromCommunity")} variant="secondary" onPress={() => { setReason(null); setDeciding({ photo, decision: "withdraw" }); }} /></View>}
         </View>
+        {photo.present && <PrimaryButton title={t("moderation.removeFromMatchAction")} variant="danger" onPress={() => { setReason(null); setDeciding({ photo, decision: "remove" }); }} />}
+        {photo.present && <Text style={type.micro}>{t(photo.published ? "moderation.photoActionsNote" : "moderation.photoRemoveNote")}</Text>}
       </View>
     </Card>)}
+    <Sheet visible={!!deciding} title={deciding?.decision === "withdraw" ? t("moderation.withdrawFromCommunity") : t("moderation.removeFromMatch")}
+      onClose={() => setDeciding(null)} closeLabel={t("experiences.cancel")} left={{ label: t("experiences.cancel"), onPress: () => setDeciding(null) }}
+      right={{ label: t("moderation.confirm"), onPress: confirm, disabled: !reason, bold: true }}>
+      <View style={{ gap: space.md }}>
+        <Text style={type.caption}>{t("moderation.photoReasonHint")}</Text>
+        <OptionGroup title={t("moderation.reason")} options={PHOTO_REPORT_REASONS.map(r => ({ key: r, label: tm(`photos.reasons.${r}`) }))} selected={reason ? [reason] : []}
+          onChange={next => setReason(next[0] ?? null)} />
+      </View>
+    </Sheet>
   </View>;
 }
 
@@ -123,6 +149,9 @@ const styles = StyleSheet.create({
   reasons: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   reason: { ...type.micro, ...strong, color: colors.danger, backgroundColor: colors.dangerSoft, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2, overflow: "hidden" },
   actions: { flexDirection: "row", gap: space.sm },
+  head: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: space.sm },
+  shrink: { flexShrink: 1 },
+  public: { ...type.micro, ...strong, color: colors.primary, backgroundColor: colors.primarySoft, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2, overflow: "hidden" },
   flex: { flex: 1 },
   photo: { width: "100%", aspectRatio: 1, borderRadius: 12, backgroundColor: colors.line },
   input: { minHeight: 64, borderWidth: 1, borderColor: colors.line, borderRadius: radius.control, backgroundColor: colors.background, padding: space.md, ...type.body },
