@@ -12,10 +12,15 @@ let cachedFriends: FriendLite[] | null = null;
 let cachedAt = 0;
 let cachedToken: string | null = null;
 
+// Lists already on screen (e.g. the Perfil tab, which stays mounted) reload when the friends change elsewhere:
+// blocking someone or removing a friend must not leave them in a list or its count.
+const mountedLists = new Set<() => void>();
+
 export function invalidateFriendsCache() {
   cachedFriends = null;
   cachedAt = 0;
   cachedToken = null;
+  mountedLists.forEach(reload => reload());
 }
 
 export function useFriends() {
@@ -59,6 +64,12 @@ export function useFriends() {
 
   useEffect(() => {
     void refetch(true);
+  }, [refetch]);
+
+  useEffect(() => {
+    const reload = () => { void refetch(true); };
+    mountedLists.add(reload);
+    return () => { mountedLists.delete(reload); };
   }, [refetch]);
 
   return {

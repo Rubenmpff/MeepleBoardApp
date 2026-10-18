@@ -14,6 +14,7 @@ import { Experience } from "../types/Experience";
 import ExperienceCard from "./ExperienceCard";
 import ReportSheet from "./ReportSheet";
 import communityService from "@/src/features/friends/services/communityService";
+import { invalidateFriendsCache } from "@/src/features/friends/hooks/useFriends";
 
 /** ⋯ on an experience: manage your own; report someone else's comment or block its author. */
 export function useExperienceMenu(onReport: (id: string) => void, onBlocked: () => void) {
@@ -24,7 +25,7 @@ export function useExperienceMenu(onReport: (id: string) => void, onBlocked: () 
   const block = (item: Experience) => Alert.alert(tf("community.blockTitle", { name: item.authorName }), tf("community.blockMessage"), [
     { text: t("experiences.cancel"), style: "cancel" },
     { text: tf("community.block"), style: "destructive", onPress: async () => {
-      try { await communityService.blockAuthor(item.id); onBlocked(); } catch (err: any) { Alert.alert(tf("community.block"), err?.message); }
+      try { await communityService.blockAuthor(item.id); invalidateFriendsCache(); onBlocked(); } catch (err: any) { Alert.alert(tf("community.block"), err?.message); }
     } },
   ]);
   return (item: Experience) => {
