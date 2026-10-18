@@ -204,7 +204,10 @@
       "Other": "Other"
     },
     "viewerOf": "{{name}}'s photo",
-    "publicReportNote": "The person who published it does not see who reported. Moderation reviews; with reports from several people, it stops showing in the community until reviewed."
+    "publicReportNote": "The person who published it does not see who reported. Moderation reviews; with reports from several people, it stops showing in the community until reviewed.",
+    "addShort": "Add",
+    "count": "{{count}} of {{max}}",
+    "title": "Photos"
   },
   "journal": {
     "closed": "Closed",
@@ -696,16 +699,21 @@
   "detailCard": {
     "label": "Your rating",
     "saved": "Saved",
-    "savedHint": "Each match has one rating from you; this one no longer changes.",
     "notRated": "You have not rated this match yet. It is the only thing the diary asks.",
     "rate": "Rate",
     "addNote": "Add a personal note",
     "noteSet": "Personal note",
     "onlyYou": "Only you see it",
     "visibleToPlayers": "The players of this match see your rating.",
-    "othersCount": "Match ratings: {{rated}} of {{total}}",
-    "othersHere": "see the other players on this page",
-    "othersHint": "Moves this page to Other players."
+    "othersCount": "Ratings: {{rated}} of {{total}}",
+    "othersHere": "see the experiences on this page",
+    "othersHint": "Moves this page to Experiences.",
+    "visibleShort": "The players of this match see it.",
+    "inCommunity": "In the community",
+    "publish": "Publish to the community",
+    "publishHint": "Optional · only when you confirm",
+    "photoCount_one": "1 photo",
+    "photoCount_other": "{{count}} photos"
   },
   "publish": {
     "title": "Publish experience",
@@ -780,9 +788,9 @@
     "incomplete": "Some match details are missing. Review the steps and try again."
   },
   "others": {
-    "title": "Other players",
-    "count": "Match ratings: {{rated}} of {{total}}",
-    "countWithYours": "Match ratings: {{rated}} of {{total}}, including yours",
+    "title": "Experiences",
+    "count": "Ratings: {{rated}} of {{total}}",
+    "countWithYours": "Ratings: {{rated}} of {{total}}, including yours",
     "notRated": "Not rated yet",
     "nothing": "Not rated yet · nothing shared",
     "nothingShared": "Nothing shared",

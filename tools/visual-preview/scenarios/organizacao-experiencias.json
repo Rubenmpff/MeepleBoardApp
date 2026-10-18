@@ -1,8 +1,9 @@
 {"name": "organizacao-experiencias", "account": "ana", "screens": [
  {"id": "1-detalhe-topo", "route": "/games/matches/{{fixture:match}}"},
- {"id": "2-detalhe-atalho", "route": "/games/matches/{{fixture:match}}", "steps": [{"click": "Avaliações da partida: 2 de 2", "wait": 1500}]},
- {"id": "3-experiencia-carla", "route": "/games/matches/{{fixture:match}}", "steps": [{"scrollTo": "Outros jogadores", "offset": 80}, {"click": "{{name:carla}}, 8 de 10, sem etiquetas · 1 fotografia", "wait": 1200}]},
- {"id": "4-texto-ampliado-atalho", "route": "/games/matches/{{fixture:match}}", "fontScale": 1.6, "steps": [{"click": "Avaliações da partida: 2 de 2", "wait": 1500}]},
- {"id": "5-diario-nota", "route": "/games/matches/{{fixture:match}}", "steps": [{"click": "Adicionar nota pessoal", "wait": 1500}]},
- {"id": "6-diario-so-meu", "route": "/games/matches/{{fixture:match}}/journal", "scroll": "end"}
+ {"id": "2-detalhe-atalho", "route": "/games/matches/{{fixture:match}}", "steps": [{"click": "Avaliações: 2 de 2", "wait": 1500}]},
+ {"id": "3-detalhe-ampliado-topo", "route": "/games/matches/{{fixture:match}}", "fontScale": 1.3},
+ {"id": "4-detalhe-ampliado-atalho", "route": "/games/matches/{{fixture:match}}", "fontScale": 1.3, "steps": [{"click": "Avaliações: 2 de 2", "wait": 1500}]},
+ {"id": "5-diario-nota", "route": "/games/matches/{{fixture:match}}", "steps": [{"click": "Nota pessoal", "wait": 1500}]},
+ {"id": "6-diario-fotografias", "route": "/games/matches/{{fixture:match}}/journal", "scroll": "end"},
+ {"id": "7-diario-fotografias-ampliado", "route": "/games/matches/{{fixture:match}}/journal", "fontScale": 1.3, "scroll": "end"}
 ]}

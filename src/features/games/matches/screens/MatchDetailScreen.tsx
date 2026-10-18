@@ -117,8 +117,11 @@ export default function MatchDetailScreen() {
   const gallery = players.flatMap(p => (entryOf(p.userId)?.photoUrls ?? []).map(url => ({ url, mine: isMine(p.userId), name: p.userName ?? t("players.player") })));
   const viewed = viewingPlayer ? others.find(p => p.userId === viewingPlayer) : undefined;
   const viewedEntry = viewed ? entryOf(viewed.userId) : undefined;
-  const publishLine = publication?.hidden ? t("diary.hidden") : publication?.showRating && publication.commentPublished ? t("diary.publishedBoth")
-    : publication?.showRating ? t("diary.publishedRating") : publication?.commentPublished ? t("diary.publishedComment") : null;
+  // What is in the community now, as one line («Avaliação com o teu nome · 1 fotografia»); null when nothing is published.
+  const publishedPhotos = (publication?.photos ?? []).filter(f => !f.hidden).length;
+  const publishLine = publication?.hidden ? t("diary.hidden")
+    : [publication?.showRating ? t("diary.publishedRating") : null, publication?.commentPublished ? t("diary.publishedComment") : null,
+      publishedPhotos ? t("detailCard.photoCount", { count: publishedPhotos }) : null].filter(Boolean).join(" · ") || null;
   const isCreator = !!currentUser?.id && match.creatorId === currentUser.id;
   const method = match.durationMethod;
   const durationText = method === "Unknown" ? t("duration.reviewUnknown") : typeof match.durationInMinutes === "number"
@@ -173,10 +176,11 @@ export default function MatchDetailScreen() {
           </Card>
         </Section>
 
-        {participant && entries && others.length > 0 && <View onLayout={onOthersLayout} testID="others-section">
+        {/* «Experiências»: what the players share (ratings, tags, photos), apart from «Jogadores» (results and scores). */}
+        {participant && entries && <View onLayout={onOthersLayout} testID="others-section">
           <Section title={t("others.title")}>
-            <Text style={[type.caption, styles.caption]}>{t(rated ? "others.countWithYours" : "others.count", { rated: ratedCount, total: players.length })}</Text>
-            <Card>
+            {players.length > 1 && <Text style={[type.caption, styles.caption]}>{t(rated ? "others.countWithYours" : "others.count", { rated: ratedCount, total: players.length })}</Text>}
+            {others.length > 0 && <Card>
               {others.map((p, index) => {
                 const entry = entryOf(p.userId);
                 const summary = sharedSummary(entry, t);
@@ -190,11 +194,11 @@ export default function MatchDetailScreen() {
                   accessibilityLabel={[name, number ? t("rating.spoken", { value: number }) : null, line].filter(Boolean).join(", ")}
                   accessibilityHint={summary ? t("others.openHint") : undefined} />;
               })}
-            </Card>
-          </Section>
-        </View>}
-
-        {participant && entries && <Section title={t("gallery.title")} note={gallery.length ? String(gallery.length) : undefined}>
+            </Card>}
+            <View style={styles.subhead}>
+              <Text style={[type.body, strong]} accessibilityRole="header">{t("gallery.title")}</Text>
+              {gallery.length > 0 && <Text style={type.caption}>{gallery.length}</Text>}
+            </View>
           {gallery.length ? <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.gallery}>
             {gallery.map(photo => <TouchableOpacity key={photo.url} accessibilityRole="imagebutton" onPress={() => setViewingPhoto(photo)}
               accessibilityLabel={photo.mine ? t("gallery.openMine") : t("photos.open", { name: photo.name })}>
@@ -203,7 +207,8 @@ export default function MatchDetailScreen() {
             </TouchableOpacity>)}
           </ScrollView> : <Card padded><Text style={type.caption}>{t("gallery.empty")}</Text></Card>}
           {gallery.length > 0 && <Text style={[type.micro, styles.caption]}>{t("gallery.footer")}</Text>}
-        </Section>}
+          </Section>
+        </View>}
 
         <Section title={t("summary.duration")}>
           <Card>
@@ -276,15 +281,16 @@ function RatingCard({ rated, value, notes, publishLine, hidden, ratedCount, tota
       {rated && <View style={styles.lockBadge}><Glyph name="lock-outline" size={13} color={colors.muted} /><Text style={[type.micro, strong]}>{t("detailCard.saved")}</Text></View>}
     </View>
     <Text style={[styles.ratingValue, !rated && { color: colors.empty }]} accessibilityLabel={value ? t("rating.spoken", { value }) : t("rating.notRated")}>{value ?? "—"}<Text style={styles.ratingScale}> / 10</Text></Text>
-    <Text style={type.caption}>{rated ? t("detailCard.savedHint") : t("detailCard.notRated")}</Text>
-    <Text style={type.caption}>{t("detailCard.visibleToPlayers")}</Text>
+    {/* «Guardada» plus who sees it; the rule (it cannot change) stays explicit in the diary and before confirming. */}
+    {!rated && <Text style={type.caption}>{t("detailCard.notRated")}</Text>}
+    <Text style={type.caption}>{rated ? t("detailCard.visibleShort") : t("detailCard.visibleToPlayers")}</Text>
     {rated ? <>
       <View style={styles.hr} />
       <Row first inset={52} lead={<Glyph name="lock-outline" size={20} color={notes ? colors.muted : colors.primary} />}
         title={notes ? t("detailCard.noteSet") : t("detailCard.addNote")} subtitle={notes ? `${t("detailCard.onlyYou")} · ${notes}` : t("detailCard.onlyYou")}
         tone={notes ? "default" : "link"} onPress={onOpenNote} />
       <Row inset={52} lead={<Glyph name={publishLine && !hidden ? "earth" : "comment-text-outline"} size={20} color={colors.icon} />}
-        title={publishLine ?? t("diary.publish")} subtitle={publishLine ? undefined : t("diary.optional")}
+        title={publishLine ? t("detailCard.inCommunity") : t("detailCard.publish")} subtitle={publishLine ?? t("detailCard.publishHint")}
         onPress={onPublish} />
     </> : <PrimaryButton title={t("detailCard.rate")} icon={<Glyph name="star" size={18} color={colors.onPrimary} />} onPress={onOpenJournal} />}
     {/* The other players' experiences are further down this page; the shortcut moves there (it does not open the diary). */}
@@ -304,6 +310,7 @@ function sharedSummary(entry: JournalEntry | undefined, t: (key: string, options
 
 const styles = StyleSheet.create({
   caption: { paddingHorizontal: space.lg },
+  subhead: { flexDirection: "row", alignItems: "baseline", gap: space.sm, paddingHorizontal: space.lg, paddingTop: space.sm },
   gallery: { gap: space.md, paddingHorizontal: space.lg },
   galleryPhoto: { width: 136, height: 136, borderRadius: 14, backgroundColor: colors.line },
   author: { position: "absolute", left: space.sm, bottom: space.sm, maxWidth: 136 - 2 * space.sm, backgroundColor: colors.card, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2 },
@@ -313,7 +320,7 @@ const styles = StyleSheet.create({
   tagChip: { backgroundColor: colors.primarySoft, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   tagChipText: { ...type.micro, color: colors.primary, fontWeight: "600" },
   screen: { flex: 1, backgroundColor: colors.background },
-  ratingCard: { marginHorizontal: space.lg, marginBottom: space.lg, padding: space.lg, gap: space.sm, borderRadius: 16, borderCurve: "continuous", borderWidth: 1, borderColor: colors.pendingLine, backgroundColor: colors.pendingSoft },
+  ratingCard: { marginHorizontal: space.lg, marginBottom: space.lg, paddingHorizontal: space.lg, paddingVertical: space.md, gap: space.xs, borderRadius: 16, borderCurve: "continuous", borderWidth: 1, borderColor: colors.pendingLine, backgroundColor: colors.pendingSoft },
   ratingHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   ratingLabel: { ...type.micro, ...strong, letterSpacing: 0.4, textTransform: "uppercase" },
   lockBadge: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: colors.card, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 },

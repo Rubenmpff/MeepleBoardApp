@@ -204,7 +204,10 @@
       "Other": "Outro"
     },
     "viewerOf": "Fotografia de {{name}}",
-    "publicReportNote": "Quem a publicou não vê quem denunciou. A administração revê; com denúncias de várias pessoas, deixa de aparecer na comunidade até ser revista."
+    "publicReportNote": "Quem a publicou não vê quem denunciou. A administração revê; com denúncias de várias pessoas, deixa de aparecer na comunidade até ser revista.",
+    "addShort": "Adicionar",
+    "count": "{{count}} de {{max}}",
+    "title": "Fotografias"
   },
   "journal": {
     "closed": "Fechado",
@@ -696,16 +699,21 @@
   "detailCard": {
     "label": "A tua avaliação",
     "saved": "Guardada",
-    "savedHint": "Cada partida tem uma avaliação tua; esta já não muda.",
     "notRated": "Ainda não avaliaste esta partida. É a única coisa que o diário pede.",
     "rate": "Avaliar",
     "addNote": "Adicionar nota pessoal",
     "noteSet": "Nota pessoal",
     "onlyYou": "Só tu vês",
     "visibleToPlayers": "Os participantes desta partida veem a tua avaliação.",
-    "othersCount": "Avaliações da partida: {{rated}} de {{total}}",
-    "othersHere": "ver os outros jogadores nesta página",
-    "othersHint": "Desloca esta página até Outros jogadores."
+    "othersCount": "Avaliações: {{rated}} de {{total}}",
+    "othersHere": "ver as experiências nesta página",
+    "othersHint": "Desloca esta página até Experiências.",
+    "visibleShort": "Os jogadores desta partida veem-na.",
+    "inCommunity": "Na comunidade",
+    "publish": "Publicar na comunidade",
+    "publishHint": "Opcional · só com a tua confirmação",
+    "photoCount_one": "1 fotografia",
+    "photoCount_other": "{{count}} fotografias"
   },
   "publish": {
     "title": "Publicar experiência",
@@ -780,9 +788,9 @@
     "incomplete": "Faltam dados da partida. Revê os passos e tenta novamente."
   },
   "others": {
-    "title": "Outros jogadores",
-    "count": "Avaliações da partida: {{rated}} de {{total}}",
-    "countWithYours": "Avaliações da partida: {{rated}} de {{total}}, incluindo a tua",
+    "title": "Experiências",
+    "count": "Avaliações: {{rated}} de {{total}}",
+    "countWithYours": "Avaliações: {{rated}} de {{total}}, incluindo a tua",
     "notRated": "Ainda sem avaliação",
     "nothing": "Ainda sem avaliação · nada partilhado",
     "nothingShared": "Nada partilhado",

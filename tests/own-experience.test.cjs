@@ -17,7 +17,7 @@ test('detail: not yet rated by me shows «Ainda não avaliaste» even when the o
   assert.match(view.html, /Ainda não avaliaste esta partida/);
   assert.doesNotMatch(view.html, />8<|>9</, 'no other person\'s rating as mine');
   assert.match(view.html, /Os participantes desta partida veem a tua avaliação/);
-  assert.match(view.html, /Avaliações da partida: 2 de 3/); assert.doesNotMatch(view.html, /incluindo a tua/, 'I have not rated');
+  assert.match(view.html, /Avaliações: 2 de 3/); assert.doesNotMatch(view.html, /incluindo a tua/, 'I have not rated');
 });
 
 test('detail: my own rating (zero included) is the one shown; another person\'s 8 never replaces it', async () => {

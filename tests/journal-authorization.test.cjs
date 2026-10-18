@@ -41,7 +41,7 @@ test('Campaign participant reads shared entries but only own notes; cached draft
 });
 test('Preserved legacy photos count toward the upload cap without exposing public URLs', async () => {
   const ui = await renderNative(journal, 'default', {}, { states: { 0: match, 1: [{ ...entries[0], unavailablePhotoCount: 5 }], 2: false } });
-  assert.ok(ui.html.includes('5/5'));
+  assert.ok(ui.html.includes('5 de 5'));
   assert.ok(ui.html.includes('fotografias antigas preservadas'));
   assert.ok(!ui.controls.some(control => control.accessibilityLabel === 'Adicionar fotografia'));
 });

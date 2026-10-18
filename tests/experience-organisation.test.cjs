@@ -1,6 +1,6 @@
 // Approved 18/10/2026: the diary holds only your content; the match page holds the others. «Adicionar nota pessoal»
-// («Só tu vês») opens the diary on the private note with the keyboard open; «Avaliações da partida: 2 de 3 ↓» moves the
-// match page down to «Outros jogadores» (it does not open the diary), wherever that section is once photos and the
+// («Só tu vês») opens the diary on the private note with the keyboard open; «Avaliações: 2 de 3 ↓» moves the
+// match page down to «Experiências» (it does not open the diary), wherever that section is once photos and the
 // rating card have loaded. Rows with something shared open «Experiência de {nome}» (rating, tags, photos — never notes);
 // «Fotografias da partida» names each author («Tu» for yours) and only other people's photos can be reported.
 const { test } = require('node:test');
@@ -30,23 +30,23 @@ test('my card: the note row says only «Só tu vês» and opens the diary on the
   assert.match(noted.html, /Só tu vês · A MINHA NOTA/, 'my own note, on my own card');
 });
 
-test('«Avaliações da partida: 2 de 3 ↓» scrolls this page to «Outros jogadores» at its latest position, and opens nothing', async () => {
+test('«Avaliações: 2 de 3 ↓» scrolls this page to «Experiências» at its latest position, and opens nothing', async () => {
   const calls = [];
   const view = await renderNative(detail, 'default', {}, { states: { 0: match(), 1: false, 8: entries() }, params: { id: 'm' }, refs: { 0: scroller(calls) } });
-  assert.match(view.html, /Avaliações da partida: 2 de 3</);
+  assert.match(view.html, /Avaliações: 2 de 3</);
   layout(view, 'others-section', 980);
   layout(view, 'others-section', 1240); // the rating card and the photos arrived above: the section moved down
-  await view.press('Avaliações da partida: 2 de 3');
+  await view.press('Avaliações: 2 de 3');
   assert.deepEqual(calls, [['scrollTo', { y: 1232, animated: true }]], 'to where the section is now, not where it was first');
   assert.equal(view.routes.length, 0, 'stays on the match page');
-  const shortcut = view.controls.find(c => c.accessibilityLabel === 'Avaliações da partida: 2 de 3');
-  assert.equal(shortcut.accessibilityHint, 'Desloca esta página até Outros jogadores.');
+  const shortcut = view.controls.find(c => c.accessibilityLabel === 'Avaliações: 2 de 3');
+  assert.equal(shortcut.accessibilityHint, 'Desloca esta página até Experiências.');
 });
 
 test('the shortcut pressed before the section is measured scrolls as soon as it is laid out', async () => {
   const calls = [];
   const view = await renderNative(detail, 'default', {}, { states: { 0: match(), 1: false, 8: entries() }, params: { id: 'm' }, refs: { 0: scroller(calls) } });
-  await view.press('Avaliações da partida: 2 de 3');
+  await view.press('Avaliações: 2 de 3');
   assert.deepEqual(calls, []);
   layout(view, 'others-section', 1100);
   assert.deepEqual(calls, [['scrollTo', { y: 1092, animated: true }]]);
@@ -54,10 +54,10 @@ test('the shortcut pressed before the section is measured scrolls as soon as it 
   assert.equal(calls.length, 1, 'a later layout alone does not move the page');
 });
 
-test('«Outros jogadores»: only the others; what they share, with an arrow only when there is something to open', async () => {
+test('«Experiências»: only the others; what they share, with an arrow only when there is something to open', async () => {
   const view = await renderNative(detail, 'default', {}, { states: { 0: match(), 1: false, 8: entries() }, params: { id: 'm' } });
   const t = text(view.html);
-  assert.match(t, /\nOutros jogadores\n+Avaliações da partida: 2 de 3, incluindo a tua\n/);
+  assert.match(t, /\nExperiências\n+Avaliações: 2 de 3, incluindo a tua\n/);
   assert.match(t, /\nTeste-carla\n+2 etiquetas · 2 fotografias\n+8 \/ 10\n/);
   assert.match(t, /\nTeste-bruno\n+Ainda sem avaliação · nada partilhado\n/);
   assert.ok(view.controls.some(c => c.accessibilityLabel === 'Teste-carla, 8 de 10, 2 etiquetas · 2 fotografias'));
@@ -66,7 +66,7 @@ test('«Outros jogadores»: only the others; what they share, with an arrow only
   await view.press('Teste-carla, 8 de 10, 2 etiquetas · 2 fotografias');
   assert.deepEqual(view.updates.at(-1), [10, 'carla']);
   const unrated = await renderNative(detail, 'default', {}, { states: { 0: match({ personalRating: null }), 1: false, 8: [entries()[1]] }, params: { id: 'm' } });
-  assert.match(unrated.html, /Avaliações da partida: 1 de 3</); assert.doesNotMatch(unrated.html, /incluindo a tua/);
+  assert.match(unrated.html, /Avaliações: 1 de 3</); assert.doesNotMatch(unrated.html, /incluindo a tua/);
   const ratingOnly = await renderNative(detail, 'default', {}, { states: { 0: match(), 1: false, 8: [entry('bruno', 'Teste-bruno', 7)] }, params: { id: 'm' } });
   assert.match(text(ratingOnly.html), /\nTeste-bruno\n+Nada partilhado\n+7 \/ 10\n/);
 });
@@ -96,11 +96,11 @@ test('«Fotografias da partida»: every author named («Tu» for mine), report o
   assert.doesNotMatch(empty.html, /Partilhadas só com os jogadores/);
 });
 
-test('large text: the match count is its own line under «Outros jogadores», never squeezed beside the title', async () => {
+test('large text: the match count is its own line under «Experiências», never squeezed beside the title', async () => {
   const view = await renderNative(detail, 'default', {}, { states: { 0: match(), 1: false, 8: entries() }, params: { id: 'm' }, fontScale: 2 });
-  assert.match(view.html, /<span>Outros jogadores<\/span><\/div><span>Avaliações da partida: 2 de 3, incluindo a tua<\/span>/,
+  assert.match(view.html, /<span>Experiências<\/span><\/div><span>Avaliações: 2 de 3, incluindo a tua<\/span>/,
     'the section head holds only the title; the count follows as a separate line');
-  assert.match(view.html, /<span>Avaliações da partida: 2 de 3<\/span><span>ver os outros jogadores nesta página<\/span>/, 'the shortcut wraps as a row title');
+  assert.match(view.html, /<span>Avaliações: 2 de 3<\/span><span>ver as experiências nesta página<\/span>/, 'the shortcut wraps as a row title; «2 de 3» stays together (no-break spaces)');
 });
 
 test('diary: only my content — no «O que os outros acharam», no other person\'s tags, photos or rating', async () => {
@@ -128,4 +128,29 @@ test('diary opened from the note: scrolls to the private note and opens the keyb
   const plain = await renderNative(journal, 'default', {}, { states: { 0: match(), 1: entries(), 2: false, 4: 6.5 }, params: { id: 'm' }, refs: { 1: scroller(calls), 2: { current: { focus: () => focused.push('plain') } } } });
   layout(plain, 'diary-note', 260);
   assert.equal(focused.includes('plain'), false, 'opened normally: no keyboard');
+});
+
+// Refinement approved 18/10/2026 (proposal v2): compact card, «Na comunidade» state, «Avaliações: 2 de 3», «Adicionar».
+test('compact card: «Guardada» and who sees it; the rule stays explicit in the diary; the community row says what is published', async () => {
+  const pub = { rated: true, rating: 6.5, showRating: true, comment: null, commentPublished: false, edited: false, publishedAt: '2026-10-18T10:00:00Z', hidden: false, hiddenReason: null,
+    photos: [{ id: 'p', key: 'k', diaryPath: null, hidden: false, hiddenReason: null, removed: false }] };
+  const view = await renderNative(detail, 'default', {}, { states: { 0: match(), 1: false, 8: entries(), 9: pub }, params: { id: 'm' } });
+  const t = text(view.html);
+  assert.match(view.html, /Guardada/); assert.match(view.html, /Os jogadores desta partida veem-na\./);
+  assert.doesNotMatch(view.html, /Cada partida tem uma avaliação tua/, 'the repeated rule leaves the card');
+  assert.match(t, /\nNa comunidade\n+Avaliação com o teu nome · 1 fotografia\n/);
+  const none = await renderNative(detail, 'default', {}, { states: { 0: match(), 1: false, 8: entries(), 9: { ...pub, showRating: false, photos: [] } }, params: { id: 'm' } });
+  assert.match(text(none.html), /\nPublicar na comunidade\n+Opcional · só com a tua confirmação\n/);
+  const diary = await renderNative(journal, 'default', {}, { states: { 0: match(), 1: entries(), 2: false, 4: 6.5 } });
+  assert.match(diary.html, /Guardada a .*\. Não pode ser alterada\./, 'the rule, in the diary');
+  const rating = await renderNative(journal, 'default', {}, { states: { 0: match(), 1: [], 2: false, 4: 7.5, 9: true } });
+  assert.match(rating.html, /Depois de guardada, esta avaliação não pode ser alterada/, 'and before confirming');
+});
+
+test('diary photos: «Fotografias · 1 de 5» and a camera tile that says «Adicionar», announced as «Adicionar fotografia»', async () => {
+  const view = await renderNative(journal, 'default', {}, { states: { 0: match(), 1: entries(), 2: false, 4: 6.5 } });
+  assert.match(text(view.html), /\nFotografias\n+1 de 5\n/);
+  const add = view.controls.find(c => c.accessibilityLabel === 'Adicionar fotografia');
+  assert.ok(add, 'the accessible label stays complete');
+  assert.match(view.html, />Adicionar</); assert.doesNotMatch(view.html, />Adicionar fotografia</, 'the tile shows the short word');
 });

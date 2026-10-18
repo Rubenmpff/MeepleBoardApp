@@ -202,7 +202,10 @@ export default function MatchJournalScreen() {
         <TextInput style={[styles.input, { minHeight: touch + 2 }]} value={tags} onChangeText={setTags} placeholder={t("journal.tagsPlaceholder")} accessibilityLabel={t("journal.tags")}
           placeholderTextColor={colors.placeholder} maxLength={500} />
         {tags.trim() !== "" && <View style={styles.tags}>{tags.split(",").filter(tag => tag.trim()).map((tag, ti) => <View key={ti} style={styles.tagChip}><Text style={styles.tagChipText}>#{tag.trim()}</Text></View>)}</View>}
-        <Text style={[type.caption, strong, { color: colors.text }]}>{t("photos.label")} {myPhotoCount > 0 ? `— ${myPhotoCount}/${MAX_PHOTOS}` : ""}</Text>
+        <View style={styles.photoHead}>
+          <Text style={[type.body, strong]}>{t("photos.title")}</Text>
+          <Text style={type.caption}>{t("photos.count", { count: myPhotoCount, max: MAX_PHOTOS })}</Text>
+        </View>
         {!!myEntry?.unavailablePhotoCount && <Text style={type.caption}>{t("photos.legacyUnavailable", { count: myEntry.unavailablePhotoCount })}</Text>}
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {myPhotos.map((url, pi) => <View key={pi} style={styles.photoThumbWrap}>
@@ -214,8 +217,9 @@ export default function MatchJournalScreen() {
           {myPhotoCount < MAX_PHOTOS && <TouchableOpacity style={styles.photoAddBtn} accessibilityRole="button" accessibilityLabel={t("photos.add")}
             accessibilityState={{ disabled: uploadingPhoto, busy: uploadingPhoto }} onPress={handlePickPhoto} disabled={uploadingPhoto} activeOpacity={0.8}>
             {uploadingPhoto ? <ActivityIndicator color={colors.primary} size="small" /> : <>
-              <Glyph name="camera-plus-outline" size={20} color={colors.primary} />
-              <Text style={styles.photoAddText}>{t("photos.add")}</Text>
+              <Glyph name="camera-plus-outline" size={22} color={colors.primary} />
+              {/* «Adicionar» on the tile (the section already says «Fotografias»); the accessible label stays «Adicionar fotografia». */}
+              <Text style={styles.photoAddText} numberOfLines={1}>{t("photos.addShort")}</Text>
             </>}
           </TouchableOpacity>}
         </ScrollView>
@@ -266,8 +270,10 @@ const styles = StyleSheet.create({
   photoThumb: { width: 96, height: 96, borderRadius: 12, backgroundColor: colors.line },
   photoThumbWrap: { position: "relative", marginRight: 12 },
   photoRemoveBtn: { position: "absolute", top: 0, right: 0, width: touch, height: touch, borderRadius: touch / 2, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.75)" },
-  photoAddBtn: { width: 96, height: 96, borderRadius: 12, borderWidth: 1, borderColor: colors.primary, alignItems: "center", justifyContent: "center", backgroundColor: colors.primarySoft },
-  photoAddText: { ...type.caption, color: colors.primary, fontWeight: "700", marginTop: 4 },
+  photoHead: { flexDirection: "row", alignItems: "baseline", gap: space.sm },
+  // Grows with large text instead of squeezing the label.
+  photoAddBtn: { minWidth: 96, minHeight: 96, paddingHorizontal: space.sm, borderRadius: 12, borderWidth: 1, borderColor: colors.primary, alignItems: "center", justifyContent: "center", backgroundColor: colors.primarySoft },
+  photoAddText: { ...type.caption, color: colors.primary, fontWeight: "700", marginTop: 4, textAlign: "center" },
   footer: { padding: space.lg, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.background },
   confirm: { gap: space.md, paddingVertical: space.sm },
 });
