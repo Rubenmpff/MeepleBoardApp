@@ -63,6 +63,11 @@ Registado a 2026-10-16, a pedido; sem proposta nem implementação até ser reto
 - Visibilidade escolhida por cada pessoa: «Só eu / Amigos / Público».
 - Critérios: mais vitórias, mais partidas e melhores pontuações.
 - A definir quando for retomado: partidas elegíveis (modos, partidas oficiais), amostras mínimas, desempates e o que significa «melhor pontuação» em jogos de pontuação diferente.
+- **Análise de 2026-10-18 (ideia futura, não autorizada):** ver [ideias-rankings-cartao-partida.md](ideias-rankings-cartao-partida.md).
+  - Distingue rankings de quantidade, de resultados e de habilidade (esta não é recomendada).
+  - Lista os dados que faltam: confirmação de participação, visibilidade, variante e expansões, sentido da pontuação.
+  - Recomenda começar, depois do lançamento, só por «Entre amigos».
+  - Analisa também um **cartão de partida** para partilhar fora da app (gerado no telemóvel, sem publicar). É a ideia mais simples e de valor mais imediato.
 
 ## 6. Experiência mais leve: do Início para o resto da app (2026-10-17)
 
