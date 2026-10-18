@@ -257,7 +257,7 @@ export default function MatchJournalScreen() {
       left={{ label: t("photos.close"), onPress: () => setViewingPhoto(null) }}>
       <View style={{ gap: space.md }}>
         {viewingPhoto && <JournalPhoto uri={viewingPhoto} style={styles.photoLarge} />}
-        <TouchableOpacity accessibilityRole="button" style={styles.reportPhoto} onPress={() => { setReportingPhoto(viewingPhoto); setViewingPhoto(null); }}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("photos.report")} style={styles.reportPhoto} onPress={() => { setReportingPhoto(viewingPhoto); setViewingPhoto(null); }}>
           <Glyph name="flag-outline" size={20} color={colors.danger} />
           <Text style={[type.body, { color: colors.danger }]}>{t("photos.report")}</Text>
         </TouchableOpacity>
