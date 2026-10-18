@@ -48,3 +48,26 @@ Preparado a 2026-10-18. Usa contas descartáveis próprias, nunca as contas do r
 ## No fim
 
 `node tools/DeviceTestApi/community-validation.cjs teardown setup` remove estas pessoas e tudo o que fizeram.
+
+## Registo: a nota pessoal da Ana (18/10/2026)
+
+**Observado.** Numa captura das 20:33 (Lisboa), o detalhe da partida mostrava «Nota pessoal · Ahahahshhsan». Ao mesmo tempo, o Diário mostrava o campo vazio, e a leitura seguinte do servidor não devolve nota.
+
+**Factos dos registos.** O diagnóstico só guarda método, caminho, código e hora, nunca o conteúdo dos pedidos.
+- Houve duas gravações do Diário da Ana nessa partida: `PUT …/journal` às 19:31:17 e às 19:32:35 UTC, ambas com 200.
+- Não houve nenhuma outra escrita nessa entrada.
+- A entrada tem a última alteração às 19:32:35 e não tem nota.
+- Na app, só o «Guardar» do Diário escreve ali, e só fica ativo quando o conteúdo difere do que foi carregado.
+
+**Hipótese (não confirmada).** A nota foi guardada às 19:31 e esvaziada na gravação das 19:32. Os registos não permitem saber o que foi enviado nem confirmar que a nota foi apagada por quem usava o iPhone. A nota não foi recriada.
+
+**Defeito encontrado e corrigido.** O detalhe da partida só carregava ao abrir. Ao voltar do Diário, continuava a mostrar a nota antiga, o que explica a diferença na captura. Agora volta a carregar ao regressar (app `c00af16`).
+
+**Testes acrescentados:**
+- `tools/DeviceTestApi/verify-journal-note.cjs`, com pessoas descartáveis e SQL real;
+- o teste «note: save → back…» em `tests/experience-organisation.test.cjs`.
+
+Os dois cobrem este percurso:
+1. guardar uma nota e voltar ao detalhe: o texto aparece;
+2. apagar a nota e guardar: o detalhe fica sem nota;
+3. cancelar sem guardar: a nota anterior mantém-se, e o outro jogador nunca a recebe.
