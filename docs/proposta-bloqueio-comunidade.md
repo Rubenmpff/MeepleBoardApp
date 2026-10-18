@@ -96,7 +96,11 @@ Lista inicial de termos proibidos, aplicada no servidor ao conteúdo que outras 
 
 **Recusa:** «Este texto tem termos que não são permitidos. Revê-o antes de guardar.»
 
-**Limites:** é uma proteção inicial. Não substitui as denúncias, a revisão humana nem o tratamento de assédio e ameaças.
+**Limites:**
+
+- A lista é uma proteção inicial e incompleta, e não deve ser apresentada como proteção completa.
+- Foram retiradas expressões ambíguas em contexto de jogo («vou-te matar», «I will kill you», «cabra», entre outras), para reduzir falsos positivos. Isso não as torna aceitáveis: ameaças reais continuam proibidas e são tratadas por denúncia e moderação.
+- Não substitui as denúncias, a revisão humana nem o tratamento de assédio e ameaças.
 
 ## 6. Estados visuais mínimos (padrões atuais, sem redesenho)
 
