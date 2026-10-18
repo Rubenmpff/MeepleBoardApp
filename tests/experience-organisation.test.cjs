@@ -154,3 +154,16 @@ test('diary photos: «Fotografias · 1 de 5» and a camera tile that says «Adic
   assert.ok(add, 'the accessible label stays complete');
   assert.match(view.html, />Adicionar</); assert.doesNotMatch(view.html, />Adicionar fotografia</, 'the tile shows the short word');
 });
+
+test('coming back to the match page refreshes the note, ratings and publication (no stale «Nota pessoal» after editing in the diary)', async () => {
+  const calls = [];
+  const view = await renderNative(detail, 'default', {}, { states: { 0: match(), 1: false, 8: entries() }, params: { id: 'm' }, captureFocusEffects: true, refs: { 0: scroller(calls) },
+    services: { getById: match(), getJournalEntries: [entry('me', 'Teste-ana', 6.5, { notes: null })], getMine: { rated: true, rating: 6.5, showRating: true, photos: [] } } });
+  assert.equal(view.effects.length, 1);
+  view.effects[0]();
+  assert.equal(view.calls.filter(c => ['getById', 'getJournalEntries', 'getMine'].includes(c[0])).length, 0, 'the first focus is the first load');
+  view.effects[0](); await new Promise(r => setTimeout(r, 0));
+  assert.deepEqual(view.calls.filter(c => ['getById', 'getJournalEntries', 'getMine'].includes(c[0])).map(c => c[0]).sort(), ['getById', 'getJournalEntries', 'getMine']);
+  assert.ok(view.updates.some(([i, v]) => i === 8 && Array.isArray(v) && v[0].notes === null), 'entries replaced with what the server has now');
+  assert.equal(view.updates.some(([i, v]) => i === 1 && v === true), false, 'no loading state: the page keeps its place');
+});

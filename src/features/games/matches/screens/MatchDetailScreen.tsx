@@ -10,7 +10,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, LayoutChangeEvent, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ScreenHeader from "@/src/ui/ScreenHeader";
@@ -66,6 +66,7 @@ export default function MatchDetailScreen() {
   // Where «Outros jogadores» is right now: measured on every layout (the rating card and photos arrive later and push it down).
   const othersY = useRef<number | null>(null);
   const scrollWhenMeasured = useRef(false);
+  const firstFocus = useRef(true);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -80,6 +81,18 @@ export default function MatchDetailScreen() {
     finally { setLoading(false); }
   }, [id]);
   useEffect(() => { void load(); }, [load]);
+  // Coming back from the diary or the publishing screen: the note, the rating and what is published change there.
+  // Quietly, without the loading state (the page keeps its place); a failed refresh keeps what is on screen.
+  const refresh = useCallback(() => {
+    if (!id) return;
+    matchService.getById(id).then(data => { if (data) setMatch(data); }).catch(() => {});
+    matchService.getJournalEntries(id).then(setEntries).catch(() => {});
+    experienceService.getMine(id).then(setPublication).catch(() => {});
+  }, [id]);
+  useFocusEffect(useCallback(() => {
+    if (firstFocus.current) { firstFocus.current = false; return; }
+    refresh();
+  }, [refresh]));
 
   const header = <View style={styles.header}><ScreenHeader title={t("ui.detailsTitle")} leftAccessibilityLabel={t("ui.back")} onLeftPress={backToOrigin} /></View>;
   if (loading) return <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>{header}<ScreenState loading message={t("ui.loading")} /></SafeAreaView>;
