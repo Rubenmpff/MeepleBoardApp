@@ -1,7 +1,7 @@
 // Approved 18/10/2026: the rating and tags shown as «yours» are always the signed-in person's (their diary, or an old
 // rating on a match they registered, as the API returns it) — never those of whoever registered the match. Zero is a
-// rating; «Ainda não avaliaste» even when the others rated. The detail gives a way into the participants' experiences
-// (the diary), the rating card says the players see it, and the photo viewer names its author.
+// rating; «Ainda não avaliaste» even when the others rated. The detail shows the participants' experiences
+// further down (experience-organisation.test.cjs), the rating card says the players see it, and the photo viewer names its author.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { renderNative } = require('./helpers/renderNative.cjs');
@@ -17,9 +17,7 @@ test('detail: not yet rated by me shows «Ainda não avaliaste» even when the o
   assert.match(view.html, /Ainda não avaliaste esta partida/);
   assert.doesNotMatch(view.html, />8<|>9</, 'no other person\'s rating as mine');
   assert.match(view.html, /Os participantes desta partida veem a tua avaliação/);
-  await view.press('Ver experiências dos participantes');
-  assert.ok(view.routes.some(r => r?.pathname === '/games/matches/[id]/journal'), 'opens the diary with the participants\' blocks');
-  assert.match(view.html, /2 de 3 participantes avaliaram/);
+  assert.match(view.html, /Avaliações da partida: 2 de 3/); assert.doesNotMatch(view.html, /incluindo a tua/, 'I have not rated');
 });
 
 test('detail: my own rating (zero included) is the one shown; another person\'s 8 never replaces it', async () => {

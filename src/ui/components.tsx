@@ -33,7 +33,7 @@ export function Hero({ children, style }: { children: ReactNode; style?: StylePr
 }
 
 type RowProps = {
- title: string; subtitle?: string; detail?: ReactNode; lead?: ReactNode; value?: string; end?: "chevron" | "expand" | "collapse" | "check" | "none";
+ title: string; subtitle?: string; detail?: ReactNode; lead?: ReactNode; value?: string; end?: "chevron" | "down" | "expand" | "collapse" | "check" | "none";
  onPress?: () => void; accessibilityLabel?: string; accessibilityHint?: string; selected?: boolean; first?: boolean; inset?: number; strongTitle?: boolean; tone?: "default" | "link" | "danger";
 };
 // List row: ≥ 52 pt, hairline separator inset to the text column.
@@ -50,6 +50,7 @@ export function Row({ title, subtitle, detail, lead, value, end: endProp, onPres
   </View>
   {value != null && <Text style={/^[-+−–—\d\s.,:%/]*$/.test(value) ? s.rowValue : s.rowText}>{value}</Text>}
   {end === "chevron" && <Glyph name="chevron-right" color={tone === "link" ? colors.primary : colors.chevron} />}
+  {end === "down" && <Glyph name="arrow-down" color={colors.chevron} />}
   {(end === "expand" || end === "collapse") && <Expander open={end === "collapse"} />}
   {end === "check" && (selected ? <Glyph name="check" size={22} color={colors.primary} /> : <View style={{ width: 22 }} />)}
  </>;

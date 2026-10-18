@@ -44,7 +44,7 @@ test('diary: before rating, the rule is explained, a confirmation is required an
 test('match detail: «A tua avaliação» in prominence — closed once given, «Avaliar» before; note and publishing are secondary', async () => {
   const rated = await renderNative(detail, 'default', {}, { states: { 0: match, 1: false, 8: [mine(7.5), peer], 9: publication({ showRating: true, comment: 'x', commentPublished: true }) }, params: { id: 'm' } });
   assert.match(rated.html, /A tua avaliação/i); assert.match(rated.html, /7,5/); assert.match(rated.html, /Guardada/); assert.doesNotMatch(rated.html, /Editar avaliação/);
-  assert.match(rated.html, /Adicionar nota pessoal/); assert.match(rated.html, /Avaliação e comentário com o teu nome/); assert.match(rated.html, /2 de 3 participantes avaliaram/);
+  assert.match(rated.html, /Adicionar nota pessoal/); assert.match(rated.html, /Avaliação e comentário com o teu nome/); assert.match(rated.html, /Avaliações da partida: 2 de 3/);
   const unrated = await renderNative(detail, 'default', {}, { states: { 0: match, 1: false, 8: [peer] }, params: { id: 'm' } });
   assert.match(unrated.html, /É a única coisa que o diário pede/);
   await unrated.press('Avaliar'); assert.equal(unrated.routes.at(-1).pathname, '/games/matches/[id]/journal');

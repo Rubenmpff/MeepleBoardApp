@@ -2,13 +2,18 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { renderNative } = require('./helpers/renderNative.cjs');
 const journal = 'src/features/games/journal/screens/MatchJournalScreen.tsx';
+const detail = 'src/features/games/matches/screens/MatchDetailScreen.tsx';
 const campaignScreen = 'src/features/games/campaigns/screens/CampaignDetailScreen.tsx';
 const match = { id: 'match-test', gameId: 'game-test', gameName: 'Isolated game', players: [{ userId: 'me' }, { userId: 'other' }], journalStatus: 'Open' };
 const entries = [{ id: 'own', userId: 'me', userName: 'Me', personalRating: 0, notes: 'OWN_PRIVATE', tags: 'own-tag', photoUrls: [] }, { id: 'other', userId: 'other', userName: 'Other', personalRating: 7, notes: 'FOREIGN_PRIVATE', tags: 'shared-tag', photoUrls: [] }];
-for (const language of ['pt', 'en']) test(`Journal keeps own notes private and exposes participant ratings/tags including zero (${language})`, async () => {
+// The diary holds only your own content; the participants' ratings and tags are on the match page (approved 18/10/2026).
+for (const language of ['pt', 'en']) test(`Journal keeps own notes private; participant ratings/tags (zero included) are on the match page, never notes (${language})`, async () => {
   const ui = await renderNative(journal, 'default', {}, { language, states: { 0: match, 1: entries, 2: false, 4: 0, 5: 'OWN_PRIVATE' } });
   assert.ok(!ui.html.includes('FOREIGN_PRIVATE'));
-  assert.ok(ui.html.includes('shared-tag'));
+  assert.ok(!ui.html.includes('shared-tag'), 'the others are not in my diary');
+  const page = await renderNative(detail, 'default', {}, { language, states: { 0: { ...match, matchDate: '2026-10-06T12:00:00Z', players: [{ userId: 'me', userName: 'Me' }, { userId: 'other', userName: 'Other' }] }, 1: false, 8: [entries[0], { ...entries[1], personalRating: 0 }], 10: 'other' }, params: { id: 'match-test' } });
+  assert.ok(page.html.includes('#shared-tag') && page.html.includes('0 / 10'));
+  assert.ok(!page.html.includes('FOREIGN_PRIVATE'), 'no one else\'s note');
   assert.ok(ui.inputs.some(input => input.value === 'OWN_PRIVATE'));
   // The saved rating (zero) is closed: shown, not editable; the private note and tags still save.
   assert.ok(ui.html.includes(ui.i18n.t('diary.locked', { ns: 'matches' })));

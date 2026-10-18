@@ -700,9 +700,11 @@
     "rate": "Rate",
     "addNote": "Add a personal note",
     "noteSet": "Personal note",
-    "onlyYou": "only you",
+    "onlyYou": "Only you see it",
     "visibleToPlayers": "The players of this match see your rating.",
-    "othersLink": "See the players' experiences"
+    "othersCount": "Match ratings: {{rated}} of {{total}}",
+    "othersHere": "see the other players on this page",
+    "othersHint": "Moves this page to Other players."
   },
   "publish": {
     "title": "Publish experience",
@@ -750,5 +752,32 @@
     "journalAccess": "You don't have access to this diary or it couldn't be loaded.",
     "closeJournal": "Couldn't close the diary.",
     "incomplete": "Some match details are missing. Review the steps and try again."
+  },
+  "others": {
+    "title": "Other players",
+    "count": "Match ratings: {{rated}} of {{total}}",
+    "countWithYours": "Match ratings: {{rated}} of {{total}}, including yours",
+    "notRated": "Not rated yet",
+    "nothing": "Not rated yet · nothing shared",
+    "nothingShared": "Nothing shared",
+    "tagCount_one": "1 tag",
+    "tagCount_other": "{{count}} tags",
+    "noTags": "no tags",
+    "photoCount_one": "1 photo",
+    "photoCount_other": "{{count}} photos",
+    "noPhotos": "no photos",
+    "openHint": "Opens the rating, tags and photos they shared with the players.",
+    "sheetTitle": "{{name}}'s experience",
+    "sheetRating": "{{value}} / 10 · shared with the players",
+    "tags": "Tags",
+    "photos": "Photos"
+  },
+  "gallery": {
+    "title": "Match photos",
+    "empty": "No photos yet. Each player can add theirs in their own diary.",
+    "footer": "Shared only with the players of this match.",
+    "you": "You",
+    "openMine": "Open your photo",
+    "viewerMine": "Your photo"
   }
 }

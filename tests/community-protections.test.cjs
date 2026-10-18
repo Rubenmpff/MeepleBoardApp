@@ -14,6 +14,7 @@ const blocked = 'src/features/friends/screens/BlockedPeopleScreen.tsx';
 const panels = 'src/features/friends/components/ModerationPanels.tsx';
 const sessionDetail = 'src/features/games/sessions/screens/GameSessionDetailScreen.tsx';
 const journal = 'src/features/games/journal/screens/MatchJournalScreen.tsx';
+const detail = 'src/features/games/matches/screens/MatchDetailScreen.tsx';
 
 test('person menu: «Denunciar» and «Bloquear» for anyone; «Remover amigo» only for friends; PT/EN', async () => {
   const stranger = await renderNative(menu, 'FriendActionsMenu', { onReport() {}, onBlock() {} }, { states: { 0: true } });
@@ -49,16 +50,16 @@ test('session: a pending invitation a block made unavailable shows a neutral tex
   assert.match(available.html, /Aceitar/); assert.doesNotMatch(available.html, /já não está disponível/);
 });
 
-test('diary: another participant\'s photo opens larger with «Denunciar fotografia», and its reasons sheet', async () => {
+test('match page: another participant\'s photo opens larger with «Denunciar fotografia», and its reasons sheet', async () => {
   const match = { id: 'm', gameId: 'g', gameName: 'Wingspan', matchDate: '2026-10-15T20:30:00Z', creatorId: 'me', players: [{ userId: 'me', userName: 'Me' }, { userId: 'peer', userName: 'Peer' }] };
   const photo = '/MeepleBoard/campaigns/matches/m/journal/photos/e2/' + 'a'.repeat(64);
   const peer = { id: 'e2', userId: 'peer', userName: 'Peer', personalRating: 9, tags: '', photoUrls: [photo], createdAt: '2026-10-15T21:00:00Z' };
-  const view = await renderNative(journal, 'default', {}, { states: { 0: match, 1: [peer], 2: false } });
+  const view = await renderNative(detail, 'default', {}, { states: { 0: match, 1: false, 8: [peer] }, params: { id: 'm' } });
   await view.press('Abrir fotografia de Peer');
-  assert.ok(view.updates.some(([, value]) => value?.url === photo && value?.name === 'Peer'), 'opens the viewer with the author');
-  const viewer = await renderNative(journal, 'default', {}, { states: { 0: match, 1: [peer], 2: false, 11: { url: photo, name: 'Peer' } } });
+  assert.ok(view.updates.some(([, value]) => value?.url === photo && value?.name === 'Peer' && value?.mine === false), 'opens the viewer with the author');
+  const viewer = await renderNative(detail, 'default', {}, { states: { 0: match, 1: false, 8: [peer], 11: { url: photo, name: 'Peer', mine: false } }, params: { id: 'm' } });
   assert.match(viewer.html, /Denunciar fotografia/); assert.match(viewer.html, /Fotografia de Peer/);
-  const sheet = await renderNative(journal, 'default', {}, { states: { 0: match, 1: [peer], 2: false, 12: photo } });
+  const sheet = await renderNative(detail, 'default', {}, { states: { 0: match, 1: false, 8: [peer], 12: photo }, params: { id: 'm' } });
   for (const reason of ['Imprópria', 'Dados pessoais', 'Assédio', 'Spam', 'Outro']) assert.match(sheet.html, new RegExp(reason));
   assert.match(sheet.html, /nada é apagado automaticamente/);
 });

@@ -700,9 +700,11 @@
     "rate": "Avaliar",
     "addNote": "Adicionar nota pessoal",
     "noteSet": "Nota pessoal",
-    "onlyYou": "só tu vês",
+    "onlyYou": "Só tu vês",
     "visibleToPlayers": "Os participantes desta partida veem a tua avaliação.",
-    "othersLink": "Ver experiências dos participantes"
+    "othersCount": "Avaliações da partida: {{rated}} de {{total}}",
+    "othersHere": "ver os outros jogadores nesta página",
+    "othersHint": "Desloca esta página até Outros jogadores."
   },
   "publish": {
     "title": "Publicar experiência",
@@ -750,5 +752,32 @@
     "journalAccess": "Não tens acesso a este diário ou não foi possível carregá-lo.",
     "closeJournal": "Não foi possível fechar o diário.",
     "incomplete": "Faltam dados da partida. Revê os passos e tenta novamente."
+  },
+  "others": {
+    "title": "Outros jogadores",
+    "count": "Avaliações da partida: {{rated}} de {{total}}",
+    "countWithYours": "Avaliações da partida: {{rated}} de {{total}}, incluindo a tua",
+    "notRated": "Ainda sem avaliação",
+    "nothing": "Ainda sem avaliação · nada partilhado",
+    "nothingShared": "Nada partilhado",
+    "tagCount_one": "1 etiqueta",
+    "tagCount_other": "{{count}} etiquetas",
+    "noTags": "sem etiquetas",
+    "photoCount_one": "1 fotografia",
+    "photoCount_other": "{{count}} fotografias",
+    "noPhotos": "sem fotografias",
+    "openHint": "Abre a avaliação, as etiquetas e as fotografias que partilhou com os jogadores.",
+    "sheetTitle": "Experiência de {{name}}",
+    "sheetRating": "{{value}} / 10 · partilhada com os jogadores",
+    "tags": "Etiquetas",
+    "photos": "Fotografias"
+  },
+  "gallery": {
+    "title": "Fotografias da partida",
+    "empty": "Ainda não há fotografias. Cada jogador pode juntar as suas no próprio diário.",
+    "footer": "Partilhadas só com os jogadores desta partida.",
+    "you": "Tu",
+    "openMine": "Abrir a tua fotografia",
+    "viewerMine": "A tua fotografia"
   }
 }
