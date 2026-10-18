@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Visual preview runner (DeviceTests only).
-//   node tools/visual-preview/run.mjs <scenarios.json> [--only id1,id2] [--account autor]
+//   node tools/visual-preview/run.mjs <scenarios.json> [--only id1,id2] [--account autor] [--accounts-file community-validation-captures.json]
 //   node tools/visual-preview/run.mjs --extract <mockup.html> <outdir>   (one PNG per .phone of a mockup page)
 // Renders real app screens in WebKit at 402 × 874 pt with live GET responses from the DeviceTests API (127.0.0.1:5099).
 // Writes are refused by the preview client. Output goes to tools/visual-preview/out/ (git-ignored).
@@ -21,19 +21,21 @@ if (args[0] === '--extract') {
 }
 const health = await (await fetch(base + '/device-test/health')).json();
 if (health.environment !== 'DeviceTests' || health.database !== 'MeepleBoard_DeviceTests' || health.externalDelivery !== false) throw new Error('API on 5099 is not the DeviceTests environment');
-const accounts = JSON.parse(fs.readFileSync(path.join(apiDir, '.device-tests/accounts.json'), 'utf8'));
+// --accounts-file: another credentials file in .device-tests (e.g. disposable validation people, with a «Role» each).
+const accounts = JSON.parse(fs.readFileSync(path.join(apiDir, '.device-tests', path.basename(flag('--accounts-file') || 'accounts.json')), 'utf8'));
+const key = a => a.Role ?? a.Email.split('@')[0];
 // A scenario may name the account it needs ("account": "participante"); --account overrides it.
-const account = accounts.find(a => a.Email === `${flag('--account') || JSON.parse(fs.readFileSync(path.resolve(args[0]), 'utf8')).account || 'autor'}@meepleboard.test`);
+const account = accounts.find(a => key(a) === (flag('--account') || JSON.parse(fs.readFileSync(path.resolve(args[0]), 'utf8')).account || 'autor'));
 const login = await fetch(base + '/MeepleBoard/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: account.Email, password: account.Password, deviceInfo: 'MeepleBoard Visual Preview' }) });
 if (!login.ok) throw new Error('Login failed: ' + login.status);
 const { token } = await login.json();
-fs.writeFileSync(path.join(out, 'session.js'), `window.__session=${JSON.stringify({ token, apiBase: base + '/MeepleBoard', friends: Object.fromEntries(accounts.map(a => [a.Email.split('@')[0], a.Id])) })};`);
+fs.writeFileSync(path.join(out, 'session.js'), `window.__session=${JSON.stringify({ token, apiBase: base + '/MeepleBoard', friends: Object.fromEntries(accounts.map(a => [key(a), a.Id])) })};`);
 execFileSync(process.execPath, [path.join(here, 'bundle.cjs')], { stdio: 'inherit' });
 // Real IDs for detail routes, resolved read-only and substituted as {{name}} in the scenario file.
 const get = async route => { const r = await fetch(base + '/MeepleBoard' + route, { headers: { Authorization: `Bearer ${token}` } }); if (!r.ok) return null; const t = await r.text(); return t ? JSON.parse(t) : null; }; // an empty list may come as an empty body
 const pending = (await get('/matches/pending-journal')) || [];
 const recent = (await get('/statistics/me/matches?start=2020-01-01&endExclusive=2029-01-01&timeZone=Europe%2FLisbon&metric=all&offset=0&limit=1'))?.items?.[0], sessions = await get('/session/mine') || [], campaigns = await get('/campaigns/mine') || [];
-const vars = { ...Object.fromEntries(accounts.map(a => [`user:${a.Email.split('@')[0]}`, a.Id])), match: recent?.id ?? '', pendingMatch: pending[0]?.id ?? '', game: recent?.gameId ?? '',
+const vars = { ...Object.fromEntries(accounts.map(a => [`user:${key(a)}`, a.Id])), ...Object.fromEntries(accounts.filter(a => a.UserName).map(a => [`name:${key(a)}`, a.UserName])), ...Object.fromEntries(Object.entries(accounts[0].Ids || {}).map(([k, v]) => [`fixture:${k}`, v])), match: recent?.id ?? '', pendingMatch: pending[0]?.id ?? '', game: recent?.gameId ?? '',
   session: sessions[0]?.id ?? '', activeSession: (sessions.find(s => /active|ongoing|progress/i.test(String(s.status))) ?? sessions[0])?.id ?? '', upcomingSession: sessions.find(s => s.status === 'Upcoming')?.id ?? '', campaign: campaigns[0]?.id ?? '' };
 const file = path.resolve(args[0]);
 const text = fs.readFileSync(file, 'utf8');

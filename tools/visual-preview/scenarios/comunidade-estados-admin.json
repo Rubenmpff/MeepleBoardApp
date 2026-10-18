@@ -1,0 +1,5 @@
+{"name":"comunidade-estados-admin","account":"admin","screens":[
+ {"id":"7-moderacao-pessoas","route":"/games/experiences/moderation","steps":[{"click":"Pessoas"}]},
+ {"id":"8-suspender","route":"/games/experiences/moderation","steps":[{"click":"Pessoas"},{"click":"Suspender…"}]},
+ {"id":"9-moderacao-fotografias","route":"/games/experiences/moderation","steps":[{"click":"Fotografias"}]}
+]}
