@@ -167,3 +167,37 @@ test('coming back to the match page refreshes the note, ratings and publication 
   assert.ok(view.updates.some(([i, v]) => i === 8 && Array.isArray(v) && v[0].notes === null), 'entries replaced with what the server has now');
   assert.equal(view.updates.some(([i, v]) => i === 1 && v === true), false, 'no loading state: the page keeps its place');
 });
+
+// Requested 18/10/2026: the private note through the diary and back to the match page (the server side, with disposable
+// people and real SQL: tools/DeviceTestApi/verify-journal-note.cjs in the API).
+test('note: save → back on the match page it shows; erase → save → the page shows none; cancel without saving keeps the previous note', async () => {
+  const draft = note => ({ 0: { current: JSON.stringify([6.5, note, '']) } });
+  // 1. Write and save in the diary: the note goes, as typed (trimmed).
+  const write = await renderNative(journal, 'default', {}, { states: { 0: match(), 1: [entry('me', 'Teste-ana', 6.5)], 2: false, 4: 6.5, 5: ' Nova nota ' }, refs: draft(''), params: { id: 'm' },
+    services: { upsertJournalEntry: undefined, getById: match(), getJournalEntries: [entry('me', 'Teste-ana', 6.5, { notes: 'Nova nota' })] } });
+  await write.press('Guardar');
+  assert.deepEqual(write.calls.find(c => c[0] === 'upsertJournalEntry').slice(1), ['m', { personalRating: 6.5, notes: 'Nova nota', tags: null }]);
+  // 2. Back on the match page (refreshed on return): the card shows it.
+  const back = await renderNative(detail, 'default', {}, { states: { 0: match(), 1: false, 8: [entry('me', 'Teste-ana', 6.5, { notes: 'Nova nota' })] }, params: { id: 'm' } });
+  assert.match(text(back.html), /\nNota pessoal\n+Só tu vês · Nova nota\n/);
+  // 3. Erase and save: the note goes as null.
+  const erase = await renderNative(journal, 'default', {}, { states: { 0: match(), 1: [entry('me', 'Teste-ana', 6.5, { notes: 'Nova nota' })], 2: false, 4: 6.5, 5: '' }, refs: draft('Nova nota'), params: { id: 'm' },
+    services: { upsertJournalEntry: undefined, getById: match(), getJournalEntries: [entry('me', 'Teste-ana', 6.5)] } });
+  await erase.press('Guardar');
+  assert.deepEqual(erase.calls.find(c => c[0] === 'upsertJournalEntry')[2], { personalRating: 6.5, notes: null, tags: null });
+  // 4. Back on the match page: no note any more.
+  const none = await renderNative(detail, 'default', {}, { states: { 0: match(), 1: false, 8: [entry('me', 'Teste-ana', 6.5)] }, params: { id: 'm' } });
+  assert.match(text(none.html), /\nAdicionar nota pessoal\n+Só tu vês\n/); assert.doesNotMatch(none.html, /Nova nota/);
+  // 5. Cancel after typing: «Descartar alterações?» and nothing is sent; the previous note stays on the server.
+  const typed = await renderNative(journal, 'default', {}, { states: { 0: match(), 1: [entry('me', 'Teste-ana', 6.5, { notes: 'Nova nota' })], 2: false, 4: 6.5, 5: 'Nova nota e mais' }, refs: draft('Nova nota'), params: { id: 'm' },
+    canGoBack: false, services: { upsertJournalEntry: undefined } });
+  await typed.press('Cancelar');
+  const [, title, , buttons] = typed.calls.find(c => c[0] === 'alert');
+  assert.equal(title, 'Descartar alterações?'); await buttons.find(b => b.style === 'destructive').onPress();
+  assert.equal(typed.calls.some(c => c[0] === 'upsertJournalEntry'), false, 'nothing saved: the previous note stays');
+  // 6. Cancel without changes: straight back, nothing sent.
+  const clean = await renderNative(journal, 'default', {}, { states: { 0: match(), 1: [entry('me', 'Teste-ana', 6.5, { notes: 'Nova nota' })], 2: false, 4: 6.5, 5: 'Nova nota' }, refs: draft('Nova nota'), params: { id: 'm' },
+    services: { upsertJournalEntry: undefined } });
+  await clean.press('Cancelar');
+  assert.deepEqual(clean.routes, ['back']); assert.equal(clean.calls.some(c => c[0] === 'alert' || c[0] === 'upsertJournalEntry'), false);
+});
