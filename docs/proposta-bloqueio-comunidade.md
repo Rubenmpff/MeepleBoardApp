@@ -1,6 +1,15 @@
 # Proposta — bloqueio de utilizadores e proteções da comunidade
 
-Proposta de 2026-10-18, com as decisões 1–5 do utilizador. **Por confirmar** a tabela de efeitos e os estados visuais, antes de implementar em DeviceTests.
+Proposta de 2026-10-18, com as decisões 1–5 do utilizador. A tabela de efeitos e os estados visuais foram aprovados com seis ajustes.
+
+**Implementado em DeviceTests a 2026-10-18; falta validar no iPhone.** As regras, a exceção dos encontros de campanha e os testes estão em `MeepleBoardApi/docs/bloqueio-comunidade.md`.
+
+**Ajustes aprovados, que mudam o que está abaixo:**
+
+- Um convite que um bloqueio tornou impossível de aceitar já não é retirado. Sai da lista e mostra «Este convite já não está disponível.», sem botões, e volta a estar disponível se o bloqueio for removido.
+- O registo de partidas fora de sessões exige amizade aceite com cada outro jogador. A exceção são os encontros de campanha, entre membros aceites.
+- Há quatro colunas de suspensão a mais: levantamento (data e quem) e revogação de tokens.
+- A mensagem da suspensão indica o apoio, cujo contacto continua pendente.
 
 **Princípios:**
 
