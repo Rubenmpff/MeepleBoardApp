@@ -33,23 +33,26 @@ Nada fica guardado além do ficheiro temporário, que é libertado depois da par
 | Elemento | Por omissão | Notas |
 | --- | --- | --- |
 | Nome e capa do jogo | Sim | Ver a questão da capa abaixo. |
-| O meu resultado | Sim | Escrito do meu ponto de vista: «Vitória», «2.º de 4», «Vitória da equipa», «Empate no 1.º lugar», «Solo · vitória». Usa as regras explícitas de modo e resultado; resultados desconhecidos não são inventados. |
-| Pontuações | Sim, anonimizadas | Só se a partida tiver pontuações. |
+| O meu resultado | Sim | Escrito do meu ponto de vista: «Vitória», «Derrota», «Vitória da equipa», «Empate no 1.º lugar», «Solo · vitória». **Só a partir do que está explicitamente registado** (modo, resultado e posição guardada, segundo as regras atuais). **Nunca se deduz uma posição pelas pontuações**: em alguns jogos ganha a pontuação mais baixa, e há desempates fora da pontuação. Sem resultado registado, aparece «Resultado não definido» ou não aparece. |
+| Pontuações | Sim, anonimizadas | Só se a partida tiver pontuações, e só como valores. A ordem das linhas não sugere classificação, salvo se a posição estiver registada. |
 | Data | Sim (dia e mês) | Pode desligar-se. |
 | Duração | Sim, se for conhecida | Pode desligar-se. Indica «medida» ou «estimativa» como na app; sem duração, não aparece. |
-| Fotografia de fundo | Não | Só do meu diário dessa partida, ou uma escolhida no momento. Aviso: pode mostrar outras pessoas. A imagem exportada é desenhada de novo, por isso não leva os metadados (GPS, câmara) do ficheiro original. |
+| Fotografia de fundo | Não | Só do meu diário dessa partida, ou uma escolhida no momento. **Pré-visualização e aviso obrigatórios:** a fotografia pode mostrar terceiros ou dados pessoais (moradas, documentos, ecrãs), e a app não o consegue avaliar. A imagem exportada é desenhada de novo, por isso, em princípio, não leva os metadados do ficheiro original (GPS, câmara). **Isto tem de ser confirmado num ficheiro gerado**, lido com o verificador ImageIO de `tools/DeviceTestApi/image-metadata.swift`, antes de se dar como garantido. |
 | «N.ª partida de {jogo}» | Opcional | Vem do meu próprio histórico; é um pormenor pessoal sem dados de outros. |
 | Identidade MeepleBoard | Sim | Pequena e discreta, sem endereço nem identificador da conta. |
 | Nomes, avatares e fotografias de outros | **Nunca, na primeira versão** | |
 | Local e notas privadas | **Nunca** | Não existem como opção. |
 
-**Jogadores anonimizados (proposta).** A tabela mostra posições e pontuações sem identidade:
+**Jogadores anonimizados (proposta, ajustada a 2026-10-18).** A tabela mostra resultados e pontuações sem identidade:
 - **Eu:** «Tu» (ou o meu nome, se eu escolher).
-- **Os outros:** cada linha fica com um marcador neutro, igual para todos, com a cor da posição e sem iniciais. As iniciais podem identificar as pessoas.
-  - Rótulos possíveis: «Jogador 2», «Jogador 3», ou só «2.º», «3.º».
-- **Empates:** aparecem como empates.
+- **Os outros:** «Jogador A», «Jogador B», «Jogador C»…
+  - As letras seguem a ordem da lista da partida, e não a classificação.
+  - Não se usam «2.º» ou «3.º», que sugerem classificação.
+  - Cada linha tem um marcador neutro, igual para todos e sem iniciais, porque as iniciais podem identificar as pessoas.
+  - O resultado de cada linha (vitória, empate, derrota) só aparece se estiver registado.
+- **Empates:** aparecem como empates, quando registados.
 - **Equipas:** num jogo cooperativo, uma única linha «Equipa · n jogadores».
-- **Alternativa mínima:** mostrar só a minha linha, por exemplo «62 pontos · 1.º de 4».
+- **Alternativa mínima:** mostrar só a minha linha, por exemplo «Vitória · 62 pontos».
 - **Nomes de outros, mais tarde:** só com autorização da própria pessoa, que exigiria uma definição nova do tipo «Permitir o meu nome em cartões partilhados por amigos». Até lá, não há nomes de outros, nem escritos à mão.
 
 **Identidade, sem copiar as referências.**
@@ -59,7 +62,7 @@ Nada fica guardado além do ficheiro temporário, que é libertado depois da par
 - Testar o contraste com e sem fotografia de fundo (véu sobre a fotografia), em modo escuro do sistema e com texto ampliado na pré-visualização.
 
 **Riscos e questões a resolver antes de autorizar:**
-- **Capas do catálogo:** vêm do BGG ou das editoras. É preciso confirmar se podem ser usadas em imagens que saem da app. Se houver dúvida, usar um cartão sem capa ou a capa só em miniatura.
+- **Capas do catálogo (verificação específica, por fazer):** vêm do BGG ou das editoras. É preciso confirmar se podem ser usadas em imagens que saem da app. Enquanto não estiver esclarecido, o cartão tem uma **versão sem capa** (nome do jogo e identidade MeepleBoard).
 - **Pontuação de outros:** mesmo anonimizada, quem conhece o grupo reconhece as pessoas. O aviso na pré-visualização deve dizê-lo, e a opção «só o meu resultado» deve estar à mão.
 - **Partilha indisponível no dispositivo:** mostrar o erro, como no cartão do ano.
 
@@ -67,7 +70,9 @@ Nada fica guardado além do ficheiro temporário, que é libertado depois da par
 - botão «Partilhar cartão» no detalhe da partida, só para participantes;
 - pré-visualização com as escolhas acima e um formato;
 - sem fotografia de fundo na primeira versão; vem depois, se a primeira for bem recebida;
-- testes de que nenhum dado de outro participante, local ou nota entra na imagem.
+- testes de que nenhum dado de outro participante, local ou nota entra na imagem;
+- teste de que o resultado vem só do que está registado, sem deduções pelas pontuações;
+- confirmação, num ficheiro exportado, de que não há metadados de localização ou câmara.
 
 ## 2. Rankings de jogadores por jogo
 
@@ -127,5 +132,5 @@ Sem esses dados, é um **recorde pessoal**, e não um ranking.
 
 ## Próximos passos (quando for retomado)
 
-1. **Cartão:** decidir a questão das capas e aprovar a proposta visual. Só depois implementar.
+1. **Cartão (a avaliar depois da validação atual):** verificar os direitos das capas (sem resposta, a versão sem capa) e aprovar a proposta visual. Só depois implementar.
 2. **Rankings:** primeiro propor a confirmação de participação e a definição de visibilidade, que são úteis por si. Depois, o ranking entre amigos.
