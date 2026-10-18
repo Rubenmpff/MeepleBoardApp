@@ -1,0 +1,5 @@
+{"name":"comunidade-moderacao","account":"admin","screens":[
+ {"id":"1-comentarios","route":"/games/experiences/moderation"},
+ {"id":"2-pessoas","route":"/games/experiences/moderation","steps":[{"click":"Pessoas"}]},
+ {"id":"3-fotografias","route":"/games/experiences/moderation","steps":[{"click":"Fotografias"}]}
+]}

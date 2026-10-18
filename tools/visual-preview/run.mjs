@@ -30,7 +30,7 @@ const { token } = await login.json();
 fs.writeFileSync(path.join(out, 'session.js'), `window.__session=${JSON.stringify({ token, apiBase: base + '/MeepleBoard', friends: Object.fromEntries(accounts.map(a => [a.Email.split('@')[0], a.Id])) })};`);
 execFileSync(process.execPath, [path.join(here, 'bundle.cjs')], { stdio: 'inherit' });
 // Real IDs for detail routes, resolved read-only and substituted as {{name}} in the scenario file.
-const get = async route => { const r = await fetch(base + '/MeepleBoard' + route, { headers: { Authorization: `Bearer ${token}` } }); return r.ok ? r.json() : null; };
+const get = async route => { const r = await fetch(base + '/MeepleBoard' + route, { headers: { Authorization: `Bearer ${token}` } }); if (!r.ok) return null; const t = await r.text(); return t ? JSON.parse(t) : null; }; // an empty list may come as an empty body
 const pending = (await get('/matches/pending-journal')) || [];
 const recent = (await get('/statistics/me/matches?start=2020-01-01&endExclusive=2029-01-01&timeZone=Europe%2FLisbon&metric=all&offset=0&limit=1'))?.items?.[0], sessions = await get('/session/mine') || [], campaigns = await get('/campaigns/mine') || [];
 const vars = { ...Object.fromEntries(accounts.map(a => [`user:${a.Email.split('@')[0]}`, a.Id])), match: recent?.id ?? '', pendingMatch: pending[0]?.id ?? '', game: recent?.gameId ?? '',
