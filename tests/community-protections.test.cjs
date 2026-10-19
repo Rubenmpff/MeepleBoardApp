@@ -105,3 +105,14 @@ test('sign-in of a suspended account: a stable code with the end date (or until 
   // No support address is invented while the real contact is pending.
   assert.doesNotMatch(pt.suspendedHelp + en.suspendedHelp, /@|https?:/);
 });
+
+test('report sheet: when the report is refused (already reported), the message is shown and the sheet stays open', async () => {
+  const sheet = 'src/features/friends/components/ReasonReportSheet.tsx';
+  let sent = 0;
+  const view = await renderNative(sheet, 'default', { visible: true, title: 'Denunciar fotografia', reasons: ['Inappropriate'], label: r => r, detailLabel: 'Detalhe', note: '', cancelLabel: 'Cancelar', sendLabel: 'Enviar',
+    onClose() {}, onSend: async () => { sent++; throw new Error('Já denunciaste esta fotografia.'); } }, { states: { 0: 'Inappropriate' } });
+  await view.press('Enviar');
+  assert.equal(sent, 1);
+  assert.deepEqual(view.calls.find(c => c[0] === 'alert').slice(1, 3), ['Denunciar fotografia', 'Já denunciaste esta fotografia.']);
+  assert.equal(view.updates.some(([i, v]) => i === 0 && v === null), false, 'the chosen reason stays (nothing was sent)');
+});

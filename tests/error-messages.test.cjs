@@ -89,3 +89,7 @@ test('titles a deleted account wrote in shared records show a neutral, translate
   assert.equal(out.name, 'Session on 17 Oct 2026'); assert.equal(out.campaignName, 'Untitled campaign');
   i18n.language = 'pt';
 });
+
+test('a repeated photo report: the server\'s «Já denunciaste esta fotografia.» reaches the person (PT)', () => {
+  assert.equal(say('pt', http(409, { message: 'Já denunciaste esta fotografia.' }), 'Não foi possível enviar a denúncia.'), 'Já denunciaste esta fotografia.');
+});
